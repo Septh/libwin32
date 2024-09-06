@@ -19,7 +19,7 @@
 
     // Output
     "outDir": "dist",
-    "target": "ESNext",
+    "target": "ES2023",
     "removeComments": false,
     "preserveConstEnums": false,
     "sourceMap": true,

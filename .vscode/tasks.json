@@ -2,19 +2,21 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "npm: clean",
+      "label": "clean lib",
       "type": "npm",
       "script": "clean",
       "problemMatcher": [],
       "detail": "rimraf .tsbuildinfo dist"
     },
     {
-      "label": "tsc: watch - tsconfig.json",
+      "label": "watch lib",
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "dependsOn": [ "npm: clean" ],
+      "dependsOn": [
+        "clean lib"
+      ],
       "dependsOrder": "sequence",
       "type": "typescript",
       "tsconfig": "tsconfig.json",
@@ -22,6 +24,6 @@
       "problemMatcher": [
         "$tsc-watch"
       ]
-    },
+    }
   ]
 }

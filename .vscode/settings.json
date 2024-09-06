@@ -3,5 +3,24 @@
     "path": "cmd.exe"
   },
   "typescript.tsdk": "node_modules\\typescript\\lib",
-  "debug.terminal.clearBeforeReusing": true
+  "debug.terminal.clearBeforeReusing": true,
+  "cSpell.words": [
+    "Koffi",
+    "libwin",
+    "mucho"
+  ],
+  "cSpell.languageSettings": [
+    {
+      "languageId": "typescript",
+      "allowCompoundWords": false,
+      "includeRegExpList": [
+        "CStyleComment",
+        "string"
+      ],
+      // Exclude includes, because they are also strings.
+      "ignoreRegExpList": [
+        "/from .*/"
+      ]
+    }
+  ]
 }
