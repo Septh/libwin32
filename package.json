@@ -1,0 +1,37 @@
+{
+  "name": "libwin32",
+  "version": "0.1.0",
+  "description": "Bindings to native Win32 DLLs through Koffi",
+  "author": "Stephan 'Septh' Schreiber <septh@sfr.fr>",
+  "license": "MIT",
+  "keywords": [],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./kernel32": "./dist/win32/kernel32.js",
+    "./user32": "./dist/win32/user32.js",
+    "./rollup-plugin": "./dist/rollup/plugin.js"
+  },
+  "engines": {
+    "node": ">= 18.19.0 || >= 20.6.0"
+  },
+  "engineStrict": true,
+  "files": [
+    "dist",
+    "!*.map"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf .tsbuildinfo dist"
+  },
+  "dependencies": {
+    "koffi": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.1",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.21.2",
+    "tslib": "^2.7.0",
+    "typescript": "^5.5.4"
+  }
+}

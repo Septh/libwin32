@@ -1,0 +1,49 @@
+{
+  "include": [
+    "source"
+  ],
+  "exclude": [
+    "**/zz*"
+  ],
+  "compilerOptions": {
+
+    // Node stuff
+    "module": "Node16",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Input
+    "rootDir": "source",
+    "allowJs": false,
+    "checkJs": false,
+
+    // Output
+    "outDir": "dist",
+    "target": "ESNext",
+    "removeComments": false,
+    "preserveConstEnums": false,
+    "sourceMap": true,
+    "inlineSources": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+
+    // Libs
+    "lib": [ "ESNext" ],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "importHelpers": true,
+
+    // Type checking
+    "strict": true,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false,
+    "forceConsistentCasingInFileNames": true
+  }
+}

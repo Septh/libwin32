@@ -1,0 +1,7 @@
+{
+  "terminal.integrated.automationProfile.windows": {
+    "path": "cmd.exe"
+  },
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "debug.terminal.clearBeforeReusing": true
+}
