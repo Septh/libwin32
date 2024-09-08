@@ -1,0 +1,1 @@
+{"version":3,"file":"koffi.cjs","sourceRoot":"","sources":["../../source/stubs/koffi.cts"],"names":[],"mappings":";AAAA,+BAA+B;AAC/B,iBAAS,KAAK,CAAA","sourcesContent":["import koffi = require('koffi')\r\nexport = koffi\r\n"]}

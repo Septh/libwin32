@@ -1,0 +1,1 @@
+{"version":3,"file":"_alib.js","sourceRoot":"","sources":["../../../source/win32/user32/_alib.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,kBAAkB,CAAA;AAEvC,MAAM,CAAC,MAAM,MAAM,GAAG,IAAI,CAAC,YAAY,CAAC,CAAA","sourcesContent":["import { load } from '../../private.js'\r\n\r\nexport const user32 = load('user32.dll')\r\n"]}

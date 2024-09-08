@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../source/index.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,EAAE,MAAM,cAAc,CAAA;AACpC,cAAc,aAAa,CAAA;AAC3B,cAAc,qBAAqB,CAAA;AACnC,cAAc,mBAAmB,CAAA","sourcesContent":["export { koffi } from './private.js'\r\nexport * from './ctypes.js'\r\nexport * from './win32/kernel32.js'\r\nexport * from './win32/user32.js'\r\n"]}
