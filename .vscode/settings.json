@@ -5,9 +5,11 @@
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "debug.terminal.clearBeforeReusing": true,
   "cSpell.words": [
+    "dllname",
     "Koffi",
     "libwin",
-    "mucho"
+    "mucho",
+    "shakeability"
   ],
   "cSpell.languageSettings": [
     {

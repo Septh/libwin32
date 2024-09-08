@@ -2,13 +2,13 @@
 > Node bindings to native Win32 DLLs through [Koffi](https://koffi.dev).
 
 ### In a nutshell:
-* Very simple and intuitive API (see [demo](./source//demos/window.ts)).
+* Very simple and intuitive API (see [demo](./source//demos/window.ts)), with TypeScript definitions included.
 * Bundler friendly, designed with tree-shakeability in mind.
 * Opinionated:
-    * Only targets **win32-x64** platforms (*ARM-64 may be added later, no warranty though*).
+    * Only targets **x64** platforms (*ARM-64 may be added later, no warranty though*).
     * Only exposes **Unicode** functions and data structures (those whose name ends in `W` in the Win32 API).
 * Very easy to extend with additional functions, data structures and constants. I will add some myself time permitting; any help would be *mucho* appreciated.
-* Not yet published to the npm registry. Will do when the library is large enough. Meanwhile, either clone this repo or run `nmp install septh/libwin32`.
+* Not yet published to the npm registry. Will do when the library is large enough. Meanwhile, follow the [instructions below](#how-to).
 
 
 ### Directories
@@ -23,9 +23,15 @@
 
 
 ### How to...
-* Build:
-    * Use TypeScript (version 5.2+ required).
-    * Run `npm run build` at the repo's root.
+* Use the lib in your code
+    1. Install the lib in your project: `nmp install septh/libwin32`
+    1. Import the functions, constants and types you need. You may either import from `libwin32` or from `libwin32/<dllname>` (without the `.dll` extension). Currently, only two dlls are available: `kernel32` and `user32`.
+    1. Call the functions as instructed by the [Win32 API documentation](https://learn.microsoft.com/en-us/windows/win32/api/). All functions, constants and types are named accordingly.
+        * Constants like `WM_DESTROY` are exported as `const enum`s, where `WM` is the name of the enum. Eg, `WM_DESTROY` becomes `WM.DESTROY`.
+        * If you don't use TypeScript, then you're stuck with using the numerical values instead.
+* Build the lib
+    * Clone the repo: `git clone https://github.com/Septh/libwin32.git`
+    * Run `npm install` then `npm run build` at the repo's root.
     * The output goes to `/dist`.
-* See the demo:
-    * Build, then run `node dist/demos/window.js`.
+* See the demo
+    * Build the lib, then run `node dist/demos/window.js`.
