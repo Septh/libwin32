@@ -23,15 +23,20 @@
   ],
   "scripts": {
     "build": "tsc",
+    "build:demos": "rollup -c source/demos/rollup.config.js",
     "clean": "rimraf .tsbuildinfo dist"
   },
   "dependencies": {
     "koffi": "^2.9.0"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/node": "^22.5.1",
     "rimraf": "^6.0.1",
     "rollup": "^4.21.2",
+    "rollup-plugin-node-externals": "^7.1.3",
     "tslib": "^2.7.0",
     "typescript": "^5.5.4"
   }

@@ -1,1 +1,0 @@
-{"version":3,"file":"size.d.ts","sourceRoot":"","sources":["../../../source/win32/user32/size.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,EAAE,MAAM,kBAAkB,CAAA;AAGxC,eAAO,MAAM,KAAK,mBAGhB,CAAA;AACF,eAAO,MAAM,MAAM,mBAAgC,CAAA;AACnD,eAAO,MAAM,OAAO,mBAAgC,CAAA;AAEpD,MAAM,WAAW,IAAI;IACjB,CAAC,EAAE,MAAM,CAAA;IACT,CAAC,EAAE,MAAM,CAAA;CACZ"}

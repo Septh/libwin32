@@ -1,1 +1,0 @@
-{"version":3,"file":"_alib.js","sourceRoot":"","sources":["../../../source/win32/kernel32/_alib.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,kBAAkB,CAAA;AAEvC,MAAM,CAAC,MAAM,QAAQ,GAAG,IAAI,CAAC,cAAc,CAAC,CAAA","sourcesContent":["import { load } from '../../private.js'\r\n\r\nexport const kernel32 = load('kernel32.dll')\r\n"]}
