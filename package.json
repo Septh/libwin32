@@ -1,6 +1,6 @@
 {
   "name": "libwin32",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Node bindings to native Win32 DLLs through Koffi",
   "author": "Stephan 'Septh' Schreiber <septh@sfr.fr>",
   "license": "MIT",
@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "build:demos": "rollup -c source/demos/rollup.config.js",
+    "build:demos": "rollup -c",
     "clean": "rimraf .tsbuildinfo dist"
   },
   "dependencies": {

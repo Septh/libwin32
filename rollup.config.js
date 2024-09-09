@@ -1,3 +1,6 @@
+/**
+ * This config only bundles the demos. The library itself is published unbundled.
+ */
 // @ts-check
 import path from 'node:path'
 import { defineConfig } from 'rollup'
@@ -7,12 +10,13 @@ import commonjs from '@rollup/plugin-commonjs'
 import typescript from '@rollup/plugin-typescript'
 import { koffi } from 'libwin32/rollup-plugin'
 
+// Use distinct configs to prevent Rollup from code-splitting the library.
 export default [
     config('window'),
     config('messagebox')
 ]
 
-/** @param {string} which */
+/** @param { 'window' | 'messagebox' } which */
 function config(which) {
     const outDir = path.join('demos', which)
     return defineConfig({
@@ -25,8 +29,7 @@ function config(which) {
                 symbols: false
             },
             assetFileNames: 'assets/[name].[ext]',
-            sourcemap: true,
-            manualChunks: {}
+            sourcemap: true
         },
         treeshake: {
             preset: 'smallest',
