@@ -4,13 +4,36 @@
   "description": "Node bindings to native Win32 DLLs through Koffi",
   "author": "Stephan 'Septh' Schreiber <septh@sfr.fr>",
   "license": "MIT",
-  "keywords": [],
+  "keywords": [
+    "win32",
+    "x64",
+    "api",
+    "bindings",
+    "koffi"
+  ],
+  "homepage": "https://github.com/Septh/libwin32#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Septh/libwin32"
+  },
   "type": "module",
   "exports": {
-    ".": "./dist/index.js",
-    "./kernel32": "./dist/win32/kernel32.js",
-    "./user32": "./dist/win32/user32.js",
-    "./rollup-plugin": "./dist/rollup/plugin.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./kernel32": {
+      "types": "./dist/win32/kernel32.d.ts",
+      "default": "./dist/win32/kernel32.js"
+    },
+    "./user32": {
+      "types": "./dist/win32/user32.d.ts",
+      "default": "./dist/win32/user32.js"
+    },
+    "./rollup-plugin": {
+      "types": "./dist/rollup/plugin.d.ts",
+      "default": "./dist/rollup/plugin.js"
+    }
   },
   "engines": {
     "node": ">= 18.19.0 || >= 20.6.0"
