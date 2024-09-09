@@ -18,6 +18,24 @@
 1. Call the functions as instructed by the [Win32 API documentation](https://learn.microsoft.com/en-us/windows/win32/api/). All functions, constants and types are named accordingly.
     * Constants like `WM_DESTROY` are exported as `const enum`s, where the prefix is the name of the enum. Eg, `WM_DESTROY` and `WM_KEYDOWN` are exported as `WM.DESTROY` and `WM_KEYDOWN` (if you use TypeScript, you may want to set `preserveConstEnmums = false` in `tsconfig.json`).
 
+A very basic example:
+
+````js
+import { MessageBox, MB } from 'libwin32'
+
+const result = MessageBox(
+    null,
+    "Hello, world!",
+    "libwin32",
+    MB.ICONQUESTION | MB.HELP | MB.YESNO
+)
+console.dir(result)
+````
+
+Result:
+
+![alt text](docs/snapshot.png)
+
 #### > Build the lib
 
 ````shell
