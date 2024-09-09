@@ -52,8 +52,7 @@ $ node dist/demos/window.js
 $ node dist/demos/messagebox.js
 ````
 
-With bundling:
-* Build the lib, then:
+* With bundling:
 ````shell
 $ npm run build:demos
 $ node demos/window/window.js
@@ -66,6 +65,6 @@ $ node demos/messagebox/messagebox.js
 * `./source/demos`:
     * Some usage examples. (*only two at the time, more to come later*)
 * `./source/rollup`:
-    * A [Rollup](https://rollup.org) plugin to ease the process of bundling this library with your code. This targets the *consumers* of the library, not the library itself. (*more info to come*).
+    * A [Rollup](https://rollup.org) plugin to ease the process of bundling this library with your code. (*more info to come, meanwhile see [rollup.config.js](./rollup.config.js)*).
 * `./source/stubs`:
     * Used for efficient bundling of Koffi with `Rollup`.
