@@ -1,7 +1,9 @@
 import assert from 'node:assert'
-
+import { platform, arch } from 'node:process'
 import koffi from './stubs/koffi.cjs'
 export { koffi }
+
+assert(platform === 'win32' && arch === 'x64', 'This library can only be used on Windows x64 platforms.')
 
 export interface WinDll extends Disposable {
     name: string
