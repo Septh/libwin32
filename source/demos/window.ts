@@ -69,4 +69,4 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW): number {
 }
 
 debugger
-process.exitCode = WinMain(kernel32.GetModuleHandleW(null), SW.NORMAL)
+process.exitCode = WinMain(kernel32.GetModuleHandle(null), SW.NORMAL)
