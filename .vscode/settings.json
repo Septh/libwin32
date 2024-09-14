@@ -4,6 +4,18 @@
   },
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "debug.terminal.clearBeforeReusing": true,
+  "vsicons.associations.files": [
+    {
+      "icon": "rollup",
+      "extensions": [],
+      "filenamesGlob": [
+        "rollup.demos",
+      ],
+      "extensionsGlob": [ "js" ],
+      "filename": true,
+      "format": "svg",
+    },
+  ],
   "cSpell.words": [
     "dllname",
     "Koffi",

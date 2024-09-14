@@ -46,8 +46,10 @@
   ],
   "scripts": {
     "build": "tsc",
-    "build:demos": "rollup -c",
-    "clean": "rimraf .tsbuildinfo dist"
+    "build:demos": "rimraf demos && rollup -c rollup.demos.js",
+    "clean": "rimraf .tsbuildinfo dist demos",
+    "test": "echo No test yet",
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
     "koffi": "^2.9.0"

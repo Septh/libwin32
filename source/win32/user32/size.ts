@@ -1,6 +1,8 @@
 import { koffi } from '../../private.js'
 import { cLONG } from '../../ctypes.js'
 
+// #region Types
+
 export const cSIZE = koffi.struct('SIZE', {
     cx: cLONG,
     yy: cLONG
@@ -12,3 +14,11 @@ export interface SIZE {
     x: number
     y: number
 }
+
+// #endregion
+
+// #region Functions
+// #endregion
+
+// #region Constants
+// #endregion

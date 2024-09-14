@@ -1,6 +1,8 @@
 import { koffi } from '../../private.js'
 import { cLONG, cSHORT } from '../../ctypes.js'
 
+// #region Types
+
 export const cPOINT = koffi.struct('POINT', {
     x: cLONG,
     y: cLONG
@@ -26,3 +28,11 @@ export interface POINTS {
     x: number
     y: number
 }
+
+// #endregion
+
+// #region Functions
+// #endregion
+
+// #region Constants
+// #endregion
