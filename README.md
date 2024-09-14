@@ -16,7 +16,7 @@
 1. Install the lib in your project: `npm install libwin32`
 1. Import the functions, constants and types you need. You may either import from `libwin32` or from `libwin32/<dllname>` (without the `.dll` extension). Currently, only two dlls are available: `kernel32` and `user32`.
 1. Call the functions as instructed by the [Win32 API documentation](https://learn.microsoft.com/en-us/windows/win32/api/). All functions, constants and types are named accordingly.
-    * Constants like `WM_DESTROY` are exported as `const enum`s, where the prefix is the name of the enum. For instance, `WM_DESTROY` and `WM_KEYDOWN` are exported as `WM.DESTROY` and `WM_KEYDOWN`, respectively.
+    * Constants like `WM_DESTROY` are exported as `const enum`s, where the prefix is the name of the enum. For instance, `WM_DESTROY` and `WM_KEYDOWN` are exported as `WM.DESTROY` and `WM.KEYDOWN`, respectively.
 
 ````js
 import { MessageBox, MB } from 'libwin32'
@@ -41,9 +41,9 @@ $ npm install
 $ npm run build
 ````
 
-The output goes to `/dist` for the library, and `/demos` for the demos.
+The output goes to `/dist`.
 
-#### > See the demos
+#### > Run the demos
 Build the lib, then:
 
 * Without bundling:
