@@ -1,7 +1,7 @@
-// @ts-check
 /*
  * This config only bundles the demos. The library itself is published unbundled.
  */
+// @ts-check
 import path from 'node:path'
 import { defineConfig } from 'rollup'
 import { nodeExternals } from 'rollup-plugin-node-externals'
@@ -12,9 +12,9 @@ import { koffi } from 'libwin32/rollup-plugin'
 
 // Use distinct configs to prevent Rollup from code-splitting the library.
 export default [
-    // config('window'),
+    makeConfig('window'),
     makeConfig('messagebox'),
-    // config('enumdesktopwindows'),
+    makeConfig('enumdesktopwindows'),
 ]
 
 /** @param { string } which */
@@ -32,25 +32,17 @@ function makeConfig(which) {
             assetFileNames: 'assets/[name].[ext]',
             sourcemap: true
         },
-        /* treeshake: {
-            manualPureFunctions: [
-                'koffi.alias', 'koffi.pointer', 'koffi.opaque', 'koffi.struct', 'koffi.proto',
-                'kernel32.lib.func', 'user32.lib.func',
-                'koffi.out', 'koffi.inout',
-            ]
-        }, */
         plugins: [
-            nodeExternals(),
+            nodeExternals({ include: 'tslib' }),
             nodeResolve(),
             commonjs(),
             typescript({
-                include: [ 'source/demos' ],
-                compilerOptions: {
-                    outDir,
-                    declaration: false,
-                    declarationMap: false,
-                    preserveConstEnums: false
-                }
+                outDir,
+                importHelpers: true,
+                declaration: false,
+                declarationMap: false,
+                preserveConstEnums: false,
+                target: 'es2023'
             }),
             koffi()
         ]
