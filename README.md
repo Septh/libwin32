@@ -3,8 +3,7 @@
 
 ### In a nutshell:
 * Very simple and intuitive API (see [demos](./source//demos/)), with TypeScript definitions included.
-* ~~Bundler friendly, designed with tree-shakeability in mind~~.
-    * Buggy right now. Working on it!
+* Bundler friendly, designed with tree-shakeability in mind.
 * Opinionated:
     * Only targets **x64** platforms (*ARM-64 may be added later, no warranty though*).
     * Only exposes **Unicode** functions and data structures (those whose name ends in `W` in the Win32 API).
