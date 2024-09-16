@@ -31,7 +31,7 @@ export const LoadImage: koffi.KoffiFunc<(
 // #region Constants
 
 /** Values for the `type` parameter of `LoadImage`. */
-export const enum IMAGE {
+export enum IMAGE {
     BITMAP      = 0,
     ICON        = 1,
     CURSOR      = 2,
@@ -39,7 +39,7 @@ export const enum IMAGE {
 }
 
 /** Values for the `fuLoad` parameter of `LoadImage`. */
-export const enum LR {
+export enum LR {
     DEFAULTCOLOR     = 0x00000000,
     MONOCHROME       = 0x00000001,
     COLOR            = 0x00000002,
@@ -56,7 +56,7 @@ export const enum LR {
 }
 
 /** OBM_xxx - OEM Resource Ordinal Numbers */
-export const enum OBM {
+export enum OBM {
     CLOSE       = 32754,
     UPARROW     = 32753,
     DNARROW     = 32752,
@@ -94,7 +94,7 @@ export const enum OBM {
 }
 
 /** OCR_xxx - OEM Resource Ordinal Numbers */
-export const enum OCR {
+export enum OCR {
     NORMAL      = 32512,
     IBEAM       = 32513,
     WAIT        = 32514,
@@ -114,7 +114,7 @@ export const enum OCR {
 }
 
 /** OIC_xxx - OEM Resource Ordinal Numbers */
-export const enum OIC {
+export enum OIC {
     SAMPLE      = 32512,
     HAND        = 32513,
     QUES        = 32514,

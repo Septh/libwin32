@@ -222,7 +222,7 @@ export const UpdateWindow: koffi.KoffiFunc<(
 // #region Constants
 
 /** SW_xxx - ShowWindow() Commands (nCmdShow) & identifiers for the WM_SHOWWINDOW message */
-export const enum SW {
+export enum SW {
     HIDE            = 0,
     SHOWNORMAL      = 1,
     NORMAL          = 1,
@@ -250,7 +250,7 @@ export const enum SW {
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/window-notifications
  */
-export const enum WM {
+export enum WM {
     ACTIVATE                       = 0x0006,
     ACTIVATEAPP                    = 0x001c,
     AFXFIRST                       = 0x0360,
@@ -519,7 +519,7 @@ export const enum WM {
 }
 
 /** WM_ACTIVATE state values. */
-export const enum WM_ACTIVATE {
+export enum WM_ACTIVATE {
     INACTIVE    = 0,
     ACTIVE      = 1,
     CLICKACTIVE = 2,
@@ -530,7 +530,7 @@ export const enum WM_ACTIVATE {
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/window-styles
  */
-export const enum WS {
+export enum WS {
     BORDER           = 0x00800000,
     CAPTION          = 0x00c00000, /* WS_BORDER | WS_DLGFRAME  */
     CHILD            = 0x40000000,
@@ -565,7 +565,7 @@ export const enum WS {
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles
  */
-export const enum WS_EX {
+export enum WS_EX {
     ACCEPTFILES         = 0x00000010,
     APPWINDOW           = 0x00040000,
     CLIENTEDGE          = 0x00000200,
@@ -596,12 +596,12 @@ export const enum WS_EX {
 }
 
 /** Special value for X and Y parameters of CreateWindow/CreateWindowEx */
-export const enum CW {
+export enum CW {
     USEDEFAULT = 0x80000000
 }
 
 /** AnimateWindow() Commands */
-export const enum AW {
+export enum AW {
     AW_HOR_POSITIVE = 0x00000001,
     AW_HOR_NEGATIVE = 0x00000002,
     AW_VER_POSITIVE = 0x00000004,
@@ -614,7 +614,7 @@ export const enum AW {
 }
 
 /** Special HWND values. */
-export const enum HWND_ {
+export enum HWND_ {
     // PostMessage() and SendMessage()
     BROADCAST = 0xffff,
     MESSAGE   = -3,
@@ -627,7 +627,7 @@ export const enum HWND_ {
     NOTOPMOST = -2,
 }
 
-export const enum GA_ {
+export enum GA_ {
     PARENT    = 1,
     ROOT      = 2,
     ROOTOWNER = 3,

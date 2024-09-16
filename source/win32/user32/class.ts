@@ -194,7 +194,7 @@ export const UnregisterClass: koffi.KoffiFunc<(
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/window-class-styles
  */
-export const enum CS {
+export enum CS {
     NULL,
     BYTEALIGNCLIENT = 0x00001000,
     BYTEALIGNWINDOW = 0x00002000,

@@ -43,7 +43,7 @@ export const LoadIcon: koffi.KoffiFunc<(
  *
  * https://learn.microsoft.com/en-us/windows/win32/menurc/about-icons
  */
-export const enum IDI {
+export enum IDI {
     APPLICATION = 32512,
     ERROR       = 32513,
     QUESTION    = 32514,

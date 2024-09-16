@@ -43,7 +43,7 @@ export const LoadCursor: koffi.KoffiFunc<(
  *
  * https://learn.microsoft.com/en-us/windows/win32/menurc/about-cursors
  */
-export const enum IDC {
+export enum IDC {
     ARROW       = 32512,
     IBEAM       = 32513,
     WAIT        = 32514,

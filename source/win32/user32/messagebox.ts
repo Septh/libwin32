@@ -25,7 +25,7 @@ export const MessageBox: koffi.KoffiFunc<(
 // #region Constants
 
 /** MB_xxx - MessageBox() Flags */
-export const enum MB {
+export enum MB {
     OK                   = 0x00000000,
     OKCANCEL             = 0x00000001,
     ABORTRETRYIGNORE     = 0x00000002,

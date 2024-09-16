@@ -156,7 +156,7 @@ export const TranslateMessageEx: koffi.KoffiFunc<(
 // #region Constants
 
 /** Broadcast Special Message Recipient list */
-export const enum BSM {
+export enum BSM {
     ALLCOMPONENTS      = 0x00000000,
     VXDS               = 0x00000001,
     NETDRIVER          = 0x00000002,
@@ -166,7 +166,7 @@ export const enum BSM {
 }
 
 /** Broadcast Special Message Flags */
-export const enum BSF {
+export enum BSF {
     QUERY              = 0x00000001,
     IGNORECURRENTTASK  = 0x00000002,
     FLUSHDISK          = 0x00000004,
