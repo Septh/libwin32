@@ -1,7 +1,7 @@
 import {
     WNDCLASSEX, IDC, IDI, CS, WS, CW, WM, SW, MB,
     type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG
-} from '../index.js'
+} from 'libwin32'
 import * as kernel32 from '../win32/kernel32.js'
 import * as user32 from '../win32/user32.js'
 

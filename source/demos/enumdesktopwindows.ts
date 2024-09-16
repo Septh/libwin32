@@ -1,6 +1,6 @@
 import {
     EnumDesktopWindows, GetWindowText
-} from '../index.js'
+} from 'libwin32'
 
 const filters = [
     'MSCTFIME UI', 'Default IME'
