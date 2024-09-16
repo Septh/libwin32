@@ -1,14 +1,14 @@
-import { koffi } from '../../private.js'
-import { user32 } from './_lib.js'
+import { opaque, pointer, type koffi } from '../../private.js'
 import {
     cBOOL, cLPCWSTR,
     cHINSTANCE, type HINSTANCE
 } from '../../ctypes.js'
+import { user32 } from './_lib.js'
 import { cHANDLE, type HANDLE } from '../../ctypes.js'
 
 // #region Types
 
-export const cHICON = koffi.alias('HICON', cHANDLE)
+export const cHICON = pointer('HICON', opaque())
 export type HICON = HANDLE<'HICON'>
 
 // #endregion
@@ -22,7 +22,7 @@ export type HICON = HANDLE<'HICON'>
  */
 export const DestroyIcon: koffi.KoffiFunc<(
     hIcon: HICON
-) => number> = user32.lib.func('DestroyIcon', cBOOL, [ cHICON ])
+) => number> = user32('DestroyIcon', cBOOL, [ cHICON ])
 
 /**
  * Loads the specified icon resource from the executable (.exe) file associated with an application instance.
@@ -32,7 +32,7 @@ export const DestroyIcon: koffi.KoffiFunc<(
 export const LoadIcon: koffi.KoffiFunc<(
     hInstance:  HINSTANCE | null,
     lpIconName: IDI | string
-) => HICON> = user32.lib.func('LoadIconW', cHICON, [ cHINSTANCE, cLPCWSTR ])
+) => HICON> = user32('LoadIconW', cHICON, [ cHINSTANCE, cLPCWSTR ])
 
 // #endregion
 

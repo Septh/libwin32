@@ -1,6 +1,6 @@
-import { koffi } from '../../private.js'
-import { user32 } from './_lib.js'
+import type { koffi } from '../../private.js'
 import { cINT, cUINT, cLPCWSTR } from '../../ctypes.js'
+import { user32 } from './_lib.js'
 import { cHWND, type HWND } from './window.js'
 
 // #region Types
@@ -18,7 +18,7 @@ export const MessageBox: koffi.KoffiFunc<(
     lpText:    string | null,
     lpCaption: string | null,
     uType:     number
-) => number> = user32.lib.func('MessageBoxW', cINT, [ cHWND, cLPCWSTR, cLPCWSTR, cUINT ])
+) => number> = user32('MessageBoxW', cINT, [ cHWND, cLPCWSTR, cLPCWSTR, cUINT ])
 
 // #endregion
 

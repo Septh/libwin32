@@ -1,28 +1,28 @@
-import { koffi } from '../../private.js'
+import { pointer, struct } from '../../private.js'
 import { cLONG, cSHORT } from '../../ctypes.js'
 
 // #region Types
 
-export const cPOINT = koffi.struct('POINT', {
+export const cPOINT = struct('POINT', {
     x: cLONG,
     y: cLONG
 })
 
-export const cLPPOINT = koffi.pointer('LPPOINT', cPOINT)
-export const cPPOINT  = koffi.pointer('PPOINT',  cPOINT)
+export const cLPPOINT = pointer('LPPOINT', cPOINT)
+export const cPPOINT  = pointer('PPOINT',  cPOINT)
 
 export interface POINT {
     x: number
     y: number
 }
 
-export const cPOINTS = koffi.struct('POINTS', {
+export const cPOINTS = struct('POINTS', {
     x: cSHORT,
     y: cSHORT
 })
 
-export const cLPPOINTS = koffi.pointer('LPPOINTS', cPOINTS)
-export const cPPOINTS  = koffi.pointer('PPOINTS',  cPOINTS)
+export const cLPPOINTS = pointer('LPPOINTS', cPOINTS)
+export const cPPOINTS  = pointer('PPOINTS',  cPOINTS)
 
 export interface POINTS {
     x: number

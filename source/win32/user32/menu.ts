@@ -1,10 +1,10 @@
-import { koffi } from '../../private.js'
-import { cHANDLE, type HANDLE } from '../../ctypes.js'
+import { opaque, pointer } from '../../private.js'
+import type { HANDLE } from '../../ctypes.js'
 
 
 // #region Types
 
-export const cHMENU = koffi.alias('HMENU', cHANDLE)
+export const cHMENU = pointer('HMENU', opaque())
 export type HMENU = HANDLE<'HMENU'>
 
 // #endregion

@@ -1,9 +1,9 @@
-import { koffi } from '../../private.js'
-import { user32 } from './_lib.js'
+import type { koffi } from '../../private.js'
 import {
-    ctypes, cUINT, cLPCWSTR,
+    cINT, cUINT, cLPCWSTR,
     cHINSTANCE, type HINSTANCE
 } from '../../ctypes.js'
+import { user32 } from './_lib.js'
 import { cHICON, type HICON, type IDI } from './icon.js'
 import type { IDC } from './cursor.js'
 
@@ -24,7 +24,7 @@ export const LoadImage: koffi.KoffiFunc<(
     cx:        number,
     cy:        number,
     fuLoad:    LR
-) => HICON> = user32.lib.func('LoadImageW', cHICON, [ cHINSTANCE, cLPCWSTR, cUINT, ctypes.int, ctypes.int, cUINT ])
+) => HICON> = user32('LoadImageW', cHICON, [ cHINSTANCE, cLPCWSTR, cUINT, cINT, cINT, cUINT ])
 
 // #endregion
 

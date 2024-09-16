@@ -3,7 +3,8 @@
 
 ### In a nutshell:
 * Very simple and intuitive API (see [demos](./source//demos/)), with TypeScript definitions included.
-* Bundler friendly, designed with tree-shakeability in mind.
+* ~~Bundler friendly, designed with tree-shakeability in mind~~.
+    * Buggy right now. Working on it!
 * Opinionated:
     * Only targets **x64** platforms (*ARM-64 may be added later, no warranty though*).
     * Only exposes **Unicode** functions and data structures (those whose name ends in `W` in the Win32 API).
@@ -64,6 +65,28 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 
 ### Bindings so far
 *All functions come with their associated types and constants.*
+
+#### Added in 0.3.0
+* user32.dll
+    * AdjustWindowRect
+    * AdjustWindowRectEx
+    * AnimateWindow
+    * BringWindowToTop
+    * BroadcastSystemMessage
+    * BroadcastSystemMessageEx
+    * CallWindowProc
+    * EnumWindows
+    * EnumDesktopWindows
+    * FindWindow
+    * FindWindowEx
+    * GetAncestor
+    * GetClassInfo
+    * GetClassInfoEx
+    * GetClassName
+    * GetWindowText
+
+#### Added in 0.2.0
+None.
 
 #### Since 0.1.0
 * kernel32.dll

@@ -1,7 +1,7 @@
-/**
+// @ts-check
+/*
  * This config only bundles the demos. The library itself is published unbundled.
  */
-// @ts-check
 import path from 'node:path'
 import { defineConfig } from 'rollup'
 import { nodeExternals } from 'rollup-plugin-node-externals'
@@ -12,12 +12,13 @@ import { koffi } from 'libwin32/rollup-plugin'
 
 // Use distinct configs to prevent Rollup from code-splitting the library.
 export default [
-    config('window'),
-    config('messagebox')
+    // config('window'),
+    makeConfig('messagebox'),
+    // config('enumdesktopwindows'),
 ]
 
-/** @param { 'window' | 'messagebox' } which */
-function config(which) {
+/** @param { string } which */
+function makeConfig(which) {
     const outDir = path.join('demos', which)
     return defineConfig({
         input: path.join('source', 'demos', `${which}.ts`),
@@ -31,17 +32,19 @@ function config(which) {
             assetFileNames: 'assets/[name].[ext]',
             sourcemap: true
         },
-        treeshake: {
-            preset: 'smallest',
+        /* treeshake: {
             manualPureFunctions: [
-                'koffi.alias', 'koffi.pointer'
+                'koffi.alias', 'koffi.pointer', 'koffi.opaque', 'koffi.struct', 'koffi.proto',
+                'kernel32.lib.func', 'user32.lib.func',
+                'koffi.out', 'koffi.inout',
             ]
-        },
+        }, */
         plugins: [
             nodeExternals(),
             nodeResolve(),
             commonjs(),
             typescript({
+                include: [ 'source/demos' ],
                 compilerOptions: {
                     outDir,
                     declaration: false,
@@ -49,7 +52,7 @@ function config(which) {
                     preserveConstEnums: false
                 }
             }),
-            koffi(),
+            koffi()
         ]
     })
 }

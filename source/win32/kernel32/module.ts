@@ -1,10 +1,10 @@
-import { koffi } from '../../private.js'
-import { kernel32 } from './_lib.js'
+import { alias, type koffi } from '../../private.js'
 import { cHINSTANCE, cLPCWSTR, type HINSTANCE } from '../../ctypes.js'
+import { kernel32 } from './_lib.js'
 
 // #region Types
 
-export const cHMODULE = koffi.alias('HMODULE', cHINSTANCE)
+export const cHMODULE = alias('HMODULE', cHINSTANCE)
 export type HMODULE = HINSTANCE
 
 // #endregion
@@ -18,7 +18,7 @@ export type HMODULE = HINSTANCE
  */
 export const GetModuleHandle: koffi.KoffiFunc<(
     lpModuleName: string | null
-) => HMODULE> = kernel32.lib.func('GetModuleHandleW', cHMODULE, [ cLPCWSTR ])
+) => HMODULE> = kernel32('GetModuleHandleW', cHMODULE, [ cLPCWSTR ])
 
 // #endregion
 

@@ -1,18 +1,17 @@
 import assert from 'node:assert'
-import { platform, arch } from 'node:process'
 import koffi from './stubs/koffi.cjs'
+
 export { koffi }
 
-assert(platform === 'win32' && arch === 'x64', 'This library can only be used on Windows x64 platforms.')
-
-export interface WinDll extends Disposable {
+export interface Win32Dll extends Disposable {
     name: string
     lib: koffi.IKoffiLib
     x64: boolean
     Unicode: boolean
 }
 
-export function load(name: string): WinDll {
+/*@__NO_SIDE_EFFECTS__*/
+export function load(name: string): Win32Dll {
     const lib = koffi.load(name)
     assert(lib, `Could not load ${JSON.stringify(name)}.`)
     return {
@@ -23,7 +22,64 @@ export function load(name: string): WinDll {
 
         // For use with `using` syntax (requires TypeScript 5.2+)
         [Symbol.dispose]() {
-            lib.unload()
-        }
+            if (this.lib) {
+                this.lib.unload()
+                this.lib = undefined!
+            }
+        },
+        // @ts-expect-error
+        __proto__: null
     }
 }
+
+/*@__NO_SIDE_EFFECTS__*/
+export function alias(name: string, type: koffi.IKoffiCType) {
+    return koffi.alias(name, type)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+export function opaque(name?: string) {
+    return name ? koffi.opaque(name) : koffi.opaque()
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+export function pointer(name: string, type: koffi.IKoffiCType, asterixCount: number = 1) {
+    return koffi.pointer(name, type, asterixCount)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+export function struct(name: string, def: Record<string, koffi.TypeSpecWithAlignment>) {
+    return koffi.struct(name, def)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+export function sizeof(type: koffi.TypeSpec) {
+    return koffi.sizeof(type)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+export function proto(name: string, result: koffi.IKoffiCType, parameters: koffi.IKoffiCType[]) {
+    return koffi.proto(name, result, parameters)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+export function register(thisValue: any, callback: Function, type: koffi.TypeSpec) {
+    return koffi.register(thisValue, callback, type)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+export function unregister(callback: koffi.IKoffiRegisteredCallback) {
+    return koffi.unregister(callback)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+export function out(type: koffi.TypeSpec) {
+    return koffi.out(type)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
+export function inout(type: koffi.TypeSpec) {
+    return koffi.inout(type)
+}
+
+export const textDecoder = /*@__PURE__*/new TextDecoder('utf-16')

@@ -1,11 +1,14 @@
-import { koffi } from '../../private.js'
-import { cBOOL, cLPCWSTR, cHINSTANCE, type HINSTANCE } from '../../ctypes.js'
+import { opaque, pointer, type koffi } from '../../private.js'
+import {
+    cBOOL, cLPCWSTR,
+    cHINSTANCE, type HINSTANCE
+} from '../../ctypes.js'
 import { user32 } from './_lib.js'
-import { cHICON, type HICON } from './icon.js'
+import type { HICON } from './icon.js'
 
 // #region Types
 
-export const cHCURSOR = koffi.alias('HCURSOR', cHICON)
+export const cHCURSOR = pointer('HCURSOR', opaque())
 export type HCURSOR = HICON
 
 // #endregion
@@ -19,7 +22,7 @@ export type HCURSOR = HICON
  */
 export const DestroyCursor: koffi.KoffiFunc<(
     hCursor: HCURSOR
-) => number> = user32.lib.func('DestroyCursor', cBOOL, [ cHCURSOR ])
+) => number> = user32('DestroyCursor', cBOOL, [ cHCURSOR ])
 
 /**
  * Loads the specified cursor resource from the executable (.exe) file associated with an application instance.
@@ -29,7 +32,7 @@ export const DestroyCursor: koffi.KoffiFunc<(
 export const LoadCursor: koffi.KoffiFunc<(
     hInstance:  HINSTANCE | null,
     lpIconName: IDC | string
-) => HCURSOR> = user32.lib.func('LoadCursorW', cHCURSOR, [ cHINSTANCE, cLPCWSTR ])
+) => HCURSOR> = user32('LoadCursorW', cHCURSOR, [ cHINSTANCE, cLPCWSTR ])
 
 // #endregion
 
