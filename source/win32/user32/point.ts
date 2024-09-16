@@ -33,6 +33,3 @@ export interface POINTS {
 
 // #region Functions
 // #endregion
-
-// #region Constants
-// #endregion

@@ -21,6 +21,3 @@ export const GetModuleHandle: koffi.KoffiFunc<(
 ) => HMODULE> = kernel32('GetModuleHandleW', cHMODULE, [ cLPCWSTR ])
 
 // #endregion
-
-// #region Constants
-// #endregion

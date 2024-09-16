@@ -15,6 +15,3 @@ import { kernel32 } from './_lib.js'
 export const GetLastError: koffi.KoffiFunc<() => number> = kernel32('GetLastError', cDWORD, [])
 
 // #endregion
-
-// #region Constants
-// #endregion

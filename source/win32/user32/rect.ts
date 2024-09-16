@@ -24,6 +24,3 @@ export interface RECT {
 
 // #region Functions
 // #endregion
-
-// #region Constants
-// #endregion

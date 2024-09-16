@@ -1,9 +1,12 @@
 import {
-    WNDCLASSEX, IDC, IDI, CS, WS, CW, WM, SW, MB,
+    GetModuleHandle, GetLastError,
+    RegisterClassEx, LoadCursor, LoadIcon, WNDCLASSEX,
+    CreateWindow, ShowWindow, UpdateWindow, DefWindowProc,
+    GetMessage, TranslateMessage, DispatchMessage, PostQuitMessage,
+    MessageBox,
     type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG
 } from 'libwin32'
-import * as kernel32 from '../win32/kernel32.js'
-import * as user32 from '../win32/user32.js'
+import { CS, CW, IDC, IDI, MB, SW, WM, WS } from 'libwin32/consts'
 
 const windowClass = "NodeApp"
 const windowName  = "Window Demo !"
@@ -14,12 +17,12 @@ function wndProc(hWnd: HWND, uMmsg: WM, wParam: WPARAM, lParam: LPARAM) {
     let ret: number
     switch (uMmsg) {
         case WM.DESTROY:
-            user32.PostQuitMessage(0)
+            PostQuitMessage(0)
             ret = 0
             break
 
         default:
-            ret = user32.DefWindowProc(hWnd, uMmsg, wParam, lParam)
+            ret = DefWindowProc(hWnd, uMmsg, wParam, lParam)
             break
     }
     // console.log(hWnd, { uMmsg, wParam, lParam }, ret)
@@ -32,40 +35,40 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW): number {
     wcex.lpszClassName = windowClass
     wcex.style         = CS.HREDRAW | CS.VREDRAW
     wcex.hInstance     = hInstance
-    wcex.hCursor       = user32.LoadCursor(null, IDC.ARROW)
-    wcex.hIcon         = user32.LoadIcon(hInstance, IDI.APPLICATION)
-    wcex.hIconSm       = user32.LoadIcon(hInstance, IDI.APPLICATION)
+    wcex.hCursor       = LoadCursor(null, IDC.ARROW)
+    wcex.hIcon         = LoadIcon(hInstance, IDI.APPLICATION)
+    wcex.hIconSm       = LoadIcon(hInstance, IDI.APPLICATION)
     wcex.hbrBackground = 13 as any
 
-    const atom = user32.RegisterClassEx(wcex)
+    const atom = RegisterClassEx(wcex)
     if (!atom) {
-        user32.MessageBox(null, "Call to RegisterClassEx failed!", appTitle, MB.OK | MB.ICONERROR)
+        MessageBox(null, "Call to RegisterClassEx failed!", appTitle, MB.OK | MB.ICONERROR)
         return 1
     }
 
-    const hWnd = user32.CreateWindow(
+    const hWnd = CreateWindow(
         windowClass, windowName,
         WS.CAPTION | WS.SYSMENU,
         CW.USEDEFAULT, CW.USEDEFAULT, 600, 400,
-        null, null, hInstance, null
+        null, null, hInstance, 0
     )
     if (!hWnd) {
-        const err = kernel32.GetLastError()
-        user32.MessageBox(null, "Call to CreateWindow failed!\n" + err.toString(16), appTitle, MB.OK | MB.ICONERROR)
+        const err = GetLastError()
+        MessageBox(null, "Call to CreateWindow failed!\n" + err.toString(16), appTitle, MB.OK | MB.ICONERROR)
         return -1
     }
 
-    user32.ShowWindow(hWnd, nCmdShow)
-    user32.UpdateWindow(hWnd)
+    ShowWindow(hWnd, nCmdShow)
+    UpdateWindow(hWnd)
 
     // Main message loop
     const msg = {} as MSG
-    while (user32.GetMessage(msg, null, 0, 0)) {
-        user32.TranslateMessage(msg)
-        user32.DispatchMessage(msg)
+    while (GetMessage(msg, null, 0, 0)) {
+        TranslateMessage(msg)
+        DispatchMessage(msg)
     }
 
     return 0
 }
 
-process.exitCode = WinMain(kernel32.GetModuleHandle(null), SW.NORMAL)
+process.exitCode = WinMain(GetModuleHandle(null), SW.NORMAL)

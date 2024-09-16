@@ -4,7 +4,8 @@ import {
     cHINSTANCE, type HINSTANCE
 } from '../../ctypes.js'
 import { user32 } from './_lib.js'
-import { cHANDLE, type HANDLE } from '../../ctypes.js'
+import type { HANDLE } from '../../ctypes.js'
+import type { IDI } from '../consts/IDI.js'
 
 // #region Types
 
@@ -33,24 +34,3 @@ export const LoadIcon: koffi.KoffiFunc<(
     hInstance:  HINSTANCE | null,
     lpIconName: IDI | string
 ) => HICON> = user32('LoadIconW', cHICON, [ cHINSTANCE, cLPCWSTR ])
-
-// #endregion
-
-// #region Constants
-
-/**
- * IDI_xxx - Standard Icon IDs
- *
- * https://learn.microsoft.com/en-us/windows/win32/menurc/about-icons
- */
-export enum IDI {
-    APPLICATION = 32512,
-    ERROR       = 32513,
-    QUESTION    = 32514,
-    WARNING     = 32515,
-    INFORMATION = 32516,
-    WINLOGO     = 32517,
-    SHIELD      = 32518,
-}
-
-// #endregion

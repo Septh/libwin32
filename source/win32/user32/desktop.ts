@@ -27,7 +27,3 @@ export const EnumDesktopWindows: koffi.KoffiFunc<(
 ) => number> = user32('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
 
 // #endregion
-
-// #region Constants
-// TODO
-// #endregion

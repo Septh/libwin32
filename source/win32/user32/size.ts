@@ -19,6 +19,3 @@ export interface SIZE {
 
 // #region Functions
 // #endregion
-
-// #region Constants
-// #endregion

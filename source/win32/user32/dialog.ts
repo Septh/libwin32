@@ -14,9 +14,4 @@ export type DLGPROC = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) 
 // #endregion
 
 // #region Functions
-// TODO
-// #endregion
-
-// #region Constants
-// TODO
 // #endregion

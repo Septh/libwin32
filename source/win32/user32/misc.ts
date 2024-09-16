@@ -1,6 +1,6 @@
 import { pointer, struct } from '../../private.js'
 import { cDWORD, cLONG } from '../../ctypes.js'
-import { cPOINT, POINT } from './point.js'
+import { cPOINT, type POINT } from './point.js'
 
 // #region Types
 
@@ -38,7 +38,4 @@ export interface LUID {
 // #endregion
 
 // #region Functions
-// #endregion
-
-// #region Constants
 // #endregion

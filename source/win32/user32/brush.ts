@@ -10,6 +10,3 @@ export type HBRUSH = HANDLE<'HBRUSH'>
 
 // #region Functions
 // #endregion
-
-// #region Constants
-// #endregion

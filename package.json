@@ -30,6 +30,14 @@
       "types": "./dist/win32/user32.d.ts",
       "default": "./dist/win32/user32.js"
     },
+    "./consts": {
+      "types": "./dist/win32/consts.d.ts",
+      "default": "./dist/win32/consts.js"
+    },
+    "./consts/*": {
+      "types": "./dist/win32/consts/*.d.ts",
+      "default": "./dist/win32/consts/*.js"
+    },
     "./rollup-plugin": {
       "types": "./dist/rollup/plugin.d.ts",
       "default": "./dist/rollup/plugin.js"

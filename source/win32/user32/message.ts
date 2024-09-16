@@ -51,12 +51,10 @@ export const cPBSMINFO  = pointer('PBSMINFO', cBSMINFO)
 
 export class BSMINFO {
     readonly cbSize = sizeof(cBSMINFO)
-    hDesk?: HDESK
-    hWnd?: HWND
-    luid?: LUID
+    declare hDesk?: HDESK
+    declare hWnd?: HWND
+    declare luid?: LUID
 }
-
-
 
 // #endregion
 
@@ -101,6 +99,9 @@ export function BroadcastSystemMessageEx(
     return [ ret, ptr[0] ]
 }
 const _BroadcastSystemMessageEx = user32('BroadcastSystemMessageExW', cLONG, [ cDWORD, inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, cPBSMINFO ])
+
+/** Return this value to deny a query. */
+export const BROADCAST_QUERY_DENY = 0x424D5144
 
 /**
  * Dispatches a message to a window procedure.
@@ -150,37 +151,5 @@ export const TranslateMessageEx: koffi.KoffiFunc<(
     lpMsg: MSG,
     flags: number
 ) => number> = user32('TranslateMessageEx', cBOOL, [ cLPMSG, cUINT ])
-
-// #endregion
-
-// #region Constants
-
-/** Broadcast Special Message Recipient list */
-export enum BSM {
-    ALLCOMPONENTS      = 0x00000000,
-    VXDS               = 0x00000001,
-    NETDRIVER          = 0x00000002,
-    INSTALLABLEDRIVERS = 0x00000004,
-    APPLICATIONS       = 0x00000008,
-    ALLDESKTOPS        = 0x00000010,
-}
-
-/** Broadcast Special Message Flags */
-export enum BSF {
-    QUERY              = 0x00000001,
-    IGNORECURRENTTASK  = 0x00000002,
-    FLUSHDISK          = 0x00000004,
-    NOHANG             = 0x00000008,
-    POSTMESSAGE        = 0x00000010,
-    FORCEIFHUNG        = 0x00000020,
-    NOTIMEOUTIFNOTHUNG = 0x00000040,
-    ALLOWSFW           = 0x00000080,
-    SENDNOTIFYMESSAGE  = 0x00000100,
-    RETURNHDESK        = 0x00000200,
-    LUID               = 0x00000400,
-}
-
-/** Return this value to deny a query. */
-export const BROADCAST_QUERY_DENY = 0x424D5144
 
 // #endregion
