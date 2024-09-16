@@ -17,6 +17,40 @@ import { cHBRUSH, type HBRUSH } from './brush.js'
 
 // #region Types
 
+/**
+ * Contains the window class attributes that are registered by the RegisterClass function.
+ *
+ * This structure has been superseded by the WNDCLASSEX structure used with the RegisterClassEx function.
+ *
+ * @disposable true
+ * @link https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassw
+ */
+export class WNDCLASS implements Disposable {
+    declare style?:         CS
+    declare lpfnWndProc?:   koffi.IKoffiRegisteredCallback
+    declare cbClsExtra?:    number
+    declare cbWndExtra?:    number
+    declare hInstance?:     HINSTANCE
+    declare hIcon?:         HICON
+    declare hCursor?:       HCURSOR
+    declare hbrBackground?: HBRUSH
+    declare lpszMenuName?:  string
+    declare lpszClassName?: string
+
+    constructor(wndProc?: WNDPROC) {
+        if (typeof wndProc === 'function')
+            this.lpfnWndProc = register(wndProc, cWNDPROC)
+    }
+
+    // For use with `using` (requires TypeScript 5.2+)
+    [Symbol.dispose]() {
+        if (this.lpfnWndProc) {
+            unregister(this.lpfnWndProc)
+            this.lpfnWndProc = undefined
+        }
+    }
+}
+
 export const cWNDCLASS = struct('WNDCLASS', {
     style:          cUINT,
     lpfnWndProc:    cWNDPROC,
@@ -34,28 +68,28 @@ export const cLPWNDCLASS = pointer('LPWNDCLASS', cWNDCLASS)
 export const cPWNDCLASS  = pointer('PWNDCLASS',  cWNDCLASS)
 
 /**
- * Contains the window class attributes that are registered by the RegisterClass function.
- *
- * This structure has been superseded by the WNDCLASSEX structure used with the RegisterClassEx function.
+ * Contains window class information. It is used with the RegisterClassEx and GetClassInfoEx functions.
  *
  * @disposable true
- * @link https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassw
+ * @link https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassexw
  */
-export class WNDCLASS implements Disposable {
-    style?:         CS
-    lpfnWndProc?:   koffi.IKoffiRegisteredCallback
-    cbClsExtra?:    number
-    cbWndExtra?:    number
-    hInstance?:     HINSTANCE
-    hIcon?:         HICON
-    hCursor?:       HCURSOR
-    hbrBackground?: HBRUSH
-    lpszMenuName?:  string
-    lpszClassName?: string
+export class WNDCLASSEX implements Disposable {
+    readonly cbSize = sizeof(cWNDCLASSEX)
+    declare  style?:         CS
+    declare  lpfnWndProc?:   koffi.IKoffiRegisteredCallback
+    declare  cbClsExtra?:    number
+    declare  cbWndExtra?:    number
+    declare  hInstance?:     HINSTANCE
+    declare  hIcon?:         HICON
+    declare  hCursor?:       HCURSOR
+    declare  hbrBackground?: HBRUSH
+    declare  lpszMenuName?:  string
+    declare  lpszClassName?: string
+    declare  hIconSm?:       HICON
 
     constructor(wndProc?: WNDPROC) {
         if (typeof wndProc === 'function')
-            this.lpfnWndProc = register(undefined, wndProc, cWNDPROC)
+            this.lpfnWndProc = register(wndProc, cWNDPROC)
     }
 
     // For use with `using` (requires TypeScript 5.2+)
@@ -84,39 +118,6 @@ export const cWNDCLASSEX = struct('WNDCLASSEX', {
 
 export const cLPWNDCLASSEX = pointer('LPWNDCLASSEX', cWNDCLASSEX)
 export const cPWNDCLASSEX  = pointer('PWNDCLASSEX',  cWNDCLASSEX)
-
-/**
- * Contains window class information. It is used with the RegisterClassEx and GetClassInfoEx functions.
- *
- * @disposable true
- * @link https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassexw
- */
-export class WNDCLASSEX implements Disposable {
-    readonly cbSize = sizeof(cWNDCLASSEX)
-    declare  style?:         CS
-    declare  lpfnWndProc?:   koffi.IKoffiRegisteredCallback
-    declare  cbClsExtra?:    number
-    declare  cbWndExtra?:    number
-    declare  hInstance?:     HINSTANCE
-    declare  hIcon?:         HICON
-    declare  hCursor?:       HCURSOR
-    declare  hbrBackground?: HBRUSH
-    declare  lpszMenuName?:  string
-    declare  lpszClassName?: string
-    declare  hIconSm?:       HICON
-
-    constructor(wndProc?: WNDPROC) {
-        if (typeof wndProc === 'function')
-            this.lpfnWndProc = register(undefined, wndProc, cWNDPROC)
-    }
-
-    // For use with `using` (requires TypeScript 5.2+)
-    [Symbol.dispose]() {
-        if (this.lpfnWndProc) {
-            unregister(this.lpfnWndProc)
-        }
-    }
-}
 
 // #endregion
 

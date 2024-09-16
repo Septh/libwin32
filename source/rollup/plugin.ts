@@ -20,7 +20,7 @@ export function koffi(): Plugin {
     let outputDir: string
 
     return {
-        name: 'koffi',
+        name: 'koffi-cream',
 
         async buildStart() {
             outputDir = asset = ''
@@ -53,8 +53,8 @@ export function koffi(): Plugin {
 
                 return [
                     `import { createRequire } from 'node:module';`,
-                    `const require = createRequire(import.meta.url);`,
-                    `export default require(import.meta.ROLLUP_FILE_URL_${asset})`
+                    `const __require = createRequire(import.meta.url);`,
+                    `export const koffi = __require(import.meta.ROLLUP_FILE_URL_${asset});`
                 ].join('\n')
             }
             return null
