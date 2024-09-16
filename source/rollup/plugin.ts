@@ -34,7 +34,7 @@ export function koffi(): Plugin {
         resolveId(id) {
 
             // Replace our stub import in private.ts ("./stubs/koffi.cjs") with some custom code.
-            return id === './stubs/koffi.cjs'
+            return id === './stubs/koffi.js'
                 ? VIRTUAL
                 : null
         },

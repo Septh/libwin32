@@ -1,5 +1,5 @@
 import assert from 'node:assert'
-import koffi from './stubs/koffi.cjs'
+import koffi from './stubs/koffi.js'
 
 export { koffi }
 
@@ -38,8 +38,8 @@ export function alias(name: string, type: koffi.IKoffiCType) {
 }
 
 /*@__NO_SIDE_EFFECTS__*/
-export function opaque(name?: string) {
-    return name ? koffi.opaque(name) : koffi.opaque()
+export function opaque() {
+    return koffi.opaque()
 }
 
 /*@__NO_SIDE_EFFECTS__*/
