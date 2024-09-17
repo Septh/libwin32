@@ -6,13 +6,12 @@ import {
 import {
     cLPVOID, cBOOL, cINT, cUINT, cDWORD, cLPWSTR, cLPCWSTR,
     cHINSTANCE, cWPARAM, cLPARAM, cLRESULT,
-    type HINSTANCE, type HANDLE, type LPARAM, type WPARAM, type LRESULT,
+    type HINSTANCE, type HANDLE, type LPARAM, type WPARAM, type LRESULT
 } from '../../ctypes.js'
 import { user32 } from './_lib.js'
 import { cHMENU, type HMENU } from './menu.js'
 import { cLPRECT, type RECT } from './rect.js'
 import type { HWND_ } from '../consts/HWND.js'
-import type { CW } from '../consts/CW.js'
 import type { WS, WS_EX } from '../consts/WS.js'
 import type { WM } from '../consts/WM.js'
 import type { GA_ } from '../consts/GA.js'
@@ -99,11 +98,11 @@ export const CallWindowProc: koffi.KoffiFunc<(
 export function CreateWindow(
     lpClassName:  string | null,
     lpWindowName: string | null,
-    dwStyle:      WS,
-    x:            CW | number,
-    y:            CW | number,
-    nWidth:       CW | number,
-    nHeight:      CW | number,
+    dwStyle:      WS | number,
+    x:            number,
+    y:            number,
+    nWidth:       number,
+    nHeight:      number,
     hWndParent:   HWND | HWND_ | null,
     hMenu:        HMENU | null,
     hInstance:    HINSTANCE | null,
@@ -118,14 +117,14 @@ export function CreateWindow(
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw
  */
 export const CreateWindowEx: koffi.KoffiFunc<(
-    dwExStyle:    WS_EX,
+    dwExStyle:    WS_EX | number,
     lpClassName:  string | null,
     lpWindowName: string | null,
-    dwStyle:      WS,
-    x:            CW | number,
-    y:            CW | number,
-    nWidth:       CW | number,
-    nHeight:      CW | number,
+    dwStyle:      WS | number,
+    x:            number,
+    y:            number,
+    nWidth:       number,
+    nHeight:      number,
     hWndParent:   HWND | HWND_ | null,
     hMenu:        HMENU | null,
     hInstance:    HINSTANCE | null,
@@ -134,6 +133,9 @@ export const CreateWindowEx: koffi.KoffiFunc<(
     'CreateWindowExW', cHWND,
     [ cDWORD, cLPCWSTR, cLPCWSTR, cDWORD, cINT, cINT, cINT, cINT, cHWND, cHMENU, cHINSTANCE, cLPVOID ]
 )
+
+/** Special value for X and Y parameters of CreateWindow/CreateWindowEx */
+export const CW_USEDEFAULT = 0x80000000
 
 /**
  * Calls the default window procedure to provide default processing for any window messages that an application does not process.
