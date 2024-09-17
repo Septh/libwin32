@@ -121,6 +121,4 @@ None.
 * `./source/demos`:
     * Some usage examples.
 * `./source/rollup`:
-    * A [Rollup](https://rollup.org) plugin to ease the process of bundling this library with your code. See [rollup.demo.js](./rollup.demos.js) for an example of usage.
-* `./source/stubs`:
-    * Used for efficient bundling of Koffi with `Rollup`.
+    * A [Rollup](https://rollup.org) plugin to ease the process of bundling this library and Koffi with your own code. See [rollup.demo.js](./rollup.demos.js) for an example of usage.

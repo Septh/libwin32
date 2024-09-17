@@ -13,17 +13,15 @@ export function koffi(): Plugin {
     ))
 
     // The path we'll copy it to.
-    const koffiDest = `koffi/${platform}-${arch}.node`
+    const koffiDest = `koffi-${platform}-${arch}.node`
 
-    const VIRTUAL = '\0:KOFFI'
-    let asset: string
-    let outputDir: string
+    let copy = false
 
     return {
         name: 'koffi-cream',
 
         async buildStart() {
-            outputDir = asset = ''
+            copy = false
 
             // Make sure Koffi's installed and accessible.
             const err = await fs.access(koffiSource, fs.constants.R_OK).catch((err: NodeJS.ErrnoException) => err)
@@ -31,52 +29,41 @@ export function koffi(): Plugin {
                 this.error({ message: `Cannot access "${koffiSource}": ${err.code}.`, stack: undefined })
         },
 
-        resolveId(id) {
-
-            // Replace our stub import in private.ts ("./stubs/koffi.cjs") with some custom code.
-            return id === './stubs/koffi.js'
-                ? VIRTUAL
-                : null
+        buildEnd(error) {
+            copy = !error
         },
 
-        load(id) {
-            if (id === VIRTUAL) {
+        async writeBundle(options) {
+            if (copy) {
 
-                // Emit Koffi's C code as an asset. This allows us to use Rollup's FILE_URL feature.
-                // Note: because the file is big (2,33Mb), we emit an empty asset for now, and overwrite it at closeBundle().
-                asset = this.emitFile({
-                    type: 'asset',
-                    fileName: koffiDest,
-                    originalFileName: koffiSource,
-                    source: ''
-                })
+                // Create all necessary directories.
+                const outDir = path.join(
+                    options.dir ?? path.dirname(options.file!),
+                    'node_modules', 'koffi'
+                )
+                await fs.mkdir(outDir, { recursive: true }).catch(() => {})
 
-                return [
-                    `import { createRequire } from 'node:module';`,
-                    `const __require = createRequire(import.meta.url);`,
-                    `export const koffi = __require(import.meta.ROLLUP_FILE_URL_${asset});`
-                ].join('\n')
-            }
-            return null
-        },
-
-        renderStart(options) {
-            outputDir = options.dir ?? path.dirname(options.file!)
-        },
-
-        resolveFileUrl({ referenceId, fileName }) {
-            return referenceId === asset
-                ? `"./${fileName}"`
-                : null
-        },
-
-        async closeBundle() {
-            if (asset) {
-                const destFile = path.join(outputDir, koffiDest)
-                await fs.mkdir(path.dirname(destFile), { recursive: true }).catch(() => {})
-                const err = await fs.copyFile(koffiSource, destFile).catch((err: NodeJS.ErrnoException) => err)
+                // Copy Koffi's native code.
+                const destFile = path.join(outDir, koffiDest)
+                let err = await fs.copyFile(koffiSource, destFile).catch((err: NodeJS.ErrnoException) => err)
                 if (err instanceof Error)
                     this.error({ message: `Cannot write "${destFile}": ${err.code}.`, stack: undefined })
+
+                // Write index.cjs
+                err = await fs.writeFile(path.join(outDir, 'index.cjs'), [
+                    `module.exports = require('./${koffiDest}');`
+                ].join('\n')).catch((err: NodeJS.ErrnoException) => err)
+                if (err instanceof Error)
+                    this.error({ message: `Cannot write index.cjs: ${err.code}.`, stack: undefined })
+
+                // Write package.json
+                err = await fs.writeFile(path.join(outDir, 'package.json'), JSON.stringify({
+                    name: 'koffi',
+                    type: 'commonjs',
+                    main: './index.cjs'
+                }, undefined, 2)).catch((err: NodeJS.ErrnoException) => err)
+                if (err instanceof Error)
+                    this.error({ message: `Cannot write package.json: ${err.code}.`, stack: undefined })
             }
         },
     }
