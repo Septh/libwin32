@@ -1,5 +1,7 @@
-/** OIC_xxx - OEM Resource Ordinal Numbers */
-export enum OIC {
+/**
+ * OIC_xxx - OEM Resource Ordinal Numbers
+ */
+export enum OIC_ {
     SAMPLE      = 32512,
     HAND        = 32513,
     QUES        = 32514,

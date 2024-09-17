@@ -5,7 +5,7 @@ import {
 } from '../../ctypes.js'
 import { user32 } from './_lib.js'
 import type { HICON } from './icon.js'
-import type { IDC } from '../consts/IDC.js'
+import type { IDC_ } from '../consts/IDC.js'
 
 // #region Types
 
@@ -32,5 +32,5 @@ export const DestroyCursor: koffi.KoffiFunc<(
  */
 export const LoadCursor: koffi.KoffiFunc<(
     hInstance:  HINSTANCE | null,
-    lpIconName: IDC | string
+    lpIconName: IDC_ | string
 ) => HCURSOR> = user32('LoadCursorW', cHCURSOR, [ cHINSTANCE, cLPCWSTR ])

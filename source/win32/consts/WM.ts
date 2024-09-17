@@ -3,7 +3,7 @@
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/window-notifications
  */
-export enum WM {
+export enum WM_ {
     ACTIVATE                       = 0x0006,
     ACTIVATEAPP                    = 0x001c,
     AFXFIRST                       = 0x0360,

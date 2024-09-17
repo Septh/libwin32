@@ -5,7 +5,7 @@ import {
 } from '../../ctypes.js'
 import { user32 } from './_lib.js'
 import type { HANDLE } from '../../ctypes.js'
-import type { IDI } from '../consts/IDI.js'
+import type { IDI_ } from '../consts/IDI.js'
 
 // #region Types
 
@@ -32,5 +32,5 @@ export const DestroyIcon: koffi.KoffiFunc<(
  */
 export const LoadIcon: koffi.KoffiFunc<(
     hInstance:  HINSTANCE | null,
-    lpIconName: IDI | string
+    lpIconName: IDI_ | string
 ) => HICON> = user32('LoadIconW', cHICON, [ cHINSTANCE, cLPCWSTR ])

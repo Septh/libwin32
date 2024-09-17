@@ -3,7 +3,7 @@
  *
  * https://learn.microsoft.com/en-us/windows/win32/menurc/about-cursors
  */
-export enum IDC {
+export enum IDC_ {
     ARROW       = 32512,
     IBEAM       = 32513,
     WAIT        = 32514,

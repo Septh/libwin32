@@ -1,9 +1,9 @@
 /**
- * WS_xxx - Window styles.
+ * WS_xxx - Window styles for CreateWindow().
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/window-styles
  */
-export enum WS {
+export enum WS_ {
     BORDER           = 0x00800000,
     CAPTION          = 0x00c00000, /* WS_BORDER | WS_DLGFRAME  */
     CHILD            = 0x40000000,
@@ -34,11 +34,11 @@ export enum WS {
 }
 
 /**
- * WS_EX_xxx - Extended Window styles
+ * WS_EX_xxx - Extended Window styles for CreateWindowEx().
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles
  */
-export enum WS_EX {
+export enum WS_EX_ {
     ACCEPTFILES         = 0x00000010,
     APPWINDOW           = 0x00040000,
     CLIENTEDGE          = 0x00000200,

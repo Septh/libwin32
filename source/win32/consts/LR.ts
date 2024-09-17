@@ -1,5 +1,7 @@
-/** Values for the `fuLoad` parameter of LoadImage(). */
-export enum LR {
+/**
+ * Values for the `fuLoad` parameter of LoadImage().
+ */
+export enum LR_ {
     DEFAULTCOLOR     = 0x00000000,
     MONOCHROME       = 0x00000001,
     COLOR            = 0x00000002,

@@ -3,7 +3,7 @@
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/window-class-styles
  */
-export enum CS {
+export enum CS_ {
     NULL,
     BYTEALIGNCLIENT = 0x00001000,
     BYTEALIGNWINDOW = 0x00002000,

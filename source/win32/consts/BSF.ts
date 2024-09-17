@@ -1,5 +1,7 @@
-/** Broadcast Special Message Flags */
-export enum BSF {
+/**
+ * Broadcast Special Message Flags
+ */
+export enum BSF_ {
     QUERY              = 0x00000001,
     IGNORECURRENTTASK  = 0x00000002,
     FLUSHDISK          = 0x00000004,

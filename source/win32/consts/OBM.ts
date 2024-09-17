@@ -1,5 +1,7 @@
-/** OBM_xxx - OEM Resource Ordinal Numbers */
-export enum OBM {
+/**
+ * OBM_xxx - OEM Resource Ordinal Numbers
+ */
+export enum OBM_ {
     CLOSE       = 32754,
     UPARROW     = 32753,
     DNARROW     = 32752,

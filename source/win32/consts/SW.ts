@@ -1,5 +1,7 @@
-/** SW_xxx - ShowWindow() Commands (nCmdShow) & identifiers for the WM_SHOWWINDOW message */
-export enum SW {
+/**
+ * SW_xxx - ShowWindow() Commands (nCmdShow) & identifiers for the WM_SHOWWINDOW message
+ */
+export enum SW_ {
     HIDE            = 0,
     SHOWNORMAL      = 1,
     NORMAL          = 1,

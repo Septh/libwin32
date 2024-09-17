@@ -3,7 +3,7 @@
  *
  * https://learn.microsoft.com/en-us/windows/win32/menurc/about-icons
  */
-export enum IDI {
+export enum IDI_ {
     APPLICATION = 32512,
     ERROR       = 32513,
     QUESTION    = 32514,

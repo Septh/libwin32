@@ -14,7 +14,7 @@ import { cHWND, cWNDPROC, type HWND, type WNDPROC } from './window.js'
 import { cHICON, type HICON } from './icon.js'
 import { cHCURSOR, type HCURSOR } from './cursor.js'
 import { cHBRUSH, type HBRUSH } from './brush.js'
-import type { CS } from '../consts/CS.js'
+import type { CS_ } from '../consts/CS.js'
 
 // #region Types
 
@@ -27,7 +27,7 @@ import type { CS } from '../consts/CS.js'
  * @link https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassw
  */
 export class WNDCLASS implements Disposable {
-    declare style?:         CS
+    declare style?:         CS_
     declare lpfnWndProc?:   koffi.IKoffiRegisteredCallback
     declare cbClsExtra?:    number
     declare cbWndExtra?:    number
@@ -76,7 +76,7 @@ export const cPWNDCLASS  = pointer('PWNDCLASS',  cWNDCLASS)
  */
 export class WNDCLASSEX implements Disposable {
     readonly cbSize = sizeof(cWNDCLASSEX)
-    declare  style?:         CS
+    declare  style?:         CS_
     declare  lpfnWndProc?:   koffi.IKoffiRegisteredCallback
     declare  cbClsExtra?:    number
     declare  cbWndExtra?:    number

@@ -1,32 +1,33 @@
 import {
     GetModuleHandle, GetLastError,
     RegisterClassEx, LoadCursor, LoadIcon, WNDCLASSEX,
-    CreateWindowEx, CW_USEDEFAULT, ShowWindow, UpdateWindow, DefWindowProc,
+    CreateWindowEx, ShowWindow, UpdateWindow, DefWindowProc,
     GetMessage, TranslateMessage, DispatchMessage, PostQuitMessage,
     MessageBox,
     type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG
 } from 'libwin32'
 
 // Also import some helpfull constants.
-// Note: import { CS, IDC, IDI, MB, SW, WM, WS } from 'libwin32/consts' would also work,
-//       but at the cost of tree-shakeability due to the way TypeScript exports enums.
-import { WM } from 'libwin32/consts/WM'
-import { SW } from 'libwin32/consts/SW'
-import { CS } from 'libwin32/consts/CS'
-import { IDC } from 'libwin32/consts/IDC'
-import { IDI } from 'libwin32/consts/IDI'
-import { MB } from 'libwin32/consts/MB'
-import { WS, WS_EX } from 'libwin32/consts/WS'
+// Note that import { CS_, CW_, IDC_, IDI_, MB_, SW_, WM_, WS_ } from 'libwin32/consts' would also work,
+// but at the cost of tree-shakeability due to the way TypeScript exports enums.
+import { CS_ } from 'libwin32/consts/CS'
+import { CW_ } from 'libwin32/consts/CW'
+import { IDC_ } from 'libwin32/consts/IDC'
+import { IDI_ } from 'libwin32/consts/IDI'
+import { MB_ } from 'libwin32/consts/MB'
+import { SW_ } from 'libwin32/consts/SW'
+import { WM_ } from 'libwin32/consts/WM'
+import { WS_, WS_EX_ } from 'libwin32/consts/WS'
 
 const windowClass = "NodeApp"
 const windowName  = "Window Demo!"
 const appTitle    = "A NodeJS app using the Win32 API"
 
-function wndProc(hWnd: HWND, uMmsg: WM, wParam: WPARAM, lParam: LPARAM) {
+function wndProc(hWnd: HWND, uMmsg: WM_, wParam: WPARAM, lParam: LPARAM) {
 
     let ret: number
     switch (uMmsg) {
-        case WM.DESTROY:
+        case WM_.DESTROY:
             PostQuitMessage(0)
             ret = 0
             break
@@ -39,33 +40,33 @@ function wndProc(hWnd: HWND, uMmsg: WM, wParam: WPARAM, lParam: LPARAM) {
     return ret
 }
 
-function WinMain(hInstance: HINSTANCE, nCmdShow: SW): number {
+function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
 
     using wcex = new WNDCLASSEX(wndProc)    // Note: cbSize is set by the WNDCLASSEX constructor
     wcex.lpszClassName = windowClass
-    wcex.style         = CS.HREDRAW | CS.VREDRAW
+    wcex.style         = CS_.HREDRAW | CS_.VREDRAW
     wcex.hInstance     = hInstance
-    wcex.hCursor       = LoadCursor(null, IDC.ARROW)
-    wcex.hIcon         = LoadIcon(hInstance, IDI.APPLICATION)
-    wcex.hIconSm       = LoadIcon(hInstance, IDI.APPLICATION)
+    wcex.hCursor       = LoadCursor(null, IDC_.ARROW)
+    wcex.hIcon         = LoadIcon(hInstance, IDI_.APPLICATION)
+    wcex.hIconSm       = LoadIcon(hInstance, IDI_.APPLICATION)
     wcex.hbrBackground = 13 as any          // Note: brushes are not yet implemented. 13 is the standard background.
 
     const atom = RegisterClassEx(wcex)
     if (!atom) {
-        MessageBox(null, "Call to RegisterClassEx failed!", appTitle, MB.OK | MB.ICONERROR)
+        MessageBox(null, "Call to RegisterClassEx failed!", appTitle, MB_.OK | MB_.ICONERROR)
         return 1
     }
 
     const hWnd = CreateWindowEx(
-        WS_EX.CLIENTEDGE,
+        WS_EX_.CLIENTEDGE,
         windowClass, windowName,
-        WS.OVERLAPPEDWINDOW | WS.VSCROLL,
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        WS_.OVERLAPPEDWINDOW | WS_.VSCROLL,
+        CW_.USEDEFAULT, CW_.USEDEFAULT, CW_.USEDEFAULT, CW_.USEDEFAULT,
         null, null, hInstance, 0
     )
     if (!hWnd) {
         const err = GetLastError()
-        MessageBox(null, "Call to CreateWindow failed!\n" + err.toString(16), appTitle, MB.OK | MB.ICONERROR)
+        MessageBox(null, "Call to CreateWindow failed!\n" + err.toString(16), appTitle, MB_.OK | MB_.ICONERROR)
         return -1
     }
 
@@ -82,4 +83,4 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW): number {
     return 0
 }
 
-process.exitCode = WinMain(GetModuleHandle(null), SW.NORMAL)
+process.exitCode = WinMain(GetModuleHandle(null), SW_.NORMAL)

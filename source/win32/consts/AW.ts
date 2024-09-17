@@ -1,5 +1,7 @@
-/** AnimateWindow() Commands */
-export enum AW {
+/**
+ * AnimateWindow() Commands
+ */
+export enum AW_ {
     AW_HOR_POSITIVE = 0x00000001,
     AW_HOR_NEGATIVE = 0x00000002,
     AW_VER_POSITIVE = 0x00000004,

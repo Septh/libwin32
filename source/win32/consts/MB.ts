@@ -1,5 +1,7 @@
-/** MB_xxx - MessageBox() Flags */
-export enum MB {
+/**
+ * MB_xxx - MessageBox() Flags
+ */
+export enum MB_ {
     OK                   = 0x00000000,
     OKCANCEL             = 0x00000001,
     ABORTRETRYIGNORE     = 0x00000002,

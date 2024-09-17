@@ -12,11 +12,11 @@ import { user32 } from './_lib.js'
 import { cHMENU, type HMENU } from './menu.js'
 import { cLPRECT, type RECT } from './rect.js'
 import type { HWND_ } from '../consts/HWND.js'
-import type { WS, WS_EX } from '../consts/WS.js'
-import type { WM } from '../consts/WM.js'
+import type { WS_, WS_EX_ } from '../consts/WS.js'
+import type { WM_ } from '../consts/WM.js'
 import type { GA_ } from '../consts/GA.js'
-import type { AW } from '../consts/AW.js'
-import type { SW } from '../consts/SW.js'
+import type { AW_ } from '../consts/AW.js'
+import type { SW_ } from '../consts/SW.js'
 
 // #region Types
 
@@ -24,7 +24,7 @@ export const cHWND = pointer('HWND', opaque())
 export type HWND = HANDLE<'HWND'>
 
 export const cWNDPROC = pointer('WNDPROC', proto('__wndproc', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ]))
-export type WNDPROC = (hWnd: HWND, msg: WM, wParam: WPARAM, lParam: LPARAM) => number
+export type WNDPROC = (hWnd: HWND, msg: WM_, wParam: WPARAM, lParam: LPARAM) => number
 
 export const cWNDENUMPROC = pointer('WNDENUMPROC', proto('__wndenumproc', cBOOL, [ cHWND, cLPARAM ]))
 export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
@@ -40,7 +40,7 @@ export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
  */
 export const AdjustWindowRect: koffi.KoffiFunc<(
     lpRect: RECT,
-    dwStyle: WS | number,
+    dwStyle: WS_ | number,
     bMenu: number
 ) => number> = user32('AdjustWindowRect', cBOOL, [ inout(cLPRECT), cDWORD, cBOOL ])
 
@@ -51,9 +51,9 @@ export const AdjustWindowRect: koffi.KoffiFunc<(
  */
 export const AdjustWindowRectEx: koffi.KoffiFunc<(
     lpRect: RECT,
-    dwStyle: WS | number,
+    dwStyle: WS_ | number,
     bMenu: number,
-    cwExStyle: WS_EX | number
+    cwExStyle: WS_EX_ | number
 ) => number> = user32('AdjustWindowRect', cBOOL, [ inout(cLPRECT), cDWORD, cBOOL, cDWORD ])
 
 /**
@@ -64,7 +64,7 @@ export const AdjustWindowRectEx: koffi.KoffiFunc<(
 export const AnimateWindow: koffi.KoffiFunc<(
     hWnd: HWND,
     dwTime: number,
-    dwFlags: AW | number
+    dwFlags: AW_ | number
 ) => number> = user32('AnimateWindow', cBOOL, [ cHWND, cDWORD, cDWORD ])
 
 /**
@@ -84,7 +84,7 @@ export const BringWindowToTop: koffi.KoffiFunc<(
 export const CallWindowProc: koffi.KoffiFunc<(
     lpPrevWndFunc: WNDPROC,
     hWnd: HWND,
-    Msg: WM | number,
+    Msg: WM_ | number,
     wParam: WPARAM,
     lParam: LPARAM
 ) => LRESULT> = user32('CallWindowProcW', cLRESULT, [ cWNDPROC, cHWND, cUINT, cWPARAM, cLPARAM ])
@@ -98,7 +98,7 @@ export const CallWindowProc: koffi.KoffiFunc<(
 export function CreateWindow(
     lpClassName:  string | null,
     lpWindowName: string | null,
-    dwStyle:      WS | number,
+    dwStyle:      WS_ | number,
     x:            number,
     y:            number,
     nWidth:       number,
@@ -117,10 +117,10 @@ export function CreateWindow(
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw
  */
 export const CreateWindowEx: koffi.KoffiFunc<(
-    dwExStyle:    WS_EX | number,
+    dwExStyle:    WS_EX_ | number,
     lpClassName:  string | null,
     lpWindowName: string | null,
-    dwStyle:      WS | number,
+    dwStyle:      WS_ | number,
     x:            number,
     y:            number,
     nWidth:       number,
@@ -133,9 +133,6 @@ export const CreateWindowEx: koffi.KoffiFunc<(
     'CreateWindowExW', cHWND,
     [ cDWORD, cLPCWSTR, cLPCWSTR, cDWORD, cINT, cINT, cINT, cINT, cHWND, cHMENU, cHINSTANCE, cLPVOID ]
 )
-
-/** Special value for X and Y parameters of CreateWindow/CreateWindowEx */
-export const CW_USEDEFAULT = 0x80000000
 
 /**
  * Calls the default window procedure to provide default processing for any window messages that an application does not process.
@@ -206,7 +203,7 @@ const _GetWindowText = user32('GetWindowTextW', cINT, [ cHWND, out(cLPWSTR), cIN
  */
 export const ShowWindow: koffi.KoffiFunc<(
     hWnd:     HWND,
-    nCmdShow: SW | number
+    nCmdShow: SW_ | number
 ) => boolean> = user32('ShowWindow', cBOOL, [ cHWND, cINT ])
 
 /**
@@ -216,7 +213,7 @@ export const ShowWindow: koffi.KoffiFunc<(
  */
 export const ShowWindowAsync: koffi.KoffiFunc<(
     hWnd:     HWND,
-    nCmdShow: SW | number
+    nCmdShow: SW_ | number
 ) => boolean> = user32('ShowWindowAsync', cBOOL, [ cHWND, cINT ])
 
 /**
