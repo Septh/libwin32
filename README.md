@@ -4,9 +4,8 @@
 ### In a nutshell:
 * Very simple and intuitive API (see [demos](./source//demos/)), with TypeScript definitions included.
 * Bundler friendly, designed with tree-shakeability in mind.
-    * *Not 100% tree-shakeable right now, but close. And working on it.*
 * Opinionated:
-    * Only targets **x64** platforms (*ARM-64 may be added later, no warranty though*).
+    * Only targets **64-bit** platforms (*Intel/AMD for now, ARM may be added later, no warranty though*).
     * Only exposes **Unicode** functions and data structures (those whose name ends in `W` in the Win32 API).
 * Very easy to extend with additional functions, data structures and constants. I will add some myself time permitting; any help would be *mucho* appreciated.
 
@@ -15,18 +14,21 @@
 
 #### > Use the lib in your code
 1. Install the lib in your project: `npm install libwin32`
-1. Import the functions, constants and types you need. You may either import from `libwin32` or from `libwin32/<dllname>` (without the `.dll` extension). Currently, only two dlls are available: `kernel32` and `user32`.
+1. Import the functions and types you need. You may either import from `libwin32` or from `libwin32/<dllname>` (without the `.dll` extension) if you know which dll a function beglons to. Currently, only two dlls are available: `kernel32` and `user32`.
+1. (optional) Import some complementary constants. They greatly simplify calls to the Win32 API.
+    * All constants are available via the `libwin32/consts` import.
+    * Logically grouped constants are exported as `enum`s, where the prefix is the name of the enum. For instance, `WM_DESTROY` and `WM_KEYDOWN` are exported as `WM_.DESTROY` and `WM_.KEYDOWN`, respectively.
 1. Call the functions as instructed by the [Win32 API documentation](https://learn.microsoft.com/en-us/windows/win32/api/). All functions, constants and types are named accordingly.
-    * Constants like `WM_DESTROY` are exported as `enum`s, where the prefix is the name of the enum. For instance, `WM_DESTROY` and `WM_KEYDOWN` are exported as `WM.DESTROY` and `WM.KEYDOWN`, respectively.
 
 ````js
-import { MessageBox, MB } from 'libwin32'
+import { MessageBox } from 'libwin32'
+import { MB_ } from 'libwin32/consts'
 
 const result = MessageBox(
     null,
     "Hello, world!",
     "libwin32",
-    MB.ICONINFORMATION | MB.YESNO
+    MB_.ICONINFORMATION | MB_.YESNO
 )
 console.dir(result)
 ````
@@ -121,4 +123,4 @@ None.
 * `./source/demos`:
     * Some usage examples.
 * `./source/rollup`:
-    * A [Rollup](https://rollup.org) plugin to ease the process of bundling this library and Koffi with your own code. See [rollup.demo.js](./rollup.demos.js) for an example of usage.
+    * Two [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](./rollup.demos.js) for an example of usage.
