@@ -24,7 +24,6 @@ function makeConfig(which) {
         output: {
             file: `demos/${which}/${which}.js`,
             format: 'esm',
-            assetFileNames: 'assets/[name].[ext]',
             generatedCode: {
                 preset: 'es2015',
                 symbols: false

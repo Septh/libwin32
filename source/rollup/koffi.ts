@@ -29,7 +29,7 @@ export function koffi(): Plugin {
 
             // Make sure Koffi's installed and accessible.
             const err = await fs.access(koffiSource, fs.constants.R_OK).catch((err: NodeJS.ErrnoException) => err)
-            if (err instanceof Error)
+            if (err)
                 this.error({ message: `Cannot access "${koffiSource}": ${err.code}. Did you install koffi as a dependency?`, stack: undefined })
         },
 
@@ -51,7 +51,7 @@ export function koffi(): Plugin {
                 const outFile = path.join(outDir, koffi_win32_x64)
                 let err = await fs.copyFile(koffiSource, outFile).catch((err: NodeJS.ErrnoException) => err)
                 if (err)
-                    this.error({ message: `Cannot write "${outFile}": ${err.code}.`, stack: undefined })
+                    this.error({ message: `Cannot write binary: ${err.code}.`, stack: undefined })
 
                 // Write index.cjs
                 err = await fs.writeFile(
@@ -62,12 +62,15 @@ export function koffi(): Plugin {
                     this.error({ message: `Cannot write index.cjs: ${err.code}.`, stack: undefined })
 
                 // Write package.json
-                err = await fs.writeFile(path.join(outDir, 'package.json'), JSON.stringify({
-                    name: 'koffi',
-                    description: `koffi binary for ${platform} ${arch} systems`,
-                    type: 'commonjs',
-                    main: './index.cjs'
-                }, undefined, 2)).catch((err: NodeJS.ErrnoException) => err)
+                err = await fs.writeFile(
+                    path.join(outDir, 'package.json'),
+                    JSON.stringify({
+                        name: 'koffi',
+                        description: `koffi binary for ${platform} ${arch} systems`,
+                        type: 'commonjs',
+                        main: './index.cjs'
+                    }, undefined, 2)
+                ).catch((err: NodeJS.ErrnoException) => err)
                 if (err)
                     this.error({ message: `Cannot write package.json: ${err.code}.`, stack: undefined })
             }
