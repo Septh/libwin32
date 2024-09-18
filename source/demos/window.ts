@@ -6,18 +6,7 @@ import {
     MessageBox,
     type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG
 } from 'libwin32'
-
-// Also import some helpfull constants.
-// Note that import { CS_, CW_, IDC_, IDI_, MB_, SW_, WM_, WS_ } from 'libwin32/consts' would also work,
-// but at the cost of tree-shakeability due to the way TypeScript exports enums.
-import { CS_ } from 'libwin32/consts/CS'
-import { CW_ } from 'libwin32/consts/CW'
-import { IDC_ } from 'libwin32/consts/IDC'
-import { IDI_ } from 'libwin32/consts/IDI'
-import { MB_ } from 'libwin32/consts/MB'
-import { SW_ } from 'libwin32/consts/SW'
-import { WM_ } from 'libwin32/consts/WM'
-import { WS_, WS_EX_ } from 'libwin32/consts/WS'
+import { CS_, CW_, IDC_, IDI_, MB_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
 
 const windowClass = "NodeApp"
 const windowName  = "Window Demo!"

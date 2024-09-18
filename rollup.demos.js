@@ -1,5 +1,6 @@
 /*
- * This config only bundles the demos. The library itself is published unbundled.
+ * This config only bundles the demos and serves as an example of how to bundle the lib with your code.
+ * The library itself is published unbundled.
  */
 // @ts-check
 import { defineConfig } from 'rollup'
@@ -7,7 +8,7 @@ import { nodeExternals } from 'rollup-plugin-node-externals'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import typescript from '@rollup/plugin-typescript'
-import { koffi } from './dist/rollup/plugin.js'
+import { libwin32 } from 'libwin32/rollup-plugin'
 
 // Use distinct configs to prevent Rollup from code-splitting the library.
 export default [
@@ -38,10 +39,11 @@ function makeConfig(which) {
             typescript({
                 rootDir: `source/demos`,
                 outDir: `demos/${which}`,
+                target: 'ES2023',
                 declaration: false,
                 declarationMap: false
             }),
-            koffi()
+            libwin32()
         ]
     })
 }

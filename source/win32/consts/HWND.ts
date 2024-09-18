@@ -1,4 +1,6 @@
-/** Special HWND values. */
+/**
+ * Special HWND values.
+ */
 export enum HWND_ {
     // PostMessage() and SendMessage()
     BROADCAST = 0xffff,

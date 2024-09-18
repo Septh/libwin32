@@ -1,4 +1,6 @@
-/** Flags for GetAncestor() */
+/**
+ * Flags for GetAncestor()
+ */
 export enum GA_ {
     PARENT    = 1,
     ROOT      = 2,

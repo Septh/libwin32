@@ -1,5 +1,5 @@
 import { MessageBox } from 'libwin32'
-import { MB_ } from 'libwin32/consts/MB'
+import { MB_ } from 'libwin32/consts'
 
 const result = MessageBox(
     null,
