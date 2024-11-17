@@ -46,17 +46,34 @@ export const DestroyMenu: koffi.KoffiFunc<(
     hMenu: HMENU
 ) => number> = user32('DestroyMenu', cBOOL, [ cHMENU ])
 
+
+const AppendMenuInternalN: koffi.KoffiFunc<(
+    hMenu: HMENU,
+    uFlags: MF_ | number,
+    uIDNewItem: number,
+    lpNewItem: string | null
+) => number> = user32('AppendMenuW', cBOOL, [ cHMENU, cUINT, cUINT, cLPCWSTR ]);
+
+const AppendMenuInternalH: koffi.KoffiFunc<(
+    hMenu: HMENU,
+    uFlags: MF_ | number,
+    uIDNewItem: HMENU,
+    lpNewItem: string | null
+) => number> = user32('AppendMenuW', cBOOL, [ cHMENU, cUINT, cHMENU, cLPCWSTR ]);
  /**
  * Appends a new item to the end of the specified menu bar, drop-down menu, submenu, or shortcut menu.
  * 
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
  */
-export const AppendMenu: koffi.KoffiFunc<(
+export const AppendMenu = (
     hMenu: HMENU,
     uFlags: MF_ | number,
-    uIDNewItem: number,
+    uIDNewItem: number | HMENU,
     lpNewItem: string | null
-) => number> = user32('AppendMenuW', cBOOL, [ cHMENU, cUINT, cUINT, cLPCWSTR ])
+) => {
+    if (typeof uIDNewItem === 'number') return AppendMenuInternalN(hMenu, uFlags, uIDNewItem, lpNewItem);
+    return AppendMenuInternalH(hMenu, uFlags, uIDNewItem, lpNewItem);
+}
 
 /**
  * Sets the checked state of a menu item.
