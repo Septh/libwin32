@@ -165,4 +165,16 @@ export const TranslateMessageEx: koffi.KoffiFunc<(
     flags: number
 ) => number> = user32('TranslateMessageEx', cBOOL, [ cLPMSG, cUINT ])
 
+/**
+ * Sends a message to the specified window.
+ * 
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
+ */
+export const SendMessage: koffi.KoffiFunc<(
+    hWnd:    HWND,
+    Msg:     number,
+    wParam:  WPARAM,
+    lParam:  LPARAM
+) => number | BigInt> = user32('SendMessageW', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ])
+
 // #endregion
