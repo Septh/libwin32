@@ -46,7 +46,7 @@ export const DestroyMenu: koffi.KoffiFunc<(
     hMenu: HMENU
 ) => number> = user32('DestroyMenu', cBOOL, [ cHMENU ])
 
-/**
+ /**
  * Appends a new item to the end of the specified menu bar, drop-down menu, submenu, or shortcut menu.
  * 
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
@@ -57,5 +57,16 @@ export const AppendMenu: koffi.KoffiFunc<(
     uIDNewItem: number,
     lpNewItem: string | null
 ) => number> = user32('AppendMenuW', cBOOL, [ cHMENU, cUINT, cUINT, cLPCWSTR ])
+
+/**
+ * Sets the checked state of a menu item.
+ * 
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-checkmenuitem
+ */
+export const CheckMenuItem: koffi.KoffiFunc<(
+    hMenu: HMENU,
+    uIDCheckItem: number,
+    uCheck: MF_ | number
+) => number> = user32('CheckMenuItem', cUINT, [ cHMENU, cUINT, cUINT ])
 
 // #endregion
