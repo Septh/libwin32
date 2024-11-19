@@ -9,7 +9,7 @@ import type { Plugin } from 'rollup'
  */
 export function koffi(): Plugin {
 
-    // The path to the orginal `koffi.node` binary.
+    // The path to the original `koffi.node` binary.
     const koffiSource = fileURLToPath(new URL(
         `./build/koffi/${platform}_${arch}/koffi.node`,
         import.meta.resolve('koffi')
@@ -27,7 +27,7 @@ export function koffi(): Plugin {
         async buildStart() {
             copy = false
 
-            // Make sure Koffi's installed and accessible.
+            // Make sure Koffi is installed and accessible.
             const err = await fs.access(koffiSource, fs.constants.R_OK).catch((err: NodeJS.ErrnoException) => err)
             if (err)
                 this.error({ message: `Cannot access "${koffiSource}": ${err.code}. Did you install koffi as a dependency?`, stack: undefined })
