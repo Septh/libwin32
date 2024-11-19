@@ -1,8 +1,5 @@
 {
-  "terminal.integrated.automationProfile.windows": {
-    "path": "cmd.exe"
-  },
-  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "typescript.tsdk": "node_modules/typescript/lib",
   "debug.terminal.clearBeforeReusing": true,
   "vsicons.associations.files": [
     {
@@ -15,14 +12,30 @@
       "filename": true,
       "format": "svg",
     },
+    {
+      "icon": "tsconfig",
+      "extensions": [],
+      "filenamesGlob": [
+        "tsconfig.demos",
+      ],
+      "extensionsGlob": [
+        "json"
+      ],
+      "filename": true,
+      "format": "svg",
+    }
   ],
   "cSpell.words": [
     "dllname",
+    "enumdesktopwindows",
     "Koffi",
     "libwin",
+    "messagebox",
     "Mmsg",
     "mucho",
-    "shakeability"
+    "shakeability",
+    "skakeable",
+    "tsbuildinfo"
   ],
   "cSpell.languageSettings": [
     {
