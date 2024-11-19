@@ -1,34 +1,26 @@
 {
   "include": [
-    "source"
+    "source",
+    "rollup.demos.js"
   ],
-  "exclude": [],
   "compilerOptions": {
 
-    // Node stuff
+    // Input
+    "checkJs": true,
+    "resolveJsonModule": true,
+
+    // Output
+    "noEmit": true,
+
+    // Module
     "module": "Node16",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
-    // Input
-    "rootDir": "source",
-    "allowJs": false,
-    "checkJs": false,
-
-    // Output
-    "outDir": "dist",
-    "target": "ES2023",
-    "removeComments": false,
-    "preserveConstEnums": true,
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-
     // Libs
     "lib": [ "ESNext" ],
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "skipDefaultLibCheck": true,
-    "importHelpers": true,
 
     // Type checking
     "strict": true,
@@ -40,6 +32,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    // "isolatedModules": true,
   }
 }
