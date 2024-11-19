@@ -14,16 +14,18 @@
         "kind": "build",
         "isDefault": true
       },
-      "dependsOn": [
-        "clean lib"
-      ],
-      "dependsOrder": "sequence",
       "type": "typescript",
-      "tsconfig": "tsconfig.json",
+      "tsconfig": "tsconfig.build.json",
       "option": "watch",
       "problemMatcher": [
         "$tsc-watch"
-      ]
+      ],
+      "isBackground": true,
+      "dependsOn": [ "clean lib" ],
+      "dependsOrder": "sequence",
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
     }
   ]
 }

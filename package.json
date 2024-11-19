@@ -6,10 +6,10 @@
   "license": "MIT",
   "keywords": [
     "win32",
-    "x64",
     "api",
     "bindings",
-    "koffi"
+    "koffi",
+    "x64"
   ],
   "homepage": "https://github.com/Septh/libwin32#readme",
   "repository": {
@@ -40,7 +40,7 @@
     }
   },
   "imports": {
-    "#consts-base": "./dist/win32/consts"
+    "#consts-base": "./source/win32/consts"
   },
   "engines": {
     "node": ">= 18.19.0 || >= 20.6.0"
@@ -52,9 +52,9 @@
     "!*.map"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "build:demos": "rimraf demos && rollup -c rollup.demos.js",
-    "clean": "rimraf .tsbuildinfo dist demos",
+    "clean": "rimraf dist demos",
     "test": "echo No test yet",
     "prepublishOnly": "npm run clean && npm run build"
   },
@@ -62,11 +62,12 @@
     "koffi": "^2.9.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-typescript": "^12.1.1",
     "@types/node": "^22.5.1",
     "magic-string": "^0.30.11",
+    "regex": "^5.0.2",
     "rimraf": "^6.0.1",
     "rollup": "^4.21.2",
     "rollup-plugin-node-externals": "^7.1.3",

@@ -1,29 +1,30 @@
 import { fileURLToPath } from 'node:url'
 import MagicString from 'magic-string'
+import { regex } from 'regex'
 import type { Plugin } from 'rollup'
 
 /**
- * A plugin that rewrites libwin32's enums into a tree-shakeable
+ * A plugin that rewrites TypeScript's outputted enums into a tree-shakeable
  * form --the same as esbuid.
  *
- * TypeScript:
- * ````
+ * For example, consider this TypeScript code:
+ * ````ts
  * export enum X { a, b=10, c }
  * ````
  *
- * tsc:
- * ````
+ * This is what tsc emits:
+ * ````ts
  * export var X;
  * (function (X) {
  *   X[X["a"] = 0] = "a";
  *   X[X["b"] = 10] = "b";
  *   X[X["c"] = 11] = "c";
- * })(GA_ || (GA_ = {}));
+ * })(X || (X = {}));
  * ````
  *
- * this plugin:
- * ````
- * export var X=(X=>{       // Note: there is a #__PURE__ annotation that can't be shown here
+ * And this is how this plugins transforms the above:
+ * ````ts
+ * export var X=((X)=>{     // NB: there is a __PURE__ annotation ahead of the function call
  *   X[X["a"] = 0] = "a";
  *   X[X["b"] = 10] = "b";
  *   X[X["c"] = 11] = "c";
@@ -33,10 +34,22 @@ import type { Plugin } from 'rollup'
  */
 export function enums(): Plugin {
 
+    // Note: import.meta.resolve requires Node v20.6.0+
     const constsBase = fileURLToPath(import.meta.resolve('#consts-base'))
 
+    // cspell: disable
     // https://regex101.com/r/1nyPC3/3
-    const enumRx = /\b(?<intro>export\s+var\s+(?<name>[^;\s]+);?\s*\(function\s*\(\k<name>\)\s*{).*(?<outro>}\)\(\k<name>\s*\|\|\s*\(\k<name>\s*=\s{}\)\);?)/gsmd
+    const enumRx = regex('gsd')`
+      (?<intro>
+        \b(export\s+)?var\s+(?<name>[^;\s]+);?\s*           # export var XX;
+        \(function\s*\(\k<name>\)\s*\{                      # (function (XX) {
+      )
+      (?<body>.*)
+      (?<outro>
+        \}\)\(\k<name>\s*\|\|\s*\(\k<name>\s*=\s\{\}\)\);?  # })(XX || XX={});
+      )
+    `
+    // cspell: enable
 
     return {
         name: 'libwin32-tree-skakeable-enums',
@@ -50,11 +63,11 @@ export function enums(): Plugin {
             enumRx.lastIndex = 0
             while (match = enumRx.exec(code)) {
                 const varName = match.groups!.name
-                const indices = match.indices!.groups
+                const indices = match.indices!.groups!
 
                 ms ??= new MagicString(code)
-                ms.update(indices!.intro[0], indices!.intro[1], `export var ${varName}=/*@__PURE__*/(${varName}=>{`)
-                ms.update(indices!.outro[0], indices!.outro[1], `${ms.getIndentString()}return ${varName};\n})(${varName} || {});`)
+                ms.update(indices.intro[0], indices.intro[1], `export var ${varName} = /*@__PURE__*/ ((${varName}) => {`)
+                ms.update(indices.outro[0], indices.outro[1], `${ms.getIndentString()}return ${varName};\n})(${varName} || {});`)
             }
 
             if (ms) {
