@@ -1,12 +1,10 @@
 import {
-    pointer, out, textDecoder,
     struct, sizeof, array,
-    register, unregister,
     type koffi
 } from '../../private.js'
 import {
-    cBOOL, cDWORD, cUINT, cLPWSTR, cLPCWSTR, cGUID,
-    GUID, // Add this import
+    cBOOL, cDWORD, cUINT, 
+    cGUID, GUID,
 } from '../../ctypes.js'
 import { shell32 } from './_lib.js'
 import { cHWND, type HWND } from '../user32/window.js'

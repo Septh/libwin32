@@ -1,7 +1,7 @@
 import {
     koffi, ctypes, array,
     alias, opaque, pointer,
-    struct // Add this import
+    struct,
 } from './private.js'
 
 /*
