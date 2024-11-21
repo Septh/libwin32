@@ -22,7 +22,7 @@ import type { Plugin } from 'rollup'
  * })(X || (X = {}));
  * ````
  *
- * And this is how this plugins transforms the above:
+ * And this is how this plugin transforms the above:
  * ````ts
  * export var X=((X)=>{     // NB: there is a __PURE__ annotation ahead of the function call
  *   X[X["a"] = 0] = "a";
@@ -52,34 +52,26 @@ export function enums(): Plugin {
     // cspell: enable
 
     return {
-        name: 'libwin32-tree-skakeable-enums',
+        name: 'libwin32-tree-shakeable-enums',
 
         transform(code, id) {
             if (!id.startsWith(constsBase))
                 return
 
-            let ms: MagicString | undefined
+            const ms = new MagicString(code)
             let match: RegExpMatchArray | null
             enumRx.lastIndex = 0
             while (match = enumRx.exec(code)) {
                 const varName = match.groups!.name
                 const indices = match.indices!.groups!
 
-                ms ??= new MagicString(code)
                 ms.update(indices.intro[0], indices.intro[1], `export var ${varName} = /*@__PURE__*/ ((${varName}) => {`)
                 ms.update(indices.outro[0], indices.outro[1], `${ms.getIndentString()}return ${varName};\n})(${varName} || {});`)
             }
 
-            if (ms) {
-                if (match = /\/\/#\s*sourceMappingURL=(?:.*).map\s*$/d.exec(code))
-                    ms.remove(match.indices![0][0], match.indices![0][1])
-                return {
-                    code: ms.toString(),
-                    map: ms.generateMap()
-                }
-            }
-
-            return null
+            return ms.hasChanged()
+                ? { code: ms.toString(), map: ms.generateMap() }
+                : null
         }
     }
 }

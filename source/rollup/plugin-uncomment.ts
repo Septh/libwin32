@@ -4,7 +4,7 @@ import type { Plugin } from 'rollup'
 export function uncomment(): Plugin {
 
     return {
-        name: 'libwin32-scrape-comments',
+        name: 'libwin32-uncomment',
 
         renderChunk(code) {
             const scraper = new MagicStringEx(code)
