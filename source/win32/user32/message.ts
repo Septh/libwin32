@@ -125,6 +125,19 @@ export const GetMessage: koffi.KoffiFunc<(
 ) => number> = user32('GetMessageW', cBOOL, [ out(cLPMSG), cHWND, cUINT, cUINT ])
 
 /**
+ * Checks the thread message queue for a posted message.
+ * 
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
+ */
+export const PeekMessage: koffi.KoffiFunc<(
+    lpMsg:         MSG,
+    hWnd:          HWND | null | -1,
+    wMsgFilterMin: number,
+    wMsgFilterMax: number,
+    wRemoveMsg:    number
+) => number> = user32('PeekMessageW', cBOOL, [ out(cLPMSG), cHWND, cUINT, cUINT, cUINT ])
+
+/**
  * Indicates to the system that a thread has made a request to terminate (quit).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postquitmessage
@@ -151,5 +164,17 @@ export const TranslateMessageEx: koffi.KoffiFunc<(
     lpMsg: MSG,
     flags: number
 ) => number> = user32('TranslateMessageEx', cBOOL, [ cLPMSG, cUINT ])
+
+/**
+ * Sends a message to the specified window.
+ * 
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
+ */
+export const SendMessage: koffi.KoffiFunc<(
+    hWnd:    HWND,
+    Msg:     number,
+    wParam:  WPARAM,
+    lParam:  LPARAM
+) => number | BigInt> = user32('SendMessageW', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ])
 
 // #endregion

@@ -1,5 +1,6 @@
-import { pointer, struct } from '../../private.js'
-import { cLONG, cSHORT } from '../../ctypes.js'
+import { out, pointer, struct, type koffi } from '../../private.js'
+import { cLONG, cSHORT, cBOOL } from '../../ctypes.js'
+import { user32 } from './_lib.js'
 
 // #region Types
 
@@ -32,4 +33,14 @@ export interface POINTS {
 // #endregion
 
 // #region Functions
+
+/**
+ * Retrieves the cursor's position, in screen coordinates.
+ * 
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
+ */
+export const GetCursorPos: koffi.KoffiFunc<(
+    lpPoint: POINT
+) => number> = user32('GetCursorPos', cBOOL, [ out(cLPPOINT) ])
+
 // #endregion

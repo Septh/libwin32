@@ -1,6 +1,7 @@
 import {
-    koffi, ctypes,
-    alias, opaque, pointer
+    koffi, ctypes, array,
+    alias, opaque, pointer,
+    struct,
 } from './private.js'
 
 /*
@@ -25,6 +26,14 @@ export const cPDWORD     = pointer('PDWORD',      ctypes.uint32)
 export const cLPDWORD    = pointer('LPDWORD',     ctypes.uint32)
 export const cINT_PTR    = ctypes.int64
 
+// GUID structure
+export const cGUID = struct('GUID', {
+    Data1: ctypes.uint32,
+    Data2: ctypes.uint16,
+    Data3: ctypes.uint16,
+    Data4: array('uint8', 8),
+})
+
 // Apis.
 export const cHANDLE     = pointer('HANDLE',   opaque())
 export const cLPHANDLE   = pointer('LPHANDLE', cHANDLE)
@@ -44,3 +53,11 @@ export type LPARAM    = number | BigInt | HANDLE<string>
 export type HRESULT   = number | HANDLE<string>
 export type LRESULT   = number | BigInt | HANDLE<string>
 export type ATOM      = number | string
+
+// TypeScript type for GUID
+export interface GUID {
+    Data1: number;
+    Data2: number;
+    Data3: number;
+    Data4: Uint8Array;
+}
