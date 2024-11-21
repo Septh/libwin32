@@ -4,9 +4,11 @@
  *
  * The library itself is published unbundled (in the `dist` folder).
  */
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import { defineConfig } from 'rollup'
 import nodeExternals from 'rollup-plugin-node-externals'
-import libwin32 from './dist/rollup/index.js'
+import libwin32 from 'libwin32/rollup'
 
 /**
  * Workaround for the wrong typings in all rollup plugins.
@@ -21,45 +23,30 @@ const nodeResolve = rollupPlugin(await import('@rollup/plugin-node-resolve'))
 const typescript = rollupPlugin(await import('@rollup/plugin-typescript'))
 
 // Use distinct configs (one per demo) to prevent Rollup from code-splitting the library.
-export default [
-    makeConfig('messagebox'),
-    makeConfig('enumdesktopwindows'),
-    makeConfig('window'),
-]
-
-/** @param { string } demo */
-function makeConfig(demo) {
-    return defineConfig({
-        input: `source/demos/${demo}.ts`,
-        output: {
-            file: `demos/${demo}/${demo}.js`,
-            format: 'esm',
-            generatedCode: {
-                preset: 'es2015',
-                symbols: false
+export default (
+    fs.readdir('./source/demos').then(sources => sources.map(source => {
+        const { name: demo } = path.parse(source)
+        return defineConfig({
+            input: `source/demos/${demo}.ts`,
+            output: {
+                file: `demos/${demo}/${demo}.js`,
+                format: 'esm',
+                generatedCode: 'es2015',
+                freeze: false,
+                sourcemap: false
             },
-            freeze: false,
-            sourcemap: true
-        },
-        plugins: [
-            nodeExternals(),
-            nodeResolve(),
-            commonJS(),
-            typescript({
-                tsconfig: './tsconfig.build.json',
-                compilerOptions: {
-                    outDir: `demos/${demo}`,
-                    declaration: false,
-                    declarationMap: false,
-                    paths: {
-                        libwin32: [ './source/index.ts' ],
-                        'libwin32/kernel32': [ './source/win32/kernel32.ts' ],
-                        'libwin32/user32': [ './source/win32/user32.ts' ],
-                        'libwin32/consts': [ './source/win32/consts.ts' ],
+            plugins: [
+                nodeExternals(),
+                nodeResolve(),
+                commonJS(),
+                typescript({
+                    tsconfig: './tsconfig.demos.json',
+                    compilerOptions: {
+                        outDir: `demos/${demo}`,
                     }
-                }
-            }),
-            libwin32()
-        ]
-    })
-}
+                }),
+                libwin32()
+            ]
+        })
+    }))
+)

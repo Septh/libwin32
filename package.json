@@ -34,7 +34,7 @@
       "types": "./dist/win32/consts.d.ts",
       "default": "./dist/win32/consts.js"
     },
-    "./rollup-plugin": {
+    "./rollup": {
       "types": "./dist/rollup/index.d.ts",
       "default": "./dist/rollup/index.js"
     }
@@ -53,10 +53,10 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "build:demos": "rimraf demos && rollup -c rollup.demos.js",
+    "build:demos": "rollup -c rollup.demos.js",
     "clean": "rimraf dist demos",
     "test": "echo No test yet",
-    "prepublishOnly": "npm run clean && npm run build"
+    "prepublishOnly": "npm run clean && npm run build && npm run build:demos"
   },
   "dependencies": {
     "koffi": "^2.9.0"

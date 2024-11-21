@@ -1,25 +1,14 @@
 {
   "extends": "./tsconfig.json",
-  "include": [
-    "source"
-  ],
+  "include": [ "source" ],
   "compilerOptions": {
-
-    // Input
     "rootDir": "source",
-    "allowJs": false,
-    "checkJs": false,
-
-    // Output
     "outDir": "dist",
-    "target": "ES2023",
     "removeComments": false,
     "preserveConstEnums": true,
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    // "incremental": true,
-    // "tsBuildInfoFile": ".tsbuildinfo",
     "importHelpers": true,
     "noEmitOnError": true,
     "noEmit": false,

@@ -4,12 +4,8 @@
     "rollup.demos.js"
   ],
   "compilerOptions": {
-
-    // Input
     "checkJs": true,
     "resolveJsonModule": true,
-
-    // Output
     "noEmit": true,
 
     // Module
@@ -18,8 +14,9 @@
     "allowSyntheticDefaultImports": true,
 
     // Libs
-    "lib": [ "ESNext" ],
-    "skipLibCheck": false,
+    "target": "ES2023",
+    "lib": [ "ES2023" ],
+    "skipLibCheck": true,
     "skipDefaultLibCheck": true,
 
     // Type checking

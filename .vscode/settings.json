@@ -3,16 +3,6 @@
   "debug.terminal.clearBeforeReusing": true,
   "vsicons.associations.files": [
     {
-      "icon": "rollup",
-      "extensions": [],
-      "filenamesGlob": [
-        "rollup.demos",
-      ],
-      "extensionsGlob": [ "js" ],
-      "filename": true,
-      "format": "svg",
-    },
-    {
       "icon": "tsconfig",
       "extensions": [],
       "filenamesGlob": [
@@ -23,18 +13,29 @@
       ],
       "filename": true,
       "format": "svg",
+    },
+    {
+      "icon": "rollup",
+      "extensions": [],
+      "filenamesGlob": [
+        "rollup.demos",
+      ],
+      "extensionsGlob": [ "js" ],
+      "filename": true,
+      "format": "svg",
     }
   ],
   "cSpell.words": [
     "dllname",
     "enumdesktopwindows",
+    "ICONINFORMATION",
     "Koffi",
     "libwin",
     "messagebox",
     "Mmsg",
     "mucho",
     "shakeability",
-    "skakeable",
+    "shakeable",
     "tsbuildinfo"
   ],
   "cSpell.languageSettings": [
@@ -54,6 +55,7 @@
   "conventionalCommits.scopes": [
     "kernel32",
     "user32",
+    "shell32",
     "demos"
   ]
 }

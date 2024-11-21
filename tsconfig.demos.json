@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.build.json",
+  "include": [ "./source/demos" ],
+  "compilerOptions": {
+    "sourceMap": false,
+    "declaration": false,
+    "declarationMap": false,
+    "paths": {
+      "libwin32": [ "./source/index.ts" ],
+      "libwin32/kernel32": [ "./source/win32/kernel32.ts" ],
+      "libwin32/user32": [ "./source/win32/user32.ts" ],
+      "libwin32/consts": [ "./source/win32/consts.ts" ],
+}
+  }
+}
