@@ -224,3 +224,12 @@ export const ShowWindowAsync: koffi.KoffiFunc<(
 export const UpdateWindow: koffi.KoffiFunc<(
     hWnd: HWND
 ) => boolean> = user32('UpdateWindow', cBOOL, [ cHWND ])
+
+/**
+ * Brings the thread that created the specified window into the foreground and activates the window.
+ * 
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow
+ */
+export const SetForegroundWindow: koffi.KoffiFunc<(
+    hWnd: HWND
+) => number> = user32('SetForegroundWindow', cBOOL, [ cHWND ])

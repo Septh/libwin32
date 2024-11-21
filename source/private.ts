@@ -41,6 +41,11 @@ export function struct(name: string, def: Record<string, koffi.TypeSpecWithAlign
 }
 
 /*@__NO_SIDE_EFFECTS__*/
+export function array(type: koffi.TypeSpec, len: number, hint?: koffi.ArrayHint | null) {
+    return koffi.array(type, len, hint)
+}
+
+/*@__NO_SIDE_EFFECTS__*/
 export function sizeof(type: koffi.TypeSpec) {
     return koffi.sizeof(type)
 }
