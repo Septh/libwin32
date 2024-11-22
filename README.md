@@ -70,6 +70,20 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 ### Bindings so far
 *All functions come with their associated types and constants.*
 
+#### Added in 0.4.0
+*Many thanks to [@shrirajh](https://github.com/shrirajh) for the impressive work on [b2bf65b](https://github.com/Septh/libwin32/commit/b2bf65b6d20dbe7dae4e48341176a8407c135c46)!*
+* user32.dll
+    * AppendMenu
+    * CheckMenuItem
+    * CreatePopupMenu
+    * DestroyMenu
+    * GetCursorPos
+    * SendMessage
+    * SetForegroundWindow
+    * TrackPopupMenu
+* shell32.dll
+    * Shell_NotifyIcon
+
 #### Added in 0.3.0
 * user32.dll
     * AdjustWindowRect
