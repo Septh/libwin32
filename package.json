@@ -30,6 +30,10 @@
       "types": "./dist/win32/user32.d.ts",
       "default": "./dist/win32/user32.js"
     },
+    "./shell32": {
+      "types": "./dist/win32/shell32.d.ts",
+      "default": "./dist/win32/shell32.js"
+    },
     "./consts": {
       "types": "./dist/win32/consts.d.ts",
       "default": "./dist/win32/consts.js"
