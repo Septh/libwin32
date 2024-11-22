@@ -17,7 +17,7 @@
 1. Import the functions and types you need. You may either import from `libwin32` or from `libwin32/<dllname>` (without the `.dll` extension) if you know which dll a function belongs to. For example, `import { MessageBox } from 'libwin32'` and `import { MessageBox } from 'libwin32/user32'` would both work.
 1. (optional) Import some complementary constants. They greatly simplify calls to the Win32 API.
     * All constants are available via the `libwin32/consts` import.
-    * Logically grouped constants are exported as `enum`s, where the prefix is the name of the enum. For instance, `WM_DESTROY` and `WM_KEYDOWN` are exported as `WM_.DESTROY` and `WM_.KEYDOWN`, respectively.
+    * Logically grouped constants are exported as `enum`s, where the prefix is the name of the enum. For instance, `WM_DESTROY` and `WM_KEYDOWN` are members of the `WM_` enum and can be accessed as `WM_.DESTROY` and `WM_.KEYDOWN`, respectively.
 1. Call the functions as instructed by the [Win32 API documentation](https://learn.microsoft.com/en-us/windows/win32/api/). All functions, constants and types are named accordingly.
 
 ````js
@@ -30,7 +30,6 @@ const result = MessageBox(
     "libwin32",
     MB_.ICONINFORMATION | MB_.YESNO
 )
-console.dir(result)
 ````
 
 ![alt text](docs/snapshot.png)
@@ -137,4 +136,4 @@ None.
 * `./source/demos`:
     * Some usage examples.
 * `./source/rollup`:
-    * Two [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](./rollup.demos.js) for an example of usage.
+    * Three [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](./rollup.demos.js) for an example of usage.
