@@ -74,6 +74,7 @@
     "regex": "^5.0.2",
     "rimraf": "^6.0.1",
     "rollup": "^4.21.2",
+    "rollup-plugin-code-raker": "^1.0.0",
     "rollup-plugin-node-externals": "^7.1.3",
     "tslib": "^2.7.0",
     "typescript": "^5.5.4"

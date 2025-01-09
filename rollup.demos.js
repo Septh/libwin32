@@ -8,6 +8,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { defineConfig } from 'rollup'
 import nodeExternals from 'rollup-plugin-node-externals'
+import rake from 'rollup-plugin-code-raker'
 import libwin32 from 'libwin32/rollup'
 
 /**
@@ -45,7 +46,8 @@ export default (
                         outDir: `demos/${demo}`,
                     }
                 }),
-                libwin32()
+                libwin32(),
+                rake()
             ]
         })
     }))
