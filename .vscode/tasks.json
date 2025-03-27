@@ -2,17 +2,25 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "clean lib",
+      "label": "clean",
       "type": "npm",
       "script": "clean",
-      "problemMatcher": [],
-      "detail": "rimraf .tsbuildinfo dist"
+      "detail": "npm run clean",
+      "presentation": {
+        "reveal": "silent",
+        "clear": false
+      }
     },
     {
-      "label": "watch lib",
+      "label": "tsc watch",
       "group": {
         "kind": "build",
         "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "clear": false
       },
       "type": "typescript",
       "tsconfig": "tsconfig.build.json",
@@ -20,8 +28,7 @@
       "problemMatcher": [
         "$tsc-watch"
       ],
-      "isBackground": true,
-      "dependsOn": [ "clean lib" ],
+      "dependsOn": [ "clean" ],
       "dependsOrder": "sequence",
       "runOptions": {
         "runOn": "folderOpen"

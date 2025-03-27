@@ -1,11 +1,11 @@
-import { fileURLToPath } from 'node:url'
-import MagicString from 'magic-string'
+import path from 'node:path'
 import { regex } from 'regex'
+import MagicString from 'magic-string'
 import type { Plugin } from 'rollup'
 
 /**
- * A plugin that rewrites TypeScript's outputted enums into a tree-shakeable
- * form --the same as esbuid.
+ * A plugin that rewrites TypeScript's emitted enums into a tree-shakeable
+ * form -- the same as esbuid.
  *
  * For example, consider this TypeScript code:
  * ````ts
@@ -24,7 +24,7 @@ import type { Plugin } from 'rollup'
  *
  * And this is how this plugin transforms the above:
  * ````ts
- * export var X=((X)=>{     // NB: there is a __PURE__ annotation ahead of the function call
+ * export var X = ((X) => {
  *   X[X["a"] = 0] = "a";
  *   X[X["b"] = 10] = "b";
  *   X[X["c"] = 11] = "c";
@@ -34,14 +34,13 @@ import type { Plugin } from 'rollup'
  */
 export function enums(): Plugin {
 
-    // Note: import.meta.resolve requires Node v20.6.0+
-    const constsBase = fileURLToPath(import.meta.resolve('#consts-base'))
+    const constsBase = path.join('win32', 'consts', 'X').slice(0, -1)
+    console.dir(constsBase)
 
-    // cspell: disable
-    // https://regex101.com/r/1nyPC3/3
+    // https://regex101.com/r/1nyPC3/5
     const enumRx = regex('gsd')`
       (?<intro>
-        \b(export\s+)?var\s+(?<name>[^;\s]+);?\s*           # export var XX;
+        \b(?<export>export\s+)?var\s+(?<name>[^;\s]+);?\s*  # export var XX;
         \(function\s*\(\k<name>\)\s*\{                      # (function (XX) {
       )
       (?<body>.*)
@@ -49,24 +48,26 @@ export function enums(): Plugin {
         \}\)\(\k<name>\s*\|\|\s*\(\k<name>\s*=\s\{\}\)\);?  # })(XX || XX={});
       )
     `
-    // cspell: enable
+    let match: RegExpMatchArray | null
 
     return {
         name: 'libwin32-tree-shakeable-enums',
 
         transform(code, id) {
-            if (!id.startsWith(constsBase))
-                return
+            if (!id.includes(constsBase))
+                return null
 
             const ms = new MagicString(code)
-            let match: RegExpMatchArray | null
+            const indent = ms.getIndentString()
+
             enumRx.lastIndex = 0
             while (match = enumRx.exec(code)) {
+                const export_ = match.groups!.export ?? ''
                 const varName = match.groups!.name
                 const indices = match.indices!.groups!
 
-                ms.update(indices.intro[0], indices.intro[1], `export var ${varName} = /*@__PURE__*/ ((${varName}) => {`)
-                ms.update(indices.outro[0], indices.outro[1], `${ms.getIndentString()}return ${varName};\n})(${varName} || {});`)
+                ms.update(indices.intro[0], indices.intro[1], `${export_}var ${varName} = /*@__PURE__*/ ((${varName}) => {`)
+                ms.update(indices.outro[0], indices.outro[1], `${indent}return ${varName};\n})(${varName} || {});`)
             }
 
             return ms.hasChanged()

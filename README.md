@@ -32,7 +32,7 @@ const result = MessageBox(
 )
 ````
 
-![alt text](docs/snapshot.png)
+![screenshot](docs/snapshot.png)
 
 #### > Build the lib
 
@@ -136,4 +136,4 @@ None.
 * `./source/demos`:
     * Some usage examples.
 * `./source/rollup`:
-    * Three [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](./rollup.demos.js) for an example of usage.
+    * Two [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](./rollup.demos.js) for an example of usage.
