@@ -35,7 +35,6 @@ import type { Plugin } from 'rollup'
 export function enums(): Plugin {
 
     const constsBase = path.join('win32', 'consts', 'X').slice(0, -1)
-    console.dir(constsBase)
 
     // https://regex101.com/r/1nyPC3/5
     const enumRx = regex('gsd')`

@@ -2,7 +2,7 @@
  * This config only bundles the demos (see the source/demos directory) and serves as an example
  * of how to bundle the lib with your code with maximum tree-shaking efficiency.
  *
- * The library itself is always published unbundled (in the `dist` folder).
+ * The library itself is always published unbundled (in the `lib` folder).
  */
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -30,7 +30,7 @@ const commonJS = fixRollupTypings(commonJS_)
 function makeSingleConfig(demo) {
     const { name } = path.parse(demo)
     return defineConfig({
-        input: `dist/demos/${name}.js`,
+        input: `lib/demos/${name}.js`,
         output: {
             file: `demos/${name}/${name}.js`,
             format: 'esm',
