@@ -14,11 +14,16 @@ import { kernel32 } from './_lib.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
  */
-export const OpenProcess:koffi.KoffiFunc<(
+/*@__NO_SIDE_EFFECTS__*/
+export function OpenProcess(  
     dwDesiredAccess: number,
     bInheritHandle: boolean,
     dwProcessId: number
-) => HANDLE<string>> = kernel32('OpenProcess', cHANDLE, [ cDWORD, cBOOL, cDWORD ])
+): string | null {
+    const flag = bInheritHandle ? 1 : 0
+    return _OpenProcess(dwDesiredAccess, flag, dwProcessId)
+}
+const _OpenProcess = kernel32('OpenProcess', cHANDLE, [ cDWORD, cBOOL, cDWORD ])
 
 /**
  * Get full Image Name of Process (A)
@@ -27,7 +32,7 @@ export const OpenProcess:koffi.KoffiFunc<(
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function QueryFullProcessImageNameA(
-    hProcess: HANDLE<''>,
+    hProcess: string,
     dwFlags: number
 ): string | null {
     const exeName = new Uint16Array(256)
@@ -46,7 +51,7 @@ const _QueryFullProcessImageNameA = kernel32('QueryFullProcessImageNameW', cBOOL
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function QueryFullProcessImageName(
-    hProcess: HANDLE<string>,
+    hProcess: string,
     dwFlags: number
 ): string | null {
     const exeName = new Uint16Array(256)
@@ -65,7 +70,7 @@ const _QueryFullProcessImageName = kernel32('QueryFullProcessImageNameW', cBOOL,
  * 
  */
 export const CloseHandle:koffi.KoffiFunc<(
-    hObject: HANDLE<string>
+    hObject: string
 ) => boolean> = kernel32('CloseHandle', cBOOL, [ cHANDLE ])
 
 // #endregion
