@@ -1,8 +1,4 @@
-import {
-    pointer, inout, out,
-    struct, sizeof,
-    type koffi
-} from '../../private.js'
+import { koffi } from '../../private.js'
 import {
     cVOID, cBOOL, cDWORD, cINT, cUINT, cLONG,
     cLPDWORD,
@@ -17,7 +13,7 @@ import { cHDESK, type HDESK } from './desktop.js'
 
 // #region Types
 
-export const cMSG = struct('MSG', {
+export const cMSG = koffi.struct('MSG', {
     HWND:     cHWND,
     message:  cUINT,
     wParam:   cWPARAM,
@@ -27,8 +23,8 @@ export const cMSG = struct('MSG', {
     lPrivate: cDWORD
 })
 
-export const cLPMSG = pointer('LPMSG', cMSG)
-export const cPMSG  = pointer('PMSG',  cMSG)
+export const cLPMSG = koffi.pointer('LPMSG', cMSG)
+export const cPMSG  = koffi.pointer('PMSG',  cMSG)
 
 export interface MSG {
     HWND:    HWND
@@ -39,18 +35,18 @@ export interface MSG {
     pt:      POINT
 }
 
-export const cBSMINFO = struct('BSMINFO', {
+export const cBSMINFO = koffi.struct('BSMINFO', {
     cbSize: cUINT,
     hdesk: cHDESK,
     hwnd: cHWND,
     luid: cLUID,
 })
 
-export const cLPBSMINFO = pointer('LPBSMINFO', cBSMINFO)
-export const cPBSMINFO  = pointer('PBSMINFO', cBSMINFO)
+export const cLPBSMINFO = koffi.pointer('LPBSMINFO', cBSMINFO)
+export const cPBSMINFO  = koffi.pointer('PBSMINFO', cBSMINFO)
 
 export class BSMINFO {
-    readonly cbSize = sizeof(cBSMINFO)
+    readonly cbSize = koffi.sizeof(cBSMINFO)
     declare hDesk?: HDESK
     declare hWnd?: HWND
     declare luid?: LUID
@@ -77,7 +73,7 @@ export function BroadcastSystemMessage(
     const ret = _BroadcastSystemMessage(flags, ptr, Msg, wParam, lParam)
     return [ ret, ptr[0] ]
 }
-const _BroadcastSystemMessage = user32('BroadcastSystemMessageW', cLONG, [ cDWORD, inout(cLPDWORD), cUINT, cWPARAM, cLPARAM ])
+const _BroadcastSystemMessage = user32('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM ])
 
 /**
  * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
@@ -98,7 +94,7 @@ export function BroadcastSystemMessageEx(
     const ret = _BroadcastSystemMessageEx(flags, ptr, Msg, wParam, lParam, psbmInfo)
     return [ ret, ptr[0] ]
 }
-const _BroadcastSystemMessageEx = user32('BroadcastSystemMessageExW', cLONG, [ cDWORD, inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, cPBSMINFO ])
+const _BroadcastSystemMessageEx = user32('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, cPBSMINFO ])
 
 /** Return this value to deny a query. */
 export const BROADCAST_QUERY_DENY = 0x424D5144
@@ -122,11 +118,11 @@ export const GetMessage: koffi.KoffiFunc<(
     hWnd:          HWND | null | -1,
     wMsgFilterMin: number,
     wMsgFilterMax: number
-) => number> = user32('GetMessageW', cBOOL, [ out(cLPMSG), cHWND, cUINT, cUINT ])
+) => number> = user32('GetMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT ])
 
 /**
  * Checks the thread message queue for a posted message.
- * 
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
  */
 export const PeekMessage: koffi.KoffiFunc<(
@@ -135,7 +131,7 @@ export const PeekMessage: koffi.KoffiFunc<(
     wMsgFilterMin: number,
     wMsgFilterMax: number,
     wRemoveMsg:    number
-) => number> = user32('PeekMessageW', cBOOL, [ out(cLPMSG), cHWND, cUINT, cUINT, cUINT ])
+) => number> = user32('PeekMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT, cUINT ])
 
 /**
  * Indicates to the system that a thread has made a request to terminate (quit).
@@ -167,7 +163,7 @@ export const TranslateMessageEx: koffi.KoffiFunc<(
 
 /**
  * Sends a message to the specified window.
- * 
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
  */
 export const SendMessage: koffi.KoffiFunc<(

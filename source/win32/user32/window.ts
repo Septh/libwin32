@@ -1,8 +1,4 @@
-import {
-    opaque, proto,
-    pointer, inout, out, textDecoder,
-    type koffi
-} from '../../private.js'
+import { koffi, textDecoder } from '../../private.js'
 import {
     cLPVOID, cBOOL, cINT, cUINT, cDWORD, cLPWSTR, cLPCWSTR,
     cHINSTANCE, cWPARAM, cLPARAM, cLRESULT,
@@ -20,13 +16,13 @@ import type { SW_ } from '../consts/SW.js'
 
 // #region Types
 
-export const cHWND = pointer('HWND', opaque())
+export const cHWND = koffi.pointer('HWND', koffi.opaque())
 export type HWND = HANDLE<'HWND'>
 
-export const cWNDPROC = pointer('WNDPROC', proto('__wndproc', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ]))
+export const cWNDPROC = koffi.pointer('WNDPROC', koffi.proto('__wndproc', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ]))
 export type WNDPROC = (hWnd: HWND, msg: WM_, wParam: WPARAM, lParam: LPARAM) => number
 
-export const cWNDENUMPROC = pointer('WNDENUMPROC', proto('__wndenumproc', cBOOL, [ cHWND, cLPARAM ]))
+export const cWNDENUMPROC = koffi.pointer('WNDENUMPROC', koffi.proto('__wndenumproc', cBOOL, [ cHWND, cLPARAM ]))
 export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
 
 // #endregion
@@ -42,7 +38,7 @@ export const AdjustWindowRect: koffi.KoffiFunc<(
     lpRect: RECT,
     dwStyle: WS_ | number,
     bMenu: number
-) => number> = user32('AdjustWindowRect', cBOOL, [ inout(cLPRECT), cDWORD, cBOOL ])
+) => number> = user32('AdjustWindowRect', cBOOL, [ koffi.inout(cLPRECT), cDWORD, cBOOL ])
 
 /**
  * Calculates the required size of the window rectangle, based on the desired client-rectangle size.
@@ -54,7 +50,7 @@ export const AdjustWindowRectEx: koffi.KoffiFunc<(
     dwStyle: WS_ | number,
     bMenu: number,
     cwExStyle: WS_EX_ | number
-) => number> = user32('AdjustWindowRect', cBOOL, [ inout(cLPRECT), cDWORD, cBOOL, cDWORD ])
+) => number> = user32('AdjustWindowRect', cBOOL, [ koffi.inout(cLPRECT), cDWORD, cBOOL, cDWORD ])
 
 /**
  * Enables you to produce special effects when showing or hiding windows.
@@ -194,7 +190,7 @@ export function GetWindowText(hWnd: HWND): string {
     const len = _GetWindowText(hWnd, out, 512)
     return textDecoder.decode(out).slice(0, len)
 }
-const _GetWindowText = user32('GetWindowTextW', cINT, [ cHWND, out(cLPWSTR), cINT ])
+const _GetWindowText = user32('GetWindowTextW', cINT, [ cHWND, koffi.out(cLPWSTR), cINT ])
 
 /**
  * Sets the specified window's show state.
@@ -227,7 +223,7 @@ export const UpdateWindow: koffi.KoffiFunc<(
 
 /**
  * Brings the thread that created the specified window into the foreground and activates the window.
- * 
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow
  */
 export const SetForegroundWindow: koffi.KoffiFunc<(

@@ -1,15 +1,12 @@
-import { opaque, pointer, type koffi } from '../../private.js'
-import {
-    cBOOL, cLPARAM, LPARAM,
-    type HANDLE
-} from '../../ctypes.js'
+import { koffi } from '../../private.js'
+import { cBOOL, cLPARAM, LPARAM, type HANDLE } from '../../ctypes.js'
 import { user32 } from './_lib.js'
 import { cWNDENUMPROC, type WNDENUMPROC } from './window.js'
 
 
 // #region Types
 
-export const cHDESK = pointer('HDESK', opaque())
+export const cHDESK = koffi.pointer('HDESK', koffi.opaque())
 export type HDESK = HANDLE<'HDESK'>
 
 // #endregion

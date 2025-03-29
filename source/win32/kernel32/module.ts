@@ -1,10 +1,10 @@
-import { alias, type koffi } from '../../private.js'
+import { koffi } from '../../private.js'
 import { cHINSTANCE, cLPCWSTR, type HINSTANCE } from '../../ctypes.js'
 import { kernel32 } from './_lib.js'
 
 // #region Types
 
-export const cHMODULE = alias('HMODULE', cHINSTANCE)
+export const cHMODULE = koffi.alias('HMODULE', cHINSTANCE)
 export type HMODULE = HINSTANCE
 
 // #endregion

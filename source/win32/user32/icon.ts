@@ -1,4 +1,4 @@
-import { opaque, pointer, type koffi } from '../../private.js'
+import { koffi } from '../../private.js'
 import {
     cBOOL, cLPCWSTR,
     cHINSTANCE, type HINSTANCE
@@ -9,7 +9,7 @@ import type { IDI_ } from '../consts/IDI.js'
 
 // #region Types
 
-export const cHICON = pointer('HICON', opaque())
+export const cHICON = koffi.pointer('HICON', koffi.opaque())
 export type HICON = HANDLE<'HICON'>
 
 // #endregion

@@ -1,29 +1,29 @@
-import { out, pointer, struct, type koffi } from '../../private.js'
+import { koffi } from '../../private.js'
 import { cLONG, cSHORT, cBOOL } from '../../ctypes.js'
 import { user32 } from './_lib.js'
 
 // #region Types
 
-export const cPOINT = struct('POINT', {
+export const cPOINT = koffi.struct('POINT', {
     x: cLONG,
     y: cLONG
 })
 
-export const cLPPOINT = pointer('LPPOINT', cPOINT)
-export const cPPOINT  = pointer('PPOINT',  cPOINT)
+export const cLPPOINT = koffi.pointer('LPPOINT', cPOINT)
+export const cPPOINT  = koffi.pointer('PPOINT',  cPOINT)
 
 export interface POINT {
     x: number
     y: number
 }
 
-export const cPOINTS = struct('POINTS', {
+export const cPOINTS = koffi.struct('POINTS', {
     x: cSHORT,
     y: cSHORT
 })
 
-export const cLPPOINTS = pointer('LPPOINTS', cPOINTS)
-export const cPPOINTS  = pointer('PPOINTS',  cPOINTS)
+export const cLPPOINTS = koffi.pointer('LPPOINTS', cPOINTS)
+export const cPPOINTS  = koffi.pointer('PPOINTS',  cPOINTS)
 
 export interface POINTS {
     x: number
@@ -36,11 +36,11 @@ export interface POINTS {
 
 /**
  * Retrieves the cursor's position, in screen coordinates.
- * 
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
  */
 export const GetCursorPos: koffi.KoffiFunc<(
     lpPoint: POINT
-) => number> = user32('GetCursorPos', cBOOL, [ out(cLPPOINT) ])
+) => number> = user32('GetCursorPos', cBOOL, [ koffi.out(cLPPOINT) ])
 
 // #endregion

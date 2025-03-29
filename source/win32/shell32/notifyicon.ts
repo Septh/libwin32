@@ -1,9 +1,6 @@
+import { koffi } from '../../private.js'
 import {
-    struct, sizeof, array,
-    type koffi
-} from '../../private.js'
-import {
-    cBOOL, cDWORD, cUINT, 
+    cBOOL, cDWORD, cUINT,
     cGUID, GUID,
 } from '../../ctypes.js'
 import { shell32 } from './_lib.js'
@@ -19,7 +16,7 @@ import { NIF_, NIM_ } from '../consts.js'
  * @link https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-notifyicondataw
  */
 export class NOTIFYICONDATA {
-    readonly cbSize = sizeof(cNOTIFYICONDATA)
+    readonly cbSize = koffi.sizeof(cNOTIFYICONDATA)
     declare hWnd:             HWND
     declare uID:              number
     declare uFlags:           NIF_
@@ -37,19 +34,19 @@ export class NOTIFYICONDATA {
     declare hBalloonIcon?:   HICON | null
 }
 
-export const cNOTIFYICONDATA = struct('NOTIFYICONDATA', {
+export const cNOTIFYICONDATA = koffi.struct('NOTIFYICONDATA', {
     cbSize:           cDWORD,
     hWnd:            cHWND,
     uID:             cUINT,
     uFlags:          cUINT,
     uCallbackMessage: cUINT,
     hIcon:           cHICON,
-    szTip:           array('char16', 128),    // Fixed size array
+    szTip:           koffi.array('char16', 128),    // Fixed size array
     dwState:         cDWORD,
     dwStateMask:     cDWORD,
-    szInfo:          array('char16', 256),    // Fixed size array
+    szInfo:          koffi.array('char16', 256),    // Fixed size array
     uVersion:        cUINT,                             // Union field (can be uTimeout)
-    szInfoTitle:     array('char16', 64),     // Fixed size array
+    szInfoTitle:     koffi.array('char16', 64),     // Fixed size array
     dwInfoFlags:     cDWORD,
     guidItem:        cGUID,                             // Changed to GUID type
     hBalloonIcon:    cHICON
