@@ -36,6 +36,12 @@ function makeSingleConfig(demo) {
             format: 'esm',
             sourcemap: false
         },
+        treeshake: {
+            // Declare everything Koffi as pure for maximum tree-shakeability.
+            manualPureFunctions: [
+                'koffi'
+            ]
+        },
         plugins: [
             // Standard Rollup plugins for Node.
             nodeExternals(),
