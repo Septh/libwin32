@@ -9,13 +9,14 @@
     "noEmit": true,
 
     // Module
-    "module": "Node16",
+    "module": "nodenext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "moduleResolution": "nodenext",
 
     // Libs
-    "target": "ES2023",
-    "lib": [ "ES2023" ],
+    "target": "ESNext",
+    "lib": [ "ESNext" ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
 
@@ -30,6 +31,7 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false,
     "forceConsistentCasingInFileNames": true,
-    // "isolatedModules": true,
+    "isolatedModules": true,
+    // "allowImportingTsExtensions": true
   }
 }

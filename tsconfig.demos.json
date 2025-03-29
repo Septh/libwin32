@@ -2,6 +2,11 @@
   "extends": "./tsconfig.build.json",
   "include": [ "./source/demos" ],
   "compilerOptions": {
+
+    //Included due to current issue with rollup typescript plugin (https://github.com/rollup/plugins/issues/1583)
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+
     "sourceMap": false,
     "declaration": false,
     "declarationMap": false,

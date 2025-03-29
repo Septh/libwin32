@@ -6,12 +6,13 @@ import {
 import {
     cLPVOID, cBOOL, cINT, cUINT, cDWORD, cLPWSTR, cLPCWSTR,
     cHINSTANCE, cWPARAM, cLPARAM, cLRESULT,
-    type HINSTANCE, type HANDLE, type LPARAM, type WPARAM, type LRESULT
+    type HINSTANCE, type HANDLE, type LPARAM, type WPARAM, type LRESULT,
+    cLPDWORD
 } from '../../ctypes.js'
 import { user32 } from './_lib.js'
 import { cHMENU, type HMENU } from './menu.js'
 import { cLPRECT, type RECT } from './rect.js'
-import type { HWND_ } from '../consts/HWND.js'
+import { HWND_ } from '../consts/HWND.js'
 import type { WS_, WS_EX_ } from '../consts/WS.js'
 import type { WM_ } from '../consts/WM.js'
 import type { GA_ } from '../consts/GA.js'
@@ -233,3 +234,47 @@ export const UpdateWindow: koffi.KoffiFunc<(
 export const SetForegroundWindow: koffi.KoffiFunc<(
     hWnd: HWND
 ) => number> = user32('SetForegroundWindow', cBOOL, [ cHWND ])
+
+/**
+ * 
+ * Gets the current foreground window (the window with which the user is currently working).
+ * 
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
+ * 
+ */
+export const GetForegroundWindow: koffi.KoffiFunc<() => HWND> = user32('GetForegroundWindow', cHWND, [])
+
+/**
+ * 
+ * Get Window's Thread Process ID
+ * 
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowthreadprocessid
+ * 
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export function GetWindowThreadProcessId(hWnd: HWND): number {
+    const out = [ 0 ] as [ number ]
+    _GetWindowThreadProcessId(hWnd, out)
+    return out[0]
+}
+const _GetWindowThreadProcessId: koffi.KoffiFunc<(
+    hWnd: HWND,
+    lpdwProcessId: [ number ]
+) => number> = user32('GetWindowThreadProcessId', cDWORD, [cHWND, inout(cLPDWORD)])
+
+/**
+ * 
+ * Get Window's Text A
+ * 
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtexta
+ * 
+ */
+/*@__NO_SIDE_EFFECTS__*/
+export function GetWindowTextA(hWnd: HWND): string {
+    const out = new Uint16Array(512)
+    const len = _GetWindowTextA(hWnd, out, 512)
+    return textDecoder.decode(out).slice(0, len)
+}
+const _GetWindowTextA = user32('GetWindowTextA', cINT, [ cHWND, out(cLPWSTR), cINT ])
+
+
