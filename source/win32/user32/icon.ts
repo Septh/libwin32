@@ -21,16 +21,16 @@ export type HICON = HANDLE<'HICON'>
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroyicon
  */
-export const DestroyIcon: koffi.KoffiFunc<(
+export const DestroyIcon: (
     hIcon: HICON
-) => number> = user32('DestroyIcon', cBOOL, [ cHICON ])
+) => number = /*#__PURE__*/user32.func('DestroyIcon', cBOOL, [ cHICON ])
 
 /**
  * Loads the specified icon resource from the executable (.exe) file associated with an application instance.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadiconw
  */
-export const LoadIcon: koffi.KoffiFunc<(
+export const LoadIcon: (
     hInstance:  HINSTANCE | null,
     lpIconName: IDI_ | string
-) => HICON> = user32('LoadIconW', cHICON, [ cHINSTANCE, cLPCWSTR ])
+) => HICON = /*#__PURE__*/user32.func('LoadIconW', cHICON, [ cHINSTANCE, cLPCWSTR ])

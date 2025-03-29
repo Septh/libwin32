@@ -16,8 +16,8 @@ export type HMODULE = HINSTANCE
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandlew
  */
-export const GetModuleHandle: koffi.KoffiFunc<(
+export const GetModuleHandle: (
     lpModuleName: string | null
-) => HMODULE> = kernel32('GetModuleHandleW', cHMODULE, [ cLPCWSTR ])
+) => HMODULE = /*#__PURE__*/kernel32.func('GetModuleHandleW', cHMODULE, [ cLPCWSTR ])
 
 // #endregion

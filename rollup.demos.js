@@ -37,9 +37,11 @@ function makeSingleConfig(demo) {
             sourcemap: false
         },
         treeshake: {
-            // Declare everything Koffi as pure for maximum tree-shakeability.
             manualPureFunctions: [
-                'koffi'
+                // Declare everything Koffi as pure for maximum tree-shakeability.
+                'koffi',
+                // This avoids #__PURE__ annotations everywhere.
+                // 'Win32Dll'
             ]
         },
         plugins: [
@@ -48,7 +50,7 @@ function makeSingleConfig(demo) {
             nodeResolve(),
             commonJS(),
 
-            // This repo provides a plugin for a better tree-shakeability of the lib.
+            // Use the dedicated plugin this repo provides.
             // See `source/rollup` for info.
             libwin32(),
 

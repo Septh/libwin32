@@ -1,4 +1,3 @@
-import type { koffi } from '../../private.js'
 import {
     cINT, cUINT, cLPCWSTR,
     cHINSTANCE, type HINSTANCE
@@ -23,11 +22,11 @@ import type { IMAGE_ } from '../consts/IMAGE.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadimagew
  */
-export const LoadImage: koffi.KoffiFunc<(
+export const LoadImage: (
     hInstance: HINSTANCE | null,
     lpName:    IDC_ | IDI_ | OIC_ | OCR_ | OBM_ | string,
     type:      IMAGE_,
     cx:        number,
     cy:        number,
     fuLoad:    LR_
-) => HICON> = user32('LoadImageW', cHICON, [ cHINSTANCE, cLPCWSTR, cUINT, cINT, cINT, cUINT ])
+) => HICON = /*#__PURE__*/user32.func('LoadImageW', cHICON, [ cHINSTANCE, cLPCWSTR, cUINT, cINT, cINT, cUINT ])

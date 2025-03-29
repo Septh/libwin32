@@ -1,6 +1,5 @@
-import type { koffi } from '../../private.js'
-import { cDWORD } from '../../ctypes.js'
 import { kernel32 } from './_lib.js'
+import { cDWORD } from '../../ctypes.js'
 
 // #region Types
 // #endregion
@@ -12,6 +11,6 @@ import { kernel32 } from './_lib.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror
  */
-export const GetLastError: koffi.KoffiFunc<() => number> = kernel32('GetLastError', cDWORD, [])
+export const GetLastError: () => number = /*#__PURE__*/kernel32.func('GetLastError', cDWORD, [])
 
 // #endregion

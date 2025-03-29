@@ -18,9 +18,9 @@ export type HDESK = HANDLE<'HDESK'>
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumwindows
  */
-export const EnumDesktopWindows: koffi.KoffiFunc<(
+export const EnumDesktopWindows: (
     lpEnumFunc: WNDENUMPROC,
     lpParam: LPARAM
-) => number> = user32('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
+) => number = /*#__PURE__*/user32.func('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
 
 // #endregion

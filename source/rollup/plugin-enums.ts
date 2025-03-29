@@ -65,7 +65,7 @@ export function enums(): Plugin {
                 const varName = match.groups!.name
                 const indices = match.indices!.groups!
 
-                ms.update(indices.intro[0], indices.intro[1], `${export_}var ${varName} = /*@__PURE__*/ ((${varName}) => {`)
+                ms.update(indices.intro[0], indices.intro[1], `${export_}var ${varName} = /*#__PURE__*/ ((${varName}) => {`)
                 ms.update(indices.outro[0], indices.outro[1], `${indent}return ${varName};\n})(${varName} || {});`)
             }
 

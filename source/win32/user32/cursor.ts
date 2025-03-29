@@ -21,16 +21,16 @@ export type HCURSOR = HICON
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroycursor
  */
-export const DestroyCursor: koffi.KoffiFunc<(
+export const DestroyCursor: (
     hCursor: HCURSOR
-) => number> = user32('DestroyCursor', cBOOL, [ cHCURSOR ])
+) => number = /*#__PURE__*/user32.func('DestroyCursor', cBOOL, [ cHCURSOR ])
 
 /**
  * Loads the specified cursor resource from the executable (.exe) file associated with an application instance.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursorw
  */
-export const LoadCursor: koffi.KoffiFunc<(
+export const LoadCursor: (
     hInstance:  HINSTANCE | null,
     lpIconName: IDC_ | string
-) => HCURSOR> = user32('LoadCursorW', cHCURSOR, [ cHINSTANCE, cLPCWSTR ])
+) => HCURSOR = /*#__PURE__*/user32.func('LoadCursorW', cHCURSOR, [ cHINSTANCE, cLPCWSTR ])

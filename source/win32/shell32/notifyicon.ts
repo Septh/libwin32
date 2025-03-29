@@ -57,8 +57,9 @@ export const cNOTIFYICONDATA = koffi.struct('NOTIFYICONDATA', {
 /**
  * Adds, modifies, or deletes an icon from the taskbar status area.
  *
- * @link https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shell_notifyiconw
+ * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shell_notifyiconw
  */
+/*#__NO_SIDE_EFFECTS__*/
 export function Shell_NotifyIcon(dwMessage: NIM_, lpData: NOTIFYICONDATA): boolean {
     // Convert strings to UTF-16 arrays if present
     const data = { ...lpData }
@@ -86,7 +87,7 @@ export function Shell_NotifyIcon(dwMessage: NIM_, lpData: NOTIFYICONDATA): boole
     return _Shell_NotifyIcon(dwMessage, data)
 }
 
-const _Shell_NotifyIcon: koffi.KoffiFunc<(
+const _Shell_NotifyIcon: (
     dwMessage: NIM_,
     lpData: NOTIFYICONDATA
-) => boolean> = shell32('Shell_NotifyIconW', cBOOL, [ cDWORD, cNOTIFYICONDATA ])
+) => boolean = /*#__PURE__*/shell32.func('Shell_NotifyIconW', cBOOL, [ cDWORD, cNOTIFYICONDATA ])

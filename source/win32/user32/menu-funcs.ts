@@ -1,4 +1,3 @@
-import { koffi } from '../../private.js'
 import { cBOOL, cUINT, cLPCWSTR } from '../../ctypes.js'
 import { user32 } from './_lib.js'
 import { cHWND, type HWND } from './window.js'
@@ -19,14 +18,14 @@ import { cHMENU, HMENU } from './menu.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createpopupmenu
  */
-export const CreatePopupMenu: koffi.KoffiFunc<() => HMENU> = user32('CreatePopupMenu', cHMENU, [])
+export const CreatePopupMenu: () => HMENU = /*#__PURE__*/user32.func('CreatePopupMenu', cHMENU, [])
 
 /**
  * Displays a shortcut menu at the specified location and tracks the selection of items on the menu.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-trackpopupmenu
  */
-export const TrackPopupMenu: koffi.KoffiFunc<(
+export const TrackPopupMenu: (
     hMenu: HMENU,
     uFlags: TPM_ | number,
     x: number,
@@ -34,36 +33,23 @@ export const TrackPopupMenu: koffi.KoffiFunc<(
     nReserved: number,
     hWnd: HWND,
     prcRect: RECT | null
-) => number> = user32('TrackPopupMenu', cBOOL, [ cHMENU, cUINT, cUINT, cUINT, cUINT, cHWND, cPRECT ])
+) => number = /*#__PURE__*/user32.func('TrackPopupMenu', cBOOL, [ cHMENU, cUINT, cUINT, cUINT, cUINT, cHWND, cPRECT ])
 
 /**
  * Destroys the specified menu and frees any memory that the menu occupies.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroymenu
  */
-export const DestroyMenu: koffi.KoffiFunc<(
+export const DestroyMenu: (
     hMenu: HMENU
-) => number> = user32('DestroyMenu', cBOOL, [ cHMENU ])
+) => number = /*#__PURE__*/user32.func('DestroyMenu', cBOOL, [ cHMENU ])
 
-
-const AppendMenuInternalN: koffi.KoffiFunc<(
-    hMenu: HMENU,
-    uFlags: MF_ | number,
-    uIDNewItem: number,
-    lpNewItem: string | null
-) => number> = user32('AppendMenuW', cBOOL, [ cHMENU, cUINT, cUINT, cLPCWSTR ]);
-
-const AppendMenuInternalH: koffi.KoffiFunc<(
-    hMenu: HMENU,
-    uFlags: MF_ | number,
-    uIDNewItem: HMENU,
-    lpNewItem: string | null
-) => number> = user32('AppendMenuW', cBOOL, [ cHMENU, cUINT, cHMENU, cLPCWSTR ]);
- /**
+/**
  * Appends a new item to the end of the specified menu bar, drop-down menu, submenu, or shortcut menu.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
  */
+/*#__NO_SIDE_EFFECTS__*/
 export const AppendMenu = (
     hMenu: HMENU,
     uFlags: MF_ | number,
@@ -74,15 +60,29 @@ export const AppendMenu = (
     return AppendMenuInternalH(hMenu, uFlags, uIDNewItem, lpNewItem);
 }
 
+const AppendMenuInternalN: (
+    hMenu: HMENU,
+    uFlags: MF_ | number,
+    uIDNewItem: number,
+    lpNewItem: string | null
+) => number = /*#__PURE__*/user32.func('AppendMenuW', cBOOL, [ cHMENU, cUINT, cUINT, cLPCWSTR ]);
+
+const AppendMenuInternalH: (
+    hMenu: HMENU,
+    uFlags: MF_ | number,
+    uIDNewItem: HMENU,
+    lpNewItem: string | null
+) => number = /*#__PURE__*/user32.func('AppendMenuW', cBOOL, [ cHMENU, cUINT, cHMENU, cLPCWSTR ]);
+
 /**
  * Sets the checked state of a menu item.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-checkmenuitem
  */
-export const CheckMenuItem: koffi.KoffiFunc<(
+export const CheckMenuItem: (
     hMenu: HMENU,
     uIDCheckItem: number,
     uCheck: MF_ | number
-) => number> = user32('CheckMenuItem', cUINT, [ cHMENU, cUINT, cUINT ])
+) => number = /*#__PURE__*/user32.func('CheckMenuItem', cUINT, [ cHMENU, cUINT, cUINT ])
 
 // #endregion

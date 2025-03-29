@@ -61,7 +61,7 @@ export class BSMINFO {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
-/*@__NO_SIDE_EFFECTS__*/
+/*#__NO_SIDE_EFFECTS__*/
 export function BroadcastSystemMessage(
     flags: number,
     lpInfo: number | null,
@@ -73,7 +73,8 @@ export function BroadcastSystemMessage(
     const ret = _BroadcastSystemMessage(flags, ptr, Msg, wParam, lParam)
     return [ ret, ptr[0] ]
 }
-const _BroadcastSystemMessage = user32('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM ])
+
+const _BroadcastSystemMessage = /*#__PURE__*/user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM ])
 
 /**
  * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
@@ -81,7 +82,7 @@ const _BroadcastSystemMessage = user32('BroadcastSystemMessageW', cLONG, [ cDWOR
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
-/*@__NO_SIDE_EFFECTS__*/
+/*#__NO_SIDE_EFFECTS__*/
 export function BroadcastSystemMessageEx(
     flags: number,
     lpInfo: number | null,
@@ -94,7 +95,8 @@ export function BroadcastSystemMessageEx(
     const ret = _BroadcastSystemMessageEx(flags, ptr, Msg, wParam, lParam, psbmInfo)
     return [ ret, ptr[0] ]
 }
-const _BroadcastSystemMessageEx = user32('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, cPBSMINFO ])
+
+const _BroadcastSystemMessageEx = /*#__PURE__*/user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, cPBSMINFO ])
 
 /** Return this value to deny a query. */
 export const BROADCAST_QUERY_DENY = 0x424D5144
@@ -104,73 +106,73 @@ export const BROADCAST_QUERY_DENY = 0x424D5144
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessagew
  */
-export const DispatchMessage: koffi.KoffiFunc<(
+export const DispatchMessage: (
     lpMsg: MSG
-) => number | BigInt> = user32('DispatchMessageW', cLRESULT, [ cLPMSG ])
+) => number | BigInt = /*#__PURE__*/user32.func('DispatchMessageW', cLRESULT, [ cLPMSG ])
 
 /**
  * Retrieves a message from the calling thread's message queue.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagew
  */
-export const GetMessage: koffi.KoffiFunc<(
+export const GetMessage: (
     lpMsg:         MSG,
     hWnd:          HWND | null | -1,
     wMsgFilterMin: number,
     wMsgFilterMax: number
-) => number> = user32('GetMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT ])
+) => number = /*#__PURE__*/user32.func('GetMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT ])
 
 /**
  * Checks the thread message queue for a posted message.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
  */
-export const PeekMessage: koffi.KoffiFunc<(
+export const PeekMessage: (
     lpMsg:         MSG,
     hWnd:          HWND | null | -1,
     wMsgFilterMin: number,
     wMsgFilterMax: number,
     wRemoveMsg:    number
-) => number> = user32('PeekMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT, cUINT ])
+) => number = /*#__PURE__*/user32.func('PeekMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT, cUINT ])
 
 /**
  * Indicates to the system that a thread has made a request to terminate (quit).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postquitmessage
  */
-export const PostQuitMessage: koffi.KoffiFunc<(
+export const PostQuitMessage: (
     nExitCode: number
-) => void> = user32('PostQuitMessage', cVOID, [ cINT ])
+) => void = /*#__PURE__*/user32.func('PostQuitMessage', cVOID, [ cINT ])
 
 /**
  * Translates virtual-key messages into character messages.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
  */
-export const TranslateMessage: koffi.KoffiFunc<(
+export const TranslateMessage: (
     lpMsg: MSG
-) => number> = user32('TranslateMessage', cBOOL, [ cLPMSG ])
+) => number = /*#__PURE__*/user32.func('TranslateMessage', cBOOL, [ cLPMSG ])
 
 /**
  * Translates virtual-key messages into character messages.
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/translatemessageex
  */
-export const TranslateMessageEx: koffi.KoffiFunc<(
+export const TranslateMessageEx: (
     lpMsg: MSG,
     flags: number
-) => number> = user32('TranslateMessageEx', cBOOL, [ cLPMSG, cUINT ])
+) => number = /*#__PURE__*/user32.func('TranslateMessageEx', cBOOL, [ cLPMSG, cUINT ])
 
 /**
  * Sends a message to the specified window.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
  */
-export const SendMessage: koffi.KoffiFunc<(
+export const SendMessage: (
     hWnd:    HWND,
     Msg:     number,
     wParam:  WPARAM,
     lParam:  LPARAM
-) => number | BigInt> = user32('SendMessageW', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ])
+) => number | BigInt = /*#__PURE__*/user32.func('SendMessageW', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ])
 
 // #endregion

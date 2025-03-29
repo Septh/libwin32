@@ -39,8 +39,8 @@ export interface POINTS {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
  */
-export const GetCursorPos: koffi.KoffiFunc<(
+export const GetCursorPos: (
     lpPoint: POINT
-) => number> = user32('GetCursorPos', cBOOL, [ koffi.out(cLPPOINT) ])
+) => number = /*#__PURE__*/user32.func('GetCursorPos', cBOOL, [ koffi.out(cLPPOINT) ])
 
 // #endregion
