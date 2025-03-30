@@ -11,8 +11,6 @@
     "koffi",
     "x64"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "homepage": "https://github.com/Septh/libwin32#readme",
   "repository": {
     "type": "git",
@@ -49,7 +47,7 @@
     "#consts-base": "./source/win32/consts"
   },
   "engines": {
-    "node": ">= 18.19.0 || >= 20.6.0 || >= 22.14.0"
+    "node": ">= 18.19.0 || >= 20.6.0"
   },
   "engineStrict": true,
   "files": [
@@ -62,27 +60,23 @@
     "build:demos": "rollup -c rollup.demos.js",
     "clean": "rimraf dist demos",
     "test": "echo No test yet",
-    "check-packages": "npx npm-check -u -E",
-    "refresh-packages": "rm -rf node_modules && rm -rf package-lock.json && npm i",
     "prepublishOnly": "npm run clean && npm run build && npm run build:demos"
   },
   "dependencies": {
-    "koffi": "2.10.1"
+    "koffi": "^2.9.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "28.0.3",
-    "@rollup/plugin-node-resolve": "16.0.1",
-    "@rollup/plugin-typescript": "12.1.2",
-    "@types/node": "22.13.14",
-    "magic-string": "0.30.17",
-    "npm-check": "6.0.1",
-    "regex": "6.0.1",
-    "rimraf": "6.0.1",
-    "rollup": "4.38.0",
-    "rollup-plugin-code-raker": "1.0.1",
-    "rollup-plugin-node-externals": "8.0.0",
-    "tslib": "2.7.0",
-    "typescript": "5.8.2"
-    
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node": "^22.5.1",
+    "magic-string": "^0.30.11",
+    "regex": "^5.0.2",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.21.2",
+    "rollup-plugin-code-raker": "^1.0.0",
+    "rollup-plugin-node-externals": "^7.1.3",
+    "tslib": "^2.7.0",
+    "typescript": "^5.5.4"
   }
 }
