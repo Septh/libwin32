@@ -1,13 +1,12 @@
 
 import { CloseHandle, OpenProcess, QueryFullProcessImageName, GetClassName, GetForegroundWindow, GetWindowText, GetWindowThreadProcessId, MessageBox } from "libwin32"
+import { PSAR_ } from "../win32/consts/PSAR.js"
 
 const windowHref = GetForegroundWindow()
 const processId = GetWindowThreadProcessId(windowHref)
 const windowText = GetWindowText(windowHref)
 
-const PROCESS_QUERY_INFORMATION = 0x0400
-const PROCESS_VM_READ = 0x0010
-const openProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, processId)
+const openProcess = OpenProcess(PSAR_.PROCESS_QUERY_INFORMATION | PSAR_.PROCESS_VM_READ, false, processId)
 const className = GetClassName(windowHref)
 
 let executable
