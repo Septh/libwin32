@@ -1,6 +1,5 @@
 
-import { CloseHandle, OpenProcess, QueryFullProcessImageName } from "../win32/kernel32.js"
-import { GetClassName, GetForegroundWindow, GetWindowText, GetWindowThreadProcessId, MessageBox } from "../win32/user32.js"
+import { CloseHandle, OpenProcess, QueryFullProcessImageName, GetClassName, GetForegroundWindow, GetWindowText, GetWindowThreadProcessId, MessageBox } from "libwin32"
 
 const windowHref = GetForegroundWindow()
 const processId = GetWindowThreadProcessId(windowHref)

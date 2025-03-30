@@ -160,19 +160,6 @@ export function GetClassName(hWnd: HWND): string {
 const _GetClassName = user32('GetClassNameW', cINT, [ cHWND, out(cLPWSTR), cINT ])
 
 /**
- * Retrieves the name of the class to which the specified window belongs (with ClassName A).
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassnamea
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function GetClassNameA(hWnd: HWND): string {
-    const out = new Uint16Array(512)
-    const len = _GetClassNameA(hWnd, out, 512)
-    return textDecoder.decode(out).slice(0, len)
-}
-const _GetClassNameA = user32('GetClassNameA', cINT, [ cHWND, out(cLPWSTR), cINT ])
-
-/**
  * Registers a window class for subsequent use in calls to the CreateWindowEx function.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexw

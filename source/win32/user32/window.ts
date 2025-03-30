@@ -262,19 +262,4 @@ const _GetWindowThreadProcessId: koffi.KoffiFunc<(
     lpdwProcessId: [ number ]
 ) => number> = user32('GetWindowThreadProcessId', cDWORD, [cHWND, inout(cLPDWORD)])
 
-/**
- * 
- * Get Window's Text A
- * 
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtexta
- * 
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function GetWindowTextA(hWnd: HWND): string {
-    const out = new Uint16Array(512)
-    const len = _GetWindowTextA(hWnd, out, 512)
-    return textDecoder.decode(out).slice(0, len)
-}
-const _GetWindowTextA = user32('GetWindowTextA', cINT, [ cHWND, out(cLPWSTR), cINT ])
-
 

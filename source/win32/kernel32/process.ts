@@ -26,24 +26,6 @@ export function OpenProcess(
 const _OpenProcess = kernel32('OpenProcess', cHANDLE, [ cDWORD, cBOOL, cDWORD ])
 
 /**
- * Get full Image Name of Process (A)
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-queryfullprocessimagenamea
- */
-/*@__NO_SIDE_EFFECTS__*/
-export function QueryFullProcessImageNameA(
-    hProcess: string,
-    dwFlags: number
-): string | null {
-    const exeName = new Uint16Array(256)
-    const dwSize  = [ exeName.length ] as [ number ]
-    return _QueryFullProcessImageNameA(hProcess, dwFlags, exeName, dwSize) === 0
-        ? null
-        : textDecoder.decode(exeName).slice(0, dwSize[0])
-}
-const _QueryFullProcessImageNameA = kernel32('QueryFullProcessImageNameW', cBOOL, [ cHANDLE, cDWORD, out(cLPWSTR), inout(cLPDWORD) ])
-
-/**
  * Get full Image Name of Process
  * 
  *
