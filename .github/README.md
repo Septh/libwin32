@@ -52,17 +52,13 @@ Build the lib, then:
 
 * Without bundling:
 ````shell
-$ node lib/demos/messagebox.js
-$ node lib/demos/enumdesktopwindows.js
-$ node lib/demos/window.js
+$ node lib/demos/<demoname>.js
 ````
 
 * With bundling:
 ````shell
 $ npm run build:demos
-$ node demos/messagebox/messagebox.js
-$ node demos/enumdesktopwindows/enumdesktopwindows.js
-$ node demos/window/window.js
+$ node demos/<demoname>/<demoname>.js
 ````
 
 ### Changelog
