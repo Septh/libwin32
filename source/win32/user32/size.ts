@@ -1,21 +1,15 @@
-import { pointer, struct } from '../../private.js'
+import { koffi } from '../../private.js'
 import { cLONG } from '../../ctypes.js'
 
-// #region Types
-
-export const cSIZE = struct('SIZE', {
+export const cSIZE = koffi.struct({
     cx: cLONG,
     yy: cLONG
 })
-export const cPSIZE = pointer('PSIZE', cSIZE)
-export const cLPSIZE = pointer('LPSIZE', cPSIZE)
+
+export const cPSIZE = koffi.pointer(cSIZE)
+export const cLPSIZE = koffi.pointer(cPSIZE)
 
 export interface SIZE {
     x: number
     y: number
 }
-
-// #endregion
-
-// #region Functions
-// #endregion

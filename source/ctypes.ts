@@ -1,8 +1,4 @@
-import {
-    koffi, ctypes, array,
-    alias, opaque, pointer,
-    struct,
-} from './private.js'
+import { koffi } from './private.js'
 
 /*
  * C typedefs used in the Windows API.
@@ -10,49 +6,50 @@ import {
  */
 
 // Primitives.
-export const cVOID       = ctypes.void
-export const cBOOL       = ctypes.int
-export const cINT        = ctypes.int
-export const cSHORT      = ctypes.int16
-export const cLONG       = ctypes.int32
-export const cDWORD      = ctypes.uint32
-export const cUINT       = ctypes.uint
-export const cLPCWSTR    = ctypes.str16
-export const cLPWSTR     = ctypes.str16
+export const cVOID      = koffi.types.void
+export const cBOOL      = koffi.types.int
+export const cINT       = koffi.types.int
+export const cSHORT     = koffi.types.int16
+export const cLONG      = koffi.types.int32
+export const cDWORD     = koffi.types.uint32
+export const cUINT      = koffi.types.uint
+export const cLPCWSTR   = koffi.types.str16
+export const cLPWSTR    = koffi.types.str16
 
 // Pointers.
-export const cLPVOID     = pointer('LPVOID',      ctypes.void)
-export const cPDWORD     = pointer('PDWORD',      ctypes.uint32)
-export const cLPDWORD    = pointer('LPDWORD',     ctypes.uint32)
-export const cINT_PTR    = ctypes.int64
-
-// GUID structure
-export const cGUID = struct('GUID', {
-    Data1: ctypes.uint32,
-    Data2: ctypes.uint16,
-    Data3: ctypes.uint16,
-    Data4: array('uint8', 8),
-})
+export const cLPVOID    = koffi.pointer(koffi.types.void)
+export const cPDWORD    = koffi.pointer(koffi.types.uint32)
+export const cLPDWORD   = koffi.pointer(koffi.types.uint32)
+export const cINT_PTR   = koffi.types.int64
 
 // Apis.
-export const cHANDLE     = pointer('HANDLE',   opaque())
-export const cLPHANDLE   = pointer('LPHANDLE', cHANDLE)
-export const cPHANDLE    = pointer('PHANDLE',  cHANDLE)
-export const cHINSTANCE  = alias('HINSTANCE',  cHANDLE)
-export const cWPARAM     = ctypes.uint64    // = UINT_PTR
-export const cLPARAM     = ctypes.int64     // = LONG_PTR
-export const cHRESULT    = ctypes.long      // = LONG
-export const cLRESULT    = ctypes.int64     // = LONG_PTR
-export const cATOM       = ctypes.uint16    // = WORD
+export const cHANDLE    = koffi.pointer(koffi.opaque())
+export const cPHANDLE   = koffi.pointer(cHANDLE)
+export const cLPHANDLE  = koffi.pointer(cHANDLE)
+export const cHINSTANCE = koffi.alias('HINSTANCE',  cHANDLE)
+export const cWPARAM    = koffi.types.uint64    // == UINT_PTR
+export const cLPARAM    = koffi.types.int64     // == LONG_PTR
+export const cHRESULT   = koffi.types.long      // == LONG
+export const cLRESULT   = koffi.types.int64     // == LONG_PTR
+export const cATOM      = koffi.types.uint16    // == WORD
 
 //  TypeScript base types.
-export type HANDLE<Kind extends string> = koffi.IKoffiCType & { __kind: Kind }
-export type HINSTANCE = HANDLE<'HINSTANCE'>
-export type WPARAM    = number | HANDLE<string>
-export type LPARAM    = number | BigInt | HANDLE<string>
-export type HRESULT   = number | HANDLE<string>
-export type LRESULT   = number | BigInt | HANDLE<string>
+export type __HANDLE__<Kind extends string> = koffi.IKoffiCType & { __kind: Kind }
+export type HANDLE    = __HANDLE__<string>     // Any kind of handle
+export type HINSTANCE = __HANDLE__<'HINSTANCE'>
+export type WPARAM    = number | HANDLE
+export type LPARAM    = number | BigInt | HANDLE
+export type HRESULT   = number | HANDLE
+export type LRESULT   = number | BigInt | HANDLE
 export type ATOM      = number | string
+
+// GUID structure
+export const cGUID = koffi.struct({
+    Data1: koffi.types.uint32,
+    Data2: koffi.types.uint16,
+    Data3: koffi.types.uint16,
+    Data4: koffi.array(koffi.types.uint8, 8),
+})
 
 // TypeScript type for GUID
 export interface GUID {

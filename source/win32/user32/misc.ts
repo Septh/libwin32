@@ -1,10 +1,8 @@
-import { pointer, struct } from '../../private.js'
+import { koffi } from '../../private.js'
 import { cDWORD, cLONG } from '../../ctypes.js'
 import { cPOINT, type POINT } from './point.js'
 
-// #region Types
-
-export const cMINMAXINFO = struct('MINMAXINFO', {
+export const cMINMAXINFO = koffi.struct({
     ptReserved:     cPOINT,
     ptMaxSize:      cPOINT,
     ptMaxPosition:  cPOINT,
@@ -12,8 +10,8 @@ export const cMINMAXINFO = struct('MINMAXINFO', {
     ptMaxTrackSize: cPOINT
 })
 
-export const cLPMINMAXINFO = pointer('LPMINMAXINFO', cMINMAXINFO)
-export const cPMINMAXINFO  = pointer('PMINMAXINFO',  cMINMAXINFO)
+export const cLPMINMAXINFO = koffi.pointer(cMINMAXINFO)
+export const cPMINMAXINFO  = koffi.pointer(cMINMAXINFO)
 
 export interface MINMAXINFO {
     ptReserved:     POINT
@@ -23,19 +21,14 @@ export interface MINMAXINFO {
     ptMaxTrackSize: POINT
 }
 
-export const cLUID = struct('LUID', {
+export const cLUID = koffi.struct({
     LowPart: cDWORD,
     HighPart: cLONG,
 })
 
-export const cPLUID = pointer('PLUID', cLUID)
+export const cPLUID = koffi.pointer(cLUID)
 
 export interface LUID {
     LowPart: number
     HighPart: number
 }
-
-// #endregion
-
-// #region Functions
-// #endregion

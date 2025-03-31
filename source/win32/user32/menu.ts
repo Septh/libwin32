@@ -1,12 +1,5 @@
-import { opaque, pointer } from '../../private.js'
-import type { HANDLE } from '../../ctypes.js'
+import { koffi } from '../../private.js'
+import type { __HANDLE__ } from '../../ctypes.js'
 
-// #region Types
-
-export const cHMENU = pointer('HMENU', opaque())
-export type HMENU = HANDLE<'HMENU'>
-
-// #endregion
-
-// #region Functions
-// #endregion
+export const cHMENU = koffi.pointer(koffi.opaque())
+export type HMENU = __HANDLE__<'HMENU'>

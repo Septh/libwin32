@@ -32,7 +32,7 @@ const result = MessageBox(
 )
 ````
 
-![alt text](docs/snapshot.png)
+![screenshot](docs/snapshot.png)
 
 #### > Build the lib
 
@@ -43,16 +43,16 @@ $ npm install
 $ npm run build
 ````
 
-The output goes to `/dist`.
+The output goes to `/lib`.
 
 #### > Run the demos
 Build the lib, then:
 
 * Without bundling:
 ````shell
-$ node dist/demos/messagebox.js
-$ node dist/demos/enumdesktopwindows.js
-$ node dist/demos/window.js
+$ node lib/demos/messagebox.js
+$ node lib/demos/enumdesktopwindows.js
+$ node lib/demos/window.js
 ````
 
 * With bundling:
@@ -68,6 +68,12 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 
 ### Bindings so far
 *All functions come with their associated types and constants.*
+
+#### Added in 0.5.0
+* kernel32.dll
+    * GetModuleHandleEx
+    * QueryFullProcessImageName
+    * SetLastError
 
 #### Added in 0.4.0
 *Many thanks to [@shrirajh](https://github.com/shrirajh) for the impressive work on [b2bf65b](https://github.com/Septh/libwin32/commit/b2bf65b6d20dbe7dae4e48341176a8407c135c46)!*
@@ -136,4 +142,4 @@ None.
 * `./source/demos`:
     * Some usage examples.
 * `./source/rollup`:
-    * Three [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](./rollup.demos.js) for an example of usage.
+    * Two [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](./rollup.demos.js) to see how to use.

@@ -1,12 +1,12 @@
 import {
-    EnumDesktopWindows, GetWindowText
+    EnumWindows, GetWindowText
 } from 'libwin32'
 
 const filters = [
     'MSCTFIME UI', 'Default IME'
 ]
 
-EnumDesktopWindows((hwnd, lParam) => {
+EnumWindows((hwnd, lParam) => {
     const title = GetWindowText(hwnd)
     if (title.length && !filters.includes(title))
         console.log(title)

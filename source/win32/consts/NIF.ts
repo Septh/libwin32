@@ -1,4 +1,6 @@
-
+/**
+ * Values for NOTIFYICONDATA.uFlags
+ */
 export const enum NIF_ {
     MESSAGE  = 0x0001,
     ICON     = 0x0002,

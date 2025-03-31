@@ -3,7 +3,7 @@
   "include": [ "source" ],
   "compilerOptions": {
     "rootDir": "source",
-    "outDir": "dist",
+    "outDir": "lib",
     "removeComments": false,
     "preserveConstEnums": true,
     "sourceMap": true,

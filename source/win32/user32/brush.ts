@@ -1,12 +1,5 @@
-import { opaque, pointer } from '../../private.js'
-import type { HANDLE } from '../../ctypes.js'
+import { koffi } from '../../private.js'
+import type { __HANDLE__ } from '../../ctypes.js'
 
-// #region Types
-
-export const cHBRUSH = pointer('HBRUSH', opaque())
-export type HBRUSH = HANDLE<'HBRUSH'>
-
-// #endregion
-
-// #region Functions
-// #endregion
+export const cHBRUSH = koffi.pointer(koffi.opaque())
+export type HBRUSH = __HANDLE__<'HBRUSH'>

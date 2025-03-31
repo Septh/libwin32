@@ -1,54 +1,68 @@
 /*
- * This config only bundles the demos and serves as an example
- * of how to bundle the lib with your code.
+ * This config only bundles the demos (see the source/demos directory) and serves as an example
+ * of how to bundle the lib with your code with maximum tree-shaking efficiency.
  *
- * The library itself is published unbundled (in the `dist` folder).
+ * The library itself is always published unbundled (in the `lib` folder).
  */
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { defineConfig } from 'rollup'
 import nodeExternals from 'rollup-plugin-node-externals'
-import rake from 'rollup-plugin-code-raker'
+import nodeResolve_ from '@rollup/plugin-node-resolve'
+import commonJS_ from '@rollup/plugin-commonjs'
+import codeRaker from 'rollup-plugin-code-raker'
 import libwin32 from 'libwin32/rollup'
 
 /**
- * Workaround for the wrong typings in all rollup plugins.
+ * Workaround for the wrong typings in all rollup plugins
+ * (see https://github.com/rollup/plugins/issues/1541#issuecomment-1837153165)
  * @template T
- * @param {{ default: { default: T } }} module
- * @returns {T}
- * @see {@link https://github.com/rollup/plugins/issues/1541#issuecomment-1837153165}
+ * @param {{ default: T }} plugin
  */
-const rollupPlugin = ({ default: plugin }) => /** @type {T} */(plugin)
-const commonJS = rollupPlugin(await import('@rollup/plugin-commonjs'))
-const nodeResolve = rollupPlugin(await import('@rollup/plugin-node-resolve'))
-const typescript = rollupPlugin(await import('@rollup/plugin-typescript'))
+const fixRollupTypings = (plugin) => /** @type {T} */ (plugin)
+const nodeResolve = fixRollupTypings(nodeResolve_)
+const commonJS = fixRollupTypings(commonJS_)
+
+/**
+ * Builds a RollupOptions object for a single demo source file.
+ * @param {string} demo
+ */
+function makeSingleConfig(demo) {
+    const { name } = path.parse(demo)
+    return defineConfig({
+        input: `lib/demos/${name}.js`,
+        output: {
+            file: `demos/${name}/${name}.js`,
+            format: 'esm',
+            sourcemap: false
+        },
+        treeshake: {
+            manualPureFunctions: [
+                // Declare everything Koffi as pure for maximum tree-shakeability.
+                'koffi',
+                // This avoids #__PURE__ annotations everywhere.
+                // 'Win32Dll'
+            ]
+        },
+        plugins: [
+            // Standard Rollup plugins for Node.
+            nodeExternals(),
+            nodeResolve(),
+            commonJS(),
+
+            // Use the dedicated plugin this repo provides.
+            // See `source/rollup` for info.
+            libwin32(),
+
+            // Optional:
+            // rollup-plugin-code-raker removes all comments left into the final code
+            // *after* tree-shaking took place (ie., it does not interfere with __PURE__
+            // and __NO_SIDE_EFFECTS__ annotations).
+            // See https://github.com/Septh/rollup-plugin-code-raker
+            codeRaker({ comments: true, console: false, debugger: false })
+        ]
+    })
+}
 
 // Use distinct configs (one per demo) to prevent Rollup from code-splitting the library.
-export default (
-    fs.readdir('./source/demos').then(sources => sources.map(source => {
-        const { name: demo } = path.parse(source)
-        return defineConfig({
-            input: `source/demos/${demo}.ts`,
-            output: {
-                file: `demos/${demo}/${demo}.js`,
-                format: 'esm',
-                generatedCode: 'es2015',
-                freeze: false,
-                sourcemap: false
-            },
-            plugins: [
-                nodeExternals(),
-                nodeResolve(),
-                commonJS(),
-                typescript({
-                    tsconfig: './tsconfig.demos.json',
-                    compilerOptions: {
-                        outDir: `demos/${demo}`,
-                    }
-                }),
-                libwin32(),
-                rake()
-            ]
-        })
-    }))
-)
+export default fs.readdir('./source/demos').then(demos => demos.map(makeSingleConfig))
