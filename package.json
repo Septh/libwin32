@@ -1,6 +1,6 @@
 {
   "name": "libwin32",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Node bindings to native Win32 DLLs through Koffi",
   "author": "Stephan 'Septh' Schreiber <septh@sfr.fr>",
   "license": "MIT",
