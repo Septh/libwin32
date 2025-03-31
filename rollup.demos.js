@@ -37,11 +37,9 @@ function makeSingleConfig(demo) {
             sourcemap: false
         },
         treeshake: {
+            // Declare everything Koffi as pure for maximum tree-shakeability.
             manualPureFunctions: [
-                // Declare everything Koffi as pure for maximum tree-shakeability.
-                'koffi',
-                // This avoids #__PURE__ annotations everywhere.
-                // 'Win32Dll'
+                'koffi'
             ]
         },
         plugins: [
