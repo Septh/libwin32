@@ -1,11 +1,11 @@
 import { koffi } from '../../private.js'
 import {
     cBOOL, cDWORD, cUINT,
-    cGUID, GUID,
+    cHWND, type HWND,
+    cHICON, type HICON,
+    cGUID, type GUID
 } from '../../ctypes.js'
-import { cHWND, type HWND } from '../user32/window.js'
-import { cHICON, type HICON } from '../user32/icon.js'
-import { NIF_, NIM_ } from '../consts.js'
+import type { NIF_, NIM_ } from '../consts.js'
 import { shell32 } from './_lib.js'
 
 /**

@@ -1,7 +1,9 @@
-import { cINT, cUINT, cLPCWSTR } from '../../ctypes.js'
+import {
+    cINT, cUINT, cLPCWSTR,
+    cHWND, type HWND
+} from '../../ctypes.js'
+import type { MB_ } from '../consts.js'
 import { user32 } from './_lib.js'
-import { cHWND, type HWND } from './window.js'
-import type { MB_ } from '../consts/MB.js'
 
 /**
  * Displays a modal dialog box that contains a system icon, a set of buttons, and a brief application-specific message, such as status or error information.

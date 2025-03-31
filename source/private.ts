@@ -3,6 +3,8 @@ import koffi from 'koffi'
 
 export { koffi }
 
+export const textDecoder = /*#__PURE__*/new TextDecoder('utf-16')
+
 export class Win32Dll implements Disposable {
     readonly x64 = true
     readonly Unicode = true
@@ -26,6 +28,3 @@ export class Win32Dll implements Disposable {
         return /*#__PURE__*/this.#lib.func(name, result, parameters)
     }
 }
-
-export const textEncoder = /*#__PURE__*/new TextEncoder()
-export const textDecoder = /*#__PURE__*/new TextDecoder('utf-16')

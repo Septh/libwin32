@@ -1,5 +1,5 @@
 import { kernel32 } from './_lib.js'
-import { cHWND, type HWND } from '../user32/window.js'
+import { cHWND, type HWND } from '../../ctypes.js'
 
 /**
  * Retrieves the window handle used by the console associated with the calling process.

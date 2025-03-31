@@ -1,17 +1,14 @@
 import { koffi } from '../../private.js'
 import {
-    cVOID, cBOOL, cDWORD, cINT, cUINT, cLONG,
-    cLPDWORD,
-    cLPARAM, cWPARAM, cLRESULT,
-    type WPARAM, type LPARAM,
-    type LRESULT
+    cVOID, cBOOL, cDWORD, cINT, cUINT, cLONG, cLPDWORD,
+    cLPARAM, type LPARAM, cWPARAM, type WPARAM, cLRESULT, type LRESULT,
+    cHWND, type HWND,
+    cPOINT, type POINT,
+    cLUID, type LUID,
+    cHDESK, type HDESK
 } from '../../ctypes.js'
+import type { BSF_ } from '../consts.js'
 import { user32 } from './_lib.js'
-import { cHWND, type HWND } from './window.js'
-import { cPOINT, type POINT } from './point.js'
-import { cLUID, type LUID } from './misc.js'
-import { cHDESK, type HDESK } from './desktop.js'
-import type { BSF_ } from '../consts/BSF.js'
 
 export const cMSG = koffi.struct({
     HWND:     cHWND,
@@ -52,7 +49,6 @@ export class BSMINFO {
     declare luid?: LUID
 }
 
-
 /**
  * Sends a message to the specified recipients.
  *
@@ -78,8 +74,6 @@ const _BroadcastSystemMessageW: (
     wParam: WPARAM,
     lParam: LPARAM
 ) => number = /*#__PURE__*/user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM ])
-
-
 
 /**
  * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
@@ -113,8 +107,6 @@ const _BroadcastSystemMessageExW: (
 /** Return this value to deny a query. */
 export const BROADCAST_QUERY_DENY = 0x424D5144
 
-
-
 /**
  * Dispatches a message to a window procedure.
  *
@@ -123,8 +115,6 @@ export const BROADCAST_QUERY_DENY = 0x424D5144
 export const DispatchMessage: (
     lpMsg: MSG
 ) => LRESULT = /*#__PURE__*/user32.func('DispatchMessageW', cLRESULT, [ cLPMSG ])
-
-
 
 /**
  * Retrieves a message from the calling thread's message queue.
@@ -137,8 +127,6 @@ export const GetMessage: (
     wMsgFilterMin: number,
     wMsgFilterMax: number
 ) => number = /*#__PURE__*/user32.func('GetMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT ])
-
-
 
 /**
  * Checks the thread message queue for a posted message.
@@ -153,8 +141,6 @@ export const PeekMessage: (
     wRemoveMsg:    number
 ) => number = /*#__PURE__*/user32.func('PeekMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT, cUINT ])
 
-
-
 /**
  * Indicates to the system that a thread has made a request to terminate (quit).
  *
@@ -163,8 +149,6 @@ export const PeekMessage: (
 export const PostQuitMessage: (
     nExitCode: number
 ) => void = /*#__PURE__*/user32.func('PostQuitMessage', cVOID, [ cINT ])
-
-
 
 /**
  * Translates virtual-key messages into character messages.
@@ -175,8 +159,6 @@ export const TranslateMessage: (
     lpMsg: MSG
 ) => number = /*#__PURE__*/user32.func('TranslateMessage', cBOOL, [ cLPMSG ])
 
-
-
 /**
  * Translates virtual-key messages into character messages.
  *
@@ -186,8 +168,6 @@ export const TranslateMessageEx: (
     lpMsg: MSG,
     flags: number
 ) => number = /*#__PURE__*/user32.func('TranslateMessageEx', cBOOL, [ cLPMSG, cUINT ])
-
-
 
 /**
  * Sends a message to the specified window.

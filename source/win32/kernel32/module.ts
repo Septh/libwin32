@@ -1,11 +1,10 @@
 import { koffi } from '../../private.js'
-import { cBOOL, cDWORD, cHINSTANCE, cLPCWSTR, type HINSTANCE } from '../../ctypes.js'
-import { GET_MODULE_HANDLE_EX_FLAG_ } from '../consts/GET_MODULE_HANDLE_EX_FLAG.js'
+import {
+    cBOOL, cDWORD, cLPCWSTR,
+    cHMODULE, type HMODULE
+} from '../../ctypes.js'
+import type { GET_MODULE_HANDLE_EX_FLAG_ } from '../consts.js'
 import { kernel32 } from './_lib.js'
-
-// HMODULEs can be used in place of HINSTANCEs
-export const cHMODULE = koffi.alias('HMODULE', cHINSTANCE)
-export type HMODULE = HINSTANCE
 
 /**
  * Retrieves a module handle for the specified module.

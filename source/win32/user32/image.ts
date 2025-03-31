@@ -1,16 +1,10 @@
 import {
     cINT, cUINT, cLPCWSTR,
-    cHINSTANCE, type HINSTANCE
+    cHINSTANCE, type HINSTANCE,
+    cHICON, type HICON
 } from '../../ctypes.js'
+import type { IDI_, IDC_, OIC_, OCR_, OBM_, LR_, IMAGE_ } from '../consts.js'
 import { user32 } from './_lib.js'
-import { cHICON, type HICON } from './icon.js'
-import type { IDI_ } from '../consts/IDI.js'
-import type { IDC_ } from '../consts/IDC.js'
-import type { OIC_ } from '../consts/OIC.js'
-import type { OCR_ } from '../consts/OCR.js'
-import type { OBM_ } from '../consts/OBM.js'
-import type { LR_ } from '../consts/LR.js'
-import type { IMAGE_ } from '../consts/IMAGE.js'
 
 /**
  * Loads an icon, cursor, animated cursor, or bitmap.
