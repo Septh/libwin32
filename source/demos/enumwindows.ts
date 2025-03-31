@@ -1,6 +1,6 @@
 import {
     EnumWindows, GetWindowText
-} from 'libwin32'
+} from 'libwin32/user32'
 
 const filters = [
     'MSCTFIME UI', 'Default IME'

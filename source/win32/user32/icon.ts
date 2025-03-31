@@ -1,8 +1,7 @@
 import {
-    cBOOL, cLPCWSTR,
-    cHINSTANCE, type HINSTANCE,
-    cHICON, type HICON
-} from '../../ctypes.js'
+    cBOOL, cLPCWSTR, cHANDLE,
+    type HINSTANCE, type HICON
+} from '../ctypes.js'
 import type { IDI_ } from '../consts/IDI.js'
 import { user32 } from './_lib.js'
 
@@ -13,7 +12,7 @@ import { user32 } from './_lib.js'
  */
 export const DestroyIcon: (
     hIcon: HICON
-) => number = /*#__PURE__*/user32.func('DestroyIcon', cBOOL, [ cHICON ])
+) => number = /*#__PURE__*/user32.func('DestroyIcon', cBOOL, [ cHANDLE ])
 
 /**
  * Loads the specified icon resource from the executable (.exe) file associated with an application instance.
@@ -23,4 +22,4 @@ export const DestroyIcon: (
 export const LoadIcon: (
     hInstance:  HINSTANCE | null,
     lpIconName: IDI_ | string
-) => HICON = /*#__PURE__*/user32.func('LoadIconW', cHICON, [ cHINSTANCE, cLPCWSTR ])
+) => HICON = /*#__PURE__*/user32.func('LoadIconW', cHANDLE, [ cHANDLE, cLPCWSTR ])

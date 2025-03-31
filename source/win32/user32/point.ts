@@ -1,5 +1,5 @@
-import { koffi } from '../../private.js'
-import { cBOOL, cLPPOINT, type POINT } from '../../ctypes.js'
+import { koffi } from '../private.js'
+import { cBOOL, cLPPOINT, type POINT } from '../ctypes.js'
 import { user32 } from './_lib.js'
 
 /**

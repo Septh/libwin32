@@ -1,8 +1,8 @@
-import { textDecoder } from '../../private.js'
+import { textDecoder } from '../private.js'
 import {
     cDWORD, cLPCVOID, cLPWSTR, cVOID,
     type HMODULE
-} from '../../ctypes.js'
+} from '../ctypes.js'
 import type { FORMAT_MESSAGE_ } from '../consts.js'
 import { kernel32 } from './_lib.js'
 
@@ -34,9 +34,9 @@ export function FormatMessage(
     dwMessageId: number,
     dwLanguageId: number
 ): string {
-    const buf = new Uint16Array(2048)
-    const len = _FormatMessageW(dwFlags, lpSource, dwMessageId, dwLanguageId, buf, buf.length, 'int', 0)
-    return textDecoder.decode(buf.slice(0, len))
+    const out = new Uint16Array(2048)
+    const len = _FormatMessageW(dwFlags, lpSource, dwMessageId, dwLanguageId, out, out.length, 'int', 0)
+    return textDecoder.decode(out.slice(0, len))
 }
 
 const _FormatMessageW: (

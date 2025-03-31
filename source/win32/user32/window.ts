@@ -1,12 +1,10 @@
-import { koffi, textDecoder } from '../../private.js'
+import { koffi, textDecoder } from '../private.js'
 import {
-    cBOOL, cINT, cUINT, cDWORD, cLPWSTR, cLPCWSTR, cLPDWORD, cLPVOID,
-    cHWND, type HWND, cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
+    cBOOL, cINT, cUINT, cDWORD, cLPWSTR, cLPCWSTR, cLPDWORD, cLPVOID, cHANDLE,
+    cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM, cLRESULT, type LRESULT,
-    cHINSTANCE, type HINSTANCE,
-    cHMENU, type HMENU,
-    cLPRECT, type RECT,
-} from '../../ctypes.js'
+    type HWND, type HINSTANCE, type HMENU, cRECT, type RECT
+} from '../ctypes.js'
 import type { HWND_, WS_, WS_EX_, WM_, GA_, AW_, SW_ } from '../consts.js'
 import { user32 } from './_lib.js'
 
@@ -15,23 +13,42 @@ import { user32 } from './_lib.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrect
  */
-export const AdjustWindowRect: (
+/*#__NO_SIDE_EFFECTS__*/
+export function AdjustWindowRect(
     lpRect: RECT,
     dwStyle: WS_ | number,
+    bMenu: boolean
+): number {
+    return _AdjustWindowRect(lpRect, dwStyle, Number(bMenu))
+}
+
+const _AdjustWindowRect: (
+    lpRect: RECT,
+    dwStyle: number,
     bMenu: number
-) => number = /*#__PURE__*/user32.func('AdjustWindowRect', cBOOL, [ koffi.inout(cLPRECT), cDWORD, cBOOL ])
+) => number = /*#__PURE__*/user32.func('AdjustWindowRect', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL ])
 
 /**
  * Calculates the required size of the window rectangle, based on the desired client-rectangle size.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrectex
  */
-export const AdjustWindowRectEx: (
+/*#__NO_SIDE_EFFECTS__*/
+export function AdjustWindowRectEx(
     lpRect: RECT,
     dwStyle: WS_ | number,
-    bMenu: number,
+    bMenu: boolean,
     cwExStyle: WS_EX_ | number
-) => number = /*#__PURE__*/user32.func('AdjustWindowRectEx', cBOOL, [ koffi.inout(cLPRECT), cDWORD, cBOOL, cDWORD ])
+): number {
+    return _AdjustWindowRectEx(lpRect, dwStyle, Number(bMenu), cwExStyle)
+}
+
+const _AdjustWindowRectEx: (
+    lpRect: RECT,
+    dwStyle: number,
+    bMenu: number,
+    cwExStyle: number
+) => number = /*#__PURE__*/user32.func('AdjustWindowRectEx', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL, cDWORD ])
 
 /**
  * Enables you to produce special effects when showing or hiding windows.
@@ -42,7 +59,7 @@ export const AnimateWindow: (
     hWnd: HWND,
     dwTime: number,
     dwFlags: AW_ | number
-) => number = /*#__PURE__*/user32.func('AnimateWindow', cBOOL, [ cHWND, cDWORD, cDWORD ])
+) => number = /*#__PURE__*/user32.func('AnimateWindow', cBOOL, [ cHANDLE, cDWORD, cDWORD ])
 
 /**
  * Brings the specified window to the top of the Z order.
@@ -51,7 +68,7 @@ export const AnimateWindow: (
  */
 export const BringWindowToTop: (
     hWnd: HWND
-) => number = /*#__PURE__*/user32.func('BringWindowToTop', cBOOL, [ cHWND ])
+) => number = /*#__PURE__*/user32.func('BringWindowToTop', cBOOL, [ cHANDLE ])
 
 /**
  * Passes message information to the specified window procedure.
@@ -64,7 +81,7 @@ export const CallWindowProc: (
     Msg: WM_ | number,
     wParam: WPARAM,
     lParam: LPARAM
-) => LRESULT = /*#__PURE__*/user32.func('CallWindowProcW', cLRESULT, [ cWNDPROC, cHWND, cUINT, cWPARAM, cLPARAM ])
+) => LRESULT = /*#__PURE__*/user32.func('CallWindowProcW', cLRESULT, [ cWNDPROC, cHANDLE, cUINT, cWPARAM, cLPARAM ])
 
 /**
  * Creates an overlapped, pop-up, or child window.
@@ -106,14 +123,14 @@ export const CreateWindowEx: (
     hMenu:        HMENU | null,
     hInstance:    HINSTANCE | null,
     lpParam:      LPARAM | null,
-) => HWND | null = /*#__PURE__*/user32.func('CreateWindowExW', cHWND, [ cDWORD, cLPCWSTR, cLPCWSTR, cDWORD, cINT, cINT, cINT, cINT, cHWND, cHMENU, cHINSTANCE, cLPVOID ])
+) => HWND | null = /*#__PURE__*/user32.func('CreateWindowExW', cHANDLE, [ cDWORD, cLPCWSTR, cLPCWSTR, cDWORD, cINT, cINT, cINT, cINT, cHANDLE, cHANDLE, cHANDLE, cLPVOID ])
 
 /**
  * Calls the default window procedure to provide default processing for any window messages that an application does not process.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowprocw
  */
-export const DefWindowProc: WNDPROC = /*#__PURE__*/user32.func('DefWindowProcW', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ])
+export const DefWindowProc: WNDPROC = /*#__PURE__*/user32.func('DefWindowProcW', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ])
 
 /**
  * Enumerates all top-level windows on the screen by passing the handle to each window, in turn, to an application-defined callback function.
@@ -133,7 +150,7 @@ export const EnumWindows: (
 export const FindWindow: (
     lpClassName: string | null,
     lpWindowName: string | null
-) => HWND | null = /*#__PURE__*/user32.func('FindWindowW', cHWND, [ cLPCWSTR, cLPCWSTR ])
+) => HWND | null = /*#__PURE__*/user32.func('FindWindowW', cHANDLE, [ cLPCWSTR, cLPCWSTR ])
 
 /**
  * Retrieves a handle to the top-level window whose class name and window name match the specified strings.
@@ -145,7 +162,7 @@ export const FindWindowEx: (
     hWndChildAfter: HWND | null,
     lpClassName: string | null,
     lpWindowName: string | null
-) => HWND | null = /*#__PURE__*/user32.func('FindWindowExW', cHWND, [ cHWND, cHWND, cLPCWSTR, cLPCWSTR ])
+) => HWND | null = /*#__PURE__*/user32.func('FindWindowExW', cHANDLE, [ cHANDLE, cHANDLE, cLPCWSTR, cLPCWSTR ])
 
 /**
  * Retrieves the handle to the ancestor of the specified window.
@@ -155,7 +172,7 @@ export const FindWindowEx: (
 export const GetAncestor: (
     hWnd: HWND,
     gaFlags: GA_
-) => HWND | null = /*#__PURE__*/user32.func('GetAncestor', cHWND, [ cHWND, cUINT ])
+) => HWND | null = /*#__PURE__*/user32.func('GetAncestor', cHANDLE, [ cHANDLE, cUINT ])
 
 /**
  *
@@ -164,7 +181,7 @@ export const GetAncestor: (
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
  *
  */
-export const GetForegroundWindow: () => HWND = /*#__PURE__*/user32.func('GetForegroundWindow', cHWND, [])
+export const GetForegroundWindow: () => HWND = /*#__PURE__*/user32.func('GetForegroundWindow', cHANDLE, [])
 
 /**
  *
@@ -183,7 +200,7 @@ export function GetWindowThreadProcessId(hWnd: HWND): [ number, number ] {
 const _GetWindowThreadProcessId: (
     hWnd: HWND,
     lpdwProcessId: [ number ]
-) => number = /*#__PURE__*/user32.func('GetWindowThreadProcessId', cDWORD, [ cHWND, koffi.out(cLPDWORD) ])
+) => number = /*#__PURE__*/user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cLPDWORD) ])
 
 /**
  * Returns text of the specified window's title bar (if it has one).
@@ -192,16 +209,16 @@ const _GetWindowThreadProcessId: (
  */
 /*#__NO_SIDE_EFFECTS__*/
 export function GetWindowText(hWnd: HWND): string {
-    const buf = new Uint16Array(512)
-    const len = _GetWindowText(hWnd, buf, buf.length)
-    return textDecoder.decode(buf.slice(0, len))
+    const out = new Uint16Array(512)
+    const len = _GetWindowText(hWnd, out, out.length)
+    return textDecoder.decode(out.slice(0, len))
 }
 
 const _GetWindowText: (
     hWnd: HWND,
     lpString: Uint16Array,
     nMaxCount: number
-) => number = /*#__PURE__*/user32.func('GetWindowTextW', cINT, [ cHWND, koffi.out(cLPWSTR), cINT ])
+) => number = /*#__PURE__*/user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cLPWSTR), cINT ])
 
 /**
  * Sets the specified window's show state.
@@ -211,7 +228,7 @@ const _GetWindowText: (
 export const ShowWindow: (
     hWnd:     HWND,
     nCmdShow: SW_ | number
-) => number = /*#__PURE__*/user32.func('ShowWindow', cBOOL, [ cHWND, cINT ])
+) => number = /*#__PURE__*/user32.func('ShowWindow', cBOOL, [ cHANDLE, cINT ])
 
 /**
  * Sets the show state of a window without waiting for the operation to complete.
@@ -221,7 +238,7 @@ export const ShowWindow: (
 export const ShowWindowAsync: (
     hWnd:     HWND,
     nCmdShow: SW_ | number
-) => number = /*#__PURE__*/user32.func('ShowWindowAsync', cBOOL, [ cHWND, cINT ])
+) => number = /*#__PURE__*/user32.func('ShowWindowAsync', cBOOL, [ cHANDLE, cINT ])
 
 /**
  * Updates the client area of the specified window by sending a WM_PAINT message to the window if the window's update region is not empty.
@@ -230,7 +247,7 @@ export const ShowWindowAsync: (
  */
 export const UpdateWindow: (
     hWnd: HWND
-) => number = /*#__PURE__*/user32.func('UpdateWindow', cBOOL, [ cHWND ])
+) => number = /*#__PURE__*/user32.func('UpdateWindow', cBOOL, [ cHANDLE ])
 
 /**
  * Brings the thread that created the specified window into the foreground and activates the window.
@@ -239,4 +256,4 @@ export const UpdateWindow: (
  */
 export const SetForegroundWindow: (
     hWnd: HWND
-) => number = /*#__PURE__*/user32.func('SetForegroundWindow', cBOOL, [ cHWND ])
+) => number = /*#__PURE__*/user32.func('SetForegroundWindow', cBOOL, [ cHANDLE ])

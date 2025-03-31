@@ -1,8 +1,7 @@
 import {
-    cINT, cUINT, cLPCWSTR,
-    cHINSTANCE, type HINSTANCE,
-    cHICON, type HICON
-} from '../../ctypes.js'
+    cINT, cUINT, cLPCWSTR, cHANDLE,
+    type HINSTANCE, type HICON
+} from '../ctypes.js'
 import type { IDI_, IDC_, OIC_, OCR_, OBM_, LR_, IMAGE_ } from '../consts.js'
 import { user32 } from './_lib.js'
 
@@ -18,4 +17,4 @@ export const LoadImage: (
     cx:        number,
     cy:        number,
     fuLoad:    LR_
-) => HICON = /*#__PURE__*/user32.func('LoadImageW', cHICON, [ cHINSTANCE, cLPCWSTR, cUINT, cINT, cINT, cUINT ])
+) => HICON = /*#__PURE__*/user32.func('LoadImageW', cHANDLE, [ cHANDLE, cLPCWSTR, cUINT, cINT, cINT, cUINT ])

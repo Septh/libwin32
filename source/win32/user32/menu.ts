@@ -1,9 +1,8 @@
 import {
-    cBOOL, cUINT, cLPCWSTR,
-    cHWND, type HWND,
+    cBOOL, cUINT, cLPCWSTR, cHANDLE,
     cPRECT, type RECT,
-    cHMENU, type HMENU
-} from '../../ctypes.js'
+    type HWND, type HMENU
+} from '../ctypes.js'
 import type { MF_, TPM_ } from '../consts.js'
 import { user32 } from './_lib.js'
 
@@ -12,7 +11,7 @@ import { user32 } from './_lib.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createpopupmenu
  */
-export const CreatePopupMenu: () => HMENU = /*#__PURE__*/user32.func('CreatePopupMenu', cHMENU, [])
+export const CreatePopupMenu: () => HMENU = /*#__PURE__*/user32.func('CreatePopupMenu', cHANDLE, [])
 
 /**
  * Displays a shortcut menu at the specified location and tracks the selection of items on the menu.
@@ -27,7 +26,7 @@ export const TrackPopupMenu: (
     nReserved: number,
     hWnd: HWND,
     prcRect: RECT | null
-) => number = /*#__PURE__*/user32.func('TrackPopupMenu', cBOOL, [ cHMENU, cUINT, cUINT, cUINT, cUINT, cHWND, cPRECT ])
+) => number = /*#__PURE__*/user32.func('TrackPopupMenu', cBOOL, [ cHANDLE, cUINT, cUINT, cUINT, cUINT, cHANDLE, cPRECT ])
 
 
 
@@ -38,7 +37,7 @@ export const TrackPopupMenu: (
  */
 export const DestroyMenu: (
     hMenu: HMENU
-) => number = /*#__PURE__*/user32.func('DestroyMenu', cBOOL, [ cHMENU ])
+) => number = /*#__PURE__*/user32.func('DestroyMenu', cBOOL, [ cHANDLE ])
 
 
 
@@ -52,7 +51,7 @@ export const AppendMenu: (
     uFlags: MF_ | number,
     uIDNewItem: number | HMENU,
     lpNewItem: string | null
-) => number = /*#__PURE__*/user32.func('AppendMenuW', cBOOL, [ cHMENU, cUINT, cUINT, cLPCWSTR ]);
+) => number = /*#__PURE__*/user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cLPCWSTR ]);
 
 
 
@@ -65,4 +64,4 @@ export const CheckMenuItem: (
     hMenu: HMENU,
     uIDCheckItem: number,
     uCheck: MF_ | number
-) => number = /*#__PURE__*/user32.func('CheckMenuItem', cUINT, [ cHMENU, cUINT, cUINT ])
+) => number = /*#__PURE__*/user32.func('CheckMenuItem', cUINT, [ cHANDLE, cUINT, cUINT ])

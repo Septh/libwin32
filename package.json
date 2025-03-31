@@ -17,12 +17,12 @@
     "url": "https://github.com/Septh/libwin32"
   },
   "type": "module",
-  "main": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "main": "./lib/win32/index.js",
+  "types": "./lib/win32/index.d.ts",
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "default": "./lib/index.js"
+      "types": "./lib/win32/index.d.ts",
+      "default": "./lib/win32/index.js"
     },
     "./kernel32": {
       "types": "./lib/win32/kernel32.d.ts",

@@ -1,10 +1,8 @@
-import { koffi } from '../../private.js'
+import { koffi } from '../private.js'
 import {
-    cBOOL, cDWORD, cUINT,
-    cHWND, type HWND,
-    cHICON, type HICON,
-    cGUID, type GUID
-} from '../../ctypes.js'
+    cBOOL, cDWORD, cUINT, cHANDLE,
+    cGUID, type GUID, type HWND, type HICON
+} from '../ctypes.js'
 import type { NIF_, NIM_ } from '../consts.js'
 import { shell32 } from './_lib.js'
 
@@ -34,11 +32,11 @@ export class NOTIFYICONDATA {
 
 export const cNOTIFYICONDATA = koffi.struct({
     cbSize:           cDWORD,
-    hWnd:             cHWND,
+    hWnd:             cHANDLE,
     uID:              cUINT,
     uFlags:           cUINT,
     uCallbackMessage: cUINT,
-    hIcon:            cHICON,
+    hIcon:            cHANDLE,
     szTip:            koffi.array(koffi.types.char16, 128),     // Fixed size array. Koffi will automatically from string.
     dwState:          cDWORD,
     dwStateMask:      cDWORD,
@@ -47,7 +45,7 @@ export const cNOTIFYICONDATA = koffi.struct({
     szInfoTitle:      koffi.array(koffi.types.char16, 64),
     dwInfoFlags:      cDWORD,
     guidItem:         cGUID,                                    // Changed to GUID type
-    hBalloonIcon:     cHICON
+    hBalloonIcon:     cHANDLE
 })
 
 /**

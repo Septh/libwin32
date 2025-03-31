@@ -1,22 +1,20 @@
-import { koffi } from '../../private.js'
+import { koffi } from '../private.js'
 import {
     cVOID, cBOOL, cDWORD, cINT, cUINT, cLONG, cLPDWORD,
     cLPARAM, type LPARAM, cWPARAM, type WPARAM, cLRESULT, type LRESULT,
-    cHWND, type HWND,
-    cPOINT, type POINT,
+    cHANDLE, type HWND, type POINT, type HDESK,
     cLUID, type LUID,
-    cHDESK, type HDESK
-} from '../../ctypes.js'
+} from '../ctypes.js'
 import type { BSF_ } from '../consts.js'
 import { user32 } from './_lib.js'
 
 export const cMSG = koffi.struct({
-    HWND:     cHWND,
+    HWND:     cHANDLE,
     message:  cUINT,
     wParam:   cWPARAM,
     lParam:   cLPARAM,
     time:     cDWORD,
-    pt:       cPOINT,
+    pt:       cHANDLE,
     lPrivate: cDWORD
 })
 
@@ -34,8 +32,8 @@ export interface MSG {
 
 export const cBSMINFO = koffi.struct({
     cbSize: cUINT,
-    hdesk: cHDESK,
-    hwnd: cHWND,
+    hdesk: cHANDLE,
+    hwnd: cHANDLE,
     luid: cLUID,
 })
 
@@ -126,7 +124,7 @@ export const GetMessage: (
     hWnd:          HWND | null | -1,
     wMsgFilterMin: number,
     wMsgFilterMax: number
-) => number = /*#__PURE__*/user32.func('GetMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT ])
+) => number = /*#__PURE__*/user32.func('GetMessageW', cBOOL, [ koffi.out(cLPMSG), cHANDLE, cUINT, cUINT ])
 
 /**
  * Checks the thread message queue for a posted message.
@@ -139,7 +137,7 @@ export const PeekMessage: (
     wMsgFilterMin: number,
     wMsgFilterMax: number,
     wRemoveMsg:    number
-) => number = /*#__PURE__*/user32.func('PeekMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT, cUINT ])
+) => number = /*#__PURE__*/user32.func('PeekMessageW', cBOOL, [ koffi.out(cLPMSG), cHANDLE, cUINT, cUINT, cUINT ])
 
 /**
  * Indicates to the system that a thread has made a request to terminate (quit).
@@ -179,4 +177,4 @@ export const SendMessage: (
     Msg:     number,
     wParam:  WPARAM,
     lParam:  LPARAM
-) => number | BigInt = /*#__PURE__*/user32.func('SendMessageW', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ])
+) => number | BigInt = /*#__PURE__*/user32.func('SendMessageW', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ])

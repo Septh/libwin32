@@ -1,13 +1,9 @@
-import { koffi, textDecoder } from '../../private.js'
+import { koffi, textDecoder } from '../private.js'
 import {
-    cBOOL, cINT, cUINT, cLPWSTR, cLPCWSTR,
-    cHINSTANCE, type HINSTANCE,
+    cBOOL, cINT, cUINT, cLPWSTR, cLPCWSTR, cHANDLE,
     cATOM, type ATOM,
-    cHWND, type HWND, cWNDPROC, type WNDPROC,
-    cHICON, type HICON,
-    cHCURSOR, type HCURSOR,
-    cHBRUSH, HBRUSH
-} from '../../ctypes.js'
+    cWNDPROC, type WNDPROC,
+    type HINSTANCE, type HWND, type HICON, type HCURSOR, type HBRUSH } from '../ctypes.js'
 import type { CS_ } from '../consts.js'
 import { user32 } from './_lib.js'
 
@@ -48,27 +44,13 @@ export const cWNDCLASS = koffi.struct({
     lpfnWndProc:   cWNDPROC,
     cbClsExtra:    cINT,
     cbWndExtra:    cINT,
-    hInstance:     cHINSTANCE,
-    hIcon:         cHICON,
-    hCursor:       cHCURSOR,
-    hbrBackground: cHBRUSH,
+    hInstance:     cHANDLE,
+    hIcon:         cHANDLE,
+    hCursor:       cHANDLE,
+    hbrBackground: cHANDLE,
     lpszMenuName:  cLPCWSTR,
     lpszClassName: cLPCWSTR
-})
-
-export const cLPWNDCLASS = koffi.pointer(cWNDCLASS)
-export const cPWNDCLASS  = koffi.pointer(cWNDCLASS)
-
-/**
- * Retrieves information about a window class.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfow
- */
-export const GetClassInfo: (
-    hInstance: HINSTANCE | null,
-    lpClassName: ATOM | string,
-    lpWndClass: WNDCLASS
-) => number = /*#__PURE__*/user32.func('GetClassInfoW', cBOOL, [ cHINSTANCE, cLPCWSTR, koffi.out(cLPWNDCLASS) ])
+}), cPWNDCLASS = koffi.pointer(cWNDCLASS), cLPWNDCLASS = koffi.pointer(cWNDCLASS)
 
 /**
  * Contains window class information. It is used with the RegisterClassEx and GetClassInfoEx functions.
@@ -109,17 +91,25 @@ export const cWNDCLASSEX = koffi.struct({
     lpfnWndProc:   cWNDPROC,
     cbClsExtra:    cINT,
     cbWndExtra:    cINT,
-    hInstance:     cHINSTANCE,
-    hIcon:         cHICON,
-    hCursor:       cHCURSOR,
-    hbrBackground: cHBRUSH,
+    hInstance:     cHANDLE,
+    hIcon:         cHANDLE,
+    hCursor:       cHANDLE,
+    hbrBackground: cHANDLE,
     lpszMenuName:  cLPCWSTR,
     lpszClassName: cLPCWSTR,
-    hIconSm:       cHICON
-})
+    hIconSm:       cHANDLE
+}), cPWNDCLASSEX = koffi.pointer(cWNDCLASSEX), cLPWNDCLASSEX = koffi.pointer(cWNDCLASSEX)
 
-export const cLPWNDCLASSEX = koffi.pointer(cWNDCLASSEX)
-export const cPWNDCLASSEX  = koffi.pointer(cWNDCLASSEX)
+/**
+ * Retrieves information about a window class.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfow
+ */
+export const GetClassInfo: (
+    hInstance: HINSTANCE | null,
+    lpClassName: ATOM | string,
+    lpWndClass: WNDCLASS
+) => number = /*#__PURE__*/user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.out(cLPWNDCLASS) ])
 
 /**
  * Retrieves information about a window class, including a handle to the small icon associated with the window class.
@@ -130,7 +120,7 @@ export const GetClassInfoEx: (
     hInstance: HINSTANCE | null,
     lpClassName: ATOM | string,
     lpwcx: WNDCLASSEX
-) => number = /*#__PURE__*/user32.func('GetClassInfoExW', cBOOL, [ cHINSTANCE, cLPCWSTR, koffi.inout(cLPWNDCLASSEX) ])
+) => number = /*#__PURE__*/user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.inout(cLPWNDCLASSEX) ])
 
 /**
  * Retrieves the name of the class to which the specified window belongs.
@@ -139,16 +129,16 @@ export const GetClassInfoEx: (
  */
 /*#__NO_SIDE_EFFECTS__*/
 export function GetClassName(hWnd: HWND): string {
-    const buf = new Uint16Array(128)
-    const len = _GetClassNameW(hWnd, buf, buf.length)
-    return textDecoder.decode(buf.slice(0, len))
+    const out = new Uint16Array(128)
+    const len = _GetClassNameW(hWnd, out, out.length)
+    return textDecoder.decode(out.slice(0, len))
 }
 
 const _GetClassNameW: (
     hWnd: HWND,
     lpClassName: Uint16Array,
     nMaxCount: number
-) => number = /*#__PURE__*/user32.func('GetClassNameW', cINT, [ cHWND, koffi.out(cLPWSTR), cINT ])
+) => number = /*#__PURE__*/user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cLPWSTR), cINT ])
 
 /**
  * Registers a window class for subsequent use in calls to the CreateWindowEx function.
@@ -176,4 +166,4 @@ export const RegisterClassEx: (
 export const UnregisterClass: (
     lpClassName: string,
     hInstance:   HINSTANCE | null
-) => number = /*#__PURE__*/user32.func('UnregisterClassW', cATOM, [ cLPCWSTR, cHINSTANCE ])
+) => number = /*#__PURE__*/user32.func('UnregisterClassW', cATOM, [ cLPCWSTR, cHANDLE ])

@@ -25,26 +25,13 @@
       "format": "svg",
     }
   ],
-  "cSpell.words": [
-    "dllname",
-    "enumdesktopwindows",
-    "ICONINFORMATION",
-    "Koffi",
-    "libwin",
-    "messagebox",
-    "Mmsg",
-    "mucho",
-    "shakeability",
-    "shakeable",
-    "tsbuildinfo"
-  ],
   "cSpell.languageSettings": [
     {
       "languageId": "typescript",
       "allowCompoundWords": false,
       "includeRegExpList": [
         "CStyleComment",
-        "string"
+        // "string"
       ],
       // Exclude includes, because they are also strings.
       "ignoreRegExpList": [
@@ -52,6 +39,8 @@
       ]
     }
   ],
+  "cSpell.diagnosticLevel": "Hint",
+  "cSpell.suggestionMenuType": "quickFix",
   "conventionalCommits.scopes": [
     "kernel32",
     "user32",

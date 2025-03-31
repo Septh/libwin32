@@ -1,5 +1,5 @@
-import { koffi, textDecoder } from '../../private.js'
-import { cBOOL, cDWORD, cHANDLE, cLPDWORD, cLPWSTR, type HANDLE } from '../../ctypes.js'
+import { koffi, textDecoder } from '../private.js'
+import { cBOOL, cDWORD, cHANDLE, cLPDWORD, cLPWSTR, type HANDLE } from '../ctypes.js'
 import type { PSAR_ } from '../consts.js'
 import { kernel32 } from './_lib.js'
 
@@ -13,7 +13,6 @@ import { kernel32 } from './_lib.js'
 export const CloseHandle: (
     hObject: HANDLE
 ) => number = /*#__PURE__*/kernel32.func('CloseHandle', cBOOL, [ cHANDLE ])
-
 
 /**
  * Opens an existing local process object.
@@ -35,14 +34,12 @@ const _OpenProcess: (
     dwProcessId: number
 ) => HANDLE = /*#__PURE__*/kernel32.func('OpenProcess', cHANDLE, [ cDWORD, cBOOL, cDWORD ])
 
-
 /**
  * Retrieves a pseudo handle for the current process.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentprocess
  */
 export const GetCurrentProcess: () => HANDLE = /*#__PURE__*/kernel32.func('GetCurrentProcess', cHANDLE, [])
-
 
 /**
  * Retrieves the full name of the executable image for the specified process.

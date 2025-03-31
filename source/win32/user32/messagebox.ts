@@ -1,7 +1,7 @@
 import {
     cINT, cUINT, cLPCWSTR,
-    cHWND, type HWND
-} from '../../ctypes.js'
+    cHANDLE, type HWND
+} from '../ctypes.js'
 import type { MB_ } from '../consts.js'
 import { user32 } from './_lib.js'
 
@@ -15,4 +15,4 @@ export const MessageBox: (
     lpText:    string | null,
     lpCaption: string | null,
     uType:     MB_ | number
-) => number = /*#__PURE__*/user32.func('MessageBoxW', cINT, [ cHWND, cLPCWSTR, cLPCWSTR, cUINT ])
+) => number = /*#__PURE__*/user32.func('MessageBoxW', cINT, [ cHANDLE, cLPCWSTR, cLPCWSTR, cUINT ])

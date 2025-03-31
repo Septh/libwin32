@@ -1,8 +1,8 @@
-import { koffi } from '../../private.js'
+import { koffi } from '../private.js'
 import {
     cBOOL, cDWORD, cLPCWSTR,
-    cHMODULE, type HMODULE
-} from '../../ctypes.js'
+    cHANDLE, type HMODULE
+} from '../ctypes.js'
 import type { GET_MODULE_HANDLE_EX_FLAG_ } from '../consts.js'
 import { kernel32 } from './_lib.js'
 
@@ -13,7 +13,7 @@ import { kernel32 } from './_lib.js'
  */
 export const GetModuleHandle: (
     lpModuleName: string | null
-) => HMODULE = /*#__PURE__*/kernel32.func('GetModuleHandleW', cHMODULE, [ cLPCWSTR ])
+) => HMODULE = /*#__PURE__*/kernel32.func('GetModuleHandleW', cHANDLE, [ cLPCWSTR ])
 
 /**
  * Retrieves a module handle for the specified module and increments the module's reference count
@@ -37,4 +37,4 @@ const _GetModuleHandleExW:(
     dwFlags: GET_MODULE_HANDLE_EX_FLAG_,
     lpModuleName: string | null,
     phModule: [ HMODULE | null ]
-) => number = /*#__PURE__*/kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cLPCWSTR, koffi.out(koffi.pointer(cHMODULE)) ])
+) => number = /*#__PURE__*/kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cLPCWSTR, koffi.out(koffi.pointer(cHANDLE)) ])
