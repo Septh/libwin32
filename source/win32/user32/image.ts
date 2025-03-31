@@ -12,11 +12,6 @@ import type { OBM_ } from '../consts/OBM.js'
 import type { LR_ } from '../consts/LR.js'
 import type { IMAGE_ } from '../consts/IMAGE.js'
 
-// #region Types
-// #endregion
-
-// #region Functions
-
 /**
  * Loads an icon, cursor, animated cursor, or bitmap.
  *

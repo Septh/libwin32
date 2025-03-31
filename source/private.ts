@@ -27,4 +27,5 @@ export class Win32Dll implements Disposable {
     }
 }
 
+export const textEncoder = /*#__PURE__*/new TextEncoder()
 export const textDecoder = /*#__PURE__*/new TextDecoder('utf-16')

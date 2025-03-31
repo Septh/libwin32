@@ -6,12 +6,11 @@ import type { TPM_ } from '../consts/TPM.js'
 import { cPRECT, RECT } from './rect.js'
 import { cHMENU, HMENU } from './menu.js'
 
-/**
+/*
  * NOTE: This was split into a separate file as a quick way to work around
  * cyclical dependencies between the `menu` and `window` modules.
  */
 
-// #region Functions
 
 /**
  * Creates a drop-down menu, submenu, or shortcut menu.
@@ -35,6 +34,8 @@ export const TrackPopupMenu: (
     prcRect: RECT | null
 ) => number = /*#__PURE__*/user32.func('TrackPopupMenu', cBOOL, [ cHMENU, cUINT, cUINT, cUINT, cUINT, cHWND, cPRECT ])
 
+
+
 /**
  * Destroys the specified menu and frees any memory that the menu occupies.
  *
@@ -44,35 +45,21 @@ export const DestroyMenu: (
     hMenu: HMENU
 ) => number = /*#__PURE__*/user32.func('DestroyMenu', cBOOL, [ cHMENU ])
 
+
+
 /**
  * Appends a new item to the end of the specified menu bar, drop-down menu, submenu, or shortcut menu.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
  */
-/*#__NO_SIDE_EFFECTS__*/
-export const AppendMenu = (
+export const AppendMenu: (
     hMenu: HMENU,
     uFlags: MF_ | number,
     uIDNewItem: number | HMENU,
     lpNewItem: string | null
-) => {
-    if (typeof uIDNewItem === 'number') return AppendMenuInternalN(hMenu, uFlags, uIDNewItem, lpNewItem);
-    return AppendMenuInternalH(hMenu, uFlags, uIDNewItem, lpNewItem);
-}
-
-const AppendMenuInternalN: (
-    hMenu: HMENU,
-    uFlags: MF_ | number,
-    uIDNewItem: number,
-    lpNewItem: string | null
 ) => number = /*#__PURE__*/user32.func('AppendMenuW', cBOOL, [ cHMENU, cUINT, cUINT, cLPCWSTR ]);
 
-const AppendMenuInternalH: (
-    hMenu: HMENU,
-    uFlags: MF_ | number,
-    uIDNewItem: HMENU,
-    lpNewItem: string | null
-) => number = /*#__PURE__*/user32.func('AppendMenuW', cBOOL, [ cHMENU, cUINT, cHMENU, cLPCWSTR ]);
+
 
 /**
  * Sets the checked state of a menu item.
@@ -84,5 +71,3 @@ export const CheckMenuItem: (
     uIDCheckItem: number,
     uCheck: MF_ | number
 ) => number = /*#__PURE__*/user32.func('CheckMenuItem', cUINT, [ cHMENU, cUINT, cUINT ])
-
-// #endregion

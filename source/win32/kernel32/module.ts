@@ -1,15 +1,11 @@
 import { koffi } from '../../private.js'
-import { cHINSTANCE, cLPCWSTR, type HINSTANCE } from '../../ctypes.js'
+import { cBOOL, cDWORD, cHINSTANCE, cLPCWSTR, type HINSTANCE } from '../../ctypes.js'
+import { GET_MODULE_HANDLE_EX_FLAG_ } from '../consts/GET_MODULE_HANDLE_EX_FLAG.js'
 import { kernel32 } from './_lib.js'
 
-// #region Types
-
+// HMODULEs can be used in place of HINSTANCEs
 export const cHMODULE = koffi.alias('HMODULE', cHINSTANCE)
 export type HMODULE = HINSTANCE
-
-// #endregion
-
-// #region Functions
 
 /**
  * Retrieves a module handle for the specified module.
@@ -20,4 +16,26 @@ export const GetModuleHandle: (
     lpModuleName: string | null
 ) => HMODULE = /*#__PURE__*/kernel32.func('GetModuleHandleW', cHMODULE, [ cLPCWSTR ])
 
-// #endregion
+/**
+ * Retrieves a module handle for the specified module and increments the module's reference count
+ * unless GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT is specified.
+ * The module must have been loaded by the calling process.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandleexw
+ */
+/*#__NO_SIDE_EFFECTS__*/
+export function GetModuleHandleEx(
+    dwFlags: GET_MODULE_HANDLE_EX_FLAG_,
+    lpModuleName: string | null
+): HMODULE | null {
+    const hModule: [ HMODULE | null ] = [ null ]
+    return _GetModuleHandleExW(dwFlags, lpModuleName, hModule) === 0
+        ? null
+        : hModule[0]
+}
+
+const _GetModuleHandleExW:(
+    dwFlags: GET_MODULE_HANDLE_EX_FLAG_,
+    lpModuleName: string | null,
+    phModule: [ HMODULE | null ]
+) => number = /*#__PURE__*/kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cLPCWSTR, koffi.out(koffi.pointer(cHMODULE)) ])

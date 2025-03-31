@@ -6,12 +6,5 @@ import {
 } from '../../ctypes.js'
 import { cHWND, type HWND } from './window.js'
 
-// #region Types
-
-export const cDLGPROC = koffi.pointer('DLGPROC', koffi.proto('__dlgproc', cINT_PTR, [ cHWND, cUINT, cWPARAM, cLPARAM ]))
+export const cDLGPROC = koffi.pointer(koffi.proto('__dlgproc', cINT_PTR, [ cHWND, cUINT, cWPARAM, cLPARAM ]))
 export type DLGPROC = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number
-
-// #endregion
-
-// #region Functions
-// #endregion

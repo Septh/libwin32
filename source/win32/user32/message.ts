@@ -3,17 +3,17 @@ import {
     cVOID, cBOOL, cDWORD, cINT, cUINT, cLONG,
     cLPDWORD,
     cLPARAM, cWPARAM, cLRESULT,
-    type WPARAM, type LPARAM
+    type WPARAM, type LPARAM,
+    type LRESULT
 } from '../../ctypes.js'
 import { user32 } from './_lib.js'
 import { cHWND, type HWND } from './window.js'
 import { cPOINT, type POINT } from './point.js'
 import { cLUID, type LUID } from './misc.js'
 import { cHDESK, type HDESK } from './desktop.js'
+import type { BSF_ } from '../consts/BSF.js'
 
-// #region Types
-
-export const cMSG = koffi.struct('MSG', {
+export const cMSG = koffi.struct({
     HWND:     cHWND,
     message:  cUINT,
     wParam:   cWPARAM,
@@ -23,8 +23,8 @@ export const cMSG = koffi.struct('MSG', {
     lPrivate: cDWORD
 })
 
-export const cLPMSG = koffi.pointer('LPMSG', cMSG)
-export const cPMSG  = koffi.pointer('PMSG',  cMSG)
+export const cLPMSG = koffi.pointer(cMSG)
+export const cPMSG  = koffi.pointer(cMSG)
 
 export interface MSG {
     HWND:    HWND
@@ -35,15 +35,15 @@ export interface MSG {
     pt:      POINT
 }
 
-export const cBSMINFO = koffi.struct('BSMINFO', {
+export const cBSMINFO = koffi.struct({
     cbSize: cUINT,
     hdesk: cHDESK,
     hwnd: cHWND,
     luid: cLUID,
 })
 
-export const cLPBSMINFO = koffi.pointer('LPBSMINFO', cBSMINFO)
-export const cPBSMINFO  = koffi.pointer('PBSMINFO', cBSMINFO)
+export const cLPBSMINFO = koffi.pointer(cBSMINFO)
+export const cPBSMINFO  = koffi.pointer(cBSMINFO)
 
 export class BSMINFO {
     readonly cbSize = koffi.sizeof(cBSMINFO)
@@ -52,9 +52,6 @@ export class BSMINFO {
     declare luid?: LUID
 }
 
-// #endregion
-
-// #region Functions
 
 /**
  * Sends a message to the specified recipients.
@@ -63,43 +60,60 @@ export class BSMINFO {
  */
 /*#__NO_SIDE_EFFECTS__*/
 export function BroadcastSystemMessage(
-    flags: number,
+    flags: BSF_ | number,
     lpInfo: number | null,
     Msg: number,
     wParam: WPARAM,
     lParam: LPARAM
 ): [ number, number | null ] {
-    const ptr = [ lpInfo ]
-    const ret = _BroadcastSystemMessage(flags, ptr, Msg, wParam, lParam)
-    return [ ret, ptr[0] ]
+    const out = typeof lpInfo === 'number' ? [ lpInfo ] as [ number ] : null
+    const ret = _BroadcastSystemMessageW(flags, out, Msg, wParam, lParam)
+    return [ ret, out?.[0] ?? null ]
 }
 
-const _BroadcastSystemMessage = /*#__PURE__*/user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM ])
+const _BroadcastSystemMessageW: (
+    flags: BSF_ | number,
+    lpInfo: [ number ] | null,
+    Msg: number,
+    wParam: WPARAM,
+    lParam: LPARAM
+) => number = /*#__PURE__*/user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM ])
+
+
 
 /**
  * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
  * except that this function can return more information from the recipients.
  *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
  */
 /*#__NO_SIDE_EFFECTS__*/
 export function BroadcastSystemMessageEx(
-    flags: number,
+    flags: BSF_ | number,
     lpInfo: number | null,
     Msg: number,
     wParam: WPARAM,
     lParam: LPARAM,
-    psbmInfo: BSMINFO | null
+    psbmInfo: BSMINFO | null = null
 ): [ number, number | null ] {
-    const ptr = [ lpInfo ]
-    const ret = _BroadcastSystemMessageEx(flags, ptr, Msg, wParam, lParam, psbmInfo)
-    return [ ret, ptr[0] ]
+    const out = typeof lpInfo === 'string' ? [ lpInfo ] as [ number ] : null
+    const ret = _BroadcastSystemMessageExW(flags, out, Msg, wParam, lParam, psbmInfo)
+    return [ ret, out?.[0] ?? null ]
 }
 
-const _BroadcastSystemMessageEx = /*#__PURE__*/user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, cPBSMINFO ])
+const _BroadcastSystemMessageExW: (
+    flags: BSF_ | number,
+    lpInfo: [ number ] | null,
+    Msg: number,
+    wParam: WPARAM,
+    lParam: LPARAM,
+    psbmInfo: BSMINFO | null
+) => number = /*#__PURE__*/user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(cPBSMINFO) ])
 
 /** Return this value to deny a query. */
 export const BROADCAST_QUERY_DENY = 0x424D5144
+
+
 
 /**
  * Dispatches a message to a window procedure.
@@ -108,7 +122,9 @@ export const BROADCAST_QUERY_DENY = 0x424D5144
  */
 export const DispatchMessage: (
     lpMsg: MSG
-) => number | BigInt = /*#__PURE__*/user32.func('DispatchMessageW', cLRESULT, [ cLPMSG ])
+) => LRESULT = /*#__PURE__*/user32.func('DispatchMessageW', cLRESULT, [ cLPMSG ])
+
+
 
 /**
  * Retrieves a message from the calling thread's message queue.
@@ -121,6 +137,8 @@ export const GetMessage: (
     wMsgFilterMin: number,
     wMsgFilterMax: number
 ) => number = /*#__PURE__*/user32.func('GetMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT ])
+
+
 
 /**
  * Checks the thread message queue for a posted message.
@@ -135,6 +153,8 @@ export const PeekMessage: (
     wRemoveMsg:    number
 ) => number = /*#__PURE__*/user32.func('PeekMessageW', cBOOL, [ koffi.out(cLPMSG), cHWND, cUINT, cUINT, cUINT ])
 
+
+
 /**
  * Indicates to the system that a thread has made a request to terminate (quit).
  *
@@ -143,6 +163,8 @@ export const PeekMessage: (
 export const PostQuitMessage: (
     nExitCode: number
 ) => void = /*#__PURE__*/user32.func('PostQuitMessage', cVOID, [ cINT ])
+
+
 
 /**
  * Translates virtual-key messages into character messages.
@@ -153,6 +175,8 @@ export const TranslateMessage: (
     lpMsg: MSG
 ) => number = /*#__PURE__*/user32.func('TranslateMessage', cBOOL, [ cLPMSG ])
 
+
+
 /**
  * Translates virtual-key messages into character messages.
  *
@@ -162,6 +186,8 @@ export const TranslateMessageEx: (
     lpMsg: MSG,
     flags: number
 ) => number = /*#__PURE__*/user32.func('TranslateMessageEx', cBOOL, [ cLPMSG, cUINT ])
+
+
 
 /**
  * Sends a message to the specified window.
@@ -174,5 +200,3 @@ export const SendMessage: (
     wParam:  WPARAM,
     lParam:  LPARAM
 ) => number | BigInt = /*#__PURE__*/user32.func('SendMessageW', cLRESULT, [ cHWND, cUINT, cWPARAM, cLPARAM ])
-
-// #endregion

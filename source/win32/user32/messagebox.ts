@@ -3,11 +3,6 @@ import { user32 } from './_lib.js'
 import { cHWND, type HWND } from './window.js'
 import type { MB_ } from '../consts/MB.js'
 
-// #region Types
-// #endregion
-
-// #region Functions
-
 /**
  * Displays a modal dialog box that contains a system icon, a set of buttons, and a brief application-specific message, such as status or error information.
  *

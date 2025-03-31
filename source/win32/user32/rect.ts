@@ -1,17 +1,15 @@
 import { koffi } from '../../private.js'
 import { cLONG } from '../../ctypes.js'
 
-// #region Types
-
-export const cRECT = koffi.struct('RECT', {
+export const cRECT = koffi.struct({
     left:   cLONG,
     top:    cLONG,
     right:  cLONG,
     bottom: cLONG
 })
 
-export const cLPRECT = koffi.pointer('LPRECT', cRECT)
-export const cPRECT  = koffi.pointer('PRECT',  cRECT)
+export const cLPRECT = koffi.pointer(cRECT)
+export const cPRECT  = koffi.pointer(cRECT)
 
 export interface RECT {
     left:   number
@@ -19,8 +17,3 @@ export interface RECT {
     right:  number
     bottom: number
 }
-
-// #endregion
-
-// #region Functions
-// #endregion
