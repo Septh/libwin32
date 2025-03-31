@@ -47,4 +47,4 @@ const _FormatMessageW: (
     lpBuffer: Uint16Array,
     nSize: number,
     ...args: any[]
-) => number = kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cLPCVOID, cDWORD, cDWORD, cLPWSTR, cDWORD, '...' as any ])
+) => number = /*#__PURE__*/kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cLPCVOID, cDWORD, cDWORD, cLPWSTR, cDWORD, '...' as any ])

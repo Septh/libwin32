@@ -12,7 +12,7 @@ import { kernel32 } from './_lib.js'
  */
 export const CloseHandle: (
     hObject: HANDLE
-) => number = kernel32.func('CloseHandle', cBOOL, [ cHANDLE ])
+) => number = /*#__PURE__*/kernel32.func('CloseHandle', cBOOL, [ cHANDLE ])
 
 
 /**
@@ -41,7 +41,7 @@ const _OpenProcess: (
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentprocess
  */
-export const GetCurrentProcess: () => HANDLE = kernel32.func('GetCurrentProcess', cHANDLE, [])
+export const GetCurrentProcess: () => HANDLE = /*#__PURE__*/kernel32.func('GetCurrentProcess', cHANDLE, [])
 
 
 /**

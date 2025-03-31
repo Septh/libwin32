@@ -164,7 +164,7 @@ export const GetAncestor: (
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow
  *
  */
-export const GetForegroundWindow: () => HWND = user32.func('GetForegroundWindow', cHWND, [])
+export const GetForegroundWindow: () => HWND = /*#__PURE__*/user32.func('GetForegroundWindow', cHWND, [])
 
 /**
  *
@@ -183,7 +183,7 @@ export function GetWindowThreadProcessId(hWnd: HWND): [ number, number ] {
 const _GetWindowThreadProcessId: (
     hWnd: HWND,
     lpdwProcessId: [ number ]
-) => number = user32.func('GetWindowThreadProcessId', cDWORD, [ cHWND, koffi.out(cLPDWORD) ])
+) => number = /*#__PURE__*/user32.func('GetWindowThreadProcessId', cDWORD, [ cHWND, koffi.out(cLPDWORD) ])
 
 /**
  * Returns text of the specified window's title bar (if it has one).
