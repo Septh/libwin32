@@ -1,4 +1,4 @@
-import { koffi } from '../private.js'
+import { koffi, type INT_PTR } from '../private.js'
 import {
     cVOID, cBOOL, cDWORD, cINT, cUINT, cLONG, cLPDWORD,
     cLPARAM, type LPARAM, cWPARAM, type WPARAM, cLRESULT, type LRESULT,
@@ -9,25 +9,22 @@ import type { BSF_ } from '../consts.js'
 import { user32 } from './_lib.js'
 
 export const cMSG = koffi.struct({
-    HWND:     cHANDLE,
-    message:  cUINT,
-    wParam:   cWPARAM,
-    lParam:   cLPARAM,
-    time:     cDWORD,
-    pt:       cHANDLE,
+    HWND: cHANDLE,
+    message: cUINT,
+    wParam: cWPARAM,
+    lParam: cLPARAM,
+    time: cDWORD,
+    pt: cHANDLE,
     lPrivate: cDWORD
-})
-
-export const cLPMSG = koffi.pointer(cMSG)
-export const cPMSG  = koffi.pointer(cMSG)
+}), cPMSG = koffi.pointer(cMSG), cLPMSG = koffi.pointer(cMSG)
 
 export interface MSG {
-    HWND:    HWND
+    HWND: HWND
     message: number
-    wParam:  number
-    lParam:  number
-    time:    number
-    pt:      POINT
+    wParam: number
+    lParam: number
+    time: number
+    pt: POINT
 }
 
 export const cBSMINFO = koffi.struct({
@@ -35,10 +32,7 @@ export const cBSMINFO = koffi.struct({
     hdesk: cHANDLE,
     hwnd: cHANDLE,
     luid: cLUID,
-})
-
-export const cLPBSMINFO = koffi.pointer(cBSMINFO)
-export const cPBSMINFO  = koffi.pointer(cBSMINFO)
+}), cPBSMINFO = koffi.pointer(cBSMINFO), cLPBSMINFO = koffi.pointer(cBSMINFO)
 
 export class BSMINFO {
     readonly cbSize = koffi.sizeof(cBSMINFO)
@@ -50,131 +44,145 @@ export class BSMINFO {
 /**
  * Sends a message to the specified recipients.
  *
+ * Note: in libwin32, the function returns a tuple of `[ success, lpInfo ]`.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
-/*#__NO_SIDE_EFFECTS__*/
-export function BroadcastSystemMessage(
-    flags: BSF_ | number,
-    lpInfo: number | null,
-    Msg: number,
-    wParam: WPARAM,
-    lParam: LPARAM
-): [ number, number | null ] {
-    const out = typeof lpInfo === 'number' ? [ lpInfo ] as [ number ] : null
-    const ret = _BroadcastSystemMessageW(flags, out, Msg, wParam, lParam)
-    return [ ret, out?.[0] ?? null ]
+export function BroadcastSystemMessage(flags: BSF_ | number, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM): [number, number | null] {
+    BroadcastSystemMessage.fn ??= user32.func('BroadcastSystemMessageW', cLONG, [cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM])
+
+    const out = typeof lpInfo === 'number' ? [lpInfo] as INT_PTR : null
+    const ret = BroadcastSystemMessage.fn(flags, out, Msg, wParam, lParam)
+    return [ret, out?.[0] ?? null]
 }
 
-const _BroadcastSystemMessageW: (
-    flags: BSF_ | number,
-    lpInfo: [ number ] | null,
-    Msg: number,
-    wParam: WPARAM,
-    lParam: LPARAM
-) => number = /*#__PURE__*/user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM ])
+/** @internal */
+export declare namespace BroadcastSystemMessage {
+    export var fn: koffi.KoffiFunc<(flags: BSF_ | number, lpInfo: INT_PTR | null, Msg: number, wParam: WPARAM, lParam: LPARAM) => number>
+}
 
 /**
  * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
  * except that this function can return more information from the recipients.
  *
+ * Note: in libwin32, the function returns a tuple of `[ success, lpInfo ]`.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
  */
-/*#__NO_SIDE_EFFECTS__*/
-export function BroadcastSystemMessageEx(
-    flags: BSF_ | number,
-    lpInfo: number | null,
-    Msg: number,
-    wParam: WPARAM,
-    lParam: LPARAM,
-    psbmInfo: BSMINFO | null = null
-): [ number, number | null ] {
-    const out = typeof lpInfo === 'string' ? [ lpInfo ] as [ number ] : null
-    const ret = _BroadcastSystemMessageExW(flags, out, Msg, wParam, lParam, psbmInfo)
-    return [ ret, out?.[0] ?? null ]
+export function BroadcastSystemMessageEx(flags: BSF_ | number, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null = null): [number, number | null] {
+    BroadcastSystemMessageEx.fn ??= user32.func('BroadcastSystemMessageExW', cLONG, [cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(cPBSMINFO)])
+
+    const out = typeof lpInfo === 'string' ? [lpInfo] as INT_PTR : null
+    const ret = BroadcastSystemMessageEx.fn(flags, out, Msg, wParam, lParam, psbmInfo)
+    return [ret, out?.[0] ?? null]
 }
 
-const _BroadcastSystemMessageExW: (
-    flags: BSF_ | number,
-    lpInfo: [ number ] | null,
-    Msg: number,
-    wParam: WPARAM,
-    lParam: LPARAM,
-    psbmInfo: BSMINFO | null
-) => number = /*#__PURE__*/user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(cPBSMINFO) ])
-
-/** Return this value to deny a query. */
-export const BROADCAST_QUERY_DENY = 0x424D5144
+/** @internal */
+export declare namespace BroadcastSystemMessageEx {
+    export var fn: koffi.KoffiFunc<(flags: BSF_ | number, lpInfo: INT_PTR | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null) => number>
+}
 
 /**
  * Dispatches a message to a window procedure.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessagew
  */
-export const DispatchMessage: (
-    lpMsg: MSG
-) => LRESULT = /*#__PURE__*/user32.func('DispatchMessageW', cLRESULT, [ cLPMSG ])
+export function DispatchMessage(lpMsg: MSG): LRESULT {
+    DispatchMessage.fn ??= user32.func('DispatchMessageW', cLRESULT, [cLPMSG])
+    return DispatchMessage.fn(lpMsg)
+}
+
+/** @internal */
+export declare namespace DispatchMessage {
+    export var fn: koffi.KoffiFunc<(lpMsg: MSG) => LRESULT>
+}
 
 /**
  * Retrieves a message from the calling thread's message queue.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagew
  */
-export const GetMessage: (
-    lpMsg:         MSG,
-    hWnd:          HWND | null | -1,
-    wMsgFilterMin: number,
-    wMsgFilterMax: number
-) => number = /*#__PURE__*/user32.func('GetMessageW', cBOOL, [ koffi.out(cLPMSG), cHANDLE, cUINT, cUINT ])
+export function GetMessage(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number): boolean {
+    GetMessage.fn ??= user32.func('GetMessageW', cBOOL, [koffi.out(cLPMSG), cHANDLE, cUINT, cUINT])
+    return !!GetMessage.fn(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax)
+}
+
+/** @internal */
+export declare namespace GetMessage {
+    export var fn: koffi.KoffiFunc<(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number) => number>
+}
 
 /**
  * Checks the thread message queue for a posted message.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
  */
-export const PeekMessage: (
-    lpMsg:         MSG,
-    hWnd:          HWND | null | -1,
-    wMsgFilterMin: number,
-    wMsgFilterMax: number,
-    wRemoveMsg:    number
-) => number = /*#__PURE__*/user32.func('PeekMessageW', cBOOL, [ koffi.out(cLPMSG), cHANDLE, cUINT, cUINT, cUINT ])
+export function PeekMessage(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number, wRemoveMsg: number): boolean {
+    PeekMessage.fn ??= user32.func('PeekMessageW', cBOOL, [koffi.out(cLPMSG), cHANDLE, cUINT, cUINT, cUINT])
+    return !!PeekMessage.fn(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg)
+}
+
+/** @internal */
+export declare namespace PeekMessage {
+    export var fn: koffi.KoffiFunc<(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number, wRemoveMsg: number) => number>
+}
 
 /**
  * Indicates to the system that a thread has made a request to terminate (quit).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postquitmessage
  */
-export const PostQuitMessage: (
-    nExitCode: number
-) => void = /*#__PURE__*/user32.func('PostQuitMessage', cVOID, [ cINT ])
+export function PostQuitMessage(nExitCode: number): void {
+    PostQuitMessage.fn ??= user32.func('PostQuitMessage', cVOID, [cINT])
+    return PostQuitMessage.fn(nExitCode)
+}
+
+/** @internal */
+export declare namespace PostQuitMessage {
+    export var fn: koffi.KoffiFunc<(nExitCode: number) => void>
+}
 
 /**
  * Translates virtual-key messages into character messages.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
  */
-export const TranslateMessage: (
-    lpMsg: MSG
-) => number = /*#__PURE__*/user32.func('TranslateMessage', cBOOL, [ cLPMSG ])
+export function TranslateMessage(lpMsg: MSG): boolean {
+    TranslateMessage.fn ??= user32.func('TranslateMessage', cBOOL, [cLPMSG])
+    return !!TranslateMessage.fn(lpMsg)
+}
+
+/** @internal */
+export declare namespace TranslateMessage {
+    export var fn: koffi.KoffiFunc<(lpMsg: MSG) => number>
+}
 
 /**
  * Translates virtual-key messages into character messages.
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/translatemessageex
  */
-export const TranslateMessageEx: (
-    lpMsg: MSG,
-    flags: number
-) => number = /*#__PURE__*/user32.func('TranslateMessageEx', cBOOL, [ cLPMSG, cUINT ])
+export function TranslateMessageEx(lpMsg: MSG, flags: number): boolean {
+    TranslateMessageEx.fn ??= user32.func('TranslateMessageEx', cBOOL, [cLPMSG, cUINT])
+    return !!TranslateMessageEx.fn(lpMsg, flags)
+}
+
+/** @internal */
+export declare namespace TranslateMessageEx {
+    export var fn: koffi.KoffiFunc<(lpMsg: MSG, flags: number) => number>
+}
 
 /**
  * Sends a message to the specified window.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
  */
-export const SendMessage: (
-    hWnd:    HWND,
-    Msg:     number,
-    wParam:  WPARAM,
-    lParam:  LPARAM
-) => number | BigInt = /*#__PURE__*/user32.func('SendMessageW', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ])
+export function SendMessage(hWnd: HWND, Msg: number, wParam: WPARAM, lParam: LPARAM): LRESULT {
+    SendMessage.fn ??= user32.func('SendMessageW', cLRESULT, [cHANDLE, cUINT, cWPARAM, cLPARAM])
+    return SendMessage.fn(hWnd, Msg, wParam, lParam)
+}
+
+/** @internal */
+export declare namespace SendMessage {
+    export var fn: koffi.KoffiFunc<(hWnd: HWND, Msg: number, wParam: WPARAM, lParam: LPARAM) => LRESULT>
+}

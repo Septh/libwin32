@@ -1,5 +1,5 @@
 import { koffi } from '../private.js'
-import { cBOOL, cLPPOINT, type POINT } from '../ctypes.js'
+import { cBOOL, cPOINT, type POINT } from '../ctypes.js'
 import { user32 } from './_lib.js'
 
 /**
@@ -7,6 +7,12 @@ import { user32 } from './_lib.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
  */
-export const GetCursorPos: (
-    lpPoint: POINT
-) => number = /*#__PURE__*/user32.func('GetCursorPos', cBOOL, [ koffi.out(cLPPOINT) ])
+export function GetCursorPos(lpPoint: POINT): number {
+    GetCursorPos.fn ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(cPOINT) ])
+    return GetCursorPos.fn(lpPoint)
+}
+
+/** @internal */
+export declare namespace GetCursorPos {
+    export var fn: koffi.KoffiFunc<(lpPoint: POINT) => number>
+}

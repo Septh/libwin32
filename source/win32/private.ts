@@ -28,3 +28,6 @@ export class Win32Dll implements Disposable {
         return /*#__PURE__*/this.#lib.func(name, result, parameters)
     }
 }
+
+export type POINTER<T> = [ T ]
+export type INT_PTR = POINTER<number>

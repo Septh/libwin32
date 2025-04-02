@@ -4,9 +4,10 @@ import {
     CreateWindowEx, ShowWindow, UpdateWindow, DefWindowProc,
     GetMessage, TranslateMessage, DispatchMessage, PostQuitMessage,
     MessageBox,
-    type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG
+    type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG,
+    FormatMessage
 } from 'libwin32'
-import { CS_, CW_, IDC_, IDI_, MB_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
+import { CS_, CW_, FORMAT_MESSAGE_, IDC_, IDI_, MB_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
 
 const windowClass = "NodeApp"
 const windowName  = "Window Demo!"
@@ -17,15 +18,16 @@ function wndProc(hWnd: HWND, uMmsg: WM_, wParam: WPARAM, lParam: LPARAM) {
     let ret: number
     switch (uMmsg) {
         case WM_.DESTROY:
+            console.log('WM_DESTROY')
             PostQuitMessage(0)
             ret = 0
             break
 
         default:
-            ret = DefWindowProc(hWnd, uMmsg, wParam, lParam)
+            // console.log(uMmsg)
+            ret = DefWindowProc(hWnd, uMmsg, wParam, lParam) as number
             break
     }
-    // console.log(hWnd, { uMmsg, wParam, lParam }, ret)
     return ret
 }
 
@@ -55,8 +57,9 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
     )
     if (!hWnd) {
         const err = GetLastError()
-        MessageBox(null, "Call to CreateWindow failed!\n" + err.toString(16), appTitle, MB_.OK | MB_.ICONERROR)
-        return -1
+        const msg = FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, err, 0)
+        MessageBox(null, "Call to CreateWindow failed!\n" + msg, appTitle, MB_.OK | MB_.ICONERROR)
+        return err
     }
 
     ShowWindow(hWnd, nCmdShow)
@@ -72,4 +75,9 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
     return 0
 }
 
-process.exitCode = WinMain(GetModuleHandle(null), SW_.NORMAL)
+const hInstance = GetModuleHandle(null)
+if (!hInstance) {
+    throw new Error('GetModuleHandle() failed.')
+}
+
+process.exitCode = WinMain(hInstance, SW_.NORMAL)

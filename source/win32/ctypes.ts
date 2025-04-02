@@ -65,7 +65,7 @@ export type DLGPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPAR
 export const cPOINT = koffi.struct({
     x: cLONG,
     y: cLONG
-}), cPPOINT = koffi.pointer(cPOINT), cLPPOINT = koffi.pointer(cPOINT)
+})
 
 export interface POINT {
     x: number
@@ -75,7 +75,7 @@ export interface POINT {
 export const cPOINTS = koffi.struct({
     x: cSHORT,
     y: cSHORT
-}), cPPOINTS = koffi.pointer(cPOINTS), cLPPOINTS = koffi.pointer(cPOINTS)
+})
 
 export interface POINTS {
     x: number
@@ -87,7 +87,7 @@ export const cRECT = koffi.struct({
     top:    cLONG,
     right:  cLONG,
     bottom: cLONG
-}), cPRECT = koffi.pointer(cRECT), cLPRECT = koffi.pointer(cRECT)
+})
 
 export interface RECT {
     left:   number
@@ -99,7 +99,7 @@ export interface RECT {
 export const cSIZE = koffi.struct({
     cx: cLONG,
     yy: cLONG
-}), cPSIZE = koffi.pointer(cSIZE), cLPSIZE = koffi.pointer(cSIZE)
+})
 
 export interface SIZE {
     x: number
@@ -112,7 +112,7 @@ export const cMINMAXINFO = koffi.struct({
     ptMaxPosition:  cPOINT,
     ptMinTrackSize: cPOINT,
     ptMaxTrackSize: cPOINT
-}), cPMINMAXINFO = koffi.pointer(cMINMAXINFO), cLPMINMAXINFO = koffi.pointer(cMINMAXINFO)
+})
 
 export interface MINMAXINFO {
     ptReserved:     POINT
@@ -139,7 +139,7 @@ export interface GUID {
 export const cLUID = koffi.struct({
     LowPart: cDWORD,
     HighPart: cLONG,
-}), cPLUID = koffi.pointer(cLUID)
+})
 
 export interface LUID {
     LowPart: number

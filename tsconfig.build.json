@@ -12,5 +12,6 @@
     "importHelpers": true,
     "noEmitOnError": true,
     "noEmit": false,
+    "stripInternal": true
   }
 }

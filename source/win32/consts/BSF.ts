@@ -14,3 +14,6 @@ export enum BSF_ {
     RETURNHDESK        = 0x00000200,
     LUID               = 0x00000400
 }
+
+/** Return this value to deny a query. */
+export const BROADCAST_QUERY_DENY = 0x424D5144
