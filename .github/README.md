@@ -1,6 +1,21 @@
 # libwin32 (work in progress)
 > Node bindings to native Win32 DLLs through [Koffi](https://koffi.dev).
 
+````js
+import { MessageBox } from 'libwin32'
+import { MB_ } from 'libwin32/consts'
+
+const result = MessageBox(
+    null,
+    "Hello, world!",
+    "libwin32",
+    MB_.ICONINFORMATION | MB_.YESNO
+)
+````
+
+![screenshot](../docs/snapshot.png)
+
+
 ### In a nutshell:
 * Very simple and intuitive API (see [demos](./source//demos/)), with TypeScript definitions included.
 * Bundler friendly, designed with tree-shakeability in mind.
@@ -19,22 +34,16 @@
     * All constants are available via the `libwin32/consts` import.
     * Logically grouped constants are exported as `enum`s, where the prefix is the name of the enum. For instance, `WM_DESTROY` and `WM_KEYDOWN` are members of the `WM_` enum and can be accessed as `WM_.DESTROY` and `WM_.KEYDOWN`, respectively.
 1. Call the functions as instructed by the [Win32 API documentation](https://learn.microsoft.com/en-us/windows/win32/api/).
-    * All functions, constants and types are named accordingly.
-    * There are a few cases where it made sense to transform the C prototype to something more JS-friendly. For instance, in C, `GetWindowText` fills in a buffer whose address is passed as the second parameter to the function; in JS/TS, the function takes only one parameter and returns a string.
+    * All functions, constants and types are named accordingly and the lib is fully typed so you may rely on code hints from your editor.
+    * Many Win32 C structures have a size member (often named `cbSize`) that must be set before they are used as a parameter. For these, the lib provide a JS class that automatically sets that field when instantiated. See `WNDCLASSEX` for an example.
+    * There are a few cases where it made sense to transform the C prototype to something more JS-friendly. For instance, in C, `GetWindowText()` fills in a buffer whose address is passed as the second parameter to the function; in JS/TS, the function takes only one parameter and returns a string.
 
-````js
-import { MessageBox } from 'libwin32'
-import { MB_ } from 'libwin32/consts'
+#### > Bundle the lib with your code
+The Win32 API has thousands of functions, structures and constants. While providing bindings for all of them is *not* a goal, the lib may eventually grow to something very, very big.
 
-const result = MessageBox(
-    null,
-    "Hello, world!",
-    "libwin32",
-    MB_.ICONINFORMATION | MB_.YESNO
-)
-````
+To accommodate this, `libwin32` is "tree-shakeable by design". This feature relies on [Rollup's awesome tree-shaking capabilities](https://rollupjs.org/introduction/#tree-shaking).
 
-![screenshot](../docs/snapshot.png)
+See [rollup.demos.js](../rollup.demos.js) to see how it's done, and build the demos (see below) to see the resulting code in the `/demos` directory.
 
 #### > Build the lib
 
@@ -146,7 +155,7 @@ None.
 * `./source/demos`:
     * Some usage examples.
 * `./source/rollup`:
-    * Two [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](./rollup.demos.js) to see how to use.
+    * Two [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](../rollup.demos.js) to see how to use.
 
 ### Licence
 MIT.

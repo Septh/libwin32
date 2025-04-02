@@ -46,5 +46,11 @@
     "user32",
     "shell32",
     "demos"
+  ],
+  "cSpell.words": [
+    "bundable",
+    "Koffi",
+    "libwin",
+    "shakeability"
   ]
 }
