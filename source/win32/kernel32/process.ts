@@ -21,21 +21,6 @@ export declare namespace CloseHandle {
 }
 
 /**
- * Opens an existing local process object.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
- */
-export function OpenProcess(dwDesiredAccess: PSAR_ | number, bInheritHandle: boolean, dwProcessId: number): HANDLE | null {
-    OpenProcess.fn ??= kernel32.func('OpenProcess', cHANDLE, [ cDWORD, cBOOL, cDWORD ])
-    return OpenProcess.fn(dwDesiredAccess, Number(bInheritHandle), dwProcessId)
-}
-
-/** @internal */
-export declare namespace OpenProcess {
-    export var fn: koffi.KoffiFunc<(dwDesiredAccess: PSAR_ | number, bInheritHandle: number, dwProcessId: number) => HANDLE>
-}
-
-/**
  * Retrieves a pseudo handle for the current process.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentprocess
@@ -48,6 +33,21 @@ export function GetCurrentProcess(): HANDLE {
 /** @internal */
 export declare namespace GetCurrentProcess {
     export var fn: koffi.KoffiFunc<() => HANDLE>
+}
+
+/**
+ * Opens an existing local process object.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
+ */
+export function OpenProcess(dwDesiredAccess: PSAR_ | number, bInheritHandle: boolean, dwProcessId: number): HANDLE | null {
+    OpenProcess.fn ??= kernel32.func('OpenProcess', cHANDLE, [ cDWORD, cBOOL, cDWORD ])
+    return OpenProcess.fn(dwDesiredAccess, Number(bInheritHandle), dwProcessId)
+}
+
+/** @internal */
+export declare namespace OpenProcess {
+    export var fn: koffi.KoffiFunc<(dwDesiredAccess: PSAR_ | number, bInheritHandle: number, dwProcessId: number) => HANDLE>
 }
 
 /**

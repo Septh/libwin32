@@ -1,9 +1,10 @@
 import { koffi, textDecoder } from '../private.js'
 import {
-    cBOOL, cINT, cUINT, cLPWSTR, cLPCWSTR, cHANDLE,
-    cATOM, type ATOM,
+    cBOOL, cINT, cUINT, cLPWSTR, cLPCWSTR,
+    cHANDLE, cATOM, type ATOM,
     cWNDPROC, type WNDPROC,
-    type HINSTANCE, type HWND, type HICON, type HCURSOR, type HBRUSH } from '../ctypes.js'
+    type HINSTANCE, type HWND, type HICON, type HCURSOR, type HBRUSH
+} from '../ctypes.js'
 import type { CS_ } from '../consts.js'
 import { user32 } from './_lib.js'
 
@@ -13,30 +14,17 @@ import { user32 } from './_lib.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassw
  */
-export class WNDCLASS implements Disposable {
-    declare style?:         CS_
-    declare lpfnWndProc?:   koffi.IKoffiRegisteredCallback
-    declare cbClsExtra?:    number
-    declare cbWndExtra?:    number
-    declare hInstance?:     HINSTANCE | null
-    declare hIcon?:         HICON | null
-    declare hCursor?:       HCURSOR | null
-    declare hbrBackground?: HBRUSH | null
-    declare lpszMenuName?:  string
-    declare lpszClassName?: string
-
-    constructor(wndProc?: WNDPROC) {
-        if (typeof wndProc === 'function')
-            this.lpfnWndProc = koffi.register(wndProc, cWNDPROC)
-    }
-
-    // For use with `using` (requires TypeScript 5.2+)
-    [Symbol.dispose]() {
-        if (this.lpfnWndProc) {
-            koffi.unregister(this.lpfnWndProc)
-            this.lpfnWndProc = undefined
-        }
-    }
+export class WNDCLASS {
+    style:         CS_              = 0
+    lpfnWndProc:   WNDPROC | null   = null
+    cbClsExtra:    number           = 0
+    cbWndExtra:    number           = 0
+    hInstance:     HINSTANCE | null = null
+    hIcon:         HICON | null     = null
+    hCursor:       HCURSOR | null   = null
+    hbrBackground: HBRUSH | null    = null
+    lpszMenuName:  string           = ''
+    lpszClassName: string           = ''
 }
 
 export const cWNDCLASS = koffi.struct({
@@ -50,39 +38,26 @@ export const cWNDCLASS = koffi.struct({
     hbrBackground: cHANDLE,
     lpszMenuName:  cLPCWSTR,
     lpszClassName: cLPCWSTR
-}), cPWNDCLASS = koffi.pointer(cWNDCLASS), cLPWNDCLASS = koffi.pointer(cWNDCLASS)
+})
 
 /**
  * Contains window class information. It is used with the RegisterClassEx and GetClassInfoEx functions.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassexw
  */
-export class WNDCLASSEX implements Disposable {
+export class WNDCLASSEX {
     readonly cbSize = koffi.sizeof(cWNDCLASSEX)
-    declare  style?:         CS_
-    declare  lpfnWndProc?:   koffi.IKoffiRegisteredCallback
-    declare  cbClsExtra?:    number
-    declare  cbWndExtra?:    number
-    declare  hInstance?:     HINSTANCE | null
-    declare  hIcon?:         HICON | null
-    declare  hCursor?:       HCURSOR | null
-    declare  hbrBackground?: HBRUSH | null
-    declare  lpszMenuName?:  string
-    declare  lpszClassName?: string
-    declare  hIconSm?:       HICON | null
-
-    constructor(wndProc?: WNDPROC) {
-        if (typeof wndProc === 'function')
-            this.lpfnWndProc = koffi.register(wndProc, cWNDPROC)
-    }
-
-    // For use with `using` (requires TypeScript 5.2+)
-    [Symbol.dispose]() {
-        if (this.lpfnWndProc) {
-            koffi.unregister(this.lpfnWndProc)
-            this.lpfnWndProc = undefined
-        }
-    }
+    style:         CS_              = 0
+    lpfnWndProc:   WNDPROC | null   = null
+    cbClsExtra:    number           = 0
+    cbWndExtra:    number           = 0
+    hInstance:     HINSTANCE | null = null
+    hIcon:         HICON | null     = null
+    hCursor:       HCURSOR | null   = null
+    hbrBackground: HBRUSH | null    = null
+    lpszMenuName:  string           = ''
+    lpszClassName: string           = ''
+    hIconSm:       HICON | null     = null
 }
 
 export const cWNDCLASSEX = koffi.struct({
@@ -98,16 +73,18 @@ export const cWNDCLASSEX = koffi.struct({
     lpszMenuName:  cLPCWSTR,
     lpszClassName: cLPCWSTR,
     hIconSm:       cHANDLE
-}), cPWNDCLASSEX = koffi.pointer(cWNDCLASSEX), cLPWNDCLASSEX = koffi.pointer(cWNDCLASSEX)
+})
 
 /**
  * Retrieves information about a window class.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfow
  */
-export function GetClassInfo(hInstance: HINSTANCE | null, lpClassName: ATOM | string, lpWndClass: WNDCLASS): boolean {
-    GetClassInfo.fn ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.out(cLPWNDCLASS) ])
-    return !!GetClassInfo.fn(hInstance, lpClassName, lpWndClass)
+export function GetClassInfo(hInstance: HINSTANCE | null, lpClassName: ATOM | string): WNDCLASS | null {
+    GetClassInfo.fn ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
+
+    const lpWndClass = new WNDCLASS()
+    return GetClassInfo.fn(hInstance, lpClassName, lpWndClass) ? lpWndClass : null
 }
 
 /** @internal */
@@ -120,14 +97,16 @@ export declare namespace GetClassInfo {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfoexw
  */
-export function GetClassInfoEx(hInstance: HINSTANCE | null, lpClassName: ATOM | string, lpwcx: WNDCLASSEX): boolean {
-    GetClassInfoEx.fn ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.inout(cLPWNDCLASSEX) ])
-    return !!GetClassInfoEx.fn(hInstance, lpClassName, lpwcx)
+export function GetClassInfoEx(hInstance: HINSTANCE | null, lpClassName: ATOM | string): WNDCLASSEX | null {
+    GetClassInfoEx.fn ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.inout(koffi.pointer(cWNDCLASSEX)) ])
+
+    const lpWndClassEx = new WNDCLASSEX()
+    return GetClassInfoEx.fn(hInstance, lpClassName, lpWndClassEx) ? lpWndClassEx : null
 }
 
 /** @internal */
 export declare namespace GetClassInfoEx {
-    export var fn: koffi.KoffiFunc<(hInstance: HINSTANCE | null, lpClassName: ATOM | string, lpwcx: WNDCLASSEX) => number>
+    export var fn: koffi.KoffiFunc<(hInstance: HINSTANCE | null, lpClassName: ATOM | string, lpWndClassEx: WNDCLASSEX) => number>
 }
 
 /**
@@ -149,12 +128,19 @@ export declare namespace GetClassName {
 }
 
 /**
- * Registers a window class for subsequent use in calls to the CreateWindowEx function.
+ * Registers a window class for subsequent use in calls to the CreateWindow function.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassw
  */
 export function RegisterClass(lpWndClass: WNDCLASS): ATOM {
-    RegisterClass.fn ??= user32.func('RegisterClassW', cATOM, [ cLPWNDCLASS ])
+    RegisterClass.fn ??= user32.func('RegisterClassW', cATOM, [ koffi.pointer(cWNDCLASS) ])
+
+    if (typeof lpWndClass.lpfnWndProc === 'function') {
+        lpWndClass = {
+            ...lpWndClass,
+            lpfnWndProc: koffi.register(lpWndClass.lpfnWndProc, cWNDPROC) as unknown as WNDPROC
+        }
+    }
     return RegisterClass.fn(lpWndClass)
 }
 
@@ -169,7 +155,14 @@ export declare namespace RegisterClass {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexw
  */
 export function RegisterClassEx(lpWndClassEx: WNDCLASSEX): ATOM {
-    RegisterClassEx.fn ??= user32.func('RegisterClassExW', cATOM, [ cLPWNDCLASSEX ])
+    RegisterClassEx.fn ??= user32.func('RegisterClassExW', cATOM, [ koffi.pointer(cWNDCLASSEX) ])
+
+    if (typeof lpWndClassEx.lpfnWndProc === 'function') {
+        lpWndClassEx = {
+            ...lpWndClassEx,
+            lpfnWndProc: koffi.register(lpWndClassEx.lpfnWndProc, cWNDPROC) as unknown as WNDPROC
+        }
+    }
     return RegisterClassEx.fn(lpWndClassEx)
 }
 
@@ -183,12 +176,12 @@ export declare namespace RegisterClassEx {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unregisterclassw
  */
-export function UnregisterClass(lpClassName: string, hInstance?: HINSTANCE | null): boolean {
-    UnregisterClass.fn ??= user32.func('UnregisterClassW', cATOM, [ cLPCWSTR, cHANDLE ])
+export function UnregisterClass(lpClassName: ATOM | string, hInstance?: HINSTANCE | null): boolean {
+    UnregisterClass.fn ??= user32.func('UnregisterClassW', cBOOL, [ cLPCWSTR, cHANDLE ])
     return !!UnregisterClass.fn(lpClassName, hInstance ?? null)
 }
 
 /** @internal */
 export declare namespace UnregisterClass {
-    export var fn: koffi.KoffiFunc<(lpClassName: string, hInstance: HINSTANCE | null) => number>
+    export var fn: koffi.KoffiFunc<(lpClassName: ATOM | string, hInstance: HINSTANCE | null) => number>
 }

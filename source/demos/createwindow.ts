@@ -3,15 +3,13 @@ import {
     RegisterClassEx, LoadCursor, LoadIcon, WNDCLASSEX,
     CreateWindowEx, ShowWindow, UpdateWindow, DefWindowProc,
     GetMessage, TranslateMessage, DispatchMessage, PostQuitMessage,
-    MessageBox,
-    type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG,
-    FormatMessage
+    FormatMessage, MessageBox,
+    type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG
 } from 'libwin32'
 import { CS_, CW_, FORMAT_MESSAGE_, IDC_, IDI_, MB_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
 
-const windowClass = "NodeApp"
-const windowName  = "Window Demo!"
-const appTitle    = "A NodeJS app using the Win32 API"
+const windowClass = 'libwin32_app'
+const windowName  = 'libwin32 demo: CreateWindow'
 
 function wndProc(hWnd: HWND, uMmsg: WM_, wParam: WPARAM, lParam: LPARAM) {
 
@@ -33,18 +31,19 @@ function wndProc(hWnd: HWND, uMmsg: WM_, wParam: WPARAM, lParam: LPARAM) {
 
 function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
 
-    using wcex = new WNDCLASSEX(wndProc)    // Note: cbSize is set by the WNDCLASSEX constructor
+    const wcex = new WNDCLASSEX()   // Note: cbSize is set by the WNDCLASSEX constructor
     wcex.lpszClassName = windowClass
     wcex.style         = CS_.HREDRAW | CS_.VREDRAW
     wcex.hInstance     = hInstance
+    wcex.lpfnWndProc   = wndProc
     wcex.hCursor       = LoadCursor(null, IDC_.ARROW)
     wcex.hIcon         = LoadIcon(hInstance, IDI_.APPLICATION)
     wcex.hIconSm       = LoadIcon(hInstance, IDI_.APPLICATION)
-    wcex.hbrBackground = 13 as any          // Note: brushes are not yet implemented. 13 is the standard background.
+    wcex.hbrBackground = 13 as any  // Note: brushes are not yet implemented. 13 is the standard background.
 
     const atom = RegisterClassEx(wcex)
     if (!atom) {
-        MessageBox(null, "Call to RegisterClassEx failed!", appTitle, MB_.OK | MB_.ICONERROR)
+        MessageBox(null, 'Call to RegisterClassEx failed!', 'libwin32', MB_.OK | MB_.ICONERROR)
         return 1
     }
 
@@ -58,7 +57,7 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
     if (!hWnd) {
         const err = GetLastError()
         const msg = FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, err, 0)
-        MessageBox(null, "Call to CreateWindow failed!\n" + msg, appTitle, MB_.OK | MB_.ICONERROR)
+        MessageBox(null, 'Call to CreateWindowEx failed!\n' + msg, 'libwin32', MB_.OK | MB_.ICONERROR)
         return err
     }
 

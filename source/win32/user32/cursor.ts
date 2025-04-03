@@ -1,10 +1,11 @@
+import { koffi } from '../private.js'
 import {
     cBOOL, cLPCWSTR, cHANDLE,
+    cPOINT, type POINT,
     type HINSTANCE, type HCURSOR
 } from '../ctypes.js'
 import type { IDC_ } from '../consts.js'
 import { user32 } from './_lib.js'
-import type { koffi } from '../private.js'
 
 /**
  * Destroys a cursor and frees any memory the cursor occupied.
@@ -19,6 +20,21 @@ export function DestroyCursor(hCursor: HCURSOR): boolean {
 /** @internal */
 export declare namespace DestroyCursor {
     export var fn: koffi.KoffiFunc<(hCursor: HCURSOR) => number>
+}
+
+/**
+ * Retrieves the cursor's position, in screen coordinates.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
+ */
+export function GetCursorPos(lpPoint: POINT): number {
+    GetCursorPos.fn ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(cPOINT) ])
+    return GetCursorPos.fn(lpPoint)
+}
+
+/** @internal */
+export declare namespace GetCursorPos {
+    export var fn: koffi.KoffiFunc<(lpPoint: POINT) => number>
 }
 
 /**
