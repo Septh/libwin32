@@ -267,7 +267,7 @@ export function GetWindowText(hWnd: HWND): string {
 
     const out = new Uint16Array(512)
     const len = GetWindowText.fn(hWnd, out, out.length)
-    return textDecoder.decode(out.slice(0, len))
+    return textDecoder.decode(out.subarray(0, len))
 }
 
 /** @internal */

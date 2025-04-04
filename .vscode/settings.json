@@ -45,7 +45,9 @@
     "kernel32",
     "user32",
     "shell32",
-    "demos"
+    "advapi32",
+    "demos",
+    "all"
   ],
   "cSpell.words": [
     "advapi",

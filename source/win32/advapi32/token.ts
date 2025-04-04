@@ -71,8 +71,8 @@ export function LookupAccountSid(
     return LookupAccountSid.fn(lpSystemName, Sid, name, cchName, referencedDomainName, cchReferencedDomainName, peUse) === 0
         ? null
         : {
-            Name: textDecoder.decode(name.slice(0, cchName[0])),
-            ReferencedDomainName: textDecoder.decode(referencedDomainName.slice(0, cchReferencedDomainName[0])),
+            Name: textDecoder.decode(name.subarray(0, cchName[0])),
+            ReferencedDomainName: textDecoder.decode(referencedDomainName.subarray(0, cchReferencedDomainName[0])),
             peUse: peUse[0]
         }
 }

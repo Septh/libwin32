@@ -13,7 +13,7 @@ export function GetModuleFileName(hModule: HMODULE): string | null {
 
     const out = new Uint16Array(1024)
     const len = GetModuleFileName.fn(hModule, out, out.length)
-    return textDecoder.decode(out.slice(0, len))
+    return textDecoder.decode(out.subarray(0, len))
 }
 
 /** @internal */

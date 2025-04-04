@@ -62,7 +62,7 @@ export function QueryFullProcessImageName(hProcess: HANDLE, dwFlags: number): st
     const dwSize: NUMBER_OUT = [ exeName.length ]
     return QueryFullProcessImageName.fn(hProcess, dwFlags, exeName, dwSize) === 0
         ? null
-        : textDecoder.decode(exeName.slice(0, dwSize[0]))
+        : textDecoder.decode(exeName.subarray(0, dwSize[0]))
 }
 
 /** @internal */

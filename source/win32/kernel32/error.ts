@@ -20,7 +20,7 @@ export function FormatMessage(dwFlags: FORMAT_MESSAGE_ | number, lpSource: HMODU
         out, out.length,
         'int', 0    // Fake va_list
     )
-    return textDecoder.decode(out.slice(0, len))
+    return textDecoder.decode(out.subarray(0, len))
 }
 
 /** @internal */
