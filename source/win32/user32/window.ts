@@ -1,4 +1,4 @@
-import { koffi, textDecoder, type INT_PTR } from '../private.js'
+import { koffi, textDecoder, type NUMBER_OUT } from '../private.js'
 import {
     cBOOL, cINT, cUINT, cDWORD, cLPWSTR, cLPCWSTR, cLPDWORD, cLPVOID, cHANDLE,
     cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
@@ -247,14 +247,14 @@ export declare namespace GetForegroundWindow {
 export function GetWindowThreadProcessId(hWnd: HWND): [ number, number ] {
     GetWindowThreadProcessId.fn ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cLPDWORD) ])
 
-    const int: INT_PTR = [ 0 ]
+    const int: NUMBER_OUT = [ 0 ]
     const tid = GetWindowThreadProcessId.fn(hWnd, int)
     return [ tid, int[0] ]
 }
 
 /** @internal */
 export declare namespace GetWindowThreadProcessId {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, lpdwProcessId: INT_PTR) => number>
+    export var fn: koffi.KoffiFunc<(hWnd: HWND, lpdwProcessId: NUMBER_OUT) => number>
 }
 
 /**

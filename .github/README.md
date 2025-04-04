@@ -22,7 +22,7 @@ const result = MessageBox(
 * Opinionated:
     * Only targets **64-bit** platforms (*Intel/AMD for now, ARM may be added later, no warranty though*).
     * Only exposes **Unicode** functions and data structures (those whose name ends in `W` in the Win32 API).
-* Very easy to extend with additional functions, data structures and constants. I will add some myself time permitting; any help would be *mucho* appreciated.
+* Very easy to extend with additional functions, data structures and constants. I will add some myself time permitting; any help would be *mucho* appreciated. **If you can't or won't submit a PR yourself, just head to [#8](https://github.com/Septh/libwin32/issues/8) and kindly ask :)**.
 
 
 ### How to...
@@ -75,6 +75,14 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 
 ### Bindings so far
 *All functions come with their associated types and constants.*
+
+#### Added in 0.6.0
+* advapi32.dll
+    * LookupAccountSid
+    * GetTokenInformation
+* kernel32.dll
+    * Beep
+    * GetModuleFileName
 
 #### Added in 0.5.0
 *Many thanks to [@MomoRazor](https://github.com/MomoRazor) for the impressive work on [53e99ef](https://github.com/Septh/libwin32/commit/53e99ef3ef63298e3b84ec1835acdbf61810296e)!*

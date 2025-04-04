@@ -3,7 +3,7 @@ import koffi from 'koffi'
 
 export { koffi }
 
-export const textDecoder = /*#__PURE__*/new TextDecoder('utf-16')
+export const textDecoder = new TextDecoder('utf-16')
 
 export class Win32Dll implements Disposable {
     readonly x64 = true
@@ -29,5 +29,6 @@ export class Win32Dll implements Disposable {
     }
 }
 
-export type POINTER<T> = [ T ]
-export type INT_PTR = POINTER<number>
+// koffi.out() and koffi.inout() expect a table with a single entry.
+export type OUT<T> = [ T ]
+export type NUMBER_OUT = OUT<number>
