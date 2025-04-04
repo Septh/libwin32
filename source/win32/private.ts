@@ -28,7 +28,3 @@ export class Win32Dll implements Disposable {
         return /*#__PURE__*/this.#lib.func(name, result, parameters)
     }
 }
-
-// koffi.out() and koffi.inout() expect a table with a single entry.
-export type OUT<T> = [ T ]
-export type NUMBER_OUT = OUT<number>

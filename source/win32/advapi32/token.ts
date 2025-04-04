@@ -1,24 +1,24 @@
-import { koffi, textDecoder, type NUMBER_OUT } from '../private.js'
+import { koffi, textDecoder } from '../private.js'
 import {
     cBOOL, cBYTE, cDWORD, cLPVOID, cLPWSTR, cLPDWORD,
-    cHANDLE, type __HANDLE__
+    cHANDLE, type HANDLE, type HTOKEN,
+    type OUT
 } from '../ctypes.js'
 import { advapi32 } from './_lib.js'
 import type { TOKEN_INFORMATION_CLASS } from '../consts.js'
 import type { SID_NAME_USE } from '../consts.js'
-
-export type HTOKEN = __HANDLE__<'ACCESS_TOKEN'>
+import type { ACCESS_MASK } from './lsa.js'
 
 export interface SID {
     Revision: number
     SubAuthorityCount: number
-    SubAuthority: Uint8Array
+    SubAuthority: Uint32Array
 }
 
 export const cSID = koffi.struct({
     Revision: cBYTE,
     SubAuthorityCount: cBYTE,
-    SubAuthority: koffi.array(cDWORD, 0)
+    SubAuthority: cLPVOID,  // DWORD *SubAuthority[]
 }), cPSID = koffi.pointer(cSID)
 
 /**
@@ -26,11 +26,11 @@ export const cSID = koffi.struct({
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS | number): Uint8Array | null {
-    GetTokenInformation.fn ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cDWORD, koffi.pointer(cLPVOID), cDWORD, koffi.out(koffi.pointer(cDWORD)) ])
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS | number): unknown | null {
+    GetTokenInformation.fn ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cDWORD, koffi.pointer(cLPVOID), cDWORD, koffi.out(cLPVOID) ])
 
-    const out = new Uint8Array(1024)
-    const len: NUMBER_OUT = [ 0 ]
+    const out = new Uint32Array(256)
+    const len: OUT<number> = [ 0 ]
     return GetTokenInformation.fn(TokenHandle, TokenInformationClass, out, out.length, len) === 0
         ? null
         : out
@@ -41,8 +41,9 @@ export declare namespace GetTokenInformation {
     export var fn: koffi.KoffiFunc<(
         TokenHandle: HTOKEN,
         TokenInformationClass: number,
-        TokenInformation: Uint8Array, TokenInformationLength: number,
-        ReturnLength: NUMBER_OUT
+        TokenInformation: Uint32Array,
+        TokenInformationLength: number,
+        ReturnLength: OUT<number>
     ) => number>
 }
 
@@ -63,10 +64,10 @@ export function LookupAccountSid(
     ])
 
     const name = new Uint16Array(256)
-    const cchName: NUMBER_OUT = [ name.length ]
+    const cchName: OUT<number> = [ name.length ]
     const referencedDomainName = new Uint16Array(256)
-    const cchReferencedDomainName: NUMBER_OUT = [ referencedDomainName.length ]
-    const peUse: NUMBER_OUT = [ 0 ]
+    const cchReferencedDomainName: OUT<number> = [ referencedDomainName.length ]
+    const peUse: OUT<number> = [ 0 ]
 
     return LookupAccountSid.fn(lpSystemName, Sid, name, cchName, referencedDomainName, cchReferencedDomainName, peUse) === 0
         ? null
@@ -79,5 +80,22 @@ export function LookupAccountSid(
 
 /** @internal */
 export declare namespace LookupAccountSid {
-    export var fn: koffi.KoffiFunc<(lpSystemName: string | null, Sid: SID, Name: Uint16Array, cchName: NUMBER_OUT, ReferencedDomainName: Uint16Array, cchReferencedDomainName: NUMBER_OUT, peUse: NUMBER_OUT) => number>
+    export var fn: koffi.KoffiFunc<(lpSystemName: string | null, Sid: SID, Name: Uint16Array, cchName: OUT<number>, ReferencedDomainName: Uint16Array, cchReferencedDomainName: OUT<number>, peUse: OUT<number>) => number>
+}
+
+/**
+ * Opens the access token associated with a process.
+ */
+export function OpenProcessToken(ProcessHandle: HANDLE, DesiredAccess: ACCESS_MASK | number): HTOKEN | null {
+    OpenProcessToken.fn ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
+
+    const tokenHandle: OUT<HTOKEN> = [ null! ]
+    return OpenProcessToken.fn(ProcessHandle, DesiredAccess, tokenHandle) === 0
+        ? null
+        : tokenHandle[0]
+}
+
+/** @internal */
+export declare namespace OpenProcessToken {
+    export var fn: koffi.KoffiFunc<(ProcessHandle: HANDLE, DesiredAccess: number, TokenHandle: OUT<HTOKEN>) => number>
 }

@@ -1,5 +1,5 @@
-import { koffi, textDecoder, type OUT } from '../private.js'
-import { cBOOL, cDWORD, cLPWSTR, cLPCWSTR, cHANDLE, type HMODULE } from '../ctypes.js'
+import { koffi, textDecoder } from '../private.js'
+import { cBOOL, cDWORD, cLPWSTR, cLPCWSTR, cHANDLE, type HMODULE, type OUT } from '../ctypes.js'
 import type { GET_MODULE_HANDLE_EX_FLAG_ } from '../consts.js'
 import { kernel32 } from './_lib.js'
 

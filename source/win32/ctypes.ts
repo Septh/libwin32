@@ -37,6 +37,9 @@ export const cLPCVOID   = koffi.pointer(koffi.types.void)
 export const cPDWORD    = koffi.pointer(koffi.types.uint32)
 export const cLPDWORD   = koffi.pointer(koffi.types.uint32)
 
+// koffi.out() and koffi.inout() expect a table with a single entry.
+export type OUT<T> = [ T ]
+
 /*
  * Handles.
  */
@@ -61,6 +64,8 @@ export type HRGN        = __HANDLE__<'RGN'>
 export type HMONITOR    = __HANDLE__<'MONITOR'>
 export type HDESK       = __HANDLE__<'DESK'>
 export type HKEY        = __HANDLE__<'KEY'>
+export type HTOKEN      = __HANDLE__<'ACCESS_TOKEN'>
+export type LSA_HANDLE  = __HANDLE__<'LSA_HANDLE'>
 
 /*
  * Parameters and return types.
@@ -70,6 +75,7 @@ export const cLPARAM    = koffi.types.int64     // == LONG_PTR
 export const cHRESULT   = koffi.types.long      // == LONG
 export const cLRESULT   = koffi.types.int64     // == LONG_PTR
 export const cATOM      = koffi.types.uint16    // == WORD
+export const cNTSTATUS  = koffi.types.long
 
 export type WPARAM      = number | HANDLE
 export type LPARAM      = number | BigInt | HANDLE

@@ -1,9 +1,10 @@
-import { koffi, textDecoder, type NUMBER_OUT } from '../private.js'
+import { koffi, textDecoder } from '../private.js'
 import {
     cBOOL, cINT, cUINT, cDWORD, cLPWSTR, cLPCWSTR, cLPDWORD, cLPVOID, cHANDLE,
     cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM, cLRESULT, type LRESULT,
-    type HWND, type HINSTANCE, type HMENU, cRECT, type RECT
+    type HWND, type HINSTANCE, type HMENU, cRECT, type RECT,
+    type OUT
 } from '../ctypes.js'
 import type { HWND_, WS_, WS_EX_, WM_, GA_, AW_, SW_ } from '../consts.js'
 import { user32 } from './_lib.js'
@@ -247,14 +248,14 @@ export declare namespace GetForegroundWindow {
 export function GetWindowThreadProcessId(hWnd: HWND): [ number, number ] {
     GetWindowThreadProcessId.fn ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cLPDWORD) ])
 
-    const int: NUMBER_OUT = [ 0 ]
+    const int: OUT<number> = [ 0 ]
     const tid = GetWindowThreadProcessId.fn(hWnd, int)
     return [ tid, int[0] ]
 }
 
 /** @internal */
 export declare namespace GetWindowThreadProcessId {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, lpdwProcessId: NUMBER_OUT) => number>
+    export var fn: koffi.KoffiFunc<(hWnd: HWND, lpdwProcessId: OUT<number>) => number>
 }
 
 /**

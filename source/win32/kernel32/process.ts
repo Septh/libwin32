@@ -1,5 +1,5 @@
-import { koffi, textDecoder, type NUMBER_OUT } from '../private.js'
-import { cBOOL, cDWORD, cHANDLE, cLPDWORD, cLPWSTR, type HANDLE } from '../ctypes.js'
+import { koffi, textDecoder } from '../private.js'
+import { cBOOL, cDWORD, cHANDLE, cLPDWORD, cLPWSTR, type HANDLE, type OUT } from '../ctypes.js'
 import type { PSAR_ } from '../consts.js'
 import { kernel32 } from './_lib.js'
 
@@ -59,7 +59,7 @@ export function QueryFullProcessImageName(hProcess: HANDLE, dwFlags: number): st
     QueryFullProcessImageName.fn ??= kernel32.func('QueryFullProcessImageNameW', cBOOL, [ cHANDLE, cDWORD, koffi.out(cLPWSTR), koffi.inout(cLPDWORD) ])
 
     const exeName = new Uint16Array(256)
-    const dwSize: NUMBER_OUT = [ exeName.length ]
+    const dwSize: OUT<number> = [ exeName.length ]
     return QueryFullProcessImageName.fn(hProcess, dwFlags, exeName, dwSize) === 0
         ? null
         : textDecoder.decode(exeName.subarray(0, dwSize[0]))
@@ -67,5 +67,5 @@ export function QueryFullProcessImageName(hProcess: HANDLE, dwFlags: number): st
 
 /** @internal */
 export declare namespace QueryFullProcessImageName {
-    export var fn: koffi.KoffiFunc<(hProcess: HANDLE, dwFlags: number, lpExeName: Uint16Array, lpdwSize: NUMBER_OUT) => number>
+    export var fn: koffi.KoffiFunc<(hProcess: HANDLE, dwFlags: number, lpExeName: Uint16Array, lpdwSize: OUT<number>) => number>
 }

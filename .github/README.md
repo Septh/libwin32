@@ -78,10 +78,16 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 
 #### Added in 0.6.0
 * advapi32.dll
-    * LookupAccountSid
     * GetTokenInformation
+    * GetUserName
+    * LookupAccountSid
+    * LsaClose
+    * LsaNtStatusToWinError
+    * LsaOpenPolicy
+    * OpenProcessToken
 * kernel32.dll
     * Beep
+    * GetComputerName
     * GetModuleFileName
 
 #### Added in 0.5.0
