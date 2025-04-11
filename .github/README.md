@@ -77,6 +77,8 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 *All functions come with their associated types and constants.*
 
 #### Added in 0.6.0
+* secur32.dll
+    * GetUserNameEx
 * advapi32.dll
     * GetTokenInformation
     * GetUserName
