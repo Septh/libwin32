@@ -1,10 +1,10 @@
+import type { koffi } from '../private.js'
 import {
     cBOOL, cLPCWSTR, cHANDLE,
     type HINSTANCE, type HICON
 } from '../ctypes.js'
 import type { IDI_ } from '../consts/IDI.js'
 import { user32 } from './_lib.js'
-import type { koffi } from '../private.js'
 
 /**
  * Destroys an icon and frees any memory the cursor occupied.
@@ -26,7 +26,7 @@ export declare namespace DestroyIcon {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadiconw
  */
-export function LoadIcon(hInstance:  HINSTANCE | null, lpIconName: IDI_ | string): HICON | null {
+export function LoadIcon(hInstance: HINSTANCE | null, lpIconName: IDI_ | string): HICON | null {
     LoadIcon.fn ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cLPCWSTR ])
     return LoadIcon.fn(hInstance, lpIconName)
 }

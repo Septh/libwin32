@@ -6,7 +6,7 @@ import {
     cLUID, type LUID,
     type OUT
 } from '../ctypes.js'
-import type { BSF_ } from '../consts.js'
+import type { BSF_ } from '../consts/BSF.js'
 import { user32 } from './_lib.js'
 
 export const cMSG = koffi.struct({
@@ -49,7 +49,7 @@ export class BSMINFO {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
-export function BroadcastSystemMessage(flags: BSF_ | number, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM): [number, number | null] {
+export function BroadcastSystemMessage(flags: BSF_, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM): [number, number | null] {
     BroadcastSystemMessage.fn ??= user32.func('BroadcastSystemMessageW', cLONG, [cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM])
 
     const out = typeof lpInfo === 'number' ? [lpInfo] as OUT<number> : null
@@ -59,7 +59,7 @@ export function BroadcastSystemMessage(flags: BSF_ | number, lpInfo: number | nu
 
 /** @internal */
 export declare namespace BroadcastSystemMessage {
-    export var fn: koffi.KoffiFunc<(flags: BSF_ | number, lpInfo: OUT<number> | null, Msg: number, wParam: WPARAM, lParam: LPARAM) => number>
+    export var fn: koffi.KoffiFunc<(flags: BSF_, lpInfo: OUT<number> | null, Msg: number, wParam: WPARAM, lParam: LPARAM) => number>
 }
 
 /**
@@ -70,7 +70,7 @@ export declare namespace BroadcastSystemMessage {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
  */
-export function BroadcastSystemMessageEx(flags: BSF_ | number, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null = null): [number, number | null] {
+export function BroadcastSystemMessageEx(flags: BSF_, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null = null): [number, number | null] {
     BroadcastSystemMessageEx.fn ??= user32.func('BroadcastSystemMessageExW', cLONG, [cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(cPBSMINFO)])
 
     const out = typeof lpInfo === 'string' ? [lpInfo] as OUT<number> : null
@@ -80,7 +80,7 @@ export function BroadcastSystemMessageEx(flags: BSF_ | number, lpInfo: number | 
 
 /** @internal */
 export declare namespace BroadcastSystemMessageEx {
-    export var fn: koffi.KoffiFunc<(flags: BSF_ | number, lpInfo: OUT<number> | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null) => number>
+    export var fn: koffi.KoffiFunc<(flags: BSF_, lpInfo: OUT<number> | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null) => number>
 }
 
 /**

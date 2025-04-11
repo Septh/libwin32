@@ -46,6 +46,7 @@
     "user32",
     "shell32",
     "advapi32",
+    "secur32",
     "demos",
     "all"
   ],

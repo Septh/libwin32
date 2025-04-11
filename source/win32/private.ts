@@ -6,12 +6,11 @@ export { koffi }
 export const textDecoder = new TextDecoder('utf-16')
 
 export class Win32Dll implements Disposable {
-    readonly x64 = true
-    readonly Unicode = true
+    get x64() { return true }
+    get Unicode() { return true }
     #lib: koffi.IKoffiLib
     constructor(dllName: string) {
-        this.#lib = koffi.load(dllName)
-        assert(this.#lib, `Could not load ${JSON.stringify(dllName)}.`)
+        assert(this.#lib = koffi.load(dllName), `Could not load ${JSON.stringify(dllName)}.`)
     }
 
     // For use with the `using` syntax (requires TypeScript 5.2+)
@@ -27,4 +26,8 @@ export class Win32Dll implements Disposable {
     func(name: string, result: koffi.IKoffiCType, parameters: koffi.IKoffiCType[]) {
         return /*#__PURE__*/this.#lib.func(name, result, parameters)
     }
+}
+
+export type Win32API<T extends (...args: any[]) => any> = T & {
+    fn?: koffi.KoffiFunction
 }

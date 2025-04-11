@@ -97,12 +97,17 @@ export type DLGPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPAR
 /*
  * A few common structures.
  */
+export interface POINT {
+    x: number
+    y: number
+}
+
 export const cPOINT = koffi.struct({
     x: cLONG,
     y: cLONG
 })
 
-export interface POINT {
+export interface POINTS {
     x: number
     y: number
 }
@@ -112,9 +117,11 @@ export const cPOINTS = koffi.struct({
     y: cSHORT
 })
 
-export interface POINTS {
-    x: number
-    y: number
+export interface RECT {
+    left:   number
+    top:    number
+    right:  number
+    bottom: number
 }
 
 export const cRECT = koffi.struct({
@@ -124,29 +131,14 @@ export const cRECT = koffi.struct({
     bottom: cLONG
 })
 
-export interface RECT {
-    left:   number
-    top:    number
-    right:  number
-    bottom: number
-}
-
-export const cSIZE = koffi.struct({
-    cx: cLONG,
-    yy: cLONG
-})
-
 export interface SIZE {
     x: number
     y: number
 }
 
-export const cMINMAXINFO = koffi.struct({
-    ptReserved:     cPOINT,
-    ptMaxSize:      cPOINT,
-    ptMaxPosition:  cPOINT,
-    ptMinTrackSize: cPOINT,
-    ptMaxTrackSize: cPOINT
+export const cSIZE = koffi.struct({
+    cx: cLONG,
+    yy: cLONG
 })
 
 export interface MINMAXINFO {
@@ -157,11 +149,12 @@ export interface MINMAXINFO {
     ptMaxTrackSize: POINT
 }
 
-export const cGUID = koffi.struct({
-    Data1: koffi.types.uint32,
-    Data2: koffi.types.uint16,
-    Data3: koffi.types.uint16,
-    Data4: koffi.array(koffi.types.uint8, 8),
+export const cMINMAXINFO = koffi.struct({
+    ptReserved:     cPOINT,
+    ptMaxSize:      cPOINT,
+    ptMaxPosition:  cPOINT,
+    ptMinTrackSize: cPOINT,
+    ptMaxTrackSize: cPOINT
 })
 
 export interface GUID {
@@ -171,12 +164,19 @@ export interface GUID {
     Data4: Uint8Array
 }
 
-export const cLUID = koffi.struct({
-    LowPart: cDWORD,
-    HighPart: cLONG,
+export const cGUID = koffi.struct({
+    Data1: koffi.types.uint32,
+    Data2: koffi.types.uint16,
+    Data3: koffi.types.uint16,
+    Data4: koffi.array(koffi.types.uint8, 8),
 })
 
 export interface LUID {
     LowPart: number
     HighPart: number
 }
+
+export const cLUID = koffi.struct({
+    LowPart: cDWORD,
+    HighPart: cLONG,
+})

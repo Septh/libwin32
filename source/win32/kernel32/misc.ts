@@ -4,6 +4,8 @@ import { kernel32 } from './_lib.js'
 
 /**
  * Generates simple tones on the speaker.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/utilapiset/nf-utilapiset-beep
  */
 export function Beep(dwFreq: number, dwDuration: number): boolean {
     Beep.fn ??= kernel32.func('Beep', cBOOL, [ cDWORD, cDWORD ])
@@ -11,12 +13,14 @@ export function Beep(dwFreq: number, dwDuration: number): boolean {
 }
 
 /** @internal */
-export namespace Beep {
+export declare namespace Beep {
     export var fn: koffi.KoffiFunc<(dwFreq: number, dwDuration: number) => number>
 }
 
 /**
  * Retrieves the NetBIOS name of the local computer.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getcomputernamew
  */
 export function GetComputerName(): string | null {
     GetComputerName.fn ??= kernel32.func('GetComputerNameW', cBOOL, [ cLPWSTR, koffi.inout(cLPDWORD) ])

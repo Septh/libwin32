@@ -1,6 +1,6 @@
 import { koffi, textDecoder } from '../private.js'
 import { cBOOL, cDWORD, cHANDLE, cLPDWORD, cLPWSTR, type HANDLE, type OUT } from '../ctypes.js'
-import type { PSAR_ } from '../consts.js'
+import type { PSAR_ } from '../consts/PSAR.js'
 import { kernel32 } from './_lib.js'
 
 /**
@@ -40,14 +40,14 @@ export declare namespace GetCurrentProcess {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
  */
-export function OpenProcess(dwDesiredAccess: PSAR_ | number, bInheritHandle: boolean, dwProcessId: number): HANDLE | null {
+export function OpenProcess(dwDesiredAccess: PSAR_, bInheritHandle: boolean, dwProcessId: number): HANDLE | null {
     OpenProcess.fn ??= kernel32.func('OpenProcess', cHANDLE, [ cDWORD, cBOOL, cDWORD ])
     return OpenProcess.fn(dwDesiredAccess, Number(bInheritHandle), dwProcessId)
 }
 
 /** @internal */
 export declare namespace OpenProcess {
-    export var fn: koffi.KoffiFunc<(dwDesiredAccess: PSAR_ | number, bInheritHandle: number, dwProcessId: number) => HANDLE>
+    export var fn: koffi.KoffiFunc<(dwDesiredAccess: PSAR_, bInheritHandle: number, dwProcessId: number) => HANDLE>
 }
 
 /**

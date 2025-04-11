@@ -4,21 +4,21 @@ import {
     cHANDLE, type HANDLE, type HTOKEN,
     type OUT
 } from '../ctypes.js'
+import type { TOKEN_INFORMATION_CLASS } from '../consts/TOKEN_INFORMATION_CLASS.js'
+import type { SID_NAME_USE } from '../consts/SID_NAME_USE.js'
+import type { ACCESS_MASK } from '../consts/ACCESS_MASK.js'
 import { advapi32 } from './_lib.js'
-import type { TOKEN_INFORMATION_CLASS } from '../consts.js'
-import type { SID_NAME_USE } from '../consts.js'
-import type { ACCESS_MASK } from './lsa.js'
 
 export interface SID {
-    Revision: number
+    Revision:          number
     SubAuthorityCount: number
     SubAuthority: Uint32Array
 }
 
 export const cSID = koffi.struct({
-    Revision: cBYTE,
+    Revision:          cBYTE,
     SubAuthorityCount: cBYTE,
-    SubAuthority: cLPVOID,  // DWORD *SubAuthority[]
+    SubAuthority:      cLPVOID,     // DWORD *SubAuthority[]
 }), cPSID = koffi.pointer(cSID)
 
 /**
@@ -26,7 +26,7 @@ export const cSID = koffi.struct({
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS | number): unknown | null {
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS): unknown | null {
     GetTokenInformation.fn ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cDWORD, koffi.pointer(cLPVOID), cDWORD, koffi.out(cLPVOID) ])
 
     const out = new Uint32Array(256)
@@ -85,8 +85,10 @@ export declare namespace LookupAccountSid {
 
 /**
  * Opens the access token associated with a process.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken
  */
-export function OpenProcessToken(ProcessHandle: HANDLE, DesiredAccess: ACCESS_MASK | number): HTOKEN | null {
+export function OpenProcessToken(ProcessHandle: HANDLE, DesiredAccess: ACCESS_MASK): HTOKEN | null {
     OpenProcessToken.fn ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const tokenHandle: OUT<HTOKEN> = [ null! ]

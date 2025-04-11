@@ -1,24 +1,25 @@
+import type { koffi } from '../private.js'
 import {
     cBOOL, cUINT, cLPCWSTR, cHANDLE,
     cRECT, type RECT,
     type HWND, type HMENU
 } from '../ctypes.js'
-import type { MF_, TPM_ } from '../consts.js'
+import type { MF_ } from '../consts/MF.js'
+import type { TPM_ } from '../consts/TPM.js'
 import { user32 } from './_lib.js'
-import type { koffi } from '../private.js'
 
 /**
  * Creates a drop-down menu, submenu, or shortcut menu.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createpopupmenu
  */
-export function CreatePopupMenuX(): HMENU | null {
-    CreatePopupMenuX.fn ??= user32.func('CreatePopupMenu', cHANDLE, [])
-    return CreatePopupMenuX.fn()
+export function CreatePopupMenu(): HMENU | null {
+    CreatePopupMenu.fn ??= user32.func('CreatePopupMenu', cHANDLE, [])
+    return CreatePopupMenu.fn()
 }
 
 /** @internal */
-export declare namespace CreatePopupMenuX {
+export declare namespace CreatePopupMenu {
     export var fn: koffi.KoffiFunc<() => HMENU | null>
 }
 
@@ -27,14 +28,14 @@ export declare namespace CreatePopupMenuX {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-trackpopupmenu
  */
-export function TrackPopupMenu(hMenu: HMENU, uFlags: TPM_ | number, x: number, y: number, nReserved: number, hWnd: HWND, prcRect?: RECT): boolean {
+export function TrackPopupMenu(hMenu: HMENU, uFlags: TPM_, x: number, y: number, nReserved: number, hWnd: HWND, prcRect?: RECT): boolean {
     TrackPopupMenu.fn ??= user32.func('TrackPopupMenu', cBOOL, [ cHANDLE, cUINT, cUINT, cUINT, cUINT, cHANDLE, cRECT ])
     return !!TrackPopupMenu.fn(hMenu, uFlags, x, y, nReserved, hWnd, prcRect ?? null)
 }
 
 /** @internal */
 export declare namespace TrackPopupMenu {
-    export var fn: koffi.KoffiFunc<(hMenu: HMENU, uFlags: TPM_ | number, x: number, y: number, nReserved: number, hWnd: HWND, prcRect: RECT | null) => number>
+    export var fn: koffi.KoffiFunc<(hMenu: HMENU, uFlags: TPM_, x: number, y: number, nReserved: number, hWnd: HWND, prcRect: RECT | null) => number>
 }
 
 /**
@@ -57,14 +58,14 @@ export declare namespace DestroyMenu {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
  */
-export function AppendMenu(hMenu: HMENU, uFlags: MF_ | number, uIDNewItem: number | HMENU, lpNewItem: string | null): boolean {
+export function AppendMenu(hMenu: HMENU, uFlags: MF_, uIDNewItem: number | HMENU, lpNewItem: string | null): boolean {
     AppendMenu.fn ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cLPCWSTR ]);
     return !!AppendMenu.fn(hMenu, uFlags, uIDNewItem, lpNewItem)
 }
 
 /** @internal */
 export declare namespace AppendMenu {
-    export var fn: koffi.KoffiFunc<(hMenu: HMENU, uFlags: MF_ | number, uIDNewItem: number | HMENU, lpNewItem: string | null) => number>
+    export var fn: koffi.KoffiFunc<(hMenu: HMENU, uFlags: MF_, uIDNewItem: number | HMENU, lpNewItem: string | null) => number>
 }
 
 /**
@@ -72,12 +73,12 @@ export declare namespace AppendMenu {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-checkmenuitem
  */
-export function CheckMenuItem(hMenu: HMENU, uIDCheckItem: number, uCheck: MF_ | number): number {
+export function CheckMenuItem(hMenu: HMENU, uIDCheckItem: number, uCheck: MF_): number {
     CheckMenuItem.fn ??= user32.func('CheckMenuItem', cUINT, [ cHANDLE, cUINT, cUINT ])
     return CheckMenuItem.fn(hMenu, uIDCheckItem, uCheck)
 }
 
 /** @internal */
 export declare namespace CheckMenuItem {
-    export var fn: koffi.KoffiFunc<(hMenu: HMENU, uIDCheckItem: number, uCheck: MF_ | number) => number>
+    export var fn: koffi.KoffiFunc<(hMenu: HMENU, uIDCheckItem: number, uCheck: MF_) => number>
 }

@@ -6,7 +6,12 @@ import {
     type HWND, type HINSTANCE, type HMENU, cRECT, type RECT,
     type OUT
 } from '../ctypes.js'
-import type { HWND_, WS_, WS_EX_, WM_, GA_, AW_, SW_ } from '../consts.js'
+import type { HWND_ } from '../consts/HWND.js'
+import type { WS_, WS_EX_ } from '../consts/WS.js'
+import type { WM_ } from '../consts/WM.js'
+import type { GA_ } from '../consts/GA.js'
+import type { AW_ } from '../consts/AW.js'
+import type { SW_ } from '../consts/SW.js'
 import { user32 } from './_lib.js'
 
 /**
@@ -14,7 +19,7 @@ import { user32 } from './_lib.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrect
  */
-export function AdjustWindowRect(lpRect: RECT, dwStyle: WS_ | number, bMenu: boolean ): boolean {
+export function AdjustWindowRect(lpRect: RECT, dwStyle: WS_, bMenu: boolean ): boolean {
     AdjustWindowRect.fn ??= user32.func('AdjustWindowRect', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL ])
     return !!AdjustWindowRect.fn(lpRect, dwStyle, Number(bMenu))
 }
@@ -29,7 +34,7 @@ export declare namespace AdjustWindowRect {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrectex
  */
-export function AdjustWindowRectEx(lpRect: RECT, dwStyle: WS_ | number, bMenu: boolean, cwExStyle: WS_EX_ | number): boolean {
+export function AdjustWindowRectEx(lpRect: RECT, dwStyle: WS_, bMenu: boolean, cwExStyle: WS_EX_): boolean {
     AdjustWindowRectEx.fn ??= user32.func('AdjustWindowRectEx', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL, cDWORD ])
     return !!AdjustWindowRectEx.fn(lpRect, dwStyle, Number(bMenu), cwExStyle)
 }
@@ -44,14 +49,14 @@ export declare namespace AdjustWindowRectEx {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-animatewindow
  */
-export function AnimateWindow(hWnd: HWND, dwTime: number, dwFlags: AW_ | number): boolean {
+export function AnimateWindow(hWnd: HWND, dwTime: number, dwFlags: AW_): boolean {
     AnimateWindow.fn ??= user32.func('AnimateWindow', cBOOL, [ cHANDLE, cDWORD, cDWORD ])
     return !!AnimateWindow.fn(hWnd, dwTime, dwFlags)
 }
 
 /** @internal */
 export declare namespace AnimateWindow {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, dwTime: number, dwFlags: AW_ | number) => number>
+    export var fn: koffi.KoffiFunc<(hWnd: HWND, dwTime: number, dwFlags: AW_) => number>
 }
 
 /**
@@ -74,14 +79,14 @@ export declare namespace BringWindowToTop {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-callwindowprocw
  */
-export function CallWindowProc(lpPrevWndFunc: WNDPROC, hWnd: HWND, Msg: WM_ | number, wParam: WPARAM, lParam: LPARAM): LRESULT {
+export function CallWindowProc(lpPrevWndFunc: WNDPROC, hWnd: HWND, Msg: WM_, wParam: WPARAM, lParam: LPARAM): LRESULT {
     CallWindowProc.fn ??= user32.func('CallWindowProcW', cLRESULT, [ cWNDPROC, cHANDLE, cUINT, cWPARAM, cLPARAM ])
     return CallWindowProc.fn(lpPrevWndFunc, hWnd, Msg, wParam, lParam)
 }
 
 /** @internal */
 export declare namespace CallWindowProc {
-    export var fn: koffi.KoffiFunc<(lpPrevWndFunc: WNDPROC, hWnd: HWND, Msg: WM_ | number, wParam: WPARAM, lParam: LPARAM) => LRESULT>
+    export var fn: koffi.KoffiFunc<(lpPrevWndFunc: WNDPROC, hWnd: HWND, Msg: WM_, wParam: WPARAM, lParam: LPARAM) => LRESULT>
 }
 
 /**
@@ -92,7 +97,7 @@ export declare namespace CallWindowProc {
 export function CreateWindow(
     lpClassName:  string | null,
     lpWindowName: string | null,
-    dwStyle:      WS_ | number,
+    dwStyle:      WS_,
     x:            number,
     y:            number,
     nWidth:       number,
@@ -111,10 +116,10 @@ export function CreateWindow(
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw
  */
 export function CreateWindowEx(
-    dwExStyle:    WS_EX_ | number,
+    dwExStyle:    WS_EX_,
     lpClassName:  string | null,
     lpWindowName: string | null,
-    dwStyle:      WS_ | number,
+    dwStyle:      WS_,
     x:            number,
     y:            number,
     nWidth:       number,
@@ -131,10 +136,10 @@ export function CreateWindowEx(
 /** @internal */
 export declare namespace CreateWindowEx {
     export var fn: koffi.KoffiFunc<(
-        dwExStyle:    WS_EX_ | number,
+        dwExStyle:    WS_EX_,
         lpClassName:  string | null,
         lpWindowName: string | null,
-        dwStyle:      WS_ | number,
+        dwStyle:      WS_,
         x:            number,
         y:            number,
         nWidth:       number,
@@ -281,14 +286,14 @@ export declare namespace GetWindowText {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
  */
-export function ShowWindow(hWnd: HWND, nCmdShow: SW_ | number): boolean {
+export function ShowWindow(hWnd: HWND, nCmdShow: SW_): boolean {
     ShowWindow.fn ??= user32.func('ShowWindow', cBOOL, [ cHANDLE, cINT ])
     return !!ShowWindow.fn(hWnd, nCmdShow)
 }
 
 /** @internal */
 export declare namespace ShowWindow {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, nCmdShow: SW_ | number) => number>
+    export var fn: koffi.KoffiFunc<(hWnd: HWND, nCmdShow: SW_) => number>
 }
 
 /**
@@ -296,14 +301,14 @@ export declare namespace ShowWindow {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindowasync
  */
-export function ShowWindowAsync(hWnd: HWND, nCmdShow: SW_ | number): boolean {
+export function ShowWindowAsync(hWnd: HWND, nCmdShow: SW_): boolean {
     ShowWindowAsync.fn ??= user32.func('ShowWindowAsync', cBOOL, [ cHANDLE, cINT ])
     return !!ShowWindowAsync.fn(hWnd, nCmdShow)
 }
 
 /** @internal */
 export declare namespace ShowWindowAsync {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, nCmdShow: SW_ | number) => number>
+    export var fn: koffi.KoffiFunc<(hWnd: HWND, nCmdShow: SW_) => number>
 }
 
 /**

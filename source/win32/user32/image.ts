@@ -1,10 +1,16 @@
+import type { koffi } from '../private.js'
 import {
     cINT, cUINT, cLPCWSTR, cHANDLE,
     type HINSTANCE, type HICON
 } from '../ctypes.js'
-import type { IDI_, IDC_, OIC_, OCR_, OBM_, LR_, IMAGE_ } from '../consts.js'
+import type { IDI_ } from '../consts/IDI.js'
+import type { IDC_ } from '../consts/IDC.js'
+import type { OIC_ } from '../consts/OIC.js'
+import type { OCR_ } from '../consts/OCR.js'
+import type { OBM_ } from '../consts/OBM.js'
+import type { LR_ } from '../consts/LR.js'
+import type { IMAGE_ } from '../consts/IMAGE.js'
 import { user32 } from './_lib.js'
-import type { koffi } from '../private.js'
 
 /**
  * Loads an icon, cursor, animated cursor, or bitmap.

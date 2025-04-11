@@ -5,7 +5,7 @@ import {
     cWNDPROC, type WNDPROC,
     type HINSTANCE, type HWND, type HICON, type HCURSOR, type HBRUSH
 } from '../ctypes.js'
-import type { CS_ } from '../consts.js'
+import type { CS_ } from '../consts/CS.js'
 import { user32 } from './_lib.js'
 
 /**

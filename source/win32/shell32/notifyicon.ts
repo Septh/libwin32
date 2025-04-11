@@ -3,7 +3,8 @@ import {
     cBOOL, cDWORD, cUINT, cHANDLE,
     cGUID, type GUID, type HWND, type HICON
 } from '../ctypes.js'
-import type { NIF_, NIM_ } from '../consts.js'
+import type { NIF_ } from '../consts/NIF.js'
+import type { NIM_ } from '../consts/NIM.js'
 import { shell32 } from './_lib.js'
 
 /**
@@ -53,12 +54,12 @@ export const cNOTIFYICONDATA = koffi.struct({
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shell_notifyiconw
  */
-export function Shell_NotifyIcon(dwMessage: NIM_ | number, data: NOTIFYICONDATA): number {
+export function Shell_NotifyIcon(dwMessage: NIM_, data: NOTIFYICONDATA): number {
     Shell_NotifyIcon.fn ??= shell32.func('Shell_NotifyIconW', cBOOL, [ cDWORD, cNOTIFYICONDATA ])
     return Shell_NotifyIcon.fn(dwMessage, data)
 }
 
 /** @internal */
 export declare namespace Shell_NotifyIcon {
-    export var fn: koffi.KoffiFunc<(dwMessage: NIM_ | number, data: NOTIFYICONDATA) => number>
+    export var fn: koffi.KoffiFunc<(dwMessage: NIM_, data: NOTIFYICONDATA) => number>
 }

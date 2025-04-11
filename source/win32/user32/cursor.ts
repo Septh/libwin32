@@ -4,7 +4,7 @@ import {
     cPOINT, type POINT,
     type HINSTANCE, type HCURSOR
 } from '../ctypes.js'
-import type { IDC_ } from '../consts.js'
+import type { IDC_ } from '../consts/IDC.js'
 import { user32 } from './_lib.js'
 
 /**
