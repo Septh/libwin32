@@ -19,6 +19,8 @@
   "type": "module",
   "main": "./lib/win32/index.js",
   "types": "./lib/win32/index.d.ts",
+  "os": [ "win32" ],
+  "cpu": [ "x64" ],
   "exports": {
     ".": {
       "types": "./lib/win32/index.d.ts",
