@@ -11,16 +11,11 @@ import { kernel32 } from './_lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamew
  */
 export function GetModuleFileName(hModule: HMODULE): string | null {
-    GetModuleFileName.fn = kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, koffi.out(cLPWSTR), cDWORD ])
+    GetModuleFileName.native = kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, koffi.out(cLPWSTR), cDWORD ])
 
     const out = new Uint16Array(1024)
-    const len = GetModuleFileName.fn(hModule, out, out.length)
+    const len = GetModuleFileName.native(hModule, out, out.length)
     return textDecoder.decode(out.subarray(0, len))
-}
-
-/** @internal */
-export declare namespace GetModuleFileName {
-    export var fn: koffi.KoffiFunc<(hModule: HMODULE, lpFilename: Uint16Array, nSize: number) => number>
 }
 
 /**
@@ -31,13 +26,8 @@ export declare namespace GetModuleFileName {
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandlew
  */
 export function GetModuleHandle(lpModuleName: string | null): HMODULE | null {
-    GetModuleHandle.fn ??= kernel32.func('GetModuleHandleW', cHANDLE, [ cLPCWSTR ])
-    return GetModuleHandle.fn(lpModuleName)
-}
-
-/** @internal */
-export declare namespace GetModuleHandle {
-    export var fn: koffi.KoffiFunc<(lpModuleName: string | null) => HMODULE | null>
+    GetModuleHandle.native ??= kernel32.func('GetModuleHandleW', cHANDLE, [ cLPCWSTR ])
+    return GetModuleHandle.native(lpModuleName)
 }
 
 /**
@@ -49,15 +39,10 @@ export declare namespace GetModuleHandle {
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandleexw
  */
 export function GetModuleHandleEx(dwFlags: GET_MODULE_HANDLE_EX_FLAG_, lpModuleName: string | null): HMODULE | null {
-    GetModuleHandleEx.fn ??= kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cLPCWSTR, koffi.out(koffi.pointer(cHANDLE)) ])
+    GetModuleHandleEx.native ??= kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cLPCWSTR, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const hModule: OUT<HMODULE | null> = [ null ]
-    return GetModuleHandleEx.fn(dwFlags, lpModuleName, hModule) === 0
+    return GetModuleHandleEx.native(dwFlags, lpModuleName, hModule) === 0
         ? null
         : hModule[0]
-}
-
-/** @internal */
-export declare namespace GetModuleHandleEx {
-    export var fn: koffi.KoffiFunc<(dwFlags: GET_MODULE_HANDLE_EX_FLAG_, lpModuleName: string | null, phModule: OUT<HMODULE | null>) => number>
 }

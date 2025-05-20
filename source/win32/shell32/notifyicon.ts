@@ -55,11 +55,6 @@ export const cNOTIFYICONDATA = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shell_notifyiconw
  */
 export function Shell_NotifyIcon(dwMessage: NIM_, data: NOTIFYICONDATA): number {
-    Shell_NotifyIcon.fn ??= shell32.func('Shell_NotifyIconW', cBOOL, [ cDWORD, cNOTIFYICONDATA ])
-    return Shell_NotifyIcon.fn(dwMessage, data)
-}
-
-/** @internal */
-export declare namespace Shell_NotifyIcon {
-    export var fn: koffi.KoffiFunc<(dwMessage: NIM_, data: NOTIFYICONDATA) => number>
+    Shell_NotifyIcon.native ??= shell32.func('Shell_NotifyIconW', cBOOL, [ cDWORD, cNOTIFYICONDATA ])
+    return Shell_NotifyIcon.native(dwMessage, data)
 }

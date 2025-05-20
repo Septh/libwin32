@@ -59,13 +59,8 @@ export const cLSA_OBJECT_ATTRIBUTES = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaclose
  */
 export function LsaClose(ObjectHandle: LSA_HANDLE): NTSTATUS_ {
-    LsaClose.fn ??= advapi32.func('LsaClose', cNTSTATUS, [ cHANDLE ])
-    return LsaClose.fn(ObjectHandle)
-}
-
-/** @internal */
-export declare namespace LsaClose {
-    export var fn: koffi.KoffiFunc<(ObjectHandle: LSA_HANDLE) => NTSTATUS_>
+    LsaClose.native ??= advapi32.func('LsaClose', cNTSTATUS, [ cHANDLE ])
+    return LsaClose.native(ObjectHandle)
 }
 
 /**
@@ -74,18 +69,13 @@ export declare namespace LsaClose {
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaopenpolicy
  */
 export function LsaOpenPolicy(SystemName: string | null, ObjectAttributes: LSA_OBJECT_ATTRIBUTES, DesiredAcces: ACCESS_MASK, PolicyHandle: LSA_HANDLE | null = null): LSA_HANDLE | null {
-    LsaOpenPolicy.fn ??= advapi32.func('LsaOpenPolicy', cNTSTATUS, [ cPLSA_UNICODE_STRING, koffi.pointer(cLSA_OBJECT_ATTRIBUTES), cDWORD, koffi.inout(koffi.pointer(cHANDLE)) ])
+    LsaOpenPolicy.native ??= advapi32.func('LsaOpenPolicy', cNTSTATUS, [ cPLSA_UNICODE_STRING, koffi.pointer(cLSA_OBJECT_ATTRIBUTES), cDWORD, koffi.inout(koffi.pointer(cHANDLE)) ])
 
     const lusSystemName = typeof SystemName === 'string' ? new LSA_UNICODE_STRING(SystemName) : null
     const pPolicyHandle: OUT<LSA_HANDLE> = [ PolicyHandle! ]
-    return LsaOpenPolicy.fn(lusSystemName, ObjectAttributes, DesiredAcces, pPolicyHandle) === 0
+    return LsaOpenPolicy.native(lusSystemName, ObjectAttributes, DesiredAcces, pPolicyHandle) === 0
         ? pPolicyHandle[0]
         : null
-}
-
-/** @internal */
-export declare namespace LsaOpenPolicy {
-    export var fn: koffi.KoffiFunc<(SystemName: LSA_UNICODE_STRING | null, ObjectAttributes: LSA_OBJECT_ATTRIBUTES, DesiredAcces: ACCESS_MASK, PolicyHandle: OUT<LSA_HANDLE>) => NTSTATUS_>
 }
 
 /**
@@ -94,11 +84,6 @@ export declare namespace LsaOpenPolicy {
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsantstatustowinerror
  */
 export function LsaNtStatusToWinError(Status: NTSTATUS_): number {
-    LsaNtStatusToWinError.fn ??= advapi32.func('LsaNtStatusToWinError', cULONG, [ cNTSTATUS ])
-    return LsaNtStatusToWinError.fn(Status)
-}
-
-/** @internal */
-export declare namespace LsaNtStatusToWinError {
-    export var fn: koffi.KoffiFunc<(Status: number) => number>
+    LsaNtStatusToWinError.native ??= advapi32.func('LsaNtStatusToWinError', cULONG, [ cNTSTATUS ])
+    return LsaNtStatusToWinError.native(Status)
 }

@@ -1,4 +1,4 @@
-import { textDecoder, type koffi } from '../private.js'
+import { textDecoder } from '../private.js'
 import { cDWORD, cLPCVOID, cLPWSTR, cVOID, type HMODULE } from '../ctypes.js'
 import type { FORMAT_MESSAGE_ } from '../consts/FORMAT_MESSAGE.js'
 import { kernel32 } from './_lib.js'
@@ -12,20 +12,15 @@ import { kernel32 } from './_lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
  */
 export function FormatMessage(dwFlags: FORMAT_MESSAGE_, lpSource: HMODULE | string | null, dwMessageId: number, dwLanguageId: number): string {
-    FormatMessage.fn ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cLPCVOID, cDWORD, cDWORD, cLPWSTR, cDWORD, '...' as any ])
+    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cLPCVOID, cDWORD, cDWORD, cLPWSTR, cDWORD, '...' as any ])
 
     const out = new Uint16Array(2048)
-    const len = FormatMessage.fn(
+    const len = FormatMessage.native(
         dwFlags, lpSource, dwMessageId, dwLanguageId,
         out, out.length,
         'int', 0    // Fake va_list
     )
     return textDecoder.decode(out.subarray(0, len))
-}
-
-/** @internal */
-export declare namespace FormatMessage {
-    export var fn: koffi.KoffiFunc<(dwFlags: number, lpSource: HMODULE | string | null, dwMessageId: number, dwLanguageId: number, lpBuffer: Uint16Array, nSize: number, ...args: any[]) => number>
 }
 
 /**
@@ -34,13 +29,8 @@ export declare namespace FormatMessage {
  * https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror
  */
 export function GetLastError(): number {
-    GetLastError.fn ??= kernel32.func('GetLastError', cDWORD, [])
-    return GetLastError.fn()
-}
-
-/** @internal */
-export declare namespace GetLastError {
-    export var fn: koffi.KoffiFunc<() => number>
+    GetLastError.native ??= kernel32.func('GetLastError', cDWORD, [])
+    return GetLastError.native()
 }
 
 /**
@@ -49,11 +39,6 @@ export declare namespace GetLastError {
  * https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setlasterror
  */
 export function SetLastError(dwErrcode: number): void {
-    SetLastError.fn ??= kernel32.func('SetLastError', cVOID, [ cDWORD ])
-    return SetLastError.fn(dwErrcode)
-}
-
-/** @internal */
-export declare namespace SetLastError {
-    export var fn: koffi.KoffiFunc<(dwErrcode: number) => void>
+    SetLastError.native ??= kernel32.func('SetLastError', cVOID, [ cDWORD ])
+    return SetLastError.native(dwErrcode)
 }

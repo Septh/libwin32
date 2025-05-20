@@ -27,24 +27,13 @@ export const cSID = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS): unknown | null {
-    GetTokenInformation.fn ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cDWORD, koffi.pointer(cLPVOID), cDWORD, koffi.out(cLPVOID) ])
+    GetTokenInformation.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cDWORD, koffi.pointer(cLPVOID), cDWORD, koffi.out(cLPVOID) ])
 
     const out = new Uint32Array(256)
     const len: OUT<number> = [ 0 ]
-    return GetTokenInformation.fn(TokenHandle, TokenInformationClass, out, out.length, len) === 0
+    return GetTokenInformation.native(TokenHandle, TokenInformationClass, out, out.length, len) === 0
         ? null
         : out
-}
-
-/** @internal */
-export declare namespace GetTokenInformation {
-    export var fn: koffi.KoffiFunc<(
-        TokenHandle: HTOKEN,
-        TokenInformationClass: number,
-        TokenInformation: Uint32Array,
-        TokenInformationLength: number,
-        ReturnLength: OUT<number>
-    ) => number>
 }
 
 /**
@@ -56,7 +45,7 @@ export function LookupAccountSid(
     lpSystemName: string | null,
     Sid: SID
 ): { Name: string, ReferencedDomainName: string, peUse: SID_NAME_USE } | null {
-    LookupAccountSid.fn ??= advapi32.func('LookupAccountSidW', cBOOL, [
+    LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [
         cLPWSTR, cPSID,
         koffi.out(cLPWSTR), koffi.inout(cLPDWORD),
         koffi.out(cLPWSTR), koffi.inout(cLPDWORD),
@@ -69,7 +58,7 @@ export function LookupAccountSid(
     const cchReferencedDomainName: OUT<number> = [ referencedDomainName.length ]
     const peUse: OUT<number> = [ 0 ]
 
-    return LookupAccountSid.fn(lpSystemName, Sid, name, cchName, referencedDomainName, cchReferencedDomainName, peUse) === 0
+    return LookupAccountSid.native(lpSystemName, Sid, name, cchName, referencedDomainName, cchReferencedDomainName, peUse) === 0
         ? null
         : {
             Name: textDecoder.decode(name.subarray(0, cchName[0])),
@@ -78,26 +67,16 @@ export function LookupAccountSid(
         }
 }
 
-/** @internal */
-export declare namespace LookupAccountSid {
-    export var fn: koffi.KoffiFunc<(lpSystemName: string | null, Sid: SID, Name: Uint16Array, cchName: OUT<number>, ReferencedDomainName: Uint16Array, cchReferencedDomainName: OUT<number>, peUse: OUT<number>) => number>
-}
-
 /**
  * Opens the access token associated with a process.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken
  */
 export function OpenProcessToken(ProcessHandle: HANDLE, DesiredAccess: ACCESS_MASK): HTOKEN | null {
-    OpenProcessToken.fn ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
+    OpenProcessToken.native ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const tokenHandle: OUT<HTOKEN> = [ null! ]
-    return OpenProcessToken.fn(ProcessHandle, DesiredAccess, tokenHandle) === 0
+    return OpenProcessToken.native(ProcessHandle, DesiredAccess, tokenHandle) === 0
         ? null
         : tokenHandle[0]
-}
-
-/** @internal */
-export declare namespace OpenProcessToken {
-    export var fn: koffi.KoffiFunc<(ProcessHandle: HANDLE, DesiredAccess: number, TokenHandle: OUT<HTOKEN>) => number>
 }

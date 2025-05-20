@@ -81,15 +81,10 @@ export const cWNDCLASSEX = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfow
  */
 export function GetClassInfo(hInstance: HINSTANCE | null, lpClassName: ATOM | string): WNDCLASS | null {
-    GetClassInfo.fn ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
+    GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
 
     const lpWndClass = new WNDCLASS()
-    return GetClassInfo.fn(hInstance, lpClassName, lpWndClass) ? lpWndClass : null
-}
-
-/** @internal */
-export declare namespace GetClassInfo {
-    export var fn: koffi.KoffiFunc<(hInstance: HINSTANCE | null, lpClassName: ATOM | string, lpWndClass: WNDCLASS) => number>
+    return GetClassInfo.native(hInstance, lpClassName, lpWndClass) ? lpWndClass : null
 }
 
 /**
@@ -98,15 +93,10 @@ export declare namespace GetClassInfo {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfoexw
  */
 export function GetClassInfoEx(hInstance: HINSTANCE | null, lpClassName: ATOM | string): WNDCLASSEX | null {
-    GetClassInfoEx.fn ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.inout(koffi.pointer(cWNDCLASSEX)) ])
+    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.inout(koffi.pointer(cWNDCLASSEX)) ])
 
     const lpWndClassEx = new WNDCLASSEX()
-    return GetClassInfoEx.fn(hInstance, lpClassName, lpWndClassEx) ? lpWndClassEx : null
-}
-
-/** @internal */
-export declare namespace GetClassInfoEx {
-    export var fn: koffi.KoffiFunc<(hInstance: HINSTANCE | null, lpClassName: ATOM | string, lpWndClassEx: WNDCLASSEX) => number>
+    return GetClassInfoEx.native(hInstance, lpClassName, lpWndClassEx) ? lpWndClassEx : null
 }
 
 /**
@@ -115,16 +105,11 @@ export declare namespace GetClassInfoEx {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassnamew
  */
 export function GetClassName(hWnd: HWND): string {
-    GetClassName.fn ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cLPWSTR), cINT ])
+    GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cLPWSTR), cINT ])
 
     const out = new Uint16Array(128)
-    const len = GetClassName.fn(hWnd, out, out.length)
+    const len = GetClassName.native(hWnd, out, out.length)
     return textDecoder.decode(out.subarray(0, len))
-}
-
-/** @internal */
-export declare namespace GetClassName {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, lpClassName: Uint16Array, nMaxCount: number) => number>
 }
 
 /**
@@ -133,7 +118,7 @@ export declare namespace GetClassName {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassw
  */
 export function RegisterClass(lpWndClass: WNDCLASS): ATOM {
-    RegisterClass.fn ??= user32.func('RegisterClassW', cATOM, [ koffi.pointer(cWNDCLASS) ])
+    RegisterClass.native ??= user32.func('RegisterClassW', cATOM, [ koffi.pointer(cWNDCLASS) ])
 
     if (typeof lpWndClass.lpfnWndProc === 'function') {
         lpWndClass = {
@@ -141,12 +126,7 @@ export function RegisterClass(lpWndClass: WNDCLASS): ATOM {
             lpfnWndProc: koffi.register(lpWndClass.lpfnWndProc, cWNDPROC) as unknown as WNDPROC
         }
     }
-    return RegisterClass.fn(lpWndClass)
-}
-
-/** @internal */
-export declare namespace RegisterClass {
-    export var fn: koffi.KoffiFunc<(lpWndClass: WNDCLASS) => ATOM>
+    return RegisterClass.native(lpWndClass)
 }
 
 /**
@@ -155,7 +135,7 @@ export declare namespace RegisterClass {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexw
  */
 export function RegisterClassEx(lpWndClassEx: WNDCLASSEX): ATOM {
-    RegisterClassEx.fn ??= user32.func('RegisterClassExW', cATOM, [ koffi.pointer(cWNDCLASSEX) ])
+    RegisterClassEx.native ??= user32.func('RegisterClassExW', cATOM, [ koffi.pointer(cWNDCLASSEX) ])
 
     if (typeof lpWndClassEx.lpfnWndProc === 'function') {
         lpWndClassEx = {
@@ -163,12 +143,7 @@ export function RegisterClassEx(lpWndClassEx: WNDCLASSEX): ATOM {
             lpfnWndProc: koffi.register(lpWndClassEx.lpfnWndProc, cWNDPROC) as unknown as WNDPROC
         }
     }
-    return RegisterClassEx.fn(lpWndClassEx)
-}
-
-/** @internal */
-export declare namespace RegisterClassEx {
-    export var fn: koffi.KoffiFunc<(lpWndClassEx: WNDCLASSEX) => ATOM>
+    return RegisterClassEx.native(lpWndClassEx)
 }
 
 /**
@@ -177,11 +152,6 @@ export declare namespace RegisterClassEx {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unregisterclassw
  */
 export function UnregisterClass(lpClassName: ATOM | string, hInstance?: HINSTANCE | null): boolean {
-    UnregisterClass.fn ??= user32.func('UnregisterClassW', cBOOL, [ cLPCWSTR, cHANDLE ])
-    return !!UnregisterClass.fn(lpClassName, hInstance ?? null)
-}
-
-/** @internal */
-export declare namespace UnregisterClass {
-    export var fn: koffi.KoffiFunc<(lpClassName: ATOM | string, hInstance: HINSTANCE | null) => number>
+    UnregisterClass.native ??= user32.func('UnregisterClassW', cBOOL, [ cLPCWSTR, cHANDLE ])
+    return !!UnregisterClass.native(lpClassName, hInstance ?? null)
 }

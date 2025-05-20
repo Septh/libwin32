@@ -1,4 +1,3 @@
-import type { koffi } from '../private.js'
 import {
     cBOOL, cUINT, cLPCWSTR, cHANDLE,
     cRECT, type RECT,
@@ -14,13 +13,8 @@ import { user32 } from './_lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createpopupmenu
  */
 export function CreatePopupMenu(): HMENU | null {
-    CreatePopupMenu.fn ??= user32.func('CreatePopupMenu', cHANDLE, [])
-    return CreatePopupMenu.fn()
-}
-
-/** @internal */
-export declare namespace CreatePopupMenu {
-    export var fn: koffi.KoffiFunc<() => HMENU | null>
+    CreatePopupMenu.native ??= user32.func('CreatePopupMenu', cHANDLE, [])
+    return CreatePopupMenu.native()
 }
 
 /**
@@ -29,13 +23,8 @@ export declare namespace CreatePopupMenu {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-trackpopupmenu
  */
 export function TrackPopupMenu(hMenu: HMENU, uFlags: TPM_, x: number, y: number, nReserved: number, hWnd: HWND, prcRect?: RECT): boolean {
-    TrackPopupMenu.fn ??= user32.func('TrackPopupMenu', cBOOL, [ cHANDLE, cUINT, cUINT, cUINT, cUINT, cHANDLE, cRECT ])
-    return !!TrackPopupMenu.fn(hMenu, uFlags, x, y, nReserved, hWnd, prcRect ?? null)
-}
-
-/** @internal */
-export declare namespace TrackPopupMenu {
-    export var fn: koffi.KoffiFunc<(hMenu: HMENU, uFlags: TPM_, x: number, y: number, nReserved: number, hWnd: HWND, prcRect: RECT | null) => number>
+    TrackPopupMenu.native ??= user32.func('TrackPopupMenu', cBOOL, [ cHANDLE, cUINT, cUINT, cUINT, cUINT, cHANDLE, cRECT ])
+    return !!TrackPopupMenu.native(hMenu, uFlags, x, y, nReserved, hWnd, prcRect ?? null)
 }
 
 /**
@@ -44,13 +33,8 @@ export declare namespace TrackPopupMenu {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroymenu
  */
 export function DestroyMenu(hMenu: HMENU): boolean {
-    DestroyMenu.fn ??= user32.func('DestroyMenu', cBOOL, [ cHANDLE ])
-    return !!DestroyMenu.fn(hMenu)
-}
-
-/** @internal */
-export declare namespace DestroyMenu {
-    export var fn: koffi.KoffiFunc<(hMenu: HMENU) => number>
+    DestroyMenu.native ??= user32.func('DestroyMenu', cBOOL, [ cHANDLE ])
+    return !!DestroyMenu.native(hMenu)
 }
 
 /**
@@ -59,13 +43,8 @@ export declare namespace DestroyMenu {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
  */
 export function AppendMenu(hMenu: HMENU, uFlags: MF_, uIDNewItem: number | HMENU, lpNewItem: string | null): boolean {
-    AppendMenu.fn ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cLPCWSTR ]);
-    return !!AppendMenu.fn(hMenu, uFlags, uIDNewItem, lpNewItem)
-}
-
-/** @internal */
-export declare namespace AppendMenu {
-    export var fn: koffi.KoffiFunc<(hMenu: HMENU, uFlags: MF_, uIDNewItem: number | HMENU, lpNewItem: string | null) => number>
+    AppendMenu.native ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cLPCWSTR ]);
+    return !!AppendMenu.native(hMenu, uFlags, uIDNewItem, lpNewItem)
 }
 
 /**
@@ -74,11 +53,6 @@ export declare namespace AppendMenu {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-checkmenuitem
  */
 export function CheckMenuItem(hMenu: HMENU, uIDCheckItem: number, uCheck: MF_): number {
-    CheckMenuItem.fn ??= user32.func('CheckMenuItem', cUINT, [ cHANDLE, cUINT, cUINT ])
-    return CheckMenuItem.fn(hMenu, uIDCheckItem, uCheck)
-}
-
-/** @internal */
-export declare namespace CheckMenuItem {
-    export var fn: koffi.KoffiFunc<(hMenu: HMENU, uIDCheckItem: number, uCheck: MF_) => number>
+    CheckMenuItem.native ??= user32.func('CheckMenuItem', cUINT, [ cHANDLE, cUINT, cUINT ])
+    return CheckMenuItem.native(hMenu, uIDCheckItem, uCheck)
 }

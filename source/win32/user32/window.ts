@@ -20,13 +20,8 @@ import { user32 } from './_lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrect
  */
 export function AdjustWindowRect(lpRect: RECT, dwStyle: WS_, bMenu: boolean ): boolean {
-    AdjustWindowRect.fn ??= user32.func('AdjustWindowRect', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL ])
-    return !!AdjustWindowRect.fn(lpRect, dwStyle, Number(bMenu))
-}
-
-/** @internal */
-export declare namespace AdjustWindowRect {
-    export var fn: koffi.KoffiFunc<(lpRect: RECT, dwStyle: number, bMenu: number) => number>
+    AdjustWindowRect.native ??= user32.func('AdjustWindowRect', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL ])
+    return !!AdjustWindowRect.native(lpRect, dwStyle, Number(bMenu))
 }
 
 /**
@@ -35,13 +30,8 @@ export declare namespace AdjustWindowRect {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrectex
  */
 export function AdjustWindowRectEx(lpRect: RECT, dwStyle: WS_, bMenu: boolean, cwExStyle: WS_EX_): boolean {
-    AdjustWindowRectEx.fn ??= user32.func('AdjustWindowRectEx', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL, cDWORD ])
-    return !!AdjustWindowRectEx.fn(lpRect, dwStyle, Number(bMenu), cwExStyle)
-}
-
-/** @internal */
-export declare namespace AdjustWindowRectEx {
-    export var fn: koffi.KoffiFunc<(lpRect: RECT, dwStyle: number, bMenu: number, cwExStyle: number) => number>
+    AdjustWindowRectEx.native ??= user32.func('AdjustWindowRectEx', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL, cDWORD ])
+    return !!AdjustWindowRectEx.native(lpRect, dwStyle, Number(bMenu), cwExStyle)
 }
 
 /**
@@ -50,13 +40,8 @@ export declare namespace AdjustWindowRectEx {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-animatewindow
  */
 export function AnimateWindow(hWnd: HWND, dwTime: number, dwFlags: AW_): boolean {
-    AnimateWindow.fn ??= user32.func('AnimateWindow', cBOOL, [ cHANDLE, cDWORD, cDWORD ])
-    return !!AnimateWindow.fn(hWnd, dwTime, dwFlags)
-}
-
-/** @internal */
-export declare namespace AnimateWindow {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, dwTime: number, dwFlags: AW_) => number>
+    AnimateWindow.native ??= user32.func('AnimateWindow', cBOOL, [ cHANDLE, cDWORD, cDWORD ])
+    return !!AnimateWindow.native(hWnd, dwTime, dwFlags)
 }
 
 /**
@@ -65,13 +50,8 @@ export declare namespace AnimateWindow {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-bringwindowtotop
  */
 export function BringWindowToTop(hWnd: HWND): boolean {
-    BringWindowToTop.fn ??= user32.func('BringWindowToTop', cBOOL, [ cHANDLE ])
-    return !!BringWindowToTop.fn(hWnd)
-}
-
-/** @internal */
-export declare namespace BringWindowToTop {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND) => number>
+    BringWindowToTop.native ??= user32.func('BringWindowToTop', cBOOL, [ cHANDLE ])
+    return !!BringWindowToTop.native(hWnd)
 }
 
 /**
@@ -80,13 +60,8 @@ export declare namespace BringWindowToTop {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-callwindowprocw
  */
 export function CallWindowProc(lpPrevWndFunc: WNDPROC, hWnd: HWND, Msg: WM_, wParam: WPARAM, lParam: LPARAM): LRESULT {
-    CallWindowProc.fn ??= user32.func('CallWindowProcW', cLRESULT, [ cWNDPROC, cHANDLE, cUINT, cWPARAM, cLPARAM ])
-    return CallWindowProc.fn(lpPrevWndFunc, hWnd, Msg, wParam, lParam)
-}
-
-/** @internal */
-export declare namespace CallWindowProc {
-    export var fn: koffi.KoffiFunc<(lpPrevWndFunc: WNDPROC, hWnd: HWND, Msg: WM_, wParam: WPARAM, lParam: LPARAM) => LRESULT>
+    CallWindowProc.native ??= user32.func('CallWindowProcW', cLRESULT, [ cWNDPROC, cHANDLE, cUINT, cWPARAM, cLPARAM ])
+    return CallWindowProc.native(lpPrevWndFunc, hWnd, Msg, wParam, lParam)
 }
 
 /**
@@ -129,26 +104,8 @@ export function CreateWindowEx(
     hInstance:    HINSTANCE | null,
     lpParam:      LPARAM | null,
 ): HWND | null {
-    CreateWindowEx.fn ??= user32.func('CreateWindowExW', cHANDLE, [ cDWORD, cLPCWSTR, cLPCWSTR, cDWORD, cINT, cINT, cINT, cINT, cHANDLE, cHANDLE, cHANDLE, cLPVOID ])
-    return CreateWindowEx.fn(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam)
-}
-
-/** @internal */
-export declare namespace CreateWindowEx {
-    export var fn: koffi.KoffiFunc<(
-        dwExStyle:    WS_EX_,
-        lpClassName:  string | null,
-        lpWindowName: string | null,
-        dwStyle:      WS_,
-        x:            number,
-        y:            number,
-        nWidth:       number,
-        nHeight:      number,
-        hWndParent:   HWND | HWND_ | null,
-        hMenu:        HMENU | null,
-        hInstance:    HINSTANCE | null,
-        lpParam:      LPARAM | null,
-    ) => HWND | null>
+    CreateWindowEx.native ??= user32.func('CreateWindowExW', cHANDLE, [ cDWORD, cLPCWSTR, cLPCWSTR, cDWORD, cINT, cINT, cINT, cINT, cHANDLE, cHANDLE, cHANDLE, cLPVOID ])
+    return CreateWindowEx.native(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam)
 }
 
 /**
@@ -157,13 +114,8 @@ export declare namespace CreateWindowEx {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowprocw
  */
 export function DefWindowProc(hWnd: HWND, msg: number, wParam: WPARAM, lpParam: LPARAM): LRESULT {
-    DefWindowProc.fn ??= user32.func('DefWindowProcW', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ])
-    return DefWindowProc.fn(hWnd, msg, wParam, lpParam)
-}
-
-/** @internal */
-export declare namespace DefWindowProc {
-    export var fn: koffi.KoffiFunc<WNDPROC>
+    DefWindowProc.native ??= user32.func('DefWindowProcW', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ])
+    return DefWindowProc.native(hWnd, msg, wParam, lpParam)
 }
 
 /**
@@ -172,13 +124,8 @@ export declare namespace DefWindowProc {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumwindows
  */
 export function EnumWindows(lpEnumFunc: WNDENUMPROC, lpParam: LPARAM): boolean {
-    EnumWindows.fn ??= user32.func('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
-    return !!EnumWindows.fn(lpEnumFunc, lpParam)
-}
-
-/** @internal */
-export declare namespace EnumWindows {
-    export var fn: koffi.KoffiFunc<(lpEnumFunc: WNDENUMPROC, lpParam: LPARAM) => number>
+    EnumWindows.native ??= user32.func('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
+    return !!EnumWindows.native(lpEnumFunc, lpParam)
 }
 
 /**
@@ -187,13 +134,8 @@ export declare namespace EnumWindows {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindoww
  */
 export function FindWindow(lpClassName: string | null, lpWindowName: string | null): HWND | null {
-    FindWindow.fn ??= user32.func('FindWindowW', cHANDLE, [ cLPCWSTR, cLPCWSTR ])
-    return FindWindow.fn(lpClassName, lpWindowName)
-}
-
-/** @internal */
-export declare namespace FindWindow {
-    export var fn: koffi.KoffiFunc<(lpClassName: string | null, lpWindowName: string | null) => HWND | null>
+    FindWindow.native ??= user32.func('FindWindowW', cHANDLE, [ cLPCWSTR, cLPCWSTR ])
+    return FindWindow.native(lpClassName, lpWindowName)
 }
 
 /**
@@ -202,13 +144,8 @@ export declare namespace FindWindow {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowexw
  */
 export function FindWindowEx(hWndParent: HWND | HWND_ | null, hWndChildAfter: HWND | null, lpClassName: string | null, lpWindowName: string | null): HWND | null {
-    FindWindowEx.fn ??= user32.func('FindWindowExW', cHANDLE, [ cHANDLE, cHANDLE, cLPCWSTR, cLPCWSTR ])
-    return FindWindowEx.fn(hWndParent, hWndChildAfter, lpClassName, lpWindowName)
-}
-
-/** @internal */
-export declare namespace FindWindowEx {
-    export var fn: koffi.KoffiFunc<(hWndParent: HWND | HWND_ | null, hWndChildAfter: HWND | null, lpClassName: string | null, lpWindowName: string | null) => HWND | null>
+    FindWindowEx.native ??= user32.func('FindWindowExW', cHANDLE, [ cHANDLE, cHANDLE, cLPCWSTR, cLPCWSTR ])
+    return FindWindowEx.native(hWndParent, hWndChildAfter, lpClassName, lpWindowName)
 }
 
 /**
@@ -217,13 +154,8 @@ export declare namespace FindWindowEx {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getancestor
  */
 export function GetAncestor(hWnd: HWND, gaFlags: GA_): HWND | null {
-    GetAncestor.fn ??= user32.func('GetAncestor', cHANDLE, [ cHANDLE, cUINT ])
-    return GetAncestor.fn(hWnd, gaFlags)
-}
-
-/** @internal */
-export declare namespace GetAncestor {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, gaFlags: GA_) => HWND | null>
+    GetAncestor.native ??= user32.func('GetAncestor', cHANDLE, [ cHANDLE, cUINT ])
+    return GetAncestor.native(hWnd, gaFlags)
 }
 
 /**
@@ -234,13 +166,8 @@ export declare namespace GetAncestor {
  *
  */
 export function GetForegroundWindow(): HWND {
-    GetForegroundWindow.fn ??= user32.func('GetForegroundWindow', cHANDLE, [])
-    return GetForegroundWindow.fn()
-}
-
-/** @internal */
-export declare namespace GetForegroundWindow {
-    export var fn: koffi.KoffiFunc<() => HWND>
+    GetForegroundWindow.native ??= user32.func('GetForegroundWindow', cHANDLE, [])
+    return GetForegroundWindow.native()
 }
 
 /**
@@ -251,16 +178,11 @@ export declare namespace GetForegroundWindow {
  *
  */
 export function GetWindowThreadProcessId(hWnd: HWND): [ number, number ] {
-    GetWindowThreadProcessId.fn ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cLPDWORD) ])
+    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cLPDWORD) ])
 
     const int: OUT<number> = [ 0 ]
-    const tid = GetWindowThreadProcessId.fn(hWnd, int)
+    const tid = GetWindowThreadProcessId.native(hWnd, int)
     return [ tid, int[0] ]
-}
-
-/** @internal */
-export declare namespace GetWindowThreadProcessId {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, lpdwProcessId: OUT<number>) => number>
 }
 
 /**
@@ -269,16 +191,11 @@ export declare namespace GetWindowThreadProcessId {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
  */
 export function GetWindowText(hWnd: HWND): string {
-    GetWindowText.fn ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cLPWSTR), cINT ])
+    GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cLPWSTR), cINT ])
 
     const out = new Uint16Array(512)
-    const len = GetWindowText.fn(hWnd, out, out.length)
+    const len = GetWindowText.native(hWnd, out, out.length)
     return textDecoder.decode(out.subarray(0, len))
-}
-
-/** @internal */
-export declare namespace GetWindowText {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, lpString: Uint16Array, nMaxCount: number) => number>
 }
 
 /**
@@ -287,13 +204,8 @@ export declare namespace GetWindowText {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
  */
 export function ShowWindow(hWnd: HWND, nCmdShow: SW_): boolean {
-    ShowWindow.fn ??= user32.func('ShowWindow', cBOOL, [ cHANDLE, cINT ])
-    return !!ShowWindow.fn(hWnd, nCmdShow)
-}
-
-/** @internal */
-export declare namespace ShowWindow {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, nCmdShow: SW_) => number>
+    ShowWindow.native ??= user32.func('ShowWindow', cBOOL, [ cHANDLE, cINT ])
+    return !!ShowWindow.native(hWnd, nCmdShow)
 }
 
 /**
@@ -302,13 +214,8 @@ export declare namespace ShowWindow {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindowasync
  */
 export function ShowWindowAsync(hWnd: HWND, nCmdShow: SW_): boolean {
-    ShowWindowAsync.fn ??= user32.func('ShowWindowAsync', cBOOL, [ cHANDLE, cINT ])
-    return !!ShowWindowAsync.fn(hWnd, nCmdShow)
-}
-
-/** @internal */
-export declare namespace ShowWindowAsync {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND, nCmdShow: SW_) => number>
+    ShowWindowAsync.native ??= user32.func('ShowWindowAsync', cBOOL, [ cHANDLE, cINT ])
+    return !!ShowWindowAsync.native(hWnd, nCmdShow)
 }
 
 /**
@@ -317,13 +224,8 @@ export declare namespace ShowWindowAsync {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-updatewindow
  */
 export function UpdateWindow(hWnd: HWND): boolean {
-    UpdateWindow.fn ??= user32.func('UpdateWindow', cBOOL, [ cHANDLE ])
-    return !!UpdateWindow.fn(hWnd)
-}
-
-/** @internal */
-export declare namespace UpdateWindow {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND) => number>
+    UpdateWindow.native ??= user32.func('UpdateWindow', cBOOL, [ cHANDLE ])
+    return !!UpdateWindow.native(hWnd)
 }
 
 /**
@@ -332,11 +234,6 @@ export declare namespace UpdateWindow {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow
  */
 export function SetForegroundWindow(hWnd: HWND): boolean {
-    SetForegroundWindow.fn ??= user32.func('SetForegroundWindow', cBOOL, [ cHANDLE ])
-    return !!SetForegroundWindow.fn(hWnd)
-}
-
-/** @internal */
-export declare namespace SetForegroundWindow {
-    export var fn: koffi.KoffiFunc<(hWnd: HWND) => number>
+    SetForegroundWindow.native ??= user32.func('SetForegroundWindow', cBOOL, [ cHANDLE ])
+    return !!SetForegroundWindow.native(hWnd)
 }

@@ -1,4 +1,3 @@
-import type { koffi } from '../private.js'
 import {
     cBOOL, cLPCWSTR, cHANDLE,
     type HINSTANCE, type HICON
@@ -12,13 +11,8 @@ import { user32 } from './_lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroyicon
  */
 export function DestroyIcon(hIcon: HICON): boolean {
-    DestroyIcon.fn ??= user32.func('DestroyIcon', cBOOL, [ cHANDLE ])
-    return !!DestroyIcon.fn(hIcon)
-}
-
-/** @internal */
-export declare namespace DestroyIcon {
-    export var fn: koffi.KoffiFunc<(hIcon: HICON) => number>
+    DestroyIcon.native ??= user32.func('DestroyIcon', cBOOL, [ cHANDLE ])
+    return !!DestroyIcon.native(hIcon)
 }
 
 /**
@@ -27,11 +21,6 @@ export declare namespace DestroyIcon {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadiconw
  */
 export function LoadIcon(hInstance: HINSTANCE | null, lpIconName: IDI_ | string): HICON | null {
-    LoadIcon.fn ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cLPCWSTR ])
-    return LoadIcon.fn(hInstance, lpIconName)
-}
-
-/** @internal */
-export declare namespace LoadIcon {
-    export var fn: koffi.KoffiFunc<(hInstance: HINSTANCE | null, lpIconName: IDI_ | string) => HICON | null>
+    LoadIcon.native ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cLPCWSTR ])
+    return LoadIcon.native(hInstance, lpIconName)
 }

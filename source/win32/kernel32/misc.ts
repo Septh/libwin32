@@ -8,13 +8,8 @@ import { kernel32 } from './_lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/utilapiset/nf-utilapiset-beep
  */
 export function Beep(dwFreq: number, dwDuration: number): boolean {
-    Beep.fn ??= kernel32.func('Beep', cBOOL, [ cDWORD, cDWORD ])
-    return !!Beep.fn(dwFreq, dwDuration)
-}
-
-/** @internal */
-export declare namespace Beep {
-    export var fn: koffi.KoffiFunc<(dwFreq: number, dwDuration: number) => number>
+    Beep.native ??= kernel32.func('Beep', cBOOL, [ cDWORD, cDWORD ])
+    return !!Beep.native(dwFreq, dwDuration)
 }
 
 /**
@@ -23,16 +18,11 @@ export declare namespace Beep {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getcomputernamew
  */
 export function GetComputerName(): string | null {
-    GetComputerName.fn ??= kernel32.func('GetComputerNameW', cBOOL, [ cLPWSTR, koffi.inout(cLPDWORD) ])
+    GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cLPWSTR, koffi.inout(cLPDWORD) ])
 
     const out = new Uint16Array(256)
     const len: OUT<number> = [ out.length ]
-    return GetComputerName.fn(out, len) === 0
+    return GetComputerName.native(out, len) === 0
         ? null
         : textDecoder.decode(out.subarray(0, len[0]))
-}
-
-/** @internal */
-export declare namespace GetComputerName {
-    export var fn: koffi.KoffiFunc<(lpBuffer: Uint16Array, nSize: OUT<number>) => number>
 }
