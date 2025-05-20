@@ -3,12 +3,13 @@ import koffi from 'koffi-cream'
 
 export { koffi }
 
-export const textDecoder = new TextDecoder('utf-16')
+export const textDecoder = /*#__PURE__*/new TextDecoder('utf-16')
 
 export class Win32Dll implements Disposable {
     get x64() { return true }
     get Unicode() { return true }
     #lib: koffi.IKoffiLib
+
     constructor(dllName: string) {
         assert(this.#lib = koffi.load(dllName), `Could not load ${JSON.stringify(dllName)}.`)
     }
@@ -26,8 +27,4 @@ export class Win32Dll implements Disposable {
     func(name: string, result: koffi.IKoffiCType, parameters: koffi.IKoffiCType[]) {
         return /*#__PURE__*/this.#lib.func(name, result, parameters)
     }
-}
-
-export type Win32API<T extends (...args: any[]) => any> = T & {
-    fn?: koffi.KoffiFunction
 }
