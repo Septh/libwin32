@@ -1,22 +1,8 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
-  "debug.terminal.clearBeforeReusing": true,
   "vsicons.associations.files": [
     {
-      "icon": "tsconfig",
-      "extensions": [],
-      "filenamesGlob": [
-        "tsconfig.demos",
-      ],
-      "extensionsGlob": [
-        "json"
-      ],
-      "filename": true,
-      "format": "svg",
-    },
-    {
       "icon": "rollup",
-      "extensions": [],
       "filenamesGlob": [
         "rollup.demos",
       ],
@@ -25,22 +11,6 @@
       "format": "svg",
     }
   ],
-  "cSpell.languageSettings": [
-    {
-      "languageId": "typescript",
-      "allowCompoundWords": false,
-      "includeRegExpList": [
-        "CStyleComment",
-        // "string"
-      ],
-      // Exclude includes, because they are also strings.
-      "ignoreRegExpList": [
-        "/from .*/"
-      ]
-    }
-  ],
-  "cSpell.diagnosticLevel": "Hint",
-  "cSpell.suggestionMenuType": "quickFix",
   "conventionalCommits.scopes": [
     "kernel32",
     "user32",
@@ -56,5 +26,11 @@
     "Koffi",
     "libwin",
     "shakeability"
-  ]
+  ],
+  "debug.javascript.terminalOptions": {
+    "skipFiles": [
+      "<node_internals>/**",
+      "**/node_modules/**"
+    ]
+  },
 }

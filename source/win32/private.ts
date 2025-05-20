@@ -1,5 +1,5 @@
 import assert from 'node:assert'
-import koffi from 'koffi'
+import koffi from 'koffi-cream'
 
 export { koffi }
 
