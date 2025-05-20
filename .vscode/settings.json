@@ -18,7 +18,8 @@
     "advapi32",
     "secur32",
     "demos",
-    "all"
+    "all",
+    "chore"
   ],
   "cSpell.words": [
     "advapi",

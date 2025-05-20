@@ -168,7 +168,7 @@ export const cGUID = koffi.struct({
     Data1: koffi.types.uint32,
     Data2: koffi.types.uint16,
     Data3: koffi.types.uint16,
-    Data4: koffi.array(koffi.types.uint8, 8),
+    Data4: koffi.array(koffi.types.uint8, 8)
 })
 
 export interface LUID {
@@ -178,5 +178,5 @@ export interface LUID {
 
 export const cLUID = koffi.struct({
     LowPart: cDWORD,
-    HighPart: cLONG,
+    HighPart: cLONG
 })
