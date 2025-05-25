@@ -1,10 +1,10 @@
 import {
-    cBOOL, cUINT, cPWSTR, cHANDLE,
-    cRECT, type RECT,
-    type HWND, type HMENU
+    cBOOL, cUINT, cPWSTR,
+    cHANDLE, type HWND, type HMENU
 } from '../ctypes.js'
 import type { MF_ } from '../consts/MF.js'
 import type { TPM_ } from '../consts/TPM.js'
+import { cRECT, type RECT } from '../structs/RECT.js'
 import { user32 } from './_lib.js'
 
 /**

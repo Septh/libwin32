@@ -2,45 +2,13 @@ import { koffi } from '../private.js'
 import {
     cVOID, cBOOL, cDWORD, cINT, cUINT, cLONG, cPDWORD,
     cLPARAM, type LPARAM, cWPARAM, type WPARAM, cLRESULT, type LRESULT,
-    cHANDLE, type HWND, type POINT, type HDESK,
-    cLUID, type LUID,
+    cHANDLE, type HWND,
     type OUT
 } from '../ctypes.js'
 import type { BSF_ } from '../consts/BSF.js'
+import { cMSG, type MSG } from '../structs/MSG.js'
+import { cBSMINFO, type BSMINFO } from '../structs/BSMINFO.js'
 import { user32 } from './_lib.js'
-
-export const cMSG = koffi.struct({
-    HWND: cHANDLE,
-    message: cUINT,
-    wParam: cWPARAM,
-    lParam: cLPARAM,
-    time: cDWORD,
-    pt: cHANDLE,
-    lPrivate: cDWORD
-}), cPMSG = koffi.pointer(cMSG), cLPMSG = koffi.pointer(cMSG)
-
-export interface MSG {
-    HWND: HWND
-    message: number
-    wParam: number
-    lParam: number
-    time: number
-    pt: POINT
-}
-
-export const cBSMINFO = koffi.struct({
-    cbSize: cUINT,
-    hdesk: cHANDLE,
-    hwnd: cHANDLE,
-    luid: cLUID,
-}), cPBSMINFO = koffi.pointer(cBSMINFO), cLPBSMINFO = koffi.pointer(cBSMINFO)
-
-export class BSMINFO {
-    readonly cbSize = koffi.sizeof(cBSMINFO)
-    declare hDesk?: HDESK
-    declare hWnd?: HWND
-    declare luid?: LUID
-}
 
 /**
  * Sends a message to the specified recipients.
@@ -66,7 +34,7 @@ export function BroadcastSystemMessage(flags: BSF_, lpInfo: number | null, Msg: 
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
  */
 export function BroadcastSystemMessageEx(flags: BSF_, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null = null): [number, number | null] {
-    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(cPBSMINFO)])
+    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO))])
 
     const out = typeof lpInfo === 'string' ? [lpInfo] as OUT<number> : null
     const ret = BroadcastSystemMessageEx.native(flags, out, Msg, wParam, lParam, psbmInfo)
@@ -79,7 +47,7 @@ export function BroadcastSystemMessageEx(flags: BSF_, lpInfo: number | null, Msg
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessagew
  */
 export function DispatchMessage(lpMsg: MSG): LRESULT {
-    DispatchMessage.native ??= user32.func('DispatchMessageW', cLRESULT, [cLPMSG])
+    DispatchMessage.native ??= user32.func('DispatchMessageW', cLRESULT, [koffi.pointer(cMSG)])
     return DispatchMessage.native(lpMsg)
 }
 
@@ -89,7 +57,7 @@ export function DispatchMessage(lpMsg: MSG): LRESULT {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagew
  */
 export function GetMessage(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number): boolean {
-    GetMessage.native ??= user32.func('GetMessageW', cBOOL, [koffi.out(cLPMSG), cHANDLE, cUINT, cUINT])
+    GetMessage.native ??= user32.func('GetMessageW', cBOOL, [koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT])
     return !!GetMessage.native(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax)
 }
 
@@ -99,7 +67,7 @@ export function GetMessage(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: nu
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
  */
 export function PeekMessage(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number, wRemoveMsg: number): boolean {
-    PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [koffi.out(cLPMSG), cHANDLE, cUINT, cUINT, cUINT])
+    PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT, cUINT])
     return !!PeekMessage.native(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg)
 }
 
@@ -119,7 +87,7 @@ export function PostQuitMessage(nExitCode: number): void {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
  */
 export function TranslateMessage(lpMsg: MSG): boolean {
-    TranslateMessage.native ??= user32.func('TranslateMessage', cBOOL, [cLPMSG])
+    TranslateMessage.native ??= user32.func('TranslateMessage', cBOOL, [koffi.pointer(cMSG)])
     return !!TranslateMessage.native(lpMsg)
 }
 
@@ -129,7 +97,7 @@ export function TranslateMessage(lpMsg: MSG): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/translatemessageex
  */
 export function TranslateMessageEx(lpMsg: MSG, flags: number): boolean {
-    TranslateMessageEx.native ??= user32.func('TranslateMessageEx', cBOOL, [cLPMSG, cUINT])
+    TranslateMessageEx.native ??= user32.func('TranslateMessageEx', cBOOL, [koffi.pointer(cMSG), cUINT])
     return !!TranslateMessageEx.native(lpMsg, flags)
 }
 

@@ -1,11 +1,12 @@
 import { koffi, textDecoder } from '../private.js'
 import {
-    cBOOL, cINT, cUINT, cDWORD, cPWSTR, cPDWORD, cPVOID, cHANDLE,
+    cBOOL, cINT, cUINT, cDWORD, cPWSTR, cPDWORD, cPVOID,
     cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM, cLRESULT, type LRESULT,
-    type HWND, type HINSTANCE, type HMENU, cRECT, type RECT,
+    cHANDLE, type HWND, type HINSTANCE, type HMENU,
     type OUT
 } from '../ctypes.js'
+import { cRECT, type RECT } from '../structs/RECT.js'
 import type { HWND_ } from '../consts/HWND.js'
 import type { WS_, WS_EX_ } from '../consts/WS.js'
 import type { WM_ } from '../consts/WM.js'

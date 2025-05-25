@@ -1,25 +1,14 @@
 import { koffi, textDecoder } from '../private.js'
 import {
-    cBOOL, cBYTE, cDWORD, cPVOID, cPWSTR, cPDWORD,
+    cBOOL, cDWORD, cPVOID, cPWSTR, cPDWORD,
     cHANDLE, type HANDLE, type HTOKEN,
     type OUT
 } from '../ctypes.js'
+import { cSID, type SID } from '../structs/SID.js'
 import type { TOKEN_INFORMATION_CLASS } from '../consts/TOKEN_INFORMATION_CLASS.js'
 import type { SID_NAME_USE } from '../consts/SID_NAME_USE.js'
 import type { ACCESS_MASK } from '../consts/ACCESS_MASK.js'
 import { advapi32 } from './_lib.js'
-
-export interface SID {
-    Revision:          number
-    SubAuthorityCount: number
-    SubAuthority: Uint32Array
-}
-
-export const cSID = koffi.struct({
-    Revision:          cBYTE,
-    SubAuthorityCount: cBYTE,
-    SubAuthority:      cPVOID,     // DWORD *SubAuthority[]
-}), cPSID = koffi.pointer(cSID)
 
 /**
  * Retrieves a specified type of information about an access token. The calling process must have appropriate access rights to obtain the information.
@@ -46,7 +35,7 @@ export function LookupAccountSid(
     Sid: SID
 ): { Name: string, ReferencedDomainName: string, peUse: SID_NAME_USE } | null {
     LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [
-        cPWSTR, cPSID,
+        cPWSTR, koffi.pointer(cSID),
         koffi.out(cPWSTR), koffi.inout(cPDWORD),
         koffi.out(cPWSTR), koffi.inout(cPDWORD),
         koffi.out(cPDWORD)

@@ -1,5 +1,6 @@
 export { koffi } from './private.js'
-export * from './ctypes.js'
+export type * from './ctypes.js'
+export * from './structs.js'
 export * from './kernel32.js'
 export * from './user32.js'
 export * from './shell32.js'

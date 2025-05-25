@@ -1,10 +1,10 @@
 import { koffi } from '../private.js'
 import {
-    cBOOL, cPWSTR, cHANDLE,
-    cPOINT, type POINT,
-    type HINSTANCE, type HCURSOR
+    cBOOL, cPWSTR,
+    cHANDLE, type HINSTANCE, type HCURSOR
 } from '../ctypes.js'
 import type { IDC_ } from '../consts/IDC.js'
+import { cPOINT, type POINT } from '../structs/POINT.js'
 import { user32 } from './_lib.js'
 
 /**
