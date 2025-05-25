@@ -32,7 +32,7 @@ function makeSingleConfig(demo) {
     return defineConfig({
         input: `lib/demos/${name}.js`,
         output: {
-            file: `demos/${name}/${name}.js`,
+            file: `demos/${name}.js`,
             format: 'esm',
             sourcemap: false
         },

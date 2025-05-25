@@ -67,7 +67,7 @@ $ node lib/demos/<demoname>.js
 * With bundling:
 ````shell
 $ npm run build:demos
-$ node demos/<demoname>/<demoname>.js
+$ node demos/<demoname>.js
 ````
 
 ### Changelog
@@ -171,7 +171,7 @@ None.
 * `./source/demos`:
     * Some usage examples.
 * `./source/rollup`:
-    * Two [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](../rollup.demos.js) to see how to use.
+    * [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](../rollup.demos.js) to see how to use.
 
 ### Licence
 MIT.
