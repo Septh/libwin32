@@ -4,9 +4,11 @@ import {
     cHANDLE, type HANDLE, type HMODULE, type HWND,
     type OUT
 } from './ctypes.js'
-import type { FORMAT_MESSAGE_ } from './consts/FORMAT_MESSAGE.js'
-import type { GET_MODULE_HANDLE_EX_FLAG_ } from './consts/GMH_EX_FLAGS.js'
-import type { PSAR_ } from './consts/PSAR.js'
+import type {
+    FORMAT_MESSAGE_,
+    GET_MODULE_HANDLE_EX_FLAG_,
+    PSAR_
+} from './consts.js'
 
 const kernel32 = /*#__PURE__*/new Win32Dll('kernel32.dll')
 

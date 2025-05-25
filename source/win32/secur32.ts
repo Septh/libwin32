@@ -1,6 +1,9 @@
 import { koffi, Win32Dll, textDecoder } from './private.js'
 import { cBOOL, cINT, cPWSTR, cPDWORD, type OUT } from './ctypes.js'
-import { UNLEN, type EXTENDED_NAME_FORMAT } from './consts/EXTENDED_NAME_FORMAT.js'
+import {
+    UNLEN,
+    type EXTENDED_NAME_FORMAT
+} from './consts.js'
 
 const secur32 = /*#__PURE__*/new Win32Dll('secur32.dll')
 

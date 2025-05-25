@@ -9,11 +9,13 @@ import {
     cLSA_OBJECT_ATTRIBUTES, type LSA_OBJECT_ATTRIBUTES,
     cSID, type SID
 } from './structs.js'
-import type { ACCESS_MASK } from './consts/ACCESS_MASK.js'
-import { UNLEN } from './consts/EXTENDED_NAME_FORMAT.js'
-import type { NTSTATUS_ } from './consts/NTSTATUS.js'
-import type { SID_NAME_USE } from './consts/SID_NAME_USE.js'
-import type { TOKEN_INFORMATION_CLASS } from './consts/TOKEN_INFORMATION_CLASS.js'
+import {
+    UNLEN,
+    type TOKEN_INFORMATION_CLASS,
+    type SID_NAME_USE,
+    type NTSTATUS_,
+    type ACCESS_MASK
+} from './consts.js'
 
 const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 

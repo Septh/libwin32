@@ -14,23 +14,12 @@ import {
     cWNDCLASS, WNDCLASS,
     cWNDCLASSEX, WNDCLASSEX
 } from './structs.js'
-import type { AW_ } from './consts/AW.js'
-import type { BSF_ } from './consts/BSF.js'
-import type { GA_ } from './consts/GA.js'
-import type { HWND_ } from './consts/HWND.js'
-import type { IDC_ } from './consts/IDC.js'
-import type { IDI_ } from './consts/IDI.js'
-import type { IMAGE_ } from './consts/IMAGE.js'
-import type { LR_ } from './consts/LR.js'
-import type { MB_ } from './consts/MB.js'
-import type { MF_ } from './consts/MF.js'
-import type { OBM_ } from './consts/OBM.js'
-import type { OCR_ } from './consts/OCR.js'
-import type { OIC_ } from './consts/OIC.js'
-import type { SW_ } from './consts/SW.js'
-import type { TPM_ } from './consts/TPM.js'
-import type { WS_, WS_EX_ } from './consts/WS.js'
-import type { WM_ } from './consts/WM.js'
+import type {
+    WS_, WS_EX_, WM_, HWND_,
+    AW_, MF_, BSF_, GA_,
+    IDC_, IDI_, OIC_, OCR_, OBM_, IMAGE_,
+    LR_, MB_, SW_, TPM_
+} from './consts.js'
 
 const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
 
