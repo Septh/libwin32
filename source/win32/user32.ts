@@ -6,14 +6,14 @@ import {
     cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
     type OUT
 } from './ctypes.js'
-import { cBSMINFO, type BSMINFO } from './structs/BSMINFO.js'
-import { cMSG, type MSG } from './structs/MSG.js'
 import {
+    cPOINT, type POINT,
+    cRECT, type RECT,
+    cBSMINFO, type BSMINFO,
+    cMSG, type MSG,
     cWNDCLASS, WNDCLASS,
     cWNDCLASSEX, WNDCLASSEX
-} from './structs/WNDCLASS.js'
-import { cPOINT, type POINT } from './structs/POINT.js'
-import { cRECT, type RECT } from './structs/RECT.js'
+} from './structs.js'
 import type { AW_ } from './consts/AW.js'
 import type { BSF_ } from './consts/BSF.js'
 import type { GA_ } from './consts/GA.js'

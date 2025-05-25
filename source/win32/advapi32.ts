@@ -4,9 +4,11 @@ import {
     cHANDLE, type HANDLE, type HTOKEN, type LSA_HANDLE,
     type OUT
 } from './ctypes.js'
-import { cLSA_UNICODE_STRING, LSA_UNICODE_STRING } from './structs/LSA_UNICODE_STRING.js'
-import { cLSA_OBJECT_ATTRIBUTES, type LSA_OBJECT_ATTRIBUTES } from './structs/LSA_OBJECT_ATTRIBUTES.js'
-import { cSID, type SID } from './structs/SID.js'
+import {
+    cLSA_UNICODE_STRING, LSA_UNICODE_STRING,
+    cLSA_OBJECT_ATTRIBUTES, type LSA_OBJECT_ATTRIBUTES,
+    cSID, type SID
+} from './structs.js'
 import type { ACCESS_MASK } from './consts/ACCESS_MASK.js'
 import { UNLEN } from './consts/EXTENDED_NAME_FORMAT.js'
 import type { NTSTATUS_ } from './consts/NTSTATUS.js'
