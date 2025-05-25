@@ -1,6 +1,6 @@
 import { koffi, textDecoder } from '../private.js'
 import {
-    cBOOL, cINT, cUINT, cLPWSTR, cLPCWSTR,
+    cBOOL, cINT, cUINT, cPWSTR,
     cHANDLE, cATOM, type ATOM,
     cWNDPROC, type WNDPROC,
     type HINSTANCE, type HWND, type HICON, type HCURSOR, type HBRUSH
@@ -36,8 +36,8 @@ export const cWNDCLASS = koffi.struct({
     hIcon:         cHANDLE,
     hCursor:       cHANDLE,
     hbrBackground: cHANDLE,
-    lpszMenuName:  cLPCWSTR,
-    lpszClassName: cLPCWSTR
+    lpszMenuName:  cPWSTR,
+    lpszClassName: cPWSTR
 })
 
 /**
@@ -70,8 +70,8 @@ export const cWNDCLASSEX = koffi.struct({
     hIcon:         cHANDLE,
     hCursor:       cHANDLE,
     hbrBackground: cHANDLE,
-    lpszMenuName:  cLPCWSTR,
-    lpszClassName: cLPCWSTR,
+    lpszMenuName:  cPWSTR,
+    lpszClassName: cPWSTR,
     hIconSm:       cHANDLE
 })
 
@@ -81,7 +81,7 @@ export const cWNDCLASSEX = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfow
  */
 export function GetClassInfo(hInstance: HINSTANCE | null, lpClassName: ATOM | string): WNDCLASS | null {
-    GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
+    GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cPWSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
 
     const lpWndClass = new WNDCLASS()
     return GetClassInfo.native(hInstance, lpClassName, lpWndClass) ? lpWndClass : null
@@ -93,7 +93,7 @@ export function GetClassInfo(hInstance: HINSTANCE | null, lpClassName: ATOM | st
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfoexw
  */
 export function GetClassInfoEx(hInstance: HINSTANCE | null, lpClassName: ATOM | string): WNDCLASSEX | null {
-    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cLPCWSTR, koffi.inout(koffi.pointer(cWNDCLASSEX)) ])
+    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cPWSTR, koffi.inout(koffi.pointer(cWNDCLASSEX)) ])
 
     const lpWndClassEx = new WNDCLASSEX()
     return GetClassInfoEx.native(hInstance, lpClassName, lpWndClassEx) ? lpWndClassEx : null
@@ -105,7 +105,7 @@ export function GetClassInfoEx(hInstance: HINSTANCE | null, lpClassName: ATOM | 
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassnamew
  */
 export function GetClassName(hWnd: HWND): string {
-    GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cLPWSTR), cINT ])
+    GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cPWSTR), cINT ])
 
     const out = new Uint16Array(128)
     const len = GetClassName.native(hWnd, out, out.length)
@@ -152,6 +152,6 @@ export function RegisterClassEx(lpWndClassEx: WNDCLASSEX): ATOM {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unregisterclassw
  */
 export function UnregisterClass(lpClassName: ATOM | string, hInstance?: HINSTANCE | null): boolean {
-    UnregisterClass.native ??= user32.func('UnregisterClassW', cBOOL, [ cLPCWSTR, cHANDLE ])
+    UnregisterClass.native ??= user32.func('UnregisterClassW', cBOOL, [ cPWSTR, cHANDLE ])
     return !!UnregisterClass.native(lpClassName, hInstance ?? null)
 }

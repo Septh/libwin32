@@ -1,6 +1,6 @@
 import { koffi, textDecoder } from '../private.js'
 import {
-    cBOOL, cINT, cUINT, cDWORD, cLPWSTR, cLPCWSTR, cLPDWORD, cLPVOID, cHANDLE,
+    cBOOL, cINT, cUINT, cDWORD, cPWSTR, cPDWORD, cPVOID, cHANDLE,
     cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM, cLRESULT, type LRESULT,
     type HWND, type HINSTANCE, type HMENU, cRECT, type RECT,
@@ -104,7 +104,7 @@ export function CreateWindowEx(
     hInstance:    HINSTANCE | null,
     lpParam:      LPARAM | null,
 ): HWND | null {
-    CreateWindowEx.native ??= user32.func('CreateWindowExW', cHANDLE, [ cDWORD, cLPCWSTR, cLPCWSTR, cDWORD, cINT, cINT, cINT, cINT, cHANDLE, cHANDLE, cHANDLE, cLPVOID ])
+    CreateWindowEx.native ??= user32.func('CreateWindowExW', cHANDLE, [ cDWORD, cPWSTR, cPWSTR, cDWORD, cINT, cINT, cINT, cINT, cHANDLE, cHANDLE, cHANDLE, cPVOID ])
     return CreateWindowEx.native(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam)
 }
 
@@ -134,7 +134,7 @@ export function EnumWindows(lpEnumFunc: WNDENUMPROC, lpParam: LPARAM): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindoww
  */
 export function FindWindow(lpClassName: string | null, lpWindowName: string | null): HWND | null {
-    FindWindow.native ??= user32.func('FindWindowW', cHANDLE, [ cLPCWSTR, cLPCWSTR ])
+    FindWindow.native ??= user32.func('FindWindowW', cHANDLE, [ cPWSTR, cPWSTR ])
     return FindWindow.native(lpClassName, lpWindowName)
 }
 
@@ -144,7 +144,7 @@ export function FindWindow(lpClassName: string | null, lpWindowName: string | nu
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowexw
  */
 export function FindWindowEx(hWndParent: HWND | HWND_ | null, hWndChildAfter: HWND | null, lpClassName: string | null, lpWindowName: string | null): HWND | null {
-    FindWindowEx.native ??= user32.func('FindWindowExW', cHANDLE, [ cHANDLE, cHANDLE, cLPCWSTR, cLPCWSTR ])
+    FindWindowEx.native ??= user32.func('FindWindowExW', cHANDLE, [ cHANDLE, cHANDLE, cPWSTR, cPWSTR ])
     return FindWindowEx.native(hWndParent, hWndChildAfter, lpClassName, lpWindowName)
 }
 
@@ -178,7 +178,7 @@ export function GetForegroundWindow(): HWND {
  *
  */
 export function GetWindowThreadProcessId(hWnd: HWND): [ number, number ] {
-    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cLPDWORD) ])
+    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cPDWORD) ])
 
     const int: OUT<number> = [ 0 ]
     const tid = GetWindowThreadProcessId.native(hWnd, int)
@@ -191,7 +191,7 @@ export function GetWindowThreadProcessId(hWnd: HWND): [ number, number ] {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
  */
 export function GetWindowText(hWnd: HWND): string {
-    GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cLPWSTR), cINT ])
+    GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cPWSTR), cINT ])
 
     const out = new Uint16Array(512)
     const len = GetWindowText.native(hWnd, out, out.length)

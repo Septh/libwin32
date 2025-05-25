@@ -1,5 +1,5 @@
 import { koffi, textDecoder } from '../private.js'
-import { cBOOL, cDWORD, cLPDWORD, cLPWSTR, type OUT } from '../ctypes.js'
+import { cBOOL, cDWORD, cPDWORD, cPWSTR, type OUT } from '../ctypes.js'
 import { kernel32 } from './_lib.js'
 
 /**
@@ -18,7 +18,7 @@ export function Beep(dwFreq: number, dwDuration: number): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getcomputernamew
  */
 export function GetComputerName(): string | null {
-    GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cLPWSTR, koffi.inout(cLPDWORD) ])
+    GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cPWSTR, koffi.inout(cPDWORD) ])
 
     const out = new Uint16Array(256)
     const len: OUT<number> = [ out.length ]

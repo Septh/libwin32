@@ -1,5 +1,5 @@
 import {
-    cBOOL, cLPCWSTR, cHANDLE,
+    cBOOL, cPWSTR, cHANDLE,
     type HINSTANCE, type HICON
 } from '../ctypes.js'
 import type { IDI_ } from '../consts/IDI.js'
@@ -21,6 +21,6 @@ export function DestroyIcon(hIcon: HICON): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadiconw
  */
 export function LoadIcon(hInstance: HINSTANCE | null, lpIconName: IDI_ | string): HICON | null {
-    LoadIcon.native ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cLPCWSTR ])
+    LoadIcon.native ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cPWSTR ])
     return LoadIcon.native(hInstance, lpIconName)
 }

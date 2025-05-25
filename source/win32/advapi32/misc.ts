@@ -1,5 +1,5 @@
 import { koffi, textDecoder } from '../private.js'
-import { cBOOL, cLPDWORD, cLPWSTR, type OUT } from '../ctypes.js'
+import { cBOOL, cPDWORD, cPWSTR, type OUT } from '../ctypes.js'
 import { UNLEN } from '../consts/EXTENDED_NAME_FORMAT.js'
 import { advapi32 } from './_lib.js'
 
@@ -9,7 +9,7 @@ import { advapi32 } from './_lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getusernamew
  */
 export function GetUserName(): string | null {
-    GetUserName.native ??= advapi32.func('GetUserNameW', cBOOL, [ cLPWSTR, koffi.inout(cLPDWORD) ])
+    GetUserName.native ??= advapi32.func('GetUserNameW', cBOOL, [ cPWSTR, koffi.inout(cPDWORD) ])
 
     const out = new Uint16Array(UNLEN + 1)
     const len: OUT<number> = [ out.length ]

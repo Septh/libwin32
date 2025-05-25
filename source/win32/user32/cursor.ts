@@ -1,6 +1,6 @@
 import { koffi } from '../private.js'
 import {
-    cBOOL, cLPCWSTR, cHANDLE,
+    cBOOL, cPWSTR, cHANDLE,
     cPOINT, type POINT,
     type HINSTANCE, type HCURSOR
 } from '../ctypes.js'
@@ -33,6 +33,6 @@ export function GetCursorPos(lpPoint: POINT): number {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursorw
  */
 export function LoadCursor(hInstance:  HINSTANCE | null, lpIconName: IDC_ | string): HCURSOR | null {
-    LoadCursor.native ??= user32.func('LoadCursorW', cHANDLE, [ cHANDLE, cLPCWSTR ])
+    LoadCursor.native ??= user32.func('LoadCursorW', cHANDLE, [ cHANDLE, cPWSTR ])
     return LoadCursor.native(hInstance, lpIconName)
 }

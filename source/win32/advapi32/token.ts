@@ -1,6 +1,6 @@
 import { koffi, textDecoder } from '../private.js'
 import {
-    cBOOL, cBYTE, cDWORD, cLPVOID, cLPWSTR, cLPDWORD,
+    cBOOL, cBYTE, cDWORD, cPVOID, cPWSTR, cPDWORD,
     cHANDLE, type HANDLE, type HTOKEN,
     type OUT
 } from '../ctypes.js'
@@ -18,7 +18,7 @@ export interface SID {
 export const cSID = koffi.struct({
     Revision:          cBYTE,
     SubAuthorityCount: cBYTE,
-    SubAuthority:      cLPVOID,     // DWORD *SubAuthority[]
+    SubAuthority:      cPVOID,     // DWORD *SubAuthority[]
 }), cPSID = koffi.pointer(cSID)
 
 /**
@@ -27,7 +27,7 @@ export const cSID = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS): unknown | null {
-    GetTokenInformation.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cDWORD, koffi.pointer(cLPVOID), cDWORD, koffi.out(cLPVOID) ])
+    GetTokenInformation.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cDWORD, koffi.pointer(cPVOID), cDWORD, koffi.out(cPVOID) ])
 
     const out = new Uint32Array(256)
     const len: OUT<number> = [ 0 ]
@@ -46,10 +46,10 @@ export function LookupAccountSid(
     Sid: SID
 ): { Name: string, ReferencedDomainName: string, peUse: SID_NAME_USE } | null {
     LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [
-        cLPWSTR, cPSID,
-        koffi.out(cLPWSTR), koffi.inout(cLPDWORD),
-        koffi.out(cLPWSTR), koffi.inout(cLPDWORD),
-        koffi.out(cLPDWORD)
+        cPWSTR, cPSID,
+        koffi.out(cPWSTR), koffi.inout(cPDWORD),
+        koffi.out(cPWSTR), koffi.inout(cPDWORD),
+        koffi.out(cPDWORD)
     ])
 
     const name = new Uint16Array(256)

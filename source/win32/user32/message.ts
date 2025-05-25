@@ -1,6 +1,6 @@
 import { koffi } from '../private.js'
 import {
-    cVOID, cBOOL, cDWORD, cINT, cUINT, cLONG, cLPDWORD,
+    cVOID, cBOOL, cDWORD, cINT, cUINT, cLONG, cPDWORD,
     cLPARAM, type LPARAM, cWPARAM, type WPARAM, cLRESULT, type LRESULT,
     cHANDLE, type HWND, type POINT, type HDESK,
     cLUID, type LUID,
@@ -50,7 +50,7 @@ export class BSMINFO {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
 export function BroadcastSystemMessage(flags: BSF_, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM): [number, number | null] {
-    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM])
+    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM])
 
     const out = typeof lpInfo === 'number' ? [lpInfo] as OUT<number> : null
     const ret = BroadcastSystemMessage.native(flags, out, Msg, wParam, lParam)
@@ -66,7 +66,7 @@ export function BroadcastSystemMessage(flags: BSF_, lpInfo: number | null, Msg: 
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
  */
 export function BroadcastSystemMessageEx(flags: BSF_, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null = null): [number, number | null] {
-    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [cDWORD, koffi.inout(cLPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(cPBSMINFO)])
+    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(cPBSMINFO)])
 
     const out = typeof lpInfo === 'string' ? [lpInfo] as OUT<number> : null
     const ret = BroadcastSystemMessageEx.native(flags, out, Msg, wParam, lParam, psbmInfo)

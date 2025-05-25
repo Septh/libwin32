@@ -1,5 +1,5 @@
 import { koffi, textDecoder } from '../private.js'
-import { cBOOL, cINT, cLPDWORD, cLPWSTR, type OUT } from '../ctypes.js'
+import { cBOOL, cINT, cPDWORD, cPWSTR, type OUT } from '../ctypes.js'
 import { UNLEN, type EXTENDED_NAME_FORMAT } from '../consts/EXTENDED_NAME_FORMAT.js'
 import { secur32 } from './_lib.js'
 
@@ -9,7 +9,7 @@ import { secur32 } from './_lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getusernameexw
  */
 export function GetUserNameEx(NameFormat: EXTENDED_NAME_FORMAT): string | null {
-    GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cLPWSTR, koffi.inout(cLPDWORD) ])
+    GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cPWSTR, koffi.inout(cPDWORD) ])
 
     const out = new Uint16Array(UNLEN)
     const len: OUT<number> = [ out.length ]

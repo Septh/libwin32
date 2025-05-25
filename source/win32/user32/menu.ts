@@ -1,5 +1,5 @@
 import {
-    cBOOL, cUINT, cLPCWSTR, cHANDLE,
+    cBOOL, cUINT, cPWSTR, cHANDLE,
     cRECT, type RECT,
     type HWND, type HMENU
 } from '../ctypes.js'
@@ -43,7 +43,7 @@ export function DestroyMenu(hMenu: HMENU): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
  */
 export function AppendMenu(hMenu: HMENU, uFlags: MF_, uIDNewItem: number | HMENU, lpNewItem: string | null): boolean {
-    AppendMenu.native ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cLPCWSTR ]);
+    AppendMenu.native ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cPWSTR ]);
     return !!AppendMenu.native(hMenu, uFlags, uIDNewItem, lpNewItem)
 }
 

@@ -1,5 +1,5 @@
 import { koffi, textDecoder } from '../private.js'
-import { cBOOL, cDWORD, cHANDLE, cLPDWORD, cLPWSTR, type HANDLE, type OUT } from '../ctypes.js'
+import { cBOOL, cDWORD, cHANDLE, cPDWORD, cPWSTR, type HANDLE, type OUT } from '../ctypes.js'
 import type { PSAR_ } from '../consts/PSAR.js'
 import { kernel32 } from './_lib.js'
 
@@ -41,7 +41,7 @@ export function OpenProcess(dwDesiredAccess: PSAR_, bInheritHandle: boolean, dwP
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-queryfullprocessimagenamew
  */
 export function QueryFullProcessImageName(hProcess: HANDLE, dwFlags: number): string | null {
-    QueryFullProcessImageName.native ??= kernel32.func('QueryFullProcessImageNameW', cBOOL, [ cHANDLE, cDWORD, koffi.out(cLPWSTR), koffi.inout(cLPDWORD) ])
+    QueryFullProcessImageName.native ??= kernel32.func('QueryFullProcessImageNameW', cBOOL, [ cHANDLE, cDWORD, koffi.out(cPWSTR), koffi.inout(cPDWORD) ])
 
     const exeName = new Uint16Array(256)
     const dwSize: OUT<number> = [ exeName.length ]

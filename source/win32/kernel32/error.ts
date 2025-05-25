@@ -1,5 +1,5 @@
 import { textDecoder } from '../private.js'
-import { cDWORD, cLPCVOID, cLPWSTR, cVOID, type HMODULE } from '../ctypes.js'
+import { cDWORD, cPVOID, cPWSTR, cVOID, type HMODULE } from '../ctypes.js'
 import type { FORMAT_MESSAGE_ } from '../consts/FORMAT_MESSAGE.js'
 import { kernel32 } from './_lib.js'
 
@@ -12,7 +12,7 @@ import { kernel32 } from './_lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
  */
 export function FormatMessage(dwFlags: FORMAT_MESSAGE_, lpSource: HMODULE | string | null, dwMessageId: number, dwLanguageId: number): string {
-    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cLPCVOID, cDWORD, cDWORD, cLPWSTR, cDWORD, '...' as any ])
+    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cPVOID, cDWORD, cDWORD, cPWSTR, cDWORD, '...' as any ])
 
     const out = new Uint16Array(2048)
     const len = FormatMessage.native(
