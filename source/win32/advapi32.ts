@@ -2,7 +2,9 @@ import { koffi, Win32Dll, textDecoder } from './private.js'
 import {
     cBOOL, cDWORD, cULONG, cPVOID, cPDWORD, cPWSTR, cNTSTATUS,
     cHANDLE, type HANDLE, type HTOKEN, type LSA_HANDLE,
-    type OUT
+    type OUT,
+    cBYTE,
+    cVOID
 } from './ctypes.js'
 import {
     cACL, type ACL,
@@ -28,7 +30,8 @@ import {
     cTOKEN_PRIVILEGES, type TOKEN_PRIVILEGES,
     cTOKEN_SOURCE, type TOKEN_SOURCE,
     cTOKEN_STATISTICS, type TOKEN_STATISTICS,
-    cTOKEN_USER, type TOKEN_USER
+    cTOKEN_USER, type TOKEN_USER,
+    cSID_IDENTIFIER_AUTHORITY, type SID_IDENTIFIER_AUTHORITY
 } from './structs.js'
 import {
     UNLEN, TOKEN_INFORMATION_CLASS,
@@ -38,7 +41,37 @@ import {
     type TOKEN_
 } from './consts.js'
 
-export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
+const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
+
+const allocs: Map<any, any> = /*#__PURE__*/new Map()
+
+/**
+ * The AllocateAndInitializeSid function allocates and initializes a security identifier (SID) with up to eight subauthorities.
+ */
+export function AllocateAndInitializeSid(pIdentifierAuthority: SID_IDENTIFIER_AUTHORITY, nSubAuthorityCount: number, nSubAuthority0: number, nSubAuthority1: number, nSubAuthority2: number, nSubAuthority3: number, nSubAuthority4: number, nSubAuthority5: number, nSubAuthority6: number, nSubAuthority7: number): SID | null {
+    AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [ koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, koffi.out(koffi.pointer(cSID)) ])
+
+    const pSID: OUT<SID> = [ null! ]
+    if (!AllocateAndInitializeSid.native(pIdentifierAuthority, nSubAuthorityCount, nSubAuthority0, nSubAuthority1, nSubAuthority2, nSubAuthority3, nSubAuthority4, nSubAuthority5, nSubAuthority6, nSubAuthority7, pSID))
+        return null
+
+    const sid: SID = koffi.decode(pSID[0], cSID)
+    allocs.set(sid, pSID[0])
+    return sid
+}
+
+/**
+ * The FreeSid function frees a security identifier (SID) previously allocated by using the AllocateAndInitializeSid function.
+ */
+export function FreeSid(pSid: SID): void {
+    FreeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
+
+    const ptr = allocs.get(pSid)
+    if (ptr) {
+        allocs.delete(pSid)
+        FreeSid.native(ptr)
+    }
+}
 
 /**
  * Retrieves a specified type of information about an access token. The calling process must have appropriate access rights to obtain the information.

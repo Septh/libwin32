@@ -132,6 +132,50 @@ export enum CW_ {
 export const UNLEN = 256
 
 /**
+ * well-known aliases...
+ */
+export enum DOMAIN_ALIAS_ {
+    RID_ADMINS                         = 0x00000220,
+    RID_USERS                          = 0x00000221,
+    RID_GUESTS                         = 0x00000222,
+    RID_POWER_USERS                    = 0x00000223,
+    RID_ACCOUNT_OPS                    = 0x00000224,
+    RID_SYSTEM_OPS                     = 0x00000225,
+    RID_PRINT_OPS                      = 0x00000226,
+    RID_BACKUP_OPS                     = 0x00000227,
+    RID_REPLICATOR                     = 0x00000228,
+    RID_RAS_SERVERS                    = 0x00000229,
+    RID_PREW2KCOMPACCESS               = 0x0000022A,
+    RID_REMOTE_DESKTOP_USERS           = 0x0000022B,
+    RID_NETWORK_CONFIGURATION_OPS      = 0x0000022C,
+    RID_INCOMING_FOREST_TRUST_BUILDERS = 0x0000022D,
+    RID_MONITORING_USERS               = 0x0000022E,
+    RID_LOGGING_USERS                  = 0x0000022F,
+    RID_AUTHORIZATIONACCESS            = 0x00000230,
+    RID_TS_LICENSE_SERVERS             = 0x00000231,
+    RID_DCOM_USERS                     = 0x00000232,
+    RID_IUSERS                         = 0x00000238,
+    RID_CRYPTO_OPERATORS               = 0x00000239,
+    RID_CACHEABLE_PRINCIPALS_GROUP     = 0x0000023B,
+    RID_NON_CACHEABLE_PRINCIPALS_GROUP = 0x0000023C,
+    RID_EVENT_LOG_READERS_GROUP        = 0x0000023D,
+    RID_CERTSVC_DCOM_ACCESS_GROUP      = 0x0000023E,
+    RID_RDS_REMOTE_ACCESS_SERVERS      = 0x0000023F,
+    RID_RDS_ENDPOINT_SERVERS           = 0x00000240,
+    RID_RDS_MANAGEMENT_SERVERS         = 0x00000241,
+    RID_HYPER_V_ADMINS                 = 0x00000242,
+    RID_ACCESS_CONTROL_ASSISTANCE_OPS  = 0x00000243,
+    RID_REMOTE_MANAGEMENT_USERS        = 0x00000244,
+    RID_DEFAULT_ACCOUNT                = 0x00000245,
+    RID_STORAGE_REPLICA_ADMINS         = 0x00000246,
+    RID_DEVICE_OWNERS                  = 0x00000247,
+    RID_USER_MODE_HARDWARE_OPERATORS   = 0x00000248,
+    RID_OPENSSH_USERS                  = 0x00000249,
+}
+
+export const SECURITY_NT_AUTHORITY: [ number, number, number, number, number, number ] = [ 0, 0, 0, 0, 0, 5 ]
+
+/**
  * Extended Name APIs for ADS.
  */
 export enum EXTENDED_NAME_FORMAT {
@@ -520,6 +564,103 @@ export enum PM_ {
     QS_TIMER   = (QS_.TIMER << 16),
     QS_PAINT   = (QS_.PAINT << 16),
     QS_SENDMSG = (QS_.SENDMSG << 16)
+}
+
+/**
+ *
+ */
+export const enum SECURITY_ {
+    DIALUP_RID                                    = 0x00000001,
+    NETWORK_RID                                   = 0x00000002,
+    BATCH_RID                                     = 0x00000003,
+    INTERACTIVE_RID                               = 0x00000004,
+    LOGON_IDS_RID                                 = 0x00000005,
+    LOGON_IDS_RID_COUNT                           = 3,
+    SERVICE_RID                                   = 0x00000006,
+    ANONYMOUS_LOGON_RID                           = 0x00000007,
+    PROXY_RID                                     = 0x00000008,
+    ENTERPRISE_CONTROLLERS_RID                    = 0x00000009,
+    SERVER_LOGON_RID                              = ENTERPRISE_CONTROLLERS_RID,
+    PRINCIPAL_SELF_RID                            = 0x0000000A,
+    AUTHENTICATED_USER_RID                        = 0x0000000B,
+    RESTRICTED_CODE_RID                           = 0x0000000C,
+    TERMINAL_SERVER_RID                           = 0x0000000D,
+    REMOTE_LOGON_RID                              = 0x0000000E,
+    THIS_ORGANIZATION_RID                         = 0x0000000F,
+    IUSER_RID                                     = 0x00000011,
+    LOCAL_SYSTEM_RID                              = 0x00000012,
+    LOCAL_SERVICE_RID                             = 0x00000013,
+    NETWORK_SERVICE_RID                           = 0x00000014,
+    NT_NON_UNIQUE                                 = 0x00000015,
+    NT_NON_UNIQUE_SUB_AUTH_COUNT                  = 3,
+    ENTERPRISE_READONLY_CONTROLLERS_RID           = 0x00000016,
+    BUILTIN_DOMAIN_RID                            = 0x00000020,
+    WRITE_RESTRICTED_CODE_RID                     = 0x00000021,
+    PACKAGE_BASE_RID                              = 0x00000040,
+    PACKAGE_RID_COUNT                             = 2,
+    PACKAGE_NTLM_RID                              = 0x0000000A,
+    PACKAGE_SCHANNEL_RID                          = 0x0000000E,
+    PACKAGE_DIGEST_RID                            = 0x00000015,
+    CRED_TYPE_BASE_RID                            = 0x00000041,
+    CRED_TYPE_RID_COUNT                           = 2,
+    CRED_TYPE_THIS_ORG_CERT_RID                   = 0x00000001,
+    MIN_BASE_RID                                  = 0x00000050,
+    SERVICE_ID_BASE_RID                           = 0x00000050,
+    SERVICE_ID_RID_COUNT                          = 6,
+    RESERVED_ID_BASE_RID                          = 0x00000051,
+    APPPOOL_ID_BASE_RID                           = 0x00000052,
+    APPPOOL_ID_RID_COUNT                          = 6,
+    VIRTUALSERVER_ID_BASE_RID                     = 0x00000053,
+    VIRTUALSERVER_ID_RID_COUNT                    = 6,
+    USERMODEDRIVERHOST_ID_BASE_RID                = 0x00000054,
+    USERMODEDRIVERHOST_ID_RID_COUNT               = 6,
+    CLOUD_INFRASTRUCTURE_SERVICES_ID_BASE_RID     = 0x00000055,
+    CLOUD_INFRASTRUCTURE_SERVICES_ID_RID_COUNT    = 6,
+    WMIHOST_ID_BASE_RID                           = 0x00000056,
+    WMIHOST_ID_RID_COUNT                          = 6,
+    TASK_ID_BASE_RID                              = 0x00000057,
+    NFS_ID_BASE_RID                               = 0x00000058,
+    COM_ID_BASE_RID                               = 0x00000059,
+    WINDOW_MANAGER_BASE_RID                       = 0x0000005A,
+    RDV_GFX_BASE_RID                              = 0x0000005B,
+    DASHOST_ID_BASE_RID                           = 0x0000005C,
+    DASHOST_ID_RID_COUNT                          = 6,
+    USERMANAGER_ID_BASE_RID                       = 0x0000005D,
+    USERMANAGER_ID_RID_COUNT                      = 6,
+    WINRM_ID_BASE_RID                             = 0x0000005E,
+    WINRM_ID_RID_COUNT                            = 6,
+    CCG_ID_BASE_RID                               = 0x0000005F,
+    UMFD_BASE_RID                                 = 0x00000060,
+    UNIQUIFIED_SERVICE_BASE_RID                   = 0x00000061,
+    VIRTUALACCOUNT_ID_RID_COUNT                   = 6,
+    EDGE_CLOUD_INFRASTRUCTURE_SERVICE_ID_BASE_RID = 0x00000062,
+    RESTRICTED_SERVICES_BASE_RID                  = 0x00000063,
+    RESTRICTED_SERVICES_RID_COUNT                 = 6,
+    //
+    // Virtual account logon is not limited to inbox callers.  Reserve base RID 0x6F for application usage.
+    //
+    MAX_BASE_RID                                  = 0x0000006F,
+    MAX_ALWAYS_FILTERED                           = 0x000003E7,
+    MIN_NEVER_FILTERED                            = 0x000003E8,
+    OTHER_ORGANIZATION_RID                        = 0x000003E8,
+    //
+    //Service SID type RIDs are in the range 0x50- 0x6F.  Therefore, we are giving  the next available RID to Windows Mobile team.
+    //
+    WINDOWSMOBILE_ID_BASE_RID                     = 0x00000070,
+    //
+    // Installer Capability Group Sid related. Currently Base RID is same as LOCAL DOMAIN.
+    //
+    INSTALLER_GROUP_CAPABILITY_BASE               = 0x20,
+    INSTALLER_GROUP_CAPABILITY_RID_COUNT          = 9,
+    // Note: This is because the App Capability Rid is S-1-15-3-1024-...
+    //       whereas the service group rid is          S-1-5-32-...
+    //	The number of RIDs from hash (8) are the same for both
+    INSTALLER_CAPABILITY_RID_COUNT                = 10,
+    //
+    //Well-known group for local accounts
+    //
+    LOCAL_ACCOUNT_RID                             = 0x00000071,
+    LOCAL_ACCOUNT_AND_ADMIN_RID                   = 0x00000072,
 }
 
 /**

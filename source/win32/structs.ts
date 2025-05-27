@@ -1,17 +1,15 @@
 import { koffi } from './private.js'
 import {
-    cINT, cUINT, cBYTE, cSHORT, cUSHORT, cLONG, cULONG, cDWORD, cPVOID, cPWSTR,
-    cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND,
+    cINT, cUINT, cCHAR, cBYTE, cSHORT, cUSHORT, cWORD,
+    cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cDWORD64, cPVOID, cPWSTR,
+    cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN,
     cWNDPROC, type WNDPROC, cWPARAM, type WPARAM, cLPARAM, type LPARAM,
-    cWORD,
-    cCHAR,
-    cLONGLONG,
-    type HTOKEN,
-    cULONG_PTR,
-    cLONG64,
-    cDWORD64
 } from './ctypes.js'
-import type { CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_, CS_, NIF_, SECURITY_IMPERSONATION_LEVEL, TOKEN_TYPE_ } from './consts.js'
+import type {
+    CS_, NIF_,
+    CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_,
+    SECURITY_IMPERSONATION_LEVEL, TOKEN_TYPE_
+} from './consts.js'
 
 /**
  * The POINT structure defines the x- and y-coordinates of a point.
@@ -309,6 +307,13 @@ export const cSID = koffi.struct('SID', {
     SubAuthorityCount:   cBYTE,
     SubAuthority:        koffi.array(cDWORD, 1, 'Array')   // DWORD SubAuthority[]
 })
+
+/**
+ * The SID_IDENTIFIER_AUTHORITY structure represents the top-level authority of a security identifier (SID).
+ */
+export type SID_IDENTIFIER_AUTHORITY = [ number, number, number, number, number, number ]
+
+export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6)
 
 /**
  * The SID_AND_ATTRIBUTES structure represents a security identifier (SID) and its attributes.
