@@ -18,7 +18,8 @@ import type {
     WS_, WS_EX_, WM_, HWND_,
     AW_, MF_, BSF_, GA_,
     IDC_, IDI_, OIC_, OCR_, OBM_, IMAGE_,
-    LR_, MB_, SW_, TPM_
+    LR_, MB_, SW_, TPM_,
+    BSM_
 } from './consts.js'
 
 const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
@@ -28,9 +29,9 @@ const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrect
  */
-export function AdjustWindowRect(lpRect: RECT, dwStyle: WS_, bMenu: boolean ): boolean {
+export function AdjustWindowRect(lpRect: RECT, dwStyle: WS_, bMenu: boolean): boolean {
     AdjustWindowRect.native ??= user32.func('AdjustWindowRect', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL ])
-    return !!AdjustWindowRect.native(lpRect, dwStyle, Number(bMenu))
+    return Boolean(AdjustWindowRect.native(lpRect, dwStyle, Number(bMenu)))
 }
 
 /**
@@ -40,7 +41,7 @@ export function AdjustWindowRect(lpRect: RECT, dwStyle: WS_, bMenu: boolean ): b
  */
 export function AdjustWindowRectEx(lpRect: RECT, dwStyle: WS_, bMenu: boolean, cwExStyle: WS_EX_): boolean {
     AdjustWindowRectEx.native ??= user32.func('AdjustWindowRectEx', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL, cDWORD ])
-    return !!AdjustWindowRectEx.native(lpRect, dwStyle, Number(bMenu), cwExStyle)
+    return Boolean(AdjustWindowRectEx.native(lpRect, dwStyle, Number(bMenu), cwExStyle))
 }
 
 /**
@@ -60,7 +61,7 @@ export function AdjustWindowRectExForDpi(lpRect: RECT, dwStyle: WS_, bMenu: bool
  */
 export function AnimateWindow(hWnd: HWND, dwTime: number, dwFlags: AW_): boolean {
     AnimateWindow.native ??= user32.func('AnimateWindow', cBOOL, [ cHANDLE, cDWORD, cDWORD ])
-    return !!AnimateWindow.native(hWnd, dwTime, dwFlags)
+    return Boolean(AnimateWindow.native(hWnd, dwTime, dwFlags))
 }
 
 /**
@@ -70,7 +71,7 @@ export function AnimateWindow(hWnd: HWND, dwTime: number, dwFlags: AW_): boolean
  */
 export function AppendMenu(hMenu: HMENU, uFlags: MF_, uIDNewItem: number | HMENU, lpNewItem: string | null): boolean {
     AppendMenu.native ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cPWSTR ]);
-    return !!AppendMenu.native(hMenu, uFlags, uIDNewItem, lpNewItem)
+    return Boolean(AppendMenu.native(hMenu, uFlags, uIDNewItem, lpNewItem))
 }
 
 /**
@@ -80,38 +81,37 @@ export function AppendMenu(hMenu: HMENU, uFlags: MF_, uIDNewItem: number | HMENU
  */
 export function BringWindowToTop(hWnd: HWND): boolean {
     BringWindowToTop.native ??= user32.func('BringWindowToTop', cBOOL, [ cHANDLE ])
-    return !!BringWindowToTop.native(hWnd)
+    return Boolean(BringWindowToTop.native(hWnd))
 }
 
 /**
  * Sends a message to the specified recipients.
  *
- * Note: in libwin32, the function returns a tuple of `[ success, lpInfo ]`.
- *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
-export function BroadcastSystemMessage(flags: BSF_, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM): [number, number | null] {
-    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM])
+export function BroadcastSystemMessage(flags: BSF_, lpInfo: BSM_ | null, Msg: number, wParam: WPARAM, lParam: LPARAM): { success: boolean, lpInfo: BSM_ | null } {
+    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM ])
 
-    const out = typeof lpInfo === 'number' ? [lpInfo] as OUT<number> : null
-    const ret = BroadcastSystemMessage.native(flags, out, Msg, wParam, lParam)
-    return [ret, out?.[0] ?? null]
+    const out: OUT<BSM_> | null = typeof lpInfo === 'number' ? [ lpInfo ] : null
+    return BroadcastSystemMessage.native(flags, out, Msg, wParam, lParam) > 0
+        ? { success: true,  lpInfo: out?.[0] ?? null }
+        : { success: false, lpInfo: null }
 }
 
 /**
  * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
  * except that this function can return more information from the recipients.
  *
- * Note: in libwin32, the function returns a tuple of `[ success, lpInfo ]`.
- *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
+ *
  */
-export function BroadcastSystemMessageEx(flags: BSF_, lpInfo: number | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null = null): [number, number | null] {
-    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO))])
+export function BroadcastSystemMessageEx(flags: BSF_, lpInfo: BSM_ | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null = null): { success: boolean, lpInfo: BSM_ | null } {
+    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
 
-    const out = typeof lpInfo === 'string' ? [lpInfo] as OUT<number> : null
-    const ret = BroadcastSystemMessageEx.native(flags, out, Msg, wParam, lParam, psbmInfo)
-    return [ret, out?.[0] ?? null]
+    const out: OUT<BSM_> | null = typeof lpInfo === 'string' ? [ lpInfo ] : null
+    return BroadcastSystemMessageEx.native(flags, out, Msg, wParam, lParam, psbmInfo)
+        ? { success: true,  lpInfo: out?.[0] ?? null }
+        : { success: false, lpInfo: null }
 }
 
 /**
