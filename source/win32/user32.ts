@@ -324,9 +324,11 @@ export function GetClassName(hWnd: HWND): string {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
  */
-export function GetCursorPos(lpPoint: POINT): number {
-    GetCursorPos.native ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(cPOINT) ])
-    return GetCursorPos.native(lpPoint)
+export function GetCursorPos(): POINT | null {
+    GetCursorPos.native ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(koffi.pointer(cPOINT)) ])
+
+    const out: OUT<POINT> = [ {} as POINT ]
+    return GetCursorPos.native(out) ? out[0] : null
 }
 
 /**
@@ -347,8 +349,8 @@ export function GetForegroundWindow(): HWND {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagew
  */
 export function GetMessage(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number): boolean {
-    GetMessage.native ??= user32.func('GetMessageW', cBOOL, [koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT])
-    return !!GetMessage.native(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax)
+    GetMessage.native ??= user32.func('GetMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT ])
+    return Boolean(GetMessage.native(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax))
 }
 
 /**
