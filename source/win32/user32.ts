@@ -1,6 +1,6 @@
 import { koffi, Win32Dll, textDecoder } from './private.js'
 import {
-    cVOID, cBOOL, cINT, cUINT, cLONG, cDWORD, cPVOID, cPDWORD, cPWSTR,
+    cVOID, cBOOL, cINT, cUINT, cWORD, cLONG, cDWORD, cPVOID, cPDWORD, cPWSTR,
     cATOM, type ATOM, cHANDLE, type HINSTANCE, type HCURSOR, type HICON, type HMENU, type HWND,
     cLRESULT, type LRESULT, cLPARAM, type LPARAM, cWPARAM, type WPARAM,
     cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
@@ -413,6 +413,18 @@ export function LoadImage(hInstance: HINSTANCE | null, lpName: IDC_ | IDI_ | OIC
 export function MessageBox(hWnd: HWND | null, lpText: string | null, lpCaption: string | null, uType: MB_): number {
     MessageBox.native ??= user32.func('MessageBoxW', cINT, [ cHANDLE, cPWSTR, cPWSTR, cUINT ])
     return MessageBox.native(hWnd, lpText, lpCaption, uType)
+}
+
+/**
+ * Creates, displays, and operates a message box.
+ *
+ * Currently `MessageBoxEx` and `MessageBox` work the same way.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxexw
+ */
+export function MessageBoxEx(hWnd: HWND | null, lpText: string | null, lpCaption: string | null, uType: MB_, wLanguageId: number): number {
+    MessageBoxEx.native ??= user32.func('MessageBoxExW', cINT, [ cHANDLE, cPWSTR, cPWSTR, cUINT, cWORD ])
+    return MessageBoxEx.native(hWnd, lpText, lpCaption, uType, wLanguageId)
 }
 
 /**
