@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { regex } from 'regex'
 import MagicString from 'magic-string'
 import type { Plugin } from 'rollup'
@@ -34,8 +33,6 @@ import type { Plugin } from 'rollup'
  */
 export function enums(): Plugin {
 
-    const constsBase = path.join('win32', 'consts', 'X').slice(0, -1)
-
     // https://regex101.com/r/1nyPC3/5
     const enumRx = regex('gsd')`
       (?<intro>
@@ -53,9 +50,6 @@ export function enums(): Plugin {
         name: 'libwin32-tree-shakeable-enums',
 
         transform(code, id) {
-            if (!id.includes(constsBase))
-                return null
-
             const ms = new MagicString(code)
             const indent = ms.getIndentString()
 
