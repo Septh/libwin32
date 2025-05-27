@@ -390,7 +390,7 @@ export function GetWindowThreadProcessId(hWnd: HWND): { threadId: number, proces
  */
 export function LoadCursor(hInstance:  HINSTANCE | null, lpIconName: IDC_ | string): HCURSOR | null {
     LoadCursor.native ??= user32.func('LoadCursorW', cHANDLE, [ cHANDLE, cPWSTR ])
-    return LoadCursor.native(hInstance, lpIconName)
+    return LoadCursor.native(hInstance, lpIconName) || null
 }
 
 /**
@@ -400,7 +400,7 @@ export function LoadCursor(hInstance:  HINSTANCE | null, lpIconName: IDC_ | stri
  */
 export function LoadIcon(hInstance: HINSTANCE | null, lpIconName: IDI_ | string): HICON | null {
     LoadIcon.native ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cPWSTR ])
-    return LoadIcon.native(hInstance, lpIconName)
+    return LoadIcon.native(hInstance, lpIconName) || null
 }
 
 /**
@@ -410,7 +410,7 @@ export function LoadIcon(hInstance: HINSTANCE | null, lpIconName: IDI_ | string)
  */
 export function LoadImage(hInstance: HINSTANCE | null, lpName: IDC_ | IDI_ | OIC_ | OCR_ | OBM_ | string, type: IMAGE_, cx: number, cy: number, fuLoad: LR_): HICON | null {
     LoadImage.native ??= user32.func('LoadImageW', cHANDLE, [cHANDLE, cPWSTR, cUINT, cINT, cINT, cUINT])
-    return LoadImage.native(hInstance, lpName, type, cx, cy, fuLoad)
+    return LoadImage.native(hInstance, lpName, type, cx, cy, fuLoad) || null
 }
 
 /**
@@ -440,9 +440,11 @@ export function MessageBoxEx(hWnd: HWND | null, lpText: string | null, lpCaption
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
  */
-export function PeekMessage(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number, wRemoveMsg: number): boolean {
+export function PeekMessage(hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number, wRemoveMsg: number): MSG | null {
     PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT, cUINT])
-    return !!PeekMessage.native(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg)
+
+    const out: OUT<MSG> = [ {} as MSG ]
+    return PeekMessage.native(out, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg) ? out[0] : null
 }
 
 /**
