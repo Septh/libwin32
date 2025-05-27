@@ -34,7 +34,8 @@ import {
     UNLEN, TOKEN_INFORMATION_CLASS,
     type SID_NAME_USE,
     type NTSTATUS_,
-    type ACCESS_MASK
+    type ACCESS_MASK,
+    type TOKEN_
 } from './consts.js'
 
 export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
@@ -343,7 +344,7 @@ export function LsaOpenPolicy(SystemName: string | null, ObjectAttributes: LSA_O
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken
  */
-export function OpenProcessToken(ProcessHandle: HANDLE, DesiredAccess: ACCESS_MASK): HTOKEN | null {
+export function OpenProcessToken(ProcessHandle: HANDLE, DesiredAccess: TOKEN_): HTOKEN | null {
     OpenProcessToken.native ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const tokenHandle: OUT<HTOKEN> = [ null! ]
