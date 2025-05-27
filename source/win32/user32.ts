@@ -356,7 +356,7 @@ export function GetMessage(hWnd: HWND | null | -1, wMsgFilterMin: number = 0, wM
 }
 
 /**
- * Returns text of the specified window's title bar (if it has one).
+ * Returns the text of the specified window's title bar (if it has one).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
  */
@@ -375,12 +375,12 @@ export function GetWindowText(hWnd: HWND): string {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowthreadprocessid
  *
  */
-export function GetWindowThreadProcessId(hWnd: HWND): [ number, number ] {
+export function GetWindowThreadProcessId(hWnd: HWND): { threadId: number, processId: number } {
     GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cPDWORD) ])
 
-    const int: OUT<number> = [ 0 ]
-    const tid = GetWindowThreadProcessId.native(hWnd, int)
-    return [ tid, int[0] ]
+    const out: OUT<number> = [ 0 ]
+    const threadId = GetWindowThreadProcessId.native(hWnd, out)
+    return { threadId, processId: out[0] }
 }
 
 /**

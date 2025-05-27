@@ -6,7 +6,7 @@ import {
 import { PSAR_ } from 'libwin32/consts'
 
 const windowHref = GetForegroundWindow()
-const processId = GetWindowThreadProcessId(windowHref)[0]
+const { processId } = GetWindowThreadProcessId(windowHref)
 const windowText = GetWindowText(windowHref)
 
 const openProcess = OpenProcess(PSAR_.PROCESS_QUERY_INFORMATION | PSAR_.PROCESS_VM_READ, false, processId)
