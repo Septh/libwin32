@@ -567,6 +567,33 @@ export enum PM_ {
 }
 
 /**
+ * Group attributes
+ */
+export const enum SE_GROUP_ {
+    MANDATORY          = 0x00000001,
+    ENABLED_BY_DEFAULT = 0x00000002,
+    ENABLED            = 0x00000004,
+    OWNER              = 0x00000008,
+    USE_FOR_DENY_ONLY  = 0x00000010,
+    INTEGRITY          = 0x00000020,
+    INTEGRITY_ENABLED  = 0x00000040,
+    LOGON_ID           = 0xC0000000,
+    RESOURCE           = 0x20000000,
+
+    VALID_ATTRIBUTES = (
+        MANDATORY
+        | ENABLED_BY_DEFAULT
+        | ENABLED
+        | OWNER
+        | USE_FOR_DENY_ONLY
+        | LOGON_ID
+        | RESOURCE
+        | INTEGRITY
+        | INTEGRITY_ENABLED
+    )
+}
+
+/**
  *
  */
 export const enum SECURITY_ {
