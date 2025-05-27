@@ -5,33 +5,256 @@ import {
     type OUT
 } from './ctypes.js'
 import {
-    cLSA_UNICODE_STRING, LSA_UNICODE_STRING,
+    cACL, type ACL,
+    cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, type CLAIM_SECURITY_ATTRIBUTES_INFORMATION,
     cLSA_OBJECT_ATTRIBUTES, type LSA_OBJECT_ATTRIBUTES,
-    cSID, type SID
+    cLSA_UNICODE_STRING, LSA_UNICODE_STRING,
+    cLUID_AND_ATTRIBUTES, type LUID_AND_ATTRIBUTES,
+    cSID_AND_ATTRIBUTES_HASH, type SID_AND_ATTRIBUTES_HASH,
+    cSID_AND_ATTRIBUTES, type SID_AND_ATTRIBUTES,
+    cSID, type SID,
+    cTOKEN_ACCESS_INFORMATION, type TOKEN_ACCESS_INFORMATION,
+    cTOKEN_APPCONTAINER_INFORMATION, type TOKEN_APPCONTAINER_INFORMATION,
+    cTOKEN_DEFAULT_DACL, type TOKEN_DEFAULT_DACL,
+    cTOKEN_ELEVATION, type TOKEN_ELEVATION,
+    cTOKEN_GROUPS_AND_PRIVILEGES, type TOKEN_GROUPS_AND_PRIVILEGES,
+    cTOKEN_GROUPS, type TOKEN_GROUPS,
+    cTOKEN_LINKED_TOKEN, type TOKEN_LINKED_TOKEN,
+    cTOKEN_MANDATORY_LABEL, type TOKEN_MANDATORY_LABEL,
+    cTOKEN_MANDATORY_POLICY, type TOKEN_MANDATORY_POLICY,
+    cTOKEN_ORIGIN, type TOKEN_ORIGIN,
+    cTOKEN_OWNER, type TOKEN_OWNER,
+    cTOKEN_PRIMARY_GROUP, type TOKEN_PRIMARY_GROUP,
+    cTOKEN_PRIVILEGES, type TOKEN_PRIVILEGES,
+    cTOKEN_SOURCE, type TOKEN_SOURCE,
+    cTOKEN_STATISTICS, type TOKEN_STATISTICS,
+    cTOKEN_USER, type TOKEN_USER
 } from './structs.js'
 import {
-    UNLEN,
-    type TOKEN_INFORMATION_CLASS,
+    UNLEN, TOKEN_INFORMATION_CLASS,
     type SID_NAME_USE,
     type NTSTATUS_,
     type ACCESS_MASK
 } from './consts.js'
 
-const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
+export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 
 /**
  * Retrieves a specified type of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS): unknown | null {
-    GetTokenInformation.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cDWORD, koffi.pointer(cPVOID), cDWORD, koffi.out(cPVOID) ])
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenUser):                   TOKEN_USER | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenGroups):                 TOKEN_GROUPS | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenPrivileges):             TOKEN_PRIVILEGES | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenOwner):                  TOKEN_OWNER | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenPrimaryGroup):           TOKEN_PRIMARY_GROUP | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenDefaultDacl):            TOKEN_DEFAULT_DACL | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenSource):                 TOKEN_SOURCE | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenType):                   number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenImpersonationLevel):     number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenStatistics):             TOKEN_STATISTICS | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenRestrictedSids):         TOKEN_GROUPS | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenSessionId):              number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges):    TOKEN_GROUPS_AND_PRIVILEGES | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenSandBoxInert):           number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenOrigin):                 TOKEN_ORIGIN | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenElevationType):          number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenLinkedToken):            TOKEN_LINKED_TOKEN | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenElevation):              TOKEN_ELEVATION | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenHasRestrictions):        number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenAccessInformation):      TOKEN_ACCESS_INFORMATION | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed):  number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled):  number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenIntegrityLevel):         TOKEN_MANDATORY_LABEL | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenUIAccess):               number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy):        TOKEN_MANDATORY_POLICY | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenLogonSid):               TOKEN_GROUPS | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenIsAppContainer):         number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenCapabilities):           TOKEN_GROUPS | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenAppContainerSid):        TOKEN_APPCONTAINER_INFORMATION | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenAppContainerNumber):     number | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes):    CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes):  CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenDeviceGroups):           TOKEN_GROUPS | null
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups): TOKEN_GROUPS | null
 
-    const out = new Uint32Array(256)
-    const len: OUT<number> = [ 0 ]
-    return GetTokenInformation.native(TokenHandle, TokenInformationClass, out, out.length, len) === 0
-        ? null
-        : out
+export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: TOKEN_INFORMATION_CLASS) {
+    GetTokenInformation.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cDWORD, koffi.out(cPVOID), cDWORD, koffi.out(cPDWORD) ])
+
+    const out = new Uint8Array(4096)
+    const returnLength: OUT<number> = [ 0 ]
+    if (GetTokenInformation.native(TokenHandle, TokenInformationClass, out, out.byteLength, returnLength) === 0)
+        return null
+
+    switch (TokenInformationClass) {
+        case TOKEN_INFORMATION_CLASS.TokenUser: {
+            const ret: TOKEN_USER = koffi.decode(out, cTOKEN_USER)
+            ret.User.Sid = decodeSid(ret.User.Sid)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenGroups:
+        case TOKEN_INFORMATION_CLASS.TokenRestrictedSids:
+        case TOKEN_INFORMATION_CLASS.TokenLogonSid:
+        case TOKEN_INFORMATION_CLASS.TokenCapabilities:
+        case TOKEN_INFORMATION_CLASS.TokenDeviceGroups:
+        case TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups: {
+            const ret: TOKEN_GROUPS = koffi.decode(out, cTOKEN_GROUPS)
+            ret.Groups = koffi.decode(out, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
+            ret.Groups.forEach(group => group.Sid = decodeSid(group.Sid))
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenPrivileges: {
+            const ret: TOKEN_PRIVILEGES = koffi.decode(out, cTOKEN_PRIVILEGES)
+            ret.Privileges = koffi.decode(out, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenOwner: {
+            const ret: TOKEN_OWNER = koffi.decode(out, cTOKEN_OWNER)
+            ret.Owner = decodeSid(ret.Owner)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenPrimaryGroup: {
+            const ret: TOKEN_PRIMARY_GROUP = koffi.decode(out, cTOKEN_PRIMARY_GROUP)
+            ret.PrimaryGroup = decodeSid(ret.PrimaryGroup)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenDefaultDacl: {
+            const ret: TOKEN_DEFAULT_DACL = koffi.decode(out, cTOKEN_DEFAULT_DACL)
+            ret.DefaultDacl = koffi.decode(ret.DefaultDacl, cACL)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenSource: {
+            const ret: TOKEN_SOURCE = koffi.decode(out, cTOKEN_SOURCE)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenStatistics: {
+            const ret: TOKEN_STATISTICS = koffi.decode(out, cTOKEN_STATISTICS)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges: {
+            const ret: TOKEN_GROUPS_AND_PRIVILEGES = koffi.decode(out, cTOKEN_GROUPS_AND_PRIVILEGES)
+
+            if (ret.Sids && ret.SidCount > 0) {
+                ret.Sids = koffi.decode(ret.Sids, cSID_AND_ATTRIBUTES, ret.SidCount)
+                ret.Sids.forEach(sid => sid.Sid = decodeSid(sid.Sid))
+            }
+            else ret.Sids = []
+
+            if (ret.RestrictedSids && ret.RestrictedSidCount > 0) {
+                ret.RestrictedSids = koffi.decode(ret.RestrictedSids, cSID_AND_ATTRIBUTES, ret.RestrictedSidCount)
+                ret.RestrictedSids.forEach(sid => sid.Sid = decodeSid(sid.Sid))
+            }
+            else ret.RestrictedSids = []
+
+            if (ret.Privileges && ret.PrivilegeCount > 0) {
+                ret.Privileges = koffi.decode(ret.Privileges, cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
+            }
+            else ret.Privileges = []
+
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenOrigin: {
+            const ret: TOKEN_ORIGIN = koffi.decode(out, cTOKEN_ORIGIN)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenLinkedToken: {
+            const ret: TOKEN_LINKED_TOKEN = koffi.decode(out, cTOKEN_LINKED_TOKEN)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenElevation: {
+            const ret: TOKEN_ELEVATION = koffi.decode(out, cTOKEN_ELEVATION)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenAccessInformation: {
+            const ret: TOKEN_ACCESS_INFORMATION = koffi.decode(out, cTOKEN_ACCESS_INFORMATION)
+
+            ret.SidHash = koffi.decode(ret.SidHash, cSID_AND_ATTRIBUTES_HASH)
+            ret.SidHash.SidAttr = koffi.decode(ret.SidHash.SidAttr, cSID_AND_ATTRIBUTES, ret.SidHash.SidCount)
+            ret.SidHash.SidAttr.forEach(sid => sid.Sid = decodeSid(sid.Sid))
+
+            ret.RestrictedSidHash = koffi.decode(ret.RestrictedSidHash, cSID_AND_ATTRIBUTES_HASH)
+            ret.RestrictedSidHash.SidAttr = koffi.decode(ret.RestrictedSidHash.SidAttr, cSID_AND_ATTRIBUTES, ret.RestrictedSidHash.SidCount)
+            ret.RestrictedSidHash.SidAttr.forEach(sid => sid.Sid = decodeSid(sid.Sid))
+
+            ret.CapabilitiesHash = koffi.decode(ret.CapabilitiesHash, cSID_AND_ATTRIBUTES_HASH)
+            ret.CapabilitiesHash.SidAttr = koffi.decode(ret.CapabilitiesHash.SidAttr, cSID_AND_ATTRIBUTES, ret.CapabilitiesHash.SidCount)
+            ret.CapabilitiesHash.SidAttr.forEach(sid => sid.Sid = decodeSid(sid.Sid))
+
+            const { Privileges } = ret
+            ret.Privileges = koffi.decode(Privileges, cTOKEN_PRIVILEGES)
+            ret.Privileges.Privileges = koffi.decode(Privileges, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, ret.Privileges.PrivilegeCount)
+
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenIntegrityLevel: {
+            const ret: TOKEN_MANDATORY_LABEL = koffi.decode(out, cTOKEN_MANDATORY_LABEL)
+            ret.Label.Sid = decodeSid(ret.Label.Sid)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy: {
+            const ret: TOKEN_MANDATORY_POLICY = koffi.decode(out, cTOKEN_MANDATORY_POLICY)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenAppContainerSid: {
+            const ret: TOKEN_APPCONTAINER_INFORMATION = koffi.decode(out, cTOKEN_APPCONTAINER_INFORMATION)
+            ret.TokenAppContainer = decodeSid(ret.TokenAppContainer)
+            return ret
+        }
+
+        case TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes:
+        case TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes: {
+            const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(out, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
+            if (ret.Attribute && ret.AttributeCount > 0) {
+                // TODO
+            }
+            return ret
+        }
+
+        // Theses queries return a DWORD.
+        case TOKEN_INFORMATION_CLASS.TokenType:
+        case TOKEN_INFORMATION_CLASS.TokenImpersonationLevel:
+        case TOKEN_INFORMATION_CLASS.TokenSessionId:
+        case TOKEN_INFORMATION_CLASS.TokenSandBoxInert:
+        case TOKEN_INFORMATION_CLASS.TokenHasRestrictions:
+        case TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed:
+        case TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled:
+        case TOKEN_INFORMATION_CLASS.TokenUIAccess:
+        case TOKEN_INFORMATION_CLASS.TokenIsAppContainer:
+        case TOKEN_INFORMATION_CLASS.TokenAppContainerNumber:
+        case TOKEN_INFORMATION_CLASS.TokenElevationType: {
+            const ptr = new Uint32Array(out.buffer)
+            return ptr[0]
+        }
+
+        // Dismiss all other cases
+        default:
+            return
+    }
+
+    // Note: the SID parameter type is only a type guard, as the actual value must be a Koffi pointer.
+    function decodeSid(ptr: SID): SID {
+        const sid: SID = koffi.decode(ptr, cSID)
+        sid.SubAuthority = Array.from(
+            koffi.decode(ptr, koffi.offsetof(cSID, 'SubAuthority'), cDWORD, sid.SubAuthorityCount) as Uint32Array
+        )
+        return sid
+    }
 }
 
 /**

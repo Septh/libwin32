@@ -3,6 +3,7 @@
     "source",
     "rollup.demos.js"
   ],
+  "exclude": [ "source/zz_test.ts" ],
   "compilerOptions": {
     "checkJs": true,
     "resolveJsonModule": true,

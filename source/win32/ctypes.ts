@@ -9,10 +9,12 @@ import { koffi } from './private.js'
  * Primitive types.
  */
 
+export const cVOID      = koffi.alias('VOID',      koffi.types.void)
 export const cINT       = koffi.alias('INT',       koffi.types.int)
 export const cUINT      = koffi.alias('UINT',      koffi.types.uint)
 export const cBOOL      = koffi.alias('BOOL',      koffi.types.int)
 export const cBOOLEAN   = koffi.alias('BOOLEAN',   koffi.types.uint8)
+export const cCHAR      = koffi.alias('CHAR',      koffi.types.char)
 export const cBYTE      = koffi.alias('BYTE',      koffi.types.uint8)
 export const cSHORT     = koffi.alias('SHORT',     koffi.types.int16)
 export const cUSHORT    = koffi.alias('USHORT',    koffi.types.uint16)
@@ -20,7 +22,9 @@ export const cWORD      = koffi.alias('WORD',      koffi.types.uint16)
 export const cLONG      = koffi.alias('LONG',      koffi.types.int32)
 export const cULONG     = koffi.alias('ULONG',     koffi.types.uint32)
 export const cDWORD     = koffi.alias('DWORD',     koffi.types.uint32)
-export const cVOID      = koffi.alias('VOID',      koffi.types.void)
+export const cDWORD64   = koffi.alias('DWORD64',   koffi.types.uint64)
+export const cLONG64    = koffi.alias('LONG64',    koffi.types.int64)
+export const cLONGLONG  = koffi.alias('LONGLONG',  koffi.types.int64)
 
 /*
 * Pointers.

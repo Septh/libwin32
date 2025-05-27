@@ -1,4 +1,7 @@
 
+/**
+ * The following are masks for the predefined standard access types.
+ */
 export enum ACCESS_MASK {
     DELETE = 0x00010000,
     READ_CONTROL = 0x00020000,
@@ -14,7 +17,7 @@ export enum ACCESS_MASK {
 }
 
 /**
- * AnimateWindow() Commands
+ * AnimateWindow() Commands.
  */
 export enum AW_ {
     AW_HOR_POSITIVE = 0x00000001,
@@ -29,7 +32,7 @@ export enum AW_ {
 }
 
 /**
- * Broadcast Special Message Flags
+ * Broadcast Special Message Flags.
  */
 export enum BSF_ {
     QUERY              = 0x00000001,
@@ -49,7 +52,7 @@ export enum BSF_ {
 export const BROADCAST_QUERY_DENY = 0x424D5144
 
 /**
- * Broadcast Special Message Recipient list
+ * Broadcast Special Message Recipient list.
  */
 export enum BSM_ {
     ALLCOMPONENTS      = 0x00000000,
@@ -61,7 +64,43 @@ export enum BSM_ {
 }
 
 /**
- * CS_xxx - Window Class styles
+ * Claim Security attributes flags.
+ */
+export enum CLAIM_SECURITY_ATTRIBUTE_ {
+    NON_INHERITABLE      = 0x0001,
+    VALUE_CASE_SENSITIVE = 0x0002,
+    USE_FOR_DENY_ONLY    = 0x0004,
+    DISABLED_BY_DEFAULT  = 0x0008,
+    DISABLED             = 0x0010,
+    MANDATORY            = 0x0020,
+    CUSTOM_FLAGS         = 0xFFFF0000,
+
+    VALID_FLAGS = (
+        NON_INHERITABLE
+        | VALUE_CASE_SENSITIVE
+        | USE_FOR_DENY_ONLY
+        | DISABLED_BY_DEFAULT
+        | DISABLED
+        | MANDATORY
+    )
+}
+
+/**
+ * Claim Security attributes.
+ */
+export enum CLAIM_SECURITY_ATTRIBUTE_TYPE_ {
+    INVALID      = 0x00,
+    INT64        = 0x01,
+    UINT64       = 0x02,
+    STRING       = 0x03,
+    FQBN         = 0x04,
+    SID          = 0x05,
+    BOOLEAN      = 0x06,
+    OCTET_STRING = 0x10
+}
+
+/**
+ * CS_xxx - Window Class styles.
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/window-class-styles
  */
@@ -83,15 +122,18 @@ export enum CS_ {
 }
 
 /**
- * Special value for X and Y parameters of CreateWindow/CreateWindowEx
+ * Special value for X and Y parameters of CreateWindow()/CreateWindowEx().
  */
 export enum CW_ {
     USEDEFAULT = 0x80000000
 }
 
-/** Maximum lenght (in characters) of a user name. */
+/** Maximum length (in characters) of a user name. */
 export const UNLEN = 256
 
+/**
+ * Extended Name APIs for ADS.
+ */
 export enum EXTENDED_NAME_FORMAT {
     NameUnknown          = 0,
     NameFullyQualifiedDN = 1,
@@ -108,7 +150,7 @@ export enum EXTENDED_NAME_FORMAT {
 }
 
 /**
- * Flags for FormatMessage()
+ * Flags for FormatMessage().
  */
 export enum FORMAT_MESSAGE_ {
     ALLOCATE_BUFFER = 0x00000100,
@@ -121,7 +163,7 @@ export enum FORMAT_MESSAGE_ {
 }
 
 /**
- * Flags for GetAncestor()
+ * Flags for GetAncestor().
  */
 export enum GA_ {
     PARENT    = 1,
@@ -130,7 +172,7 @@ export enum GA_ {
 }
 
 /**
- * dwFlags parameter for GetModuleHandleEx
+ * dwFlags parameter for GetModuleHandleEx().
  */
 export enum GET_MODULE_HANDLE_EX_FLAG_ {
     PIN                = 0x00000001,
@@ -154,7 +196,7 @@ export enum HWND_ {
 }
 
 /**
- * IDC_xxx - Standard Cursor IDs
+ * IDC_xxx - Standard Cursor IDs.
  *
  * https://learn.microsoft.com/en-us/windows/win32/menurc/about-cursors
  */
@@ -180,7 +222,7 @@ export enum IDC_ {
 }
 
 /**
- * IDI_xxx - Standard Icon IDs
+ * IDI_xxx - Standard Icon IDs.
  *
  * https://learn.microsoft.com/en-us/windows/win32/menurc/about-icons
  */
@@ -224,7 +266,7 @@ export enum LR_ {
 }
 
 /**
- * MB_xxx - MessageBox() Flags
+ * MB_xxx - MessageBox() Flags.
  */
 export enum MB_ {
     OK                   = 0x00000000,
@@ -266,7 +308,7 @@ export enum MB_ {
 }
 
 /**
- * Menu Flags
+ * Menu Flags.
  */
 export enum MF_ {
     BYCOMMAND       = 0x00000000,
@@ -324,7 +366,7 @@ export const enum NIM_ {
 }
 
 /**
- * Status Code Definitions
+ * Status Code Definitions.
  *
  * Note: since ntstatus.h defines hundreds of status codes, this enum has only the values listed on this page:
  * https://learn.microsoft.com/en-us/windows/win32/secmgmt/management-return-values#lsa-policy-function-return-values
@@ -343,7 +385,7 @@ export enum NTSTATUS_ {
 }
 
 /**
- * OBM_xxx - OEM Resource Ordinal Numbers
+ * OBM_xxx - OEM Resource Ordinal Numbers.
  */
 export enum OBM_ {
     CLOSE       = 32754,
@@ -383,7 +425,7 @@ export enum OBM_ {
 }
 
 /**
- * OCR_xxx - OEM Resource Ordinal Numbers
+ * OCR_xxx - OEM Resource Ordinal Numbers.
  */
 export enum OCR_ {
     NORMAL      = 32512,
@@ -408,7 +450,7 @@ export enum OCR_ {
 }
 
 /**
- * OIC_xxx - OEM Resource Ordinal Numbers
+ * OIC_xxx - OEM Resource Ordinal Numbers.
  */
 export enum OIC_ {
     SAMPLE      = 32512,
@@ -424,7 +466,7 @@ export enum OIC_ {
 }
 
 /**
- * Process Securty and Access Rights
+ * Process Security and Access Rights.
  *
  * https://learn.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights
  */
@@ -446,7 +488,7 @@ export enum PSAR_ {
 }
 
 /**
- * QueueStatus flags
+ * QueueStatus flags.
  */
 export enum QS_ {
     KEY         = 0x0001,
@@ -466,7 +508,7 @@ export enum QS_ {
 }
 
 /**
- * PeekMessage flags
+ * PeekMessage flags.
  */
 export enum PM_ {
     NOREMOVE   = 0x0000,
@@ -480,8 +522,18 @@ export enum PM_ {
     QS_SENDMSG = (QS_.SENDMSG << 16)
 }
 
+/**
+ * The SECURITY_IMPERSONATION_LEVEL enumeration contains values that specify security impersonation levels.
+ */
+export enum SECURITY_IMPERSONATION_LEVEL {
+    SecurityAnonymous,
+    SecurityIdentification,
+    SecurityImpersonation,
+    SecurityDelegation
+}
+
 /*
- * Scroll Bar Constants and Commands
+ * Scroll Bar Constants and Commands.
  */
 export enum SB_ {
     // Constants
@@ -508,7 +560,6 @@ export enum SB_ {
     ENDSCROLL     = 8,
 }
 
-
 export enum SID_NAME_USE {
     SidTypeUser = 1,
     SidTypeGroup,
@@ -524,7 +575,7 @@ export enum SID_NAME_USE {
 }
 
 /*
- * GetSystemMetrics() codes
+ * GetSystemMetrics() codes.
  */
 export enum SM_ {
     CXSCREEN                    = 0,
@@ -631,7 +682,7 @@ export enum SM_ {
 }
 
 /**
- * SW_xxx - ShowWindow() Commands (nCmdShow) & identifiers for the WM_SHOWWINDOW message
+ * SW_xxx - ShowWindow() Commands (nCmdShow) & identifiers for the WM_SHOWWINDOW message.
  */
 export enum SW_ {
     HIDE            = 0,
@@ -657,9 +708,37 @@ export enum SW_ {
 }
 
 /**
+ * Token Specific Access Rights.
+ */
+export enum TOKEN_ {
+    ASSIGN_PRIMARY    = 0x0001,
+    DUPLICATE         = 0x0002,
+    IMPERSONATE       = 0x0004,
+    QUERY             = 0x0008,
+    QUERY_SOURCE      = 0x0010,
+    ADJUST_PRIVILEGES = 0x0020,
+    ADJUST_GROUPS     = 0x0040,
+    ADJUST_DEFAULT    = 0x0080,
+    ADJUST_SESSIONID  = 0x0100,
+
+    ALL_ACCESS = ACCESS_MASK.STANDARD_RIGHTS_REQUIRED
+                 | ASSIGN_PRIMARY
+                 | DUPLICATE | IMPERSONATE | QUERY | QUERY_SOURCE
+                 | ADJUST_PRIVILEGES | ADJUST_GROUPS | ADJUST_DEFAULT
+}
+
+/**
+ * The TOKEN_ELEVATION_TYPE enumeration indicates the elevation type of token being queried by the GetTokenInformation() function.
+ */
+export enum TOKEN_ELEVATION_TYPE {
+    TokenElevationTypeDefault = 1,
+    TokenElevationTypeFull,
+    TokenElevationTypeLimited
+}
+
+/**
  * Token information class values for GetTokenInformation() and SetTokenInformation()
  */
-
 export enum TOKEN_INFORMATION_CLASS {
     TokenUser = 1,
     TokenGroups,
@@ -711,6 +790,11 @@ export enum TOKEN_INFORMATION_CLASS {
     TokenIsAppSilo,
     TokenLastEnforce = TokenIsAppSilo,
     MaxTokenInfoClass
+}
+
+export enum TOKEN_TYPE_ {
+    TokenPrimary = 1,
+    TokenImpersonation
 }
 
 /**

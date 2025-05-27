@@ -2,11 +2,16 @@ import { koffi } from './private.js'
 import {
     cINT, cUINT, cBYTE, cSHORT, cUSHORT, cLONG, cULONG, cDWORD, cPVOID, cPWSTR,
     cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND,
-    cWNDPROC, type WNDPROC,
-    cWPARAM, type WPARAM,
-    cLPARAM, type LPARAM
+    cWNDPROC, type WNDPROC, cWPARAM, type WPARAM, cLPARAM, type LPARAM,
+    cWORD,
+    cCHAR,
+    cLONGLONG,
+    type HTOKEN,
+    cULONG_PTR,
+    cLONG64,
+    cDWORD64
 } from './ctypes.js'
-import type { CS_, NIF_ } from './consts.js'
+import type { CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_, CS_, NIF_, SECURITY_IMPERSONATION_LEVEL, TOKEN_TYPE_ } from './consts.js'
 
 /**
  * The POINT structure defines the x- and y-coordinates of a point.
@@ -84,6 +89,111 @@ export const cMINMAXINFO = koffi.struct('MINMAXINFO', {
 })
 
 /**
+ * The ACL structure is the header of an access control list (ACL).
+ */
+export interface ACL {
+    AclRevision: number
+    Sbsz1: number
+    AclSize: number
+    AceCount: number
+    Sbsz2: number
+}
+
+export const ACL_REVISION = 1
+
+export const cACL = koffi.struct('ACL', {
+    AclRevision: cBYTE,
+    Sbsz1: cBYTE,
+    AclSize: cWORD,
+    AceCount: cWORD,
+    Sbsz2: cWORD
+})
+
+/**
+ * The CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE structure specifies the fully qualified binary name.
+ */
+export interface CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE {
+    Version: BigInt
+    Name:    String
+}
+
+export const cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE = koffi.struct('CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE', {
+    Version: cDWORD64,
+    Name:    cPWSTR
+})
+
+/**
+ * The CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE structure specifies the OCTET_STRING value type of the claim security attribute.
+ */
+export interface CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE {
+    pValue:      BigInt
+    ValueLength: number
+}
+
+export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct('CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE', {
+    pValue:      cPVOID,
+    ValueLength: cDWORD
+})
+
+/**
+ * The CLAIM_SECURITY_ATTRIBUTE_V1 structure defines a security attribute that can be associated with a token or authorization context.
+ */
+export interface CLAIM_SECURITY_ATTRIBUTE_V1 {
+    Name:       string
+    ValueType:  CLAIM_SECURITY_ATTRIBUTE_TYPE_
+    Reserved:   0       // Reserved, must be 0
+    Flags:      CLAIM_SECURITY_ATTRIBUTE_
+    ValueCount: number
+    /** `Values` is union, only one member is present at a time, based on ValueType. */
+    Values: {
+        pInt64?:        BigInt[]
+        pUint64?:       BigInt[]
+        ppString?:      string[]
+        pFqbn?:         CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]
+        pOctectString?: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[]
+    }[]
+}
+
+export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct('CLAIM_SECURITY_ATTRIBUTE_V1', {
+    Name:       cPWSTR,
+    ValueType:  cWORD,
+    Reserved:   cWORD,
+    Flags:      cDWORD,
+    ValueCount: cDWORD,
+    Values:     koffi.union({
+        pInt64:        koffi.pointer(koffi.array(cLONG64, 1)),
+        pUint64:       koffi.pointer(koffi.array(cDWORD64, 1)),
+        ppString:      koffi.pointer(koffi.array(cPWSTR, 1)),
+        pFqbn:         koffi.pointer(koffi.array(cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE, 1)),
+        pOctectString: koffi.pointer(koffi.array(cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE, 1))
+    })
+})
+
+/**
+ * The CLAIM_SECURITY_ATTRIBUTES_INFORMATION structure defines the security attributes for the claim.
+ */
+export interface CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
+    Version:        number
+    Reserved:       0         // Reserved, must be 0
+    AttributeCount: number
+    Attribute: null | {
+        AttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[]
+    }
+}
+
+export const CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1 = 1
+
+export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct('CLAIM_SECURITY_ATTRIBUTES_INFORMATION', {
+    Version:        cWORD,
+    Reserved:       cWORD,
+    AttributeCount: cDWORD,
+    Attribute: cPVOID
+    // Attribute: koffi.union({
+    //     pAttributeV1: koffi.pointer(cCLAIM_SECURITY_ATTRIBUTE_V1)
+    // })
+})
+
+/**
  * The GUID structure stores a GUID.
  */
 export interface GUID {
@@ -117,6 +227,19 @@ export interface LUID {
 export const cLUID = koffi.struct('LUID', {
     LowPart: cDWORD,
     HighPart: cLONG
+})
+
+/**
+ * The LUID_AND_ATTRIBUTES structure represents a locally unique identifier (LUID) and its attributes.
+ */
+export interface LUID_AND_ATTRIBUTES {
+    Lui: LUID
+    Attributes: number
+}
+
+export const cLUID_AND_ATTRIBUTES = koffi.struct('LUID_AND_ATTRIBUTES', {
+    Luid: cLUID,
+    Attributes: cDWORD
 })
 
 /**
@@ -173,7 +296,7 @@ export interface SID {
     Revision:            number
     IdentifierAuthority: [ number, number, number, number, number, number ]
     SubAuthorityCount:   number
-    SubAuthority:        Uint32Array
+    SubAuthority:        number[]
 }
 
 export const SID_REVISION = 1                       // Current revision level
@@ -182,9 +305,39 @@ export const SID_RECOMMENDED_SUB_AUTHORITIES = 1    // Will change to around 6
 
 export const cSID = koffi.struct('SID', {
     Revision:            cBYTE,
-    IdentifierAuthority: koffi.array(koffi.types.uint8, 6, 'Array'),
+    IdentifierAuthority: koffi.array(cBYTE, 6, 'Array'),
     SubAuthorityCount:   cBYTE,
-    SubAuthority:        cPVOID   // DWORD *SubAuthority[]
+    SubAuthority:        koffi.array(cDWORD, 1, 'Array')   // DWORD SubAuthority[]
+})
+
+/**
+ * The SID_AND_ATTRIBUTES structure represents a security identifier (SID) and its attributes.
+ */
+export interface SID_AND_ATTRIBUTES {
+    Sid: SID
+    Attributes: number
+}
+
+export const cSID_AND_ATTRIBUTES = koffi.struct('SID_AND_ATTRIBUTES', {
+    Sid: koffi.pointer(cSID),
+    Attributes: cDWORD
+})
+
+/**
+ * The SID_AND_ATTRIBUTES_HASH structure specifies a hash values for the specified array of security identifiers (SIDs).
+ */
+export interface SID_AND_ATTRIBUTES_HASH {
+    SidCount: number
+    SidAttr:  SID_AND_ATTRIBUTES[]
+    Hash:     BigInt[]
+}
+
+export const SID_HASH_SIZE = 32
+
+export const cSID_AND_ATTRIBUTES_HASH = koffi.struct('SID_AND_ATTRIBUTES_HASH', {
+    SidCount: cDWORD,
+    SidAttr:  koffi.pointer(koffi.array(cSID_AND_ATTRIBUTES, 1)),
+    Hash:     koffi.array(cULONG_PTR, SID_HASH_SIZE)
 })
 
 /**
@@ -334,4 +487,248 @@ export const cNOTIFYICONDATA = koffi.struct('NOTIFYICONDATA', {
     dwInfoFlags:      cDWORD,
     guidItem:         cGUID,    // Changed to GUID type
     hBalloonIcon:     cHANDLE
+})
+
+/**
+ * The TOKEN_APPCONTAINER_INFORMATION structure specifies all the information in a token that is necessary for an app container.
+ */
+export interface TOKEN_APPCONTAINER_INFORMATION {
+    TokenAppContainer: SID
+}
+
+export const cTOKEN_APPCONTAINER_INFORMATION = koffi.struct('TOKEN_APPCONTAINER_INFORMATION', {
+    TokenAppContainer: koffi.pointer(cSID)
+})
+
+/**
+ * The TOKEN_DEFAULT_DACL structure specifies a discretionary access control list (DACL).
+ */
+export interface TOKEN_DEFAULT_DACL {
+    DefaultDacl: ACL
+}
+
+export const cTOKEN_DEFAULT_DACL = koffi.struct('TOKEN_DEFAULT_DACL', {
+    DefaultDacl: koffi.pointer(cACL)
+})
+
+/**
+ * The TOKEN_ELEVATION structure indicates whether a token has elevated privileges.
+ */
+export interface TOKEN_ELEVATION {
+    TokenIsElevated: number
+}
+
+export const cTOKEN_ELEVATION = koffi.struct('TOKEN_ELEVATION', {
+    TokenIsElevated: cDWORD
+})
+
+/**
+ * The TOKEN_GROUPS structure contains information about the group security identifiers (SIDs) in an access token.
+ */
+export interface TOKEN_GROUPS {
+    GroupCount: number
+    Groups: SID_AND_ATTRIBUTES[]
+}
+
+export const cTOKEN_GROUPS = koffi.struct('TOKEN_GROUPS', {
+    GroupCount: cDWORD,
+    Groups: koffi.array(cSID_AND_ATTRIBUTES, 1)
+})
+
+/**
+ * The TOKEN_GROUPS_AND_PRIVILEGES structure contains information about the group security identifiers (SIDs) and privileges in an access token.
+ */
+export interface TOKEN_GROUPS_AND_PRIVILEGES {
+    SidCount:            number,
+    SidLength:           number,
+    Sids:                SID_AND_ATTRIBUTES[],
+    RestrictedSidCount:  number,
+    RestrictedSidLength: number,
+    RestrictedSids:      SID_AND_ATTRIBUTES[],
+    PrivilegeCount:      number,
+    PrivilegeLength:     number,
+    Privileges:          LUID_AND_ATTRIBUTES[],
+    AuthenticationId:    LUID,
+}
+
+export const cTOKEN_GROUPS_AND_PRIVILEGES = koffi.struct('TOKEN_GROUPS_AND_PRIVILEGES', {
+    SidCount:            cDWORD,
+    SidLength:           cDWORD,
+    Sids:                koffi.pointer(koffi.array(cSID_AND_ATTRIBUTES, 1)),
+    RestrictedSidCount:  cDWORD,
+    RestrictedSidLength: cDWORD,
+    RestrictedSids:      koffi.pointer(koffi.array(cSID_AND_ATTRIBUTES, 1)),
+    PrivilegeCount:      cDWORD,
+    PrivilegeLength:     cDWORD,
+    Privileges:          koffi.pointer(koffi.array(cLUID_AND_ATTRIBUTES, 1)),
+    AuthenticationId:    cLUID,
+})
+
+/**
+ * The TOKEN_LINKED_TOKEN structure contains a handle to a token.
+ */
+export interface TOKEN_LINKED_TOKEN {
+    LinkedToken: HTOKEN
+}
+
+export const cTOKEN_LINKED_TOKEN = koffi.struct('TOKEN_LINKED_TOKEN', {
+    LinkedToken: cHANDLE
+})
+
+/**
+ * The TOKEN_MANDATORY_LABEL structure specifies the mandatory integrity level for a token.
+ */
+export interface TOKEN_MANDATORY_LABEL {
+    Label: SID_AND_ATTRIBUTES
+}
+
+export const cTOKEN_MANDATORY_LABEL = koffi.struct('TOKEN_MANDATORY_LABEL', {
+    Label: cSID_AND_ATTRIBUTES
+})
+
+/**
+ * The TOKEN_MANDATORY_POLICY structure specifies the mandatory integrity policy for a token.
+ */
+export interface TOKEN_MANDATORY_POLICY {
+    Policy: number
+}
+
+export const cTOKEN_MANDATORY_POLICY = koffi.struct('TOKEN_MANDATORY_POLICY', {
+    Policy: cDWORD
+})
+
+/**
+ * The TOKEN_ORIGIN structure contains information about the origin of the logon session.
+ */
+export interface TOKEN_ORIGIN {
+    OriginatingLogonSession: LUID
+}
+
+export const cTOKEN_ORIGIN = koffi.struct('TOKEN_ORIGIN', {
+    OriginatingLogonSession: cLUID
+})
+
+/**
+ * The TOKEN_OWNER structure contains the default owner security identifier (SID) that will be applied to newly created objects.
+ */
+export interface TOKEN_OWNER {
+    Owner: SID
+}
+
+export const cTOKEN_OWNER = koffi.struct('TOKEN_OWNER', {
+    Owner: koffi.pointer(cSID)
+})
+
+/**
+ * The TOKEN_PRIMARY_GROUP structure specifies a group security identifier (SID) for an access token.
+ */
+export interface TOKEN_PRIMARY_GROUP {
+    PrimaryGroup: SID
+}
+
+export const cTOKEN_PRIMARY_GROUP = koffi.struct('TOKEN_PRIMARY_GROUP', {
+    PrimaryGroup: koffi.pointer(cSID)
+})
+
+/**
+ * The TOKEN_PRIVILEGES structure contains information about a set of privileges for an access token.
+ */
+export interface TOKEN_PRIVILEGES {
+    PrivilegeCount: number
+    Privileges: LUID_AND_ATTRIBUTES[]
+}
+
+export const cTOKEN_PRIVILEGES = koffi.struct('TOKEN_PRIVILEGES', {
+    PrivilegeCount: cDWORD,
+    Privileges: koffi.array(cLUID_AND_ATTRIBUTES, 1)
+})
+
+/**
+ * The TOKEN_SOURCE structure identifies the source of an access token.
+ */
+export interface TOKEN_SOURCE {
+    SourceName: string
+    SourceIdentifier: LUID
+}
+
+export const TOKEN_SOURCE_LENGTH = 8
+
+export const cTOKEN_SOURCE = koffi.struct('TOKEN_SOURCE', {
+    SourceName: koffi.array(cCHAR, TOKEN_SOURCE_LENGTH),
+    SourceIdentifier: cLUID
+})
+
+/**
+ * The TOKEN_STATISTICS structure contains information about an access token.
+ */
+export interface TOKEN_STATISTICS {
+    TokenId:            LUID
+    AuthenticationId:   LUID
+    ExpirationTime:     BigInt
+    TokenType:          TOKEN_TYPE_
+    ImpersonationLevel: SECURITY_IMPERSONATION_LEVEL
+    DynamicCharged:     number
+    DynamicAvailable:   number
+    GroupCount:         number
+    PrivilegeCount:     number
+    ModifiedId:         LUID
+}
+
+export const cTOKEN_STATISTICS = koffi.struct('TOKEN_STATISTICS', {
+  TokenId:            cLUID,
+  AuthenticationId:   cLUID,
+  ExpirationTime:     cLONGLONG,
+  TokenType:          cLONG,
+  ImpersonationLevel: cLONG,
+  DynamicCharged:     cDWORD,
+  DynamicAvailable:   cDWORD,
+  GroupCount:         cDWORD,
+  PrivilegeCount:     cDWORD,
+  ModifiedId:         cLUID,
+})
+
+/**
+ * The TOKEN_USER structure identifies the user associated with an access token.
+ */
+export interface TOKEN_USER {
+    User: SID_AND_ATTRIBUTES
+}
+
+export const cTOKEN_USER = koffi.struct('TOKEN_USER', {
+    User: cSID_AND_ATTRIBUTES
+})
+
+/**
+ * The TOKEN_ACCESS_INFORMATION structure specifies all the information in a token that is necessary to perform an access check.
+ */
+export interface TOKEN_ACCESS_INFORMATION {
+    SidHash:            SID_AND_ATTRIBUTES_HASH
+    RestrictedSidHash:  SID_AND_ATTRIBUTES_HASH
+    Privileges:         TOKEN_PRIVILEGES
+    AuthenticationId:   LUID
+    TokenType:          TOKEN_TYPE_
+    ImpersonationLevel: SECURITY_IMPERSONATION_LEVEL
+    MandatoryPolicy:    TOKEN_MANDATORY_POLICY
+    Flags:              0       // Reserved, must be 0
+    AppContainerNumber: number
+    PackageSid:         SID | null
+    CapabilitiesHash:   SID_AND_ATTRIBUTES_HASH
+    TrustLevelSid:      SID
+    SecurityAttributes: null    // Reserved, must be null
+}
+
+export const cTOKEN_ACCESS_INFORMATION = koffi.struct('TOKEN_ACCESS_INFORMATION', {
+    SidHash:            koffi.pointer(cSID_AND_ATTRIBUTES_HASH),
+    RestrictedSidHash:  koffi.pointer(cSID_AND_ATTRIBUTES_HASH),
+    Privileges:         koffi.pointer(cTOKEN_PRIVILEGES),
+    AuthenticationId:   cLUID,
+    TokenType:          cDWORD,
+    ImpersonationLevel: cDWORD,
+    MandatoryPolicy:    cTOKEN_MANDATORY_POLICY,
+    Flags:              cDWORD,
+    AppContainerNumber: cDWORD,
+    PackageSid:         koffi.pointer(cSID),
+    CapabilitiesHash:   koffi.pointer(cSID_AND_ATTRIBUTES_HASH),
+    TrustLevelSid:      koffi.pointer(cSID),
+    SecurityAttributes: cPVOID,
 })
