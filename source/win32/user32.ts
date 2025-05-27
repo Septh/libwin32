@@ -44,6 +44,16 @@ export function AdjustWindowRectEx(lpRect: RECT, dwStyle: WS_, bMenu: boolean, c
 }
 
 /**
+ * Calculates the required size of the window rectangle, based on the desired client-rectangle size and the provided DPI.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrectexfordpi
+ */
+export function AdjustWindowRectExForDpi(lpRect: RECT, dwStyle: WS_, bMenu: boolean, cwExStyle: WS_EX_, dpi: number): boolean {
+    AdjustWindowRectExForDpi.native ??= user32.func('AdjustWindowRectExForDpi', cBOOL, [ koffi.inout(koffi.pointer(cRECT)), cDWORD, cBOOL, cDWORD, cUINT ])
+    return Boolean(AdjustWindowRectExForDpi.native(lpRect, dwStyle, Number(bMenu), cwExStyle, dpi))
+}
+
+/**
  * Enables you to produce special effects when showing or hiding windows.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-animatewindow
