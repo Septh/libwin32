@@ -41,12 +41,13 @@ import {
 
 const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 
-const allocs: Map<any, any> = /*#__PURE__*/new Map()
-
 /**
  * Allocates and initializes a security identifier (SID) with up to eight subauthorities.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-allocateandinitializesid
+ *
+ * Note: because the allocated SID is turned into a JS object, its memory is immediately returned to the system
+ *       by this function. The net effect is that you don't need to call FreeSid() afterwards.
  */
 export function AllocateAndInitializeSid(pIdentifierAuthority: SID_IDENTIFIER_AUTHORITY, nSubAuthorityCount: number, nSubAuthority0: number, nSubAuthority1: number, nSubAuthority2: number, nSubAuthority3: number, nSubAuthority4: number, nSubAuthority5: number, nSubAuthority6: number, nSubAuthority7: number): SID | null {
     AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [ koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, koffi.out(koffi.pointer(cPVOID)) ])
@@ -55,17 +56,25 @@ export function AllocateAndInitializeSid(pIdentifierAuthority: SID_IDENTIFIER_AU
     if (!AllocateAndInitializeSid.native([ pIdentifierAuthority ], nSubAuthorityCount, nSubAuthority0, nSubAuthority1, nSubAuthority2, nSubAuthority3, nSubAuthority4, nSubAuthority5, nSubAuthority6, nSubAuthority7, pSID))
         return null
 
-    const sid = decodeAndCleanSid(pSID[0])
-    allocs.set(sid, pSID[0])
+    const sid = _decodeAndCleanSid(pSID[0])
+    _freeSid(pSID[0])
     return sid
 }
 
-// Note: the SID parameter type is only a type guard, as the actual value must be a Koffi pointer.
-function decodeAndCleanSid(ptr: SID): SID {
-    const sid: SID = koffi.decode(ptr, cSID)
+// Note: the SID parameter type is only a type guard, as the actual value is a Koffi pointer.
+function _decodeAndCleanSid(pSID: SID): SID {
+    const sid: SID = koffi.decode(pSID, cSID)
     for (let i = sid.SubAuthorityCount; i < Internals.SID_MAX_SUB_AUTHORITIES; i++)
         sid.SubAuthority[i] = 0
     return sid
+}
+
+// Ditto.
+function _freeSid(pSID: SID): void {
+    _freeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
+    if (pSID) {
+        _freeSid.native(pSID)
+    }
 }
 
 /**
@@ -82,16 +91,11 @@ export function EqualSid(pSid1: SID, pSid2: SID): boolean {
  * Frees a security identifier (SID) previously allocated by using the AllocateAndInitializeSid function.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-freesid
+ *
+ * Note: because libwin32 doesn't keep pointers to allocated memory around, this functions is a NOOP.
+ *       See `AllocateAndInitializeSid()` for details.
  */
-export function FreeSid(pSid: SID): void {
-    FreeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
-
-    const ptr = allocs.get(pSid)
-    if (ptr) {
-        FreeSid.native(ptr)
-        allocs.delete(pSid)
-    }
-}
+export function FreeSid(pSid: SID): void {}
 
 /**
  * Retrieves a specified type of information about an access token. The calling process must have appropriate access rights to obtain the information.
@@ -144,7 +148,7 @@ export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: 
     switch (TokenInformationClass) {
         case TOKEN_INFORMATION_CLASS.TokenUser: {
             const ret: TOKEN_USER = koffi.decode(out, cTOKEN_USER)
-            ret.User.Sid = decodeAndCleanSid(ret.User.Sid)
+            ret.User.Sid = _decodeAndCleanSid(ret.User.Sid)
             return ret
         }
 
@@ -156,7 +160,7 @@ export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: 
         case TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups: {
             const ret: TOKEN_GROUPS = koffi.decode(out, cTOKEN_GROUPS)
             ret.Groups = koffi.decode(out, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
-            ret.Groups.forEach(group => group.Sid = decodeAndCleanSid(group.Sid))
+            ret.Groups.forEach(group => group.Sid = _decodeAndCleanSid(group.Sid))
             return ret
         }
 
@@ -168,13 +172,13 @@ export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: 
 
         case TOKEN_INFORMATION_CLASS.TokenOwner: {
             const ret: TOKEN_OWNER = koffi.decode(out, cTOKEN_OWNER)
-            ret.Owner = decodeAndCleanSid(ret.Owner)
+            ret.Owner = _decodeAndCleanSid(ret.Owner)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenPrimaryGroup: {
             const ret: TOKEN_PRIMARY_GROUP = koffi.decode(out, cTOKEN_PRIMARY_GROUP)
-            ret.PrimaryGroup = decodeAndCleanSid(ret.PrimaryGroup)
+            ret.PrimaryGroup = _decodeAndCleanSid(ret.PrimaryGroup)
             return ret
         }
 
@@ -199,13 +203,13 @@ export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: 
 
             if (ret.Sids && ret.SidCount > 0) {
                 ret.Sids = koffi.decode(ret.Sids, cSID_AND_ATTRIBUTES, ret.SidCount)
-                ret.Sids.forEach(sid => sid.Sid = decodeAndCleanSid(sid.Sid))
+                ret.Sids.forEach(sid => sid.Sid = _decodeAndCleanSid(sid.Sid))
             }
             else ret.Sids = []
 
             if (ret.RestrictedSids && ret.RestrictedSidCount > 0) {
                 ret.RestrictedSids = koffi.decode(ret.RestrictedSids, cSID_AND_ATTRIBUTES, ret.RestrictedSidCount)
-                ret.RestrictedSids.forEach(sid => sid.Sid = decodeAndCleanSid(sid.Sid))
+                ret.RestrictedSids.forEach(sid => sid.Sid = _decodeAndCleanSid(sid.Sid))
             }
             else ret.RestrictedSids = []
 
@@ -237,15 +241,15 @@ export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: 
 
             ret.SidHash = koffi.decode(ret.SidHash, cSID_AND_ATTRIBUTES_HASH)
             ret.SidHash.SidAttr = koffi.decode(ret.SidHash.SidAttr, cSID_AND_ATTRIBUTES, ret.SidHash.SidCount)
-            ret.SidHash.SidAttr.forEach(sid => sid.Sid = decodeAndCleanSid(sid.Sid))
+            ret.SidHash.SidAttr.forEach(sid => sid.Sid = _decodeAndCleanSid(sid.Sid))
 
             ret.RestrictedSidHash = koffi.decode(ret.RestrictedSidHash, cSID_AND_ATTRIBUTES_HASH)
             ret.RestrictedSidHash.SidAttr = koffi.decode(ret.RestrictedSidHash.SidAttr, cSID_AND_ATTRIBUTES, ret.RestrictedSidHash.SidCount)
-            ret.RestrictedSidHash.SidAttr.forEach(sid => sid.Sid = decodeAndCleanSid(sid.Sid))
+            ret.RestrictedSidHash.SidAttr.forEach(sid => sid.Sid = _decodeAndCleanSid(sid.Sid))
 
             ret.CapabilitiesHash = koffi.decode(ret.CapabilitiesHash, cSID_AND_ATTRIBUTES_HASH)
             ret.CapabilitiesHash.SidAttr = koffi.decode(ret.CapabilitiesHash.SidAttr, cSID_AND_ATTRIBUTES, ret.CapabilitiesHash.SidCount)
-            ret.CapabilitiesHash.SidAttr.forEach(sid => sid.Sid = decodeAndCleanSid(sid.Sid))
+            ret.CapabilitiesHash.SidAttr.forEach(sid => sid.Sid = _decodeAndCleanSid(sid.Sid))
 
             const { Privileges } = ret
             ret.Privileges = koffi.decode(Privileges, cTOKEN_PRIVILEGES)
@@ -256,7 +260,7 @@ export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: 
 
         case TOKEN_INFORMATION_CLASS.TokenIntegrityLevel: {
             const ret: TOKEN_MANDATORY_LABEL = koffi.decode(out, cTOKEN_MANDATORY_LABEL)
-            ret.Label.Sid = decodeAndCleanSid(ret.Label.Sid)
+            ret.Label.Sid = _decodeAndCleanSid(ret.Label.Sid)
             return ret
         }
 
@@ -267,7 +271,7 @@ export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: 
 
         case TOKEN_INFORMATION_CLASS.TokenAppContainerSid: {
             const ret: TOKEN_APPCONTAINER_INFORMATION = koffi.decode(out, cTOKEN_APPCONTAINER_INFORMATION)
-            ret.TokenAppContainer = decodeAndCleanSid(ret.TokenAppContainer)
+            ret.TokenAppContainer = _decodeAndCleanSid(ret.TokenAppContainer)
             return ret
         }
 
