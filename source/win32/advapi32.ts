@@ -45,6 +45,8 @@ const allocs: Map<any, any> = /*#__PURE__*/new Map()
 
 /**
  * Allocates and initializes a security identifier (SID) with up to eight subauthorities.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-allocateandinitializesid
  */
 export function AllocateAndInitializeSid(pIdentifierAuthority: SID_IDENTIFIER_AUTHORITY, nSubAuthorityCount: number, nSubAuthority0: number, nSubAuthority1: number, nSubAuthority2: number, nSubAuthority3: number, nSubAuthority4: number, nSubAuthority5: number, nSubAuthority6: number, nSubAuthority7: number): SID | null {
     AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [ koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, koffi.out(koffi.pointer(cPVOID)) ])
@@ -68,6 +70,8 @@ function decodeAndCleanSid(ptr: SID): SID {
 
 /**
  * Tests two security identifier (SID) values for equality.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-equalsid
  */
 export function EqualSid(pSid1: SID, pSid2: SID): boolean {
     EqualSid.native ??= advapi32.func('EqualSid', cBOOL, [ koffi.pointer(cSID), koffi.pointer(cSID) ])
@@ -76,6 +80,8 @@ export function EqualSid(pSid1: SID, pSid2: SID): boolean {
 
 /**
  * Frees a security identifier (SID) previously allocated by using the AllocateAndInitializeSid function.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-freesid
  */
 export function FreeSid(pSid: SID): void {
     FreeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
