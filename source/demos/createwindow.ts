@@ -65,8 +65,8 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
     UpdateWindow(hWnd)
 
     // Main message loop
-    const msg = {} as MSG
-    while (GetMessage(msg, null, 0, 0)) {
+    let msg: MSG | null
+    while (msg = GetMessage(null)) {
         TranslateMessage(msg)
         DispatchMessage(msg)
     }

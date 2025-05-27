@@ -348,9 +348,11 @@ export function GetForegroundWindow(): HWND {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagew
  */
-export function GetMessage(lpMsg: MSG, hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number): boolean {
+export function GetMessage(hWnd: HWND | null | -1, wMsgFilterMin: number = 0, wMsgFilterMax: number = 0): MSG | null {
     GetMessage.native ??= user32.func('GetMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT ])
-    return Boolean(GetMessage.native(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax))
+
+    const out: OUT<MSG> = [ {} as MSG ]
+    return GetMessage.native(out, hWnd, wMsgFilterMin, wMsgFilterMax) ? out[0] : null
 }
 
 /**
