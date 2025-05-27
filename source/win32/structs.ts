@@ -1,4 +1,4 @@
-import { koffi } from './private.js'
+import { koffi, Internals } from './private.js'
 import {
     cINT, cUINT, cCHAR, cBYTE, cSHORT, cUSHORT, cWORD,
     cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cDWORD64, cPVOID, cPWSTR,
@@ -305,7 +305,7 @@ export const cSID = koffi.struct('SID', {
     Revision:            cBYTE,
     IdentifierAuthority: koffi.array(cBYTE, 6, 'Array'),
     SubAuthorityCount:   cBYTE,
-    SubAuthority:        koffi.array(cDWORD, 1, 'Array')   // DWORD SubAuthority[]
+    SubAuthority:        koffi.array(cDWORD, Internals.SID_MAX_SUB_AUTHORITIES, 'Array')   // DWORD SubAuthority[]
 })
 
 /**

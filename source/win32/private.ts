@@ -28,3 +28,7 @@ export class Win32Dll implements Disposable {
         return /*#__PURE__*/this.#lib.func(name, result, parameters)
     }
 }
+
+export const enum Internals {
+    SID_MAX_SUB_AUTHORITIES = 32
+}
