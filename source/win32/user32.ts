@@ -508,7 +508,7 @@ export function SendMessage(hWnd: HWND, Msg: number, wParam: WPARAM, lParam: LPA
  */
 export function SetForegroundWindow(hWnd: HWND): boolean {
     SetForegroundWindow.native ??= user32.func('SetForegroundWindow', cBOOL, [ cHANDLE ])
-    return !!SetForegroundWindow.native(hWnd)
+    return Boolean(SetForegroundWindow.native(hWnd))
 }
 
 /**
@@ -518,7 +518,7 @@ export function SetForegroundWindow(hWnd: HWND): boolean {
  */
 export function ShowWindow(hWnd: HWND, nCmdShow: SW_): boolean {
     ShowWindow.native ??= user32.func('ShowWindow', cBOOL, [ cHANDLE, cINT ])
-    return !!ShowWindow.native(hWnd, nCmdShow)
+    return Boolean(ShowWindow.native(hWnd, nCmdShow))
 }
 
 /**
@@ -528,7 +528,7 @@ export function ShowWindow(hWnd: HWND, nCmdShow: SW_): boolean {
  */
 export function ShowWindowAsync(hWnd: HWND, nCmdShow: SW_): boolean {
     ShowWindowAsync.native ??= user32.func('ShowWindowAsync', cBOOL, [ cHANDLE, cINT ])
-    return !!ShowWindowAsync.native(hWnd, nCmdShow)
+    return Boolean(ShowWindowAsync.native(hWnd, nCmdShow))
 }
 
 /**
@@ -536,9 +536,9 @@ export function ShowWindowAsync(hWnd: HWND, nCmdShow: SW_): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-trackpopupmenu
  */
-export function TrackPopupMenu(hMenu: HMENU, uFlags: TPM_, x: number, y: number, nReserved: number, hWnd: HWND, prcRect?: RECT): boolean {
+export function TrackPopupMenu(hMenu: HMENU, uFlags: TPM_, x: number, y: number, nReserved: number, hWnd: HWND, prcRect: RECT | null = null): boolean {
     TrackPopupMenu.native ??= user32.func('TrackPopupMenu', cBOOL, [ cHANDLE, cUINT, cUINT, cUINT, cUINT, cHANDLE, cRECT ])
-    return !!TrackPopupMenu.native(hMenu, uFlags, x, y, nReserved, hWnd, prcRect ?? null)
+    return Boolean(TrackPopupMenu.native(hMenu, uFlags, x, y, nReserved, hWnd, prcRect))
 }
 
 /**
@@ -547,8 +547,8 @@ export function TrackPopupMenu(hMenu: HMENU, uFlags: TPM_, x: number, y: number,
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
  */
 export function TranslateMessage(lpMsg: MSG): boolean {
-    TranslateMessage.native ??= user32.func('TranslateMessage', cBOOL, [koffi.pointer(cMSG)])
-    return !!TranslateMessage.native(lpMsg)
+    TranslateMessage.native ??= user32.func('TranslateMessage', cBOOL, [ koffi.pointer(cMSG) ])
+    return Boolean(TranslateMessage.native(lpMsg))
 }
 
 /**
@@ -557,7 +557,7 @@ export function TranslateMessage(lpMsg: MSG): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/translatemessageex
  */
 export function TranslateMessageEx(lpMsg: MSG, flags: number): boolean {
-    TranslateMessageEx.native ??= user32.func('TranslateMessageEx', cBOOL, [koffi.pointer(cMSG), cUINT])
+    TranslateMessageEx.native ??= user32.func('TranslateMessageEx', cBOOL, [ koffi.pointer(cMSG), cUINT ])
     return !!TranslateMessageEx.native(lpMsg, flags)
 }
 
@@ -566,9 +566,9 @@ export function TranslateMessageEx(lpMsg: MSG, flags: number): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unregisterclassw
  */
-export function UnregisterClass(lpClassName: ATOM | string, hInstance?: HINSTANCE | null): boolean {
+export function UnregisterClass(lpClassName: ATOM | string, hInstance: HINSTANCE | null = null): boolean {
     UnregisterClass.native ??= user32.func('UnregisterClassW', cBOOL, [ cPWSTR, cHANDLE ])
-    return !!UnregisterClass.native(lpClassName, hInstance ?? null)
+    return Boolean(UnregisterClass.native(lpClassName, hInstance))
 }
 
 /**
@@ -578,5 +578,5 @@ export function UnregisterClass(lpClassName: ATOM | string, hInstance?: HINSTANC
  */
 export function UpdateWindow(hWnd: HWND): boolean {
     UpdateWindow.native ??= user32.func('UpdateWindow', cBOOL, [ cHANDLE ])
-    return !!UpdateWindow.native(hWnd)
+    return Boolean(UpdateWindow.native(hWnd))
 }
