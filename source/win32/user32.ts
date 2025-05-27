@@ -205,7 +205,7 @@ export function DefWindowProc(hWnd: HWND, msg: number, wParam: WPARAM, lpParam: 
  */
 export function DestroyCursor(hCursor: HCURSOR): boolean {
     DestroyCursor.native ??= user32.func('DestroyCursor', cBOOL, [ cHANDLE ])
-    return !!DestroyCursor.native(hCursor)
+    return Boolean(DestroyCursor.native(hCursor))
 }
 
 /**
@@ -215,7 +215,7 @@ export function DestroyCursor(hCursor: HCURSOR): boolean {
  */
 export function DestroyIcon(hIcon: HICON): boolean {
     DestroyIcon.native ??= user32.func('DestroyIcon', cBOOL, [ cHANDLE ])
-    return !!DestroyIcon.native(hIcon)
+    return Boolean(DestroyIcon.native(hIcon))
 }
 
 /**
@@ -225,7 +225,7 @@ export function DestroyIcon(hIcon: HICON): boolean {
  */
 export function DestroyMenu(hMenu: HMENU): boolean {
     DestroyMenu.native ??= user32.func('DestroyMenu', cBOOL, [ cHANDLE ])
-    return !!DestroyMenu.native(hMenu)
+    return Boolean(DestroyMenu.native(hMenu))
 }
 
 /**
@@ -245,7 +245,7 @@ export function DispatchMessage(lpMsg: MSG): LRESULT {
  */
 export function EnumWindows(lpEnumFunc: WNDENUMPROC, lpParam: LPARAM): boolean {
     EnumWindows.native ??= user32.func('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
-    return !!EnumWindows.native(lpEnumFunc, lpParam)
+    return Boolean(EnumWindows.native(lpEnumFunc, lpParam))
 }
 
 /**
@@ -255,7 +255,7 @@ export function EnumWindows(lpEnumFunc: WNDENUMPROC, lpParam: LPARAM): boolean {
  */
 export function FindWindow(lpClassName: string | null, lpWindowName: string | null): HWND | null {
     FindWindow.native ??= user32.func('FindWindowW', cHANDLE, [ cPWSTR, cPWSTR ])
-    return FindWindow.native(lpClassName, lpWindowName)
+    return FindWindow.native(lpClassName, lpWindowName) || null
 }
 
 /**
@@ -265,7 +265,7 @@ export function FindWindow(lpClassName: string | null, lpWindowName: string | nu
  */
 export function FindWindowEx(hWndParent: HWND | HWND_ | null, hWndChildAfter: HWND | null, lpClassName: string | null, lpWindowName: string | null): HWND | null {
     FindWindowEx.native ??= user32.func('FindWindowExW', cHANDLE, [ cHANDLE, cHANDLE, cPWSTR, cPWSTR ])
-    return FindWindowEx.native(hWndParent, hWndChildAfter, lpClassName, lpWindowName)
+    return FindWindowEx.native(hWndParent, hWndChildAfter, lpClassName, lpWindowName) || null
 }
 
 /**
@@ -275,31 +275,35 @@ export function FindWindowEx(hWndParent: HWND | HWND_ | null, hWndChildAfter: HW
  */
 export function GetAncestor(hWnd: HWND, gaFlags: GA_): HWND | null {
     GetAncestor.native ??= user32.func('GetAncestor', cHANDLE, [ cHANDLE, cUINT ])
-    return GetAncestor.native(hWnd, gaFlags)
+    return GetAncestor.native(hWnd, gaFlags) || null
 }
 
 /**
  * Retrieves information about a window class.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfow
+ *
+ * Note: at the moment, libwin32 does not support passing an ATOM for `lpClassName`.
  */
-export function GetClassInfo(hInstance: HINSTANCE | null, lpClassName: ATOM | string): WNDCLASS | null {
+export function GetClassInfo(hInstance: HINSTANCE | null, lpClassName: string): WNDCLASS | null {
     GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cPWSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
 
-    const lpWndClass = new WNDCLASS()
-    return GetClassInfo.native(hInstance, lpClassName, lpWndClass) ? lpWndClass : null
+    const lpWndClass: OUT<WNDCLASS> = [ new WNDCLASS() ]
+    return GetClassInfo.native(hInstance, lpClassName, lpWndClass) ? lpWndClass[0] : null
 }
 
 /**
  * Retrieves information about a window class, including a handle to the small icon associated with the window class.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfoexw
+ *
+ * Note: at the moment, libwin32 does not support passing an ATOM for `lpClassName`.
  */
-export function GetClassInfoEx(hInstance: HINSTANCE | null, lpClassName: ATOM | string): WNDCLASSEX | null {
-    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cPWSTR, koffi.inout(koffi.pointer(cWNDCLASSEX)) ])
+export function GetClassInfoEx(hInstance: HINSTANCE | null, lpClassName: string): WNDCLASSEX | null {
+    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cPWSTR, koffi.out(koffi.pointer(cWNDCLASSEX)) ])
 
-    const lpWndClassEx = new WNDCLASSEX()
-    return GetClassInfoEx.native(hInstance, lpClassName, lpWndClassEx) ? lpWndClassEx : null
+    const lpWndClassEx: OUT<WNDCLASSEX> = [ new WNDCLASSEX() ]
+    return GetClassInfoEx.native(hInstance, lpClassName, lpWndClassEx) ? lpWndClassEx[0] : null
 }
 
 /**
