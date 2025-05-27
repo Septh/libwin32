@@ -1,11 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "include": [ "source" ],
+  "exclude": [ "**/zz*" ],
   "compilerOptions": {
     "rootDir": "source",
     "outDir": "lib",
     "removeComments": false,
-    "preserveConstEnums": true,
+    "preserveConstEnums": false,
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
