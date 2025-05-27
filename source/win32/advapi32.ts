@@ -46,7 +46,7 @@ const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 const allocs: Map<any, any> = /*#__PURE__*/new Map()
 
 /**
- * The AllocateAndInitializeSid function allocates and initializes a security identifier (SID) with up to eight subauthorities.
+ * Allocates and initializes a security identifier (SID) with up to eight subauthorities.
  */
 export function AllocateAndInitializeSid(pIdentifierAuthority: SID_IDENTIFIER_AUTHORITY, nSubAuthorityCount: number, nSubAuthority0: number, nSubAuthority1: number, nSubAuthority2: number, nSubAuthority3: number, nSubAuthority4: number, nSubAuthority5: number, nSubAuthority6: number, nSubAuthority7: number): SID | null {
     AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [ koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, koffi.out(koffi.pointer(cSID)) ])
@@ -61,7 +61,15 @@ export function AllocateAndInitializeSid(pIdentifierAuthority: SID_IDENTIFIER_AU
 }
 
 /**
- * The FreeSid function frees a security identifier (SID) previously allocated by using the AllocateAndInitializeSid function.
+ * Tests two security identifier (SID) values for equality.
+ */
+export function EqualSid(pSid1: SID, pSid2: SID): boolean {
+    EqualSid.native ??= advapi32.func('EqualSid', cBOOL, [ koffi.pointer(cSID), koffi.pointer(cSID) ])
+    return Boolean(EqualSid.native(pSid1, pSid2))
+}
+
+/**
+ * Frees a security identifier (SID) previously allocated by using the AllocateAndInitializeSid function.
  */
 export function FreeSid(pSid: SID): void {
     FreeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
