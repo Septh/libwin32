@@ -71,17 +71,17 @@
     "koffi-cream": "^2.11.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^12.1.1",
-    "@types/node": "^22.5.1",
-    "magic-string": "^0.30.11",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/node": "^22.15.24",
+    "magic-string": "^0.30.17",
     "regex": "^6.0.1",
     "rimraf": "^6.0.1",
-    "rollup": "^4.21.2",
-    "rollup-plugin-code-raker": "^1.0.0",
+    "rollup": "^4.41.1",
+    "rollup-plugin-code-raker": "^1.0.1",
     "rollup-plugin-node-externals": "^8.0.0",
-    "tslib": "^2.7.0",
-    "typescript": "^5.5.4"
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
   }
 }
