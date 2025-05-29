@@ -9,9 +9,7 @@
     "noEmit": true,
 
     // Module
-    "module": "Node16",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "module": "Node18",
 
     // Libs
     "target": "ES2023",
