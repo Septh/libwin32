@@ -6,7 +6,7 @@ import {
     FormatMessage, MessageBox,
     type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG
 } from 'libwin32'
-import { CS_, CW_, FORMAT_MESSAGE_, IDC_, IDI_, MB_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
+import { CS_, CW_USEDEFAULT, FORMAT_MESSAGE_, IDC_, IDI_, MB_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
 
 const windowClass = 'libwin32_app'
 const windowName  = 'libwin32 demo: CreateWindow'
@@ -51,7 +51,7 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
         WS_EX_.CLIENTEDGE,
         windowClass, windowName,
         WS_.OVERLAPPEDWINDOW | WS_.VSCROLL,
-        CW_.USEDEFAULT, CW_.USEDEFAULT, CW_.USEDEFAULT, CW_.USEDEFAULT,
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
         null, null, hInstance, 0
     )
     if (!hWnd) {

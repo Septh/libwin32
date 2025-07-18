@@ -1,5 +1,5 @@
-import { koffi, Win32Dll, textDecoder, Internals } from './private.js'
-import { cBOOL, cINT, cPWSTR, cPDWORD, type OUT } from './ctypes.js'
+import { koffi, Win32Dll, StringOutputBuffer, Internals } from './private.js'
+import { cBOOL, cINT, cDWORD, cSTR } from './ctypes.js'
 import type { EXTENDED_NAME_FORMAT } from './consts.js'
 
 const secur32 = /*#__PURE__*/new Win32Dll('secur32.dll')
@@ -9,12 +9,11 @@ const secur32 = /*#__PURE__*/new Win32Dll('secur32.dll')
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getusernameexw
  */
-export function GetUserNameEx(NameFormat: EXTENDED_NAME_FORMAT): string | null {
-    GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cPWSTR, koffi.inout(cPDWORD) ])
+export function GetUserNameEx(nameFormat: EXTENDED_NAME_FORMAT): string | null {
+    GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cSTR, koffi.inout(koffi.pointer(cDWORD)) ])
 
-    const out = new Uint16Array(Internals.UNLEN)
-    const len: OUT<number> = [ out.length ]
-    return GetUserNameEx.native(NameFormat, out, len) === 0
-        ? null
-        : textDecoder.decode(out.subarray(0, len[0]))   // -GetUserNameEx() does *not* includes the final \0
+    const str = new StringOutputBuffer(Internals.UNLEN)
+    if (GetUserNameEx.native(nameFormat, str.buffer, str.pLength))
+        return str.decode()
+    return null
 }

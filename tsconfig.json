@@ -14,7 +14,7 @@
     // Libs
     "target": "ES2023",
     "lib": [ "ES2023" ],
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "skipDefaultLibCheck": true,
 
     // Type checking

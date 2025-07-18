@@ -1,10 +1,9 @@
-import { koffi, Win32Dll, textDecoder } from './private.js'
+import { koffi, Win32Dll, StringOutputBuffer, type OUT } from './private.js'
 import {
-    cVOID, cBOOL, cINT, cUINT, cWORD, cLONG, cDWORD, cPVOID, cPDWORD, cPWSTR,
+    cVOID, cBOOL, cINT, cUINT, cWORD, cLONG, cDWORD, cPVOID, cSTR,
     cATOM, type ATOM, cHANDLE, type HINSTANCE, type HCURSOR, type HICON, type HMENU, type HWND,
-    cLRESULT, type LRESULT, cLPARAM, type LPARAM, cWPARAM, type WPARAM,
-    cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
-    type OUT
+    cLRESULT, type LRESULT, cWPARAM, type WPARAM, cLPARAM, type LPARAM,
+    cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC
 } from './ctypes.js'
 import {
     cPOINT, type POINT,
@@ -19,7 +18,8 @@ import type {
     AW_, MF_, BSF_, GA_,
     IDC_, IDI_, OIC_, OCR_, OBM_, IMAGE_,
     LR_, MB_, SW_, TPM_,
-    BSM_
+    BSM_,
+    PM_
 } from './consts.js'
 
 const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
@@ -29,9 +29,9 @@ const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrect
  */
-export function AdjustWindowRect(lpRect: RECT, dwStyle: WS_, bMenu: boolean): boolean {
+export function AdjustWindowRect(rect: RECT, style: WS_, menu: boolean): boolean {
     AdjustWindowRect.native ??= user32.func('AdjustWindowRect', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL ])
-    return Boolean(AdjustWindowRect.native(lpRect, dwStyle, Number(bMenu)))
+    return Boolean(AdjustWindowRect.native(rect, style, Number(menu)))
 }
 
 /**
@@ -39,9 +39,9 @@ export function AdjustWindowRect(lpRect: RECT, dwStyle: WS_, bMenu: boolean): bo
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrectex
  */
-export function AdjustWindowRectEx(lpRect: RECT, dwStyle: WS_, bMenu: boolean, cwExStyle: WS_EX_): boolean {
+export function AdjustWindowRectEx(rect: RECT, style: WS_, menu: boolean, exStyle: WS_EX_): boolean {
     AdjustWindowRectEx.native ??= user32.func('AdjustWindowRectEx', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL, cDWORD ])
-    return Boolean(AdjustWindowRectEx.native(lpRect, dwStyle, Number(bMenu), cwExStyle))
+    return Boolean(AdjustWindowRectEx.native(rect, style, Number(menu), exStyle))
 }
 
 /**
@@ -49,9 +49,9 @@ export function AdjustWindowRectEx(lpRect: RECT, dwStyle: WS_, bMenu: boolean, c
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrectexfordpi
  */
-export function AdjustWindowRectExForDpi(lpRect: RECT, dwStyle: WS_, bMenu: boolean, cwExStyle: WS_EX_, dpi: number): boolean {
+export function AdjustWindowRectExForDpi(rect: RECT, style: WS_, menu: boolean, exStyle: WS_EX_, dpi: number): boolean {
     AdjustWindowRectExForDpi.native ??= user32.func('AdjustWindowRectExForDpi', cBOOL, [ koffi.inout(koffi.pointer(cRECT)), cDWORD, cBOOL, cDWORD, cUINT ])
-    return Boolean(AdjustWindowRectExForDpi.native(lpRect, dwStyle, Number(bMenu), cwExStyle, dpi))
+    return Boolean(AdjustWindowRectExForDpi.native(rect, style, Number(menu), exStyle, dpi))
 }
 
 /**
@@ -59,9 +59,9 @@ export function AdjustWindowRectExForDpi(lpRect: RECT, dwStyle: WS_, bMenu: bool
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-animatewindow
  */
-export function AnimateWindow(hWnd: HWND, dwTime: number, dwFlags: AW_): boolean {
+export function AnimateWindow(hWnd: HWND, time: number, flags: AW_): boolean {
     AnimateWindow.native ??= user32.func('AnimateWindow', cBOOL, [ cHANDLE, cDWORD, cDWORD ])
-    return Boolean(AnimateWindow.native(hWnd, dwTime, dwFlags))
+    return Boolean(AnimateWindow.native(hWnd, time, flags))
 }
 
 /**
@@ -69,9 +69,9 @@ export function AnimateWindow(hWnd: HWND, dwTime: number, dwFlags: AW_): boolean
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
  */
-export function AppendMenu(hMenu: HMENU, uFlags: MF_, uIDNewItem: number | HMENU, lpNewItem: string | null): boolean {
-    AppendMenu.native ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cPWSTR ]);
-    return Boolean(AppendMenu.native(hMenu, uFlags, uIDNewItem, lpNewItem))
+export function AppendMenu(hMenu: HMENU, flags: MF_, idNewItem: number | HMENU, newItem: string | null): boolean {
+    AppendMenu.native ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cSTR ]);
+    return Boolean(AppendMenu.native(hMenu, flags, idNewItem, newItem))
 }
 
 /**
@@ -89,13 +89,18 @@ export function BringWindowToTop(hWnd: HWND): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
-export function BroadcastSystemMessage(flags: BSF_, lpInfo: BSM_ | null, Msg: number, wParam: WPARAM, lParam: LPARAM): { success: boolean, lpInfo: BSM_ | null } {
-    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM ])
+export function BroadcastSystemMessage(flags: BSF_, info: BSM_ | null, msg: number, wParam: WPARAM, lParam: LPARAM): BroadcastSystemMessageResult {
+    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(koffi.pointer(cDWORD)), cUINT, cWPARAM, cLPARAM ])
 
-    const out: OUT<BSM_> | null = typeof lpInfo === 'number' ? [ lpInfo ] : null
-    return BroadcastSystemMessage.native(flags, out, Msg, wParam, lParam) > 0
-        ? { success: true,  lpInfo: out?.[0] ?? null }
-        : { success: false, lpInfo: null }
+    const pBsm: OUT<BSM_> | null = typeof info === 'number' ? [info] : null
+    return BroadcastSystemMessage.native(flags, pBsm, msg, wParam, lParam) > 0
+        ? { success: true,  info: pBsm?.[0] }
+        : { success: false }
+}
+
+export interface BroadcastSystemMessageResult {
+    success: boolean
+    info?: BSM_
 }
 
 /**
@@ -105,13 +110,18 @@ export function BroadcastSystemMessage(flags: BSF_, lpInfo: BSM_ | null, Msg: nu
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
  *
  */
-export function BroadcastSystemMessageEx(flags: BSF_, lpInfo: BSM_ | null, Msg: number, wParam: WPARAM, lParam: LPARAM, psbmInfo: BSMINFO | null = null): { success: boolean, lpInfo: BSM_ | null } {
-    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
+export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_ | null, msg: number, wParam: WPARAM, lParam: LPARAM, bsmInfo: BSMINFO | null = null): BroadcastSystemMessageExResult {
+    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(koffi.pointer(cDWORD)), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
 
-    const out: OUT<BSM_> | null = typeof lpInfo === 'string' ? [ lpInfo ] : null
-    return BroadcastSystemMessageEx.native(flags, out, Msg, wParam, lParam, psbmInfo)
-        ? { success: true,  lpInfo: out?.[0] ?? null }
-        : { success: false, lpInfo: null }
+    const pBsm: OUT<BSM_> | null = typeof info === 'string' ? [info] : null
+    return BroadcastSystemMessageEx.native(flags, pBsm, msg, wParam, lParam, bsmInfo)
+        ? { success: true,  info: pBsm?.[0] }
+        : { success: false }
+}
+
+export interface BroadcastSystemMessageExResult {
+    success: boolean
+    info?: BSM_
 }
 
 /**
@@ -119,9 +129,9 @@ export function BroadcastSystemMessageEx(flags: BSF_, lpInfo: BSM_ | null, Msg: 
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-callwindowprocw
  */
-export function CallWindowProc(lpPrevWndFunc: WNDPROC, hWnd: HWND, Msg: WM_, wParam: WPARAM, lParam: LPARAM): LRESULT {
+export function CallWindowProc(lpPrevWndFunc: WNDPROC, hWnd: HWND, msg: WM_, wParam: WPARAM, lParam: LPARAM): LRESULT {
     CallWindowProc.native ??= user32.func('CallWindowProcW', cLRESULT, [ cWNDPROC, cHANDLE, cUINT, cWPARAM, cLPARAM ])
-    return CallWindowProc.native(lpPrevWndFunc, hWnd, Msg, wParam, lParam)
+    return CallWindowProc.native(lpPrevWndFunc, hWnd, msg, wParam, lParam)
 }
 
 /**
@@ -129,9 +139,9 @@ export function CallWindowProc(lpPrevWndFunc: WNDPROC, hWnd: HWND, Msg: WM_, wPa
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-checkmenuitem
  */
-export function CheckMenuItem(hMenu: HMENU, uIDCheckItem: number, uCheck: MF_): number {
+export function CheckMenuItem(hMenu: HMENU, idCheckItem: number, check: MF_): MF_ | -1 {
     CheckMenuItem.native ??= user32.func('CheckMenuItem', cUINT, [ cHANDLE, cUINT, cUINT ])
-    return CheckMenuItem.native(hMenu, uIDCheckItem, uCheck)
+    return CheckMenuItem.native(hMenu, idCheckItem, check)
 }
 
 /**
@@ -150,19 +160,19 @@ export function CreatePopupMenu(): HMENU | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindoww
  */
 export function CreateWindow(
-    lpClassName:  string | null,
-    lpWindowName: string | null,
-    dwStyle:      WS_,
-    x:            number,
-    y:            number,
-    nWidth:       number,
-    nHeight:      number,
-    hWndParent:   HWND | HWND_ | null,
-    hMenu:        HMENU | null,
-    hInstance:    HINSTANCE | null,
-    lpParam:      LPARAM,
+    className:  string | null,
+    windowName: string | null,
+    style:      WS_,
+    x:          number,
+    y:          number,
+    width:      number,
+    height:     number,
+    hWndParent: HWND | HWND_ | null,
+    hMenu:      HMENU | null,
+    hInstance:  HINSTANCE | null,
+    lParam:     LPARAM,
 ): HWND | null {
-    return CreateWindowEx(0, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam)
+    return CreateWindowEx(0, className, windowName, style, x, y, width, height, hWndParent, hMenu, hInstance, lParam)
 }
 
 /**
@@ -171,21 +181,21 @@ export function CreateWindow(
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw
  */
 export function CreateWindowEx(
-    dwExStyle:    WS_EX_,
-    lpClassName:  string | null,
-    lpWindowName: string | null,
-    dwStyle:      WS_,
-    x:            number,
-    y:            number,
-    nWidth:       number,
-    nHeight:      number,
-    hWndParent:   HWND | HWND_ | null,
-    hMenu:        HMENU | null,
-    hInstance:    HINSTANCE | null,
-    lpParam:      LPARAM | null,
+    exStyle:    WS_EX_,
+    className:  string | null,
+    windowName: string | null,
+    style:      WS_,
+    x:          number,
+    y:          number,
+    width:      number,
+    height:     number,
+    hWndParent: HWND | HWND_ | null,
+    hMenu:      HMENU | null,
+    hInstance:  HINSTANCE | null,
+    lParam:     LPARAM | null,
 ): HWND | null {
-    CreateWindowEx.native ??= user32.func('CreateWindowExW', cHANDLE, [ cDWORD, cPWSTR, cPWSTR, cDWORD, cINT, cINT, cINT, cINT, cHANDLE, cHANDLE, cHANDLE, cPVOID ])
-    return CreateWindowEx.native(dwExStyle, lpClassName, lpWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam)
+    CreateWindowEx.native ??= user32.func('CreateWindowExW', cHANDLE, [ cDWORD, cSTR, cSTR, cDWORD, cINT, cINT, cINT, cINT, cHANDLE, cHANDLE, cHANDLE, cLPARAM ])
+    return CreateWindowEx.native(exStyle, className, windowName, style, x, y, width, height, hWndParent, hMenu, hInstance, lParam)
 }
 
 /**
@@ -193,9 +203,9 @@ export function CreateWindowEx(
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowprocw
  */
-export function DefWindowProc(hWnd: HWND, msg: number, wParam: WPARAM, lpParam: LPARAM): LRESULT {
+export function DefWindowProc(hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM): LRESULT {
     DefWindowProc.native ??= user32.func('DefWindowProcW', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ])
-    return DefWindowProc.native(hWnd, msg, wParam, lpParam)
+    return DefWindowProc.native(hWnd, msg, wParam, lParam)
 }
 
 /**
@@ -205,7 +215,7 @@ export function DefWindowProc(hWnd: HWND, msg: number, wParam: WPARAM, lpParam: 
  */
 export function DestroyCursor(hCursor: HCURSOR): boolean {
     DestroyCursor.native ??= user32.func('DestroyCursor', cBOOL, [ cHANDLE ])
-    return Boolean(DestroyCursor.native(hCursor))
+    return DestroyCursor.native(hCursor) !== 0
 }
 
 /**
@@ -215,7 +225,7 @@ export function DestroyCursor(hCursor: HCURSOR): boolean {
  */
 export function DestroyIcon(hIcon: HICON): boolean {
     DestroyIcon.native ??= user32.func('DestroyIcon', cBOOL, [ cHANDLE ])
-    return Boolean(DestroyIcon.native(hIcon))
+    return DestroyIcon.native(hIcon) !== 0
 }
 
 /**
@@ -225,7 +235,7 @@ export function DestroyIcon(hIcon: HICON): boolean {
  */
 export function DestroyMenu(hMenu: HMENU): boolean {
     DestroyMenu.native ??= user32.func('DestroyMenu', cBOOL, [ cHANDLE ])
-    return Boolean(DestroyMenu.native(hMenu))
+    return DestroyMenu.native(hMenu) !== 0
 }
 
 /**
@@ -233,9 +243,9 @@ export function DestroyMenu(hMenu: HMENU): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessagew
  */
-export function DispatchMessage(lpMsg: MSG): LRESULT {
+export function DispatchMessage(msg: MSG): LRESULT {
     DispatchMessage.native ??= user32.func('DispatchMessageW', cLRESULT, [koffi.pointer(cMSG)])
-    return DispatchMessage.native(lpMsg)
+    return DispatchMessage.native(msg)
 }
 
 /**
@@ -243,9 +253,9 @@ export function DispatchMessage(lpMsg: MSG): LRESULT {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumwindows
  */
-export function EnumWindows(lpEnumFunc: WNDENUMPROC, lpParam: LPARAM): boolean {
+export function EnumWindows(lpEnumFunc: WNDENUMPROC, lParam: LPARAM): boolean {
     EnumWindows.native ??= user32.func('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
-    return Boolean(EnumWindows.native(lpEnumFunc, lpParam))
+    return EnumWindows.native(lpEnumFunc, lParam) !== 0
 }
 
 /**
@@ -253,9 +263,9 @@ export function EnumWindows(lpEnumFunc: WNDENUMPROC, lpParam: LPARAM): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindoww
  */
-export function FindWindow(lpClassName: string | null, lpWindowName: string | null): HWND | null {
-    FindWindow.native ??= user32.func('FindWindowW', cHANDLE, [ cPWSTR, cPWSTR ])
-    return FindWindow.native(lpClassName, lpWindowName) || null
+export function FindWindow(className: string | null, windowName: string | null): HWND | null {
+    FindWindow.native ??= user32.func('FindWindowW', cHANDLE, [ cSTR, cSTR ])
+    return FindWindow.native(className, windowName)
 }
 
 /**
@@ -263,9 +273,9 @@ export function FindWindow(lpClassName: string | null, lpWindowName: string | nu
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowexw
  */
-export function FindWindowEx(hWndParent: HWND | HWND_ | null, hWndChildAfter: HWND | null, lpClassName: string | null, lpWindowName: string | null): HWND | null {
-    FindWindowEx.native ??= user32.func('FindWindowExW', cHANDLE, [ cHANDLE, cHANDLE, cPWSTR, cPWSTR ])
-    return FindWindowEx.native(hWndParent, hWndChildAfter, lpClassName, lpWindowName) || null
+export function FindWindowEx(hWndParent: HWND | HWND_ | null, hWndChildAfter: HWND | null, className: string | null, windowName: string | null): HWND | null {
+    FindWindowEx.native ??= user32.func('FindWindowExW', cHANDLE, [ cHANDLE, cHANDLE, cSTR, cSTR ])
+    return FindWindowEx.native(hWndParent, hWndChildAfter, className, windowName)
 }
 
 /**
@@ -273,9 +283,9 @@ export function FindWindowEx(hWndParent: HWND | HWND_ | null, hWndChildAfter: HW
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getancestor
  */
-export function GetAncestor(hWnd: HWND, gaFlags: GA_): HWND | null {
+export function GetAncestor(hWnd: HWND, flags: GA_): HWND | null {
     GetAncestor.native ??= user32.func('GetAncestor', cHANDLE, [ cHANDLE, cUINT ])
-    return GetAncestor.native(hWnd, gaFlags) || null
+    return GetAncestor.native(hWnd, flags)
 }
 
 /**
@@ -285,11 +295,13 @@ export function GetAncestor(hWnd: HWND, gaFlags: GA_): HWND | null {
  *
  * Note: at the moment, libwin32 does not support passing an ATOM for `lpClassName`.
  */
-export function GetClassInfo(hInstance: HINSTANCE | null, lpClassName: string): WNDCLASS | null {
-    GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cPWSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
+export function GetClassInfo(hInstance: HINSTANCE | null, className: string): WNDCLASS | null {
+    GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
 
-    const lpWndClass: OUT<WNDCLASS> = [ new WNDCLASS() ]
-    return GetClassInfo.native(hInstance, lpClassName, lpWndClass) ? lpWndClass[0] : null
+    const pWndClass: OUT<WNDCLASS> = [new WNDCLASS()]
+    if (GetClassInfo.native(hInstance, className, pWndClass) !== 0)
+        return pWndClass[0]
+    return null
 }
 
 /**
@@ -299,11 +311,13 @@ export function GetClassInfo(hInstance: HINSTANCE | null, lpClassName: string): 
  *
  * Note: at the moment, libwin32 does not support passing an ATOM for `lpClassName`.
  */
-export function GetClassInfoEx(hInstance: HINSTANCE | null, lpClassName: string): WNDCLASSEX | null {
-    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cPWSTR, koffi.out(koffi.pointer(cWNDCLASSEX)) ])
+export function GetClassInfoEx(hInstance: HINSTANCE | null, className: string): WNDCLASSEX | null {
+    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cSTR, koffi.out(koffi.pointer(cWNDCLASSEX)) ])
 
-    const lpWndClassEx: OUT<WNDCLASSEX> = [ new WNDCLASSEX() ]
-    return GetClassInfoEx.native(hInstance, lpClassName, lpWndClassEx) ? lpWndClassEx[0] : null
+    const pWndClassEx: OUT<WNDCLASSEX> = [new WNDCLASSEX()]
+    if (GetClassInfoEx.native(hInstance, className, pWndClassEx) !== 0)
+        return pWndClassEx[0]
+    return null
 }
 
 /**
@@ -312,11 +326,11 @@ export function GetClassInfoEx(hInstance: HINSTANCE | null, lpClassName: string)
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassnamew
  */
 export function GetClassName(hWnd: HWND): string {
-    GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cPWSTR), cINT ])
+    GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cPVOID), cINT ])
 
-    const out = new Uint16Array(128)
-    const len = GetClassName.native(hWnd, out, out.length)
-    return textDecoder.decode(out.subarray(0, len))
+    const className = new StringOutputBuffer(128)
+    const len = GetClassName.native(hWnd, className.buffer, className.length)
+    return className.decode(len)
 }
 
 /**
@@ -327,8 +341,10 @@ export function GetClassName(hWnd: HWND): string {
 export function GetCursorPos(): POINT | null {
     GetCursorPos.native ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(koffi.pointer(cPOINT)) ])
 
-    const out: OUT<POINT> = [ {} as POINT ]
-    return GetCursorPos.native(out) ? out[0] : null
+    const pPoint: OUT<POINT> = [{} as POINT]
+    if (GetCursorPos.native(pPoint) !== 0)
+        return pPoint[0]
+    return null
 }
 
 /**
@@ -348,11 +364,13 @@ export function GetForegroundWindow(): HWND {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagew
  */
-export function GetMessage(hWnd: HWND | null | -1, wMsgFilterMin: number = 0, wMsgFilterMax: number = 0): MSG | null {
+export function GetMessage(hWnd: HWND | null | -1, msgFilterMin: number = 0, msgFilterMax: number = 0): MSG | null {
     GetMessage.native ??= user32.func('GetMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT ])
 
-    const out: OUT<MSG> = [ {} as MSG ]
-    return GetMessage.native(out, hWnd, wMsgFilterMin, wMsgFilterMax) ? out[0] : null
+    const pMsg: OUT<MSG> = [{} as MSG]
+    if (GetMessage.native(pMsg, hWnd, msgFilterMin, msgFilterMax) !== 0)
+        return pMsg[0]
+    return null
 }
 
 /**
@@ -361,11 +379,11 @@ export function GetMessage(hWnd: HWND | null | -1, wMsgFilterMin: number = 0, wM
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
  */
 export function GetWindowText(hWnd: HWND): string {
-    GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cPWSTR), cINT ])
+    GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cPVOID), cINT ])
 
-    const out = new Uint16Array(512)
-    const len = GetWindowText.native(hWnd, out, out.length)
-    return textDecoder.decode(out.subarray(0, len))
+    const text = new StringOutputBuffer(512)
+    const len = GetWindowText.native(hWnd, text.buffer, text.length)
+    return text.decode(len)
 }
 
 /**
@@ -375,12 +393,17 @@ export function GetWindowText(hWnd: HWND): string {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowthreadprocessid
  *
  */
-export function GetWindowThreadProcessId(hWnd: HWND): { threadId: number, processId: number } {
-    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cPDWORD) ])
+export function GetWindowThreadProcessId(hWnd: HWND): GetWindowThreadProcessIdResult {
+    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(koffi.pointer(cDWORD)) ])
 
-    const out: OUT<number> = [ 0 ]
-    const threadId = GetWindowThreadProcessId.native(hWnd, out)
-    return { threadId, processId: out[0] }
+    const pProcessId: OUT<number> = [0]
+    const threadId: number = GetWindowThreadProcessId.native(hWnd, pProcessId)
+    return { threadId, processId: pProcessId[0] }
+}
+
+export interface GetWindowThreadProcessIdResult {
+    threadId: number
+    processId: number
 }
 
 /**
@@ -388,9 +411,9 @@ export function GetWindowThreadProcessId(hWnd: HWND): { threadId: number, proces
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursorw
  */
-export function LoadCursor(hInstance:  HINSTANCE | null, lpIconName: IDC_ | string): HCURSOR | null {
-    LoadCursor.native ??= user32.func('LoadCursorW', cHANDLE, [ cHANDLE, cPWSTR ])
-    return LoadCursor.native(hInstance, lpIconName) || null
+export function LoadCursor(hInstance:  HINSTANCE | null, cursorName: IDC_ | string): HCURSOR | null {
+    LoadCursor.native ??= user32.func('LoadCursorW', cHANDLE, [ cHANDLE, cSTR ])
+    return LoadCursor.native(hInstance, cursorName)
 }
 
 /**
@@ -398,9 +421,9 @@ export function LoadCursor(hInstance:  HINSTANCE | null, lpIconName: IDC_ | stri
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadiconw
  */
-export function LoadIcon(hInstance: HINSTANCE | null, lpIconName: IDI_ | string): HICON | null {
-    LoadIcon.native ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cPWSTR ])
-    return LoadIcon.native(hInstance, lpIconName) || null
+export function LoadIcon(hInstance: HINSTANCE | null, iconName: IDI_ | string): HICON | null {
+    LoadIcon.native ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cSTR ])
+    return LoadIcon.native(hInstance, iconName)
 }
 
 /**
@@ -408,9 +431,9 @@ export function LoadIcon(hInstance: HINSTANCE | null, lpIconName: IDI_ | string)
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadimagew
  */
-export function LoadImage(hInstance: HINSTANCE | null, lpName: IDC_ | IDI_ | OIC_ | OCR_ | OBM_ | string, type: IMAGE_, cx: number, cy: number, fuLoad: LR_): HICON | null {
-    LoadImage.native ??= user32.func('LoadImageW', cHANDLE, [cHANDLE, cPWSTR, cUINT, cINT, cINT, cUINT])
-    return LoadImage.native(hInstance, lpName, type, cx, cy, fuLoad) || null
+export function LoadImage(hInstance: HINSTANCE | null, name: IDC_ | IDI_ | OIC_ | OCR_ | OBM_ | string, type: IMAGE_, cx: number, cy: number, load: LR_): HICON | null {
+    LoadImage.native ??= user32.func('LoadImageW', cHANDLE, [cHANDLE, cSTR, cUINT, cINT, cINT, cUINT])
+    return LoadImage.native(hInstance, name, type, cx, cy, load)
 }
 
 /**
@@ -418,9 +441,9 @@ export function LoadImage(hInstance: HINSTANCE | null, lpName: IDC_ | IDI_ | OIC
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxw
  */
-export function MessageBox(hWnd: HWND | null, lpText: string | null, lpCaption: string | null, uType: MB_): number {
-    MessageBox.native ??= user32.func('MessageBoxW', cINT, [ cHANDLE, cPWSTR, cPWSTR, cUINT ])
-    return MessageBox.native(hWnd, lpText, lpCaption, uType)
+export function MessageBox(hWnd: HWND | null, text: string | null, caption: string | null, type: MB_): number {
+    MessageBox.native ??= user32.func('MessageBoxW', cINT, [ cHANDLE, cSTR, cSTR, cUINT ])
+    return MessageBox.native(hWnd, text, caption, type)
 }
 
 /**
@@ -430,9 +453,9 @@ export function MessageBox(hWnd: HWND | null, lpText: string | null, lpCaption: 
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxexw
  */
-export function MessageBoxEx(hWnd: HWND | null, lpText: string | null, lpCaption: string | null, uType: MB_, wLanguageId: number): number {
-    MessageBoxEx.native ??= user32.func('MessageBoxExW', cINT, [ cHANDLE, cPWSTR, cPWSTR, cUINT, cWORD ])
-    return MessageBoxEx.native(hWnd, lpText, lpCaption, uType, wLanguageId)
+export function MessageBoxEx(hWnd: HWND | null, text: string | null, caption: string | null, type: MB_, languageId: number): number {
+    MessageBoxEx.native ??= user32.func('MessageBoxExW', cINT, [ cHANDLE, cSTR, cSTR, cUINT, cWORD ])
+    return MessageBoxEx.native(hWnd, text, caption, type, languageId)
 }
 
 /**
@@ -440,11 +463,13 @@ export function MessageBoxEx(hWnd: HWND | null, lpText: string | null, lpCaption
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
  */
-export function PeekMessage(hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgFilterMax: number, wRemoveMsg: number): MSG | null {
-    PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT, cUINT])
+export function PeekMessage(hWnd: HWND | null | -1, msgFilterMin: number, msgFilterMax: number, removeMsg: PM_): MSG | null {
+    PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT, cUINT ])
 
-    const out: OUT<MSG> = [ {} as MSG ]
-    return PeekMessage.native(out, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg) ? out[0] : null
+    const pMsg: OUT<MSG> = [{} as MSG]
+    if (PeekMessage.native(pMsg, hWnd, msgFilterMin, msgFilterMax, removeMsg) !== 0)
+        return pMsg[0]
+    return null
 }
 
 /**
@@ -452,9 +477,9 @@ export function PeekMessage(hWnd: HWND | null | -1, wMsgFilterMin: number, wMsgF
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postquitmessage
  */
-export function PostQuitMessage(nExitCode: number): void {
-    PostQuitMessage.native ??= user32.func('PostQuitMessage', cVOID, [cINT])
-    return PostQuitMessage.native(nExitCode)
+export function PostQuitMessage(exitCode: number): void {
+    PostQuitMessage.native ??= user32.func('PostQuitMessage', cVOID, [ cINT ])
+    PostQuitMessage.native(exitCode)
 }
 
 /**
@@ -462,16 +487,16 @@ export function PostQuitMessage(nExitCode: number): void {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassw
  */
-export function RegisterClass(lpWndClass: WNDCLASS): ATOM {
+export function RegisterClass(wndClass: WNDCLASS): ATOM {
     RegisterClass.native ??= user32.func('RegisterClassW', cATOM, [ koffi.pointer(cWNDCLASS) ])
 
-    if (typeof lpWndClass.lpfnWndProc === 'function') {
-        lpWndClass = {
-            ...lpWndClass,
-            lpfnWndProc: koffi.register(lpWndClass.lpfnWndProc, cWNDPROC) as unknown as WNDPROC
+    if (typeof wndClass.lpfnWndProc === 'function') {
+        wndClass = {
+            ...wndClass,
+            lpfnWndProc: koffi.register(wndClass.lpfnWndProc, cWNDPROC) as unknown as WNDPROC
         }
     }
-    return RegisterClass.native(lpWndClass)
+    return RegisterClass.native(wndClass)
 }
 
 /**
@@ -479,16 +504,16 @@ export function RegisterClass(lpWndClass: WNDCLASS): ATOM {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexw
  */
-export function RegisterClassEx(lpWndClassEx: WNDCLASSEX): ATOM {
+export function RegisterClassEx(wndClassEx: WNDCLASSEX): ATOM {
     RegisterClassEx.native ??= user32.func('RegisterClassExW', cATOM, [ koffi.pointer(cWNDCLASSEX) ])
 
-    if (typeof lpWndClassEx.lpfnWndProc === 'function') {
-        lpWndClassEx = {
-            ...lpWndClassEx,
-            lpfnWndProc: koffi.register(lpWndClassEx.lpfnWndProc, cWNDPROC) as unknown as WNDPROC
+    if (typeof wndClassEx.lpfnWndProc === 'function') {
+        wndClassEx = {
+            ...wndClassEx,
+            lpfnWndProc: koffi.register(wndClassEx.lpfnWndProc, cWNDPROC) as unknown as WNDPROC
         }
     }
-    return RegisterClassEx.native(lpWndClassEx)
+    return RegisterClassEx.native(wndClassEx)
 }
 
 /**
@@ -496,9 +521,9 @@ export function RegisterClassEx(lpWndClassEx: WNDCLASSEX): ATOM {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
  */
-export function SendMessage(hWnd: HWND, Msg: number, wParam: WPARAM, lParam: LPARAM): LRESULT {
-    SendMessage.native ??= user32.func('SendMessageW', cLRESULT, [cHANDLE, cUINT, cWPARAM, cLPARAM])
-    return SendMessage.native(hWnd, Msg, wParam, lParam)
+export function SendMessage(hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM): LRESULT {
+    SendMessage.native ??= user32.func('SendMessageW', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ])
+    return SendMessage.native(hWnd, msg, wParam, lParam)
 }
 
 /**
@@ -508,7 +533,7 @@ export function SendMessage(hWnd: HWND, Msg: number, wParam: WPARAM, lParam: LPA
  */
 export function SetForegroundWindow(hWnd: HWND): boolean {
     SetForegroundWindow.native ??= user32.func('SetForegroundWindow', cBOOL, [ cHANDLE ])
-    return Boolean(SetForegroundWindow.native(hWnd))
+    return SetForegroundWindow.native(hWnd) !== 0
 }
 
 /**
@@ -516,9 +541,9 @@ export function SetForegroundWindow(hWnd: HWND): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
  */
-export function ShowWindow(hWnd: HWND, nCmdShow: SW_): boolean {
+export function ShowWindow(hWnd: HWND, cmdShow: SW_): boolean {
     ShowWindow.native ??= user32.func('ShowWindow', cBOOL, [ cHANDLE, cINT ])
-    return Boolean(ShowWindow.native(hWnd, nCmdShow))
+    return ShowWindow.native(hWnd, cmdShow) !== 0
 }
 
 /**
@@ -526,9 +551,9 @@ export function ShowWindow(hWnd: HWND, nCmdShow: SW_): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindowasync
  */
-export function ShowWindowAsync(hWnd: HWND, nCmdShow: SW_): boolean {
+export function ShowWindowAsync(hWnd: HWND, cmdShow: SW_): boolean {
     ShowWindowAsync.native ??= user32.func('ShowWindowAsync', cBOOL, [ cHANDLE, cINT ])
-    return Boolean(ShowWindowAsync.native(hWnd, nCmdShow))
+    return ShowWindowAsync.native(hWnd, cmdShow) !== 0
 }
 
 /**
@@ -536,9 +561,9 @@ export function ShowWindowAsync(hWnd: HWND, nCmdShow: SW_): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-trackpopupmenu
  */
-export function TrackPopupMenu(hMenu: HMENU, uFlags: TPM_, x: number, y: number, nReserved: number, hWnd: HWND, prcRect: RECT | null = null): boolean {
+export function TrackPopupMenu(hMenu: HMENU, flags: TPM_, x: number, y: number, hWnd: HWND, rect: RECT | null = null): boolean {
     TrackPopupMenu.native ??= user32.func('TrackPopupMenu', cBOOL, [ cHANDLE, cUINT, cUINT, cUINT, cUINT, cHANDLE, cRECT ])
-    return Boolean(TrackPopupMenu.native(hMenu, uFlags, x, y, nReserved, hWnd, prcRect))
+    return TrackPopupMenu.native(hMenu, flags, x, y, 0, hWnd, rect) !== 0
 }
 
 /**
@@ -546,9 +571,9 @@ export function TrackPopupMenu(hMenu: HMENU, uFlags: TPM_, x: number, y: number,
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
  */
-export function TranslateMessage(lpMsg: MSG): boolean {
+export function TranslateMessage(msg: MSG): boolean {
     TranslateMessage.native ??= user32.func('TranslateMessage', cBOOL, [ koffi.pointer(cMSG) ])
-    return Boolean(TranslateMessage.native(lpMsg))
+    return TranslateMessage.native(msg) !== 0
 }
 
 /**
@@ -556,9 +581,9 @@ export function TranslateMessage(lpMsg: MSG): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/winmsg/translatemessageex
  */
-export function TranslateMessageEx(lpMsg: MSG, flags: number): boolean {
+export function TranslateMessageEx(msg: MSG, flags: number): boolean {
     TranslateMessageEx.native ??= user32.func('TranslateMessageEx', cBOOL, [ koffi.pointer(cMSG), cUINT ])
-    return !!TranslateMessageEx.native(lpMsg, flags)
+    return TranslateMessageEx.native(msg, flags) !== 0
 }
 
 /**
@@ -566,9 +591,9 @@ export function TranslateMessageEx(lpMsg: MSG, flags: number): boolean {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unregisterclassw
  */
-export function UnregisterClass(lpClassName: ATOM | string, hInstance: HINSTANCE | null = null): boolean {
-    UnregisterClass.native ??= user32.func('UnregisterClassW', cBOOL, [ cPWSTR, cHANDLE ])
-    return Boolean(UnregisterClass.native(lpClassName, hInstance))
+export function UnregisterClass(className: ATOM | string, hInstance: HINSTANCE | null = null): boolean {
+    UnregisterClass.native ??= user32.func('UnregisterClassW', cBOOL, [ cSTR, cHANDLE ])
+    return UnregisterClass.native(className, hInstance) !== 0
 }
 
 /**
@@ -578,5 +603,5 @@ export function UnregisterClass(lpClassName: ATOM | string, hInstance: HINSTANCE
  */
 export function UpdateWindow(hWnd: HWND): boolean {
     UpdateWindow.native ??= user32.func('UpdateWindow', cBOOL, [ cHANDLE ])
-    return Boolean(UpdateWindow.native(hWnd))
+    return UpdateWindow.native(hWnd) !== 0
 }

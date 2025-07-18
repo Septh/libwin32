@@ -1,14 +1,18 @@
-import { koffi, Win32Dll, textDecoder } from './private.js'
+import { koffi, Win32Dll, StringOutputBuffer, Internals, type OUT } from './private.js'
 import {
-    cVOID, cBOOL, cDWORD, cPVOID, cPDWORD, cPWSTR,
-    cHANDLE, type HANDLE, type HMODULE, type HWND,
-    type OUT
+    cVOID, cBOOL, cBYTE, cDWORD, cPVOID, cSTR, cLSTATUS,
+    cHANDLE, type HANDLE, type HMODULE, type HWND, type HKEY
 } from './ctypes.js'
 import type {
-    FORMAT_MESSAGE_,
-    GET_MODULE_HANDLE_EX_FLAG_,
-    PSAR_
+    FORMAT_MESSAGE_, GET_MODULE_HANDLE_EX_FLAG_,
+    PSAR_, HKEY_, REG_OPTION_, KEY_
 } from './consts.js'
+import {
+    cFILETIME, type FILETIME,
+    cSECURITY_ATTRIBUTES, type SECURITY_ATTRIBUTES,
+    cSYSTEMTIME,
+    type SYSTEMTIME
+} from './structs.js'
 
 const kernel32 = /*#__PURE__*/new Win32Dll('kernel32.dll')
 
@@ -17,13 +21,12 @@ const kernel32 = /*#__PURE__*/new Win32Dll('kernel32.dll')
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/utilapiset/nf-utilapiset-beep
  */
-export function Beep(dwFreq: number, dwDuration: number): boolean {
+export function Beep(freq: number, duration: number): boolean {
     Beep.native ??= kernel32.func('Beep', cBOOL, [ cDWORD, cDWORD ])
-    return !!Beep.native(dwFreq, dwDuration)
+    return !!Beep.native(freq, duration)
 }
 
 /**
- *
  * Closes an open object handle.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
@@ -35,6 +38,20 @@ export function CloseHandle(hObject: HANDLE): number {
 }
 
 /**
+ * Converts a file time to system time format. System time is based on Coordinated Universal Time (UTC).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-filetimetosystemtime
+ */
+export function FileTimeToSystemTime(fileTime: FILETIME): SYSTEMTIME | null {
+    FileTimeToSystemTime.native ??= kernel32.func('FileTimeToSystemTime', cBOOL, [ cFILETIME, koffi.out(koffi.pointer(cSYSTEMTIME)) ])
+
+    const pSystemTime: OUT<SYSTEMTIME> = [{} as SYSTEMTIME]
+    if (FileTimeToSystemTime.native(fileTime, pSystemTime) !== 0)
+        return pSystemTime[0]
+    return null
+}
+
+/**
  * Formats a message string.
  *
  * Note: the Arguments parameter is not yet supported. Right now, you can use FormatMessage()
@@ -42,16 +59,13 @@ export function CloseHandle(hObject: HANDLE): number {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
  */
-export function FormatMessage(dwFlags: FORMAT_MESSAGE_, lpSource: HMODULE | string | null, dwMessageId: number, dwLanguageId: number): string {
-    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cPVOID, cDWORD, cDWORD, cPWSTR, cDWORD, '...' as any ])
+export function FormatMessage(flags: FORMAT_MESSAGE_, source: HMODULE | string | null, messageId: number, languageId: number): string {
+    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cPVOID, cDWORD, cDWORD, cSTR, cDWORD, '...' as any ])
 
-    const out = new Uint16Array(2048)
-    const len = FormatMessage.native(
-        dwFlags, lpSource, dwMessageId, dwLanguageId,
-        out, out.length,
-        'int', 0    // Fake va_list
-    )
-    return textDecoder.decode(out.subarray(0, len))
+    const pSource = typeof source === 'string' ? Uint16Array.from(source, c => c.charCodeAt(0)) : source
+    const message = new StringOutputBuffer(4096)
+    const len = FormatMessage.native(flags, pSource, messageId, languageId, message.buffer, message.length, 'int', 0)
+    return message.decode(len)
 }
 
 /**
@@ -60,13 +74,12 @@ export function FormatMessage(dwFlags: FORMAT_MESSAGE_, lpSource: HMODULE | stri
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getcomputernamew
  */
 export function GetComputerName(): string | null {
-    GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cPWSTR, koffi.inout(cPDWORD) ])
+    GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
 
-    const out = new Uint16Array(256)
-    const len: OUT<number> = [ out.length ]
-    return GetComputerName.native(out, len) === 0
-        ? null
-        : textDecoder.decode(out.subarray(0, len[0]))
+    const name = new StringOutputBuffer(Internals.UNLEN)
+    if (GetComputerName.native(name.buffer, name.pLength))
+        return name.decode()
+    return null
 }
 
 /**
@@ -106,12 +119,12 @@ export function GetLastError(): number {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamew
  */
-export function GetModuleFileName(hModule: HMODULE): string | null {
-    GetModuleFileName.native = kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, koffi.out(cPWSTR), cDWORD ])
+export function GetModuleFileName(hModule: HMODULE | null): string | null {
+    GetModuleFileName.native = kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, cPVOID, cDWORD ])
 
-    const out = new Uint16Array(1024)
-    const len = GetModuleFileName.native(hModule, out, out.length)
-    return textDecoder.decode(out.subarray(0, len))
+    const name = new StringOutputBuffer(1024)
+    const len = GetModuleFileName.native(hModule, name.buffer, name.length)
+    return name.decode(len)
 }
 
 /**
@@ -121,9 +134,9 @@ export function GetModuleFileName(hModule: HMODULE): string | null {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandlew
  */
-export function GetModuleHandle(lpModuleName: string | null): HMODULE | null {
-    GetModuleHandle.native ??= kernel32.func('GetModuleHandleW', cHANDLE, [ cPWSTR ])
-    return GetModuleHandle.native(lpModuleName)
+export function GetModuleHandle(moduleName: string | null): HMODULE | null {
+    GetModuleHandle.native ??= kernel32.func('GetModuleHandleW', cHANDLE, [ cSTR ])
+    return GetModuleHandle.native(moduleName)
 }
 
 /**
@@ -134,13 +147,28 @@ export function GetModuleHandle(lpModuleName: string | null): HMODULE | null {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandleexw
  */
-export function GetModuleHandleEx(dwFlags: GET_MODULE_HANDLE_EX_FLAG_, lpModuleName: string | null): HMODULE | null {
-    GetModuleHandleEx.native ??= kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cPWSTR, koffi.out(koffi.pointer(cHANDLE)) ])
+export function GetModuleHandleEx(flags: GET_MODULE_HANDLE_EX_FLAG_, moduleName: string | null): HMODULE | null {
+    GetModuleHandleEx.native ??= kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cSTR, koffi.out(koffi.pointer(cHANDLE)) ])
 
-    const hModule: OUT<HMODULE | null> = [ null ]
-    return GetModuleHandleEx.native(dwFlags, lpModuleName, hModule) === 0
-        ? null
-        : hModule[0]
+    const pHandle: OUT<HMODULE | null> = [null]
+    if (GetModuleHandleEx.native(flags, moduleName, pHandle))
+        return pHandle[0]
+    return null
+}
+
+/**
+ * Retrieves the current size of the registry and the maximum size that the registry is allowed to attain on the system.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystemregistryquota
+ */
+export function GetSystemRegistryQuota() {
+    GetSystemRegistryQuota.native ??= kernel32.func('GetSystemRegistryQuota', cBOOL, [ koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)) ])
+
+    const pAllowed: OUT<number> = [0]
+    const pUsed: OUT<number> = [0]
+    if (GetSystemRegistryQuota.native(pAllowed, pUsed))
+        return { allowed: pAllowed[0], used: pUsed[0] }
+    return null
 }
 
 /**
@@ -148,9 +176,9 @@ export function GetModuleHandleEx(dwFlags: GET_MODULE_HANDLE_EX_FLAG_, lpModuleN
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
  */
-export function OpenProcess(dwDesiredAccess: PSAR_, bInheritHandle: boolean, dwProcessId: number): HANDLE | null {
+export function OpenProcess(desiredAccess: PSAR_, inheritHandle: boolean, processId: number): HANDLE | null {
     OpenProcess.native ??= kernel32.func('OpenProcess', cHANDLE, [ cDWORD, cBOOL, cDWORD ])
-    return OpenProcess.native(dwDesiredAccess, Number(bInheritHandle), dwProcessId)
+    return OpenProcess.native(desiredAccess, Number(inheritHandle), processId)
 }
 
 /**
@@ -158,14 +186,13 @@ export function OpenProcess(dwDesiredAccess: PSAR_, bInheritHandle: boolean, dwP
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-queryfullprocessimagenamew
  */
-export function QueryFullProcessImageName(hProcess: HANDLE, dwFlags: number): string | null {
-    QueryFullProcessImageName.native ??= kernel32.func('QueryFullProcessImageNameW', cBOOL, [ cHANDLE, cDWORD, koffi.out(cPWSTR), koffi.inout(cPDWORD) ])
+export function QueryFullProcessImageName(hProcess: HANDLE, flags: number): string | null {
+    QueryFullProcessImageName.native ??= kernel32.func('QueryFullProcessImageNameW', cBOOL, [ cHANDLE, cDWORD, cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
 
-    const exeName = new Uint16Array(256)
-    const dwSize: OUT<number> = [ exeName.length ]
-    return QueryFullProcessImageName.native(hProcess, dwFlags, exeName, dwSize) === 0
-        ? null
-        : textDecoder.decode(exeName.subarray(0, dwSize[0]))
+    const name = new StringOutputBuffer(Internals.MAX_PATH)
+    if (QueryFullProcessImageName.native(hProcess, flags, name.buffer, name.pLength))
+        return name.decode()
+    return null
 }
 
 /**
@@ -173,7 +200,7 @@ export function QueryFullProcessImageName(hProcess: HANDLE, dwFlags: number): st
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setlasterror
  */
-export function SetLastError(dwErrcode: number): void {
+export function SetLastError(errCode: number): void {
     SetLastError.native ??= kernel32.func('SetLastError', cVOID, [ cDWORD ])
-    return SetLastError.native(dwErrcode)
+    return SetLastError.native(errCode)
 }

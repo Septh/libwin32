@@ -4,17 +4,111 @@ import type { SID_IDENTIFIER_AUTHORITY } from './structs.js'
  * The following are masks for the predefined standard access types.
  */
 export enum ACCESS_MASK {
-    DELETE = 0x00010000,
-    READ_CONTROL = 0x00020000,
-    WRITE_DAC = 0x00040000,
-    WRITE_OWNER = 0x00080000,
-    SYNCHRONIZE = 0x00100000,
+    DELETE                   = 0x00010000,
+    READ_CONTROL             = 0x00020000,
+    WRITE_DAC                = 0x00040000,
+    WRITE_OWNER              = 0x00080000,
+    SYNCHRONIZE              = 0x00100000,
     STANDARD_RIGHTS_REQUIRED = 0x000F0000,
-    STANDARD_RIGHTS_READ = READ_CONTROL,
-    STANDARD_RIGHTS_WRITE = READ_CONTROL,
-    STANDARD_RIGHTS_EXECUTE = READ_CONTROL,
-    STANDARD_RIGHTS_ALL = 0x001F0000,
-    SPECIFIC_RIGHTS_ALL = 0x0000FFFF
+    STANDARD_RIGHTS_READ     = READ_CONTROL,
+    STANDARD_RIGHTS_WRITE    = READ_CONTROL,
+    STANDARD_RIGHTS_EXECUTE  = READ_CONTROL,
+    STANDARD_RIGHTS_ALL      = 0x001F0000,
+    SPECIFIC_RIGHTS_ALL      = 0x0000FFFF
+}
+
+/**
+ * Access types for the Policy object.
+ */
+export enum POLICY_ {
+    VIEW_LOCAL_INFORMATION   = 0x00000001,
+    VIEW_AUDIT_INFORMATION   = 0x00000002,
+    GET_PRIVATE_INFORMATION  = 0x00000004,
+    TRUST_ADMIN              = 0x00000008,
+    CREATE_ACCOUNT           = 0x00000010,
+    CREATE_SECRET            = 0x00000020,
+    CREATE_PRIVILEGE         = 0x00000040,
+    SET_DEFAULT_QUOTA_LIMITS = 0x00000080,
+    SET_AUDIT_REQUIREMENTS   = 0x00000100,
+    AUDIT_LOG_ADMIN          = 0x00000200,
+    SERVER_ADMIN             = 0x00000400,
+    LOOKUP_NAMES             = 0x00000800,
+    NOTIFICATION             = 0x00001000,
+
+    ALL_ACCESS = (
+        ACCESS_MASK.STANDARD_RIGHTS_REQUIRED |
+        VIEW_LOCAL_INFORMATION |
+        VIEW_AUDIT_INFORMATION |
+        GET_PRIVATE_INFORMATION |
+        TRUST_ADMIN |
+        CREATE_ACCOUNT |
+        CREATE_SECRET |
+        CREATE_PRIVILEGE |
+        SET_DEFAULT_QUOTA_LIMITS |
+        SET_AUDIT_REQUIREMENTS |
+        AUDIT_LOG_ADMIN |
+        SERVER_ADMIN |
+        LOOKUP_NAMES
+    ),
+
+    READ = (
+        ACCESS_MASK.STANDARD_RIGHTS_READ |
+        VIEW_AUDIT_INFORMATION |
+        GET_PRIVATE_INFORMATION
+    ),
+
+    WRITE = (
+        ACCESS_MASK.STANDARD_RIGHTS_WRITE |
+        TRUST_ADMIN |
+        CREATE_ACCOUNT |
+        CREATE_SECRET |
+        CREATE_PRIVILEGE |
+        SET_DEFAULT_QUOTA_LIMITS |
+        SET_AUDIT_REQUIREMENTS |
+        AUDIT_LOG_ADMIN |
+        SERVER_ADMIN
+    ),
+
+    EXECUTE = (
+        ACCESS_MASK.STANDARD_RIGHTS_EXECUTE |
+        VIEW_LOCAL_INFORMATION |
+        LOOKUP_NAMES
+    )
+}
+
+/**
+ * Registry Specific Access Rights.
+ */
+export enum KEY_ {
+    QUERY_VALUE          = 0x0001,
+    SET_VALUE            = 0x0002,
+    CREATE_SUB_KEY       = 0x0004,
+    ENUMERATE_SUB_KEYS   = 0x0008,
+    NOTIFY               = 0x0010,
+    CREATE_LINK          = 0x0020,
+    WOW64_64KEY          = 0x0100,
+    WOW64_32KEY          = 0x0200,
+    WOW64_RES            = 0x0300,
+
+    READ = (
+        (ACCESS_MASK.STANDARD_RIGHTS_READ | QUERY_VALUE | ENUMERATE_SUB_KEYS | NOTIFY)
+        & (~ACCESS_MASK.SYNCHRONIZE)
+    ),
+
+    WRITE = (
+        (ACCESS_MASK.STANDARD_RIGHTS_WRITE | SET_VALUE | CREATE_SUB_KEY)
+        & (~ACCESS_MASK.SYNCHRONIZE)
+    ),
+
+    EXECUTE = (
+        (READ)
+        & (~ACCESS_MASK.SYNCHRONIZE)
+    ),
+
+    ALL_ACCESS = (
+        (ACCESS_MASK.STANDARD_RIGHTS_ALL | QUERY_VALUE | SET_VALUE | CREATE_SUB_KEY | ENUMERATE_SUB_KEYS | NOTIFY | CREATE_LINK)
+        & (~ACCESS_MASK.SYNCHRONIZE)
+    )
 }
 
 /**
@@ -125,9 +219,7 @@ export enum CS_ {
 /**
  * Special value for X and Y parameters of CreateWindow()/CreateWindowEx().
  */
-export enum CW_ {
-    USEDEFAULT = 0x80000000
-}
+export const CW_USEDEFAULT = 0x80000000
 
 /**
  * well-known aliases...
@@ -220,6 +312,22 @@ export enum GET_MODULE_HANDLE_EX_FLAG_ {
     PIN                = 0x00000001,
     UNCHANGED_REFCOUNT = 0x00000002,
     FROM_ADDRESS       = 0x00000004
+}
+
+/**
+ * Reserved Key Handles.
+ */
+export enum HKEY_ {
+    CLASSES_ROOT                = 0x80000000,
+    CURRENT_USER                = 0x80000001,
+    LOCAL_MACHINE               = 0x80000002,
+    USERS                       = 0x80000003,
+    PERFORMANCE_DATA            = 0x80000004,
+    PERFORMANCE_TEXT            = 0x80000050,
+    PERFORMANCE_NLSTEXT         = 0x80000060,
+    CURRENT_CONFIG              = 0x80000005,
+    DYN_DATA                    = 0x80000006,
+    CURRENT_USER_LOCAL_SETTINGS = 0x80000007,
 }
 
 /**
@@ -385,7 +493,7 @@ export enum MF_ {
 /**
  * Values for NOTIFYICONDATA.uFlags
  */
-export const enum NIF_ {
+export enum NIF_ {
     MESSAGE  = 0x0001,
     ICON     = 0x0002,
     TIP      = 0x0004,
@@ -399,7 +507,7 @@ export const enum NIF_ {
 /**
  * Values for the dwMessagge parameter of Shell_NotifyIcon()
  */
-export const enum NIM_ {
+export enum NIM_ {
     ADD        = 0x00000000,
     MODIFY     = 0x00000001,
     DELETE     = 0x00000002,
@@ -567,7 +675,7 @@ export enum PM_ {
 /**
  * Group attributes
  */
-export const enum SE_GROUP_ {
+export enum SE_GROUP_ {
     MANDATORY          = 0x00000001,
     ENABLED_BY_DEFAULT = 0x00000002,
     ENABLED            = 0x00000004,
@@ -594,7 +702,7 @@ export const enum SE_GROUP_ {
 /**
  *
  */
-export const enum SECURITY_ {
+export enum SECURITY_ {
     DIALUP_RID                                    = 0x00000001,
     NETWORK_RID                                   = 0x00000002,
     BATCH_RID                                     = 0x00000003,
@@ -1337,3 +1445,59 @@ export enum WS_EX_ {
     OVERLAPPEDWINDOW    = WINDOWEDGE | CLIENTEDGE,
     PALETTEWINDOW       = WINDOWEDGE | TOOLWINDOW | TOPMOST
 }
+
+/**
+ * The SECURITY_DESCRIPTOR_CONTROL data type is a set of bit flags that qualify the meaning of a security descriptor or its components.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-control
+ */
+export type SECURITY_DESCRIPTOR_CONTROL = SE_
+export enum SE_ {
+    OWNER_DEFAULTED       = 0x0001,
+    GROUP_DEFAULTED       = 0x0002,
+    DACL_PRESENT          = 0x0004,
+    DACL_DEFAULTED        = 0x0008,
+    SACL_PRESENT          = 0x0010,
+    SACL_DEFAULTED        = 0x0020,
+    DACL_AUTO_INHERIT_REQ = 0x0100,
+    SACL_AUTO_INHERIT_REQ = 0x0200,
+    DACL_AUTO_INHERITED   = 0x0400,
+    SACL_AUTO_INHERITED   = 0x0800,
+    DACL_PROTECTED        = 0x1000,
+    SACL_PROTECTED        = 0x2000,
+    RM_CONTROL_VALID      = 0x4000,
+    SELF_RELATIVE         = 0x8000,
+}
+
+/**
+ * Predefined Value Types.
+ */
+export enum REG_ {
+    NONE                       = 0,     // No value type
+    SZ                         = 1,     // Unicode nul terminated string
+    EXPAND_SZ                  = 2,     // Unicode nul terminated string (with environment variable references)
+    BINARY                     = 3,     // Free form binary
+    DWORD                      = 4,     // 32-bit number
+    DWORD_LITTLE_ENDIAN        = 4,     // 32-bit number (same as REG_DWORD)
+    DWORD_BIG_ENDIAN           = 5,     // 32-bit number
+    LINK                       = 6,     // Symbolic Link (unicode)
+    MULTI_SZ                   = 7,     // Multiple Unicode strings
+    RESOURCE_LIST              = 8,     // Resource list in the resource map
+    FULL_RESOURCE_DESCRIPTOR   = 9,     // Resource list in the hardware description
+    RESOURCE_REQUIREMENTS_LIST = 10,
+    QWORD                      = 11,    // 64-bit number
+    QWORD_LITTLE_ENDIAN        = 11,    // 64-bit number (same as REG_QWORD)
+}
+
+export enum REG_OPTION_ {
+    RESERVED        = 0x00000000,
+    NON_VOLATILE    = 0x00000000,
+    VOLATILE        = 0x00000001,
+    CREATE_LINK     = 0x00000002,
+    BACKUP_RESTORE  = 0x00000004,
+    OPEN_LINK       = 0x00000008,
+    DONT_VIRTUALIZE = 0x00000010,
+}
+
+export const REG_CREATED_NEW_KEY = 1
+export const REG_OPENED_EXISTING_KEY = 2

@@ -3,9 +3,6 @@ import koffi from 'koffi-cream'
 
 export { koffi }
 
-export const textDecoder  = /*#__PURE__*/new TextDecoder('utf-16')
-export const outputBuffer = /*#__PURE__*/new ArrayBuffer(8192)
-
 export class Win32Dll implements Disposable {
     get x64() { return true }
     get Unicode() { return true }
@@ -33,19 +30,53 @@ export class Win32Dll implements Disposable {
     }
 }
 
-/** @internal Various Win32 constants. */
+export class StringOutputBuffer {
+    readonly buffer: Uint16Array
+    readonly pLength: [ number ]
+    get length() { return this.pLength[0] }
+
+    constructor(length: number, from?: string) {
+        this.buffer = new Uint16Array(length)
+        this.pLength = [ length ]
+        if (typeof from === 'string') {
+            assert(from.length <= length)
+            this.buffer.set([...from].map(c => c.charCodeAt(0)))
+        }
+    }
+
+    static #decoder = /*#__PURE__*/new TextDecoder('utf-16')
+    decode(length: number = this.length): string {
+        return StringOutputBuffer.#decoder.decode(this.buffer.subarray(0, length))
+    }
+}
+
+/** Various Win32 constants. */
 export const enum Internals {
+
+    // minwindef.h
+    MAX_PATH = 260,
+
     // winnt.h
-    ACL_REVISION                                  = 2,
-    SID_REVISION                                  = 1,
-    SID_MAX_SUB_AUTHORITIES                       = 15,
-    SID_RECOMMENDED_SUB_AUTHORITIES               = 1,
-    SID_HASH_SIZE                                 = 32,
+    ACL_REVISION = 2,
+    ANYSIZE_ARRAY = 1,
     CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION = 1,
-    TOKEN_SOURCE_LENGTH                           = 8,
+    SID_HASH_SIZE = 32,
+    SID_MAX_SUB_AUTHORITIES = 15,
+    SID_RECOMMENDED_SUB_AUTHORITIES = 1,
+    SID_REVISION = 1,
+    TOKEN_SOURCE_LENGTH = 8,
 
     // lmcons.h
     UNLEN = 256,
     GNLEN = UNLEN,
     PWLEN = 256,
+
+    // misc
+    ERROR_SUCCESS  = 0,
+    MAX_KEY_LENGTH = 255,
+    MAX_VALUE_NAME = 16383,
+    STATUS_SUCCESS = 0,
 }
+
+/** koffi.out() and koffi.inout() expect a table with a single entry. */
+export type OUT<T> = [T]

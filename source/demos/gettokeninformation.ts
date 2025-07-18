@@ -1,8 +1,8 @@
 /*
  * This demo is adapted from MS's sample code "Searching for a SID in an Access Token"
  * https://learn.microsoft.com/en-us/windows/win32/secauthz/searching-for-a-sid-in-an-access-token-in-c--
+ *
  */
-
 import {
     GetCurrentProcess,
     OpenProcessToken, GetTokenInformation,
@@ -46,7 +46,7 @@ function SearchTokenGroupsForSID() {
                 console.error("LookupAccountSid Error:", FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError(), 0))
                 continue
             }
-            console.log(`Current user is a member of ${names.ReferencedDomainName}\\${names.Name} group`)
+            console.log(`Current user is a member of ${names.referencedDomainName}\\${names.name} group`)
 
             // Find out whether the SID is enabled in the token.
             if (groupInfo.Groups[i].Attributes & SE_GROUP_.ENABLED)
@@ -59,8 +59,7 @@ function SearchTokenGroupsForSID() {
     }
 
     // Release the memory we allocated.
-    if (adminsSid)
-        FreeSid(adminsSid)
+    FreeSid(adminsSid)
 }
 
 SearchTokenGroupsForSID()

@@ -10,7 +10,7 @@ const shell32 = /*#__PURE__*/new Win32Dll('shell32.dll')
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shell_notifyiconw
  */
-export function Shell_NotifyIcon(dwMessage: NIM_, data: NOTIFYICONDATA): number {
+export function Shell_NotifyIcon(message: NIM_, data: NOTIFYICONDATA): number {
     Shell_NotifyIcon.native ??= shell32.func('Shell_NotifyIconW', cBOOL, [ cDWORD, koffi.pointer(cNOTIFYICONDATA) ])
-    return Shell_NotifyIcon.native(dwMessage, data)
+    return Shell_NotifyIcon.native(message, data)
 }
