@@ -1,3 +1,4 @@
+import type { SID_IDENTIFIER_AUTHORITY } from './structs.js'
 
 /**
  * The following are masks for the predefined standard access types.
@@ -128,9 +129,6 @@ export enum CW_ {
     USEDEFAULT = 0x80000000
 }
 
-/** Maximum length (in characters) of a user name. */
-export const UNLEN = 256
-
 /**
  * well-known aliases...
  */
@@ -173,7 +171,7 @@ export enum DOMAIN_ALIAS_ {
     RID_OPENSSH_USERS                  = 0x00000249,
 }
 
-export const SECURITY_NT_AUTHORITY: [ number, number, number, number, number, number ] = [ 0, 0, 0, 0, 0, 5 ]
+export const SECURITY_NT_AUTHORITY: SID_IDENTIFIER_AUTHORITY = [ 0, 0, 0, 0, 0, 5 ]
 
 /**
  * Extended Name APIs for ADS.

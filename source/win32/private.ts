@@ -4,6 +4,7 @@ import koffi from 'koffi-cream'
 export { koffi }
 
 export const textDecoder  = /*#__PURE__*/new TextDecoder('utf-16')
+export const outputBuffer = /*#__PURE__*/new ArrayBuffer(8192)
 
 export class Win32Dll implements Disposable {
     get x64() { return true }
@@ -32,6 +33,19 @@ export class Win32Dll implements Disposable {
     }
 }
 
+/** @internal Various Win32 constants. */
 export const enum Internals {
-    SID_MAX_SUB_AUTHORITIES = 32
+    // winnt.h
+    ACL_REVISION                                  = 2,
+    SID_REVISION                                  = 1,
+    SID_MAX_SUB_AUTHORITIES                       = 15,
+    SID_RECOMMENDED_SUB_AUTHORITIES               = 1,
+    SID_HASH_SIZE                                 = 32,
+    CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION = 1,
+    TOKEN_SOURCE_LENGTH                           = 8,
+
+    // lmcons.h
+    UNLEN = 256,
+    GNLEN = UNLEN,
+    PWLEN = 256,
 }

@@ -19,6 +19,7 @@ export interface POINT {
     y: number
 }
 
+/** @internal */
 export const cPOINT = koffi.struct('POINT', {
     x: cLONG,
     y: cLONG
@@ -32,6 +33,7 @@ export interface POINTS {
     y: number
 }
 
+/** @internal */
 export const cPOINTS = koffi.struct('POINTS', {
     x: cSHORT,
     y: cSHORT
@@ -47,6 +49,7 @@ export interface RECT {
     bottom: number
 }
 
+/** @internal */
 export const cRECT = koffi.struct('RECT', {
     left:   cLONG,
     top:    cLONG,
@@ -62,6 +65,7 @@ export interface SIZE {
     y: number
 }
 
+/** @internal */
 export const cSIZE = koffi.struct('SIZE', {
     cx: cLONG,
     yy: cLONG
@@ -78,6 +82,7 @@ export interface MINMAXINFO {
     ptMaxTrackSize: POINT
 }
 
+/** @internal */
 export const cMINMAXINFO = koffi.struct('MINMAXINFO', {
     ptReserved:     cPOINT,
     ptMaxSize:      cPOINT,
@@ -89,16 +94,15 @@ export const cMINMAXINFO = koffi.struct('MINMAXINFO', {
 /**
  * The ACL structure is the header of an access control list (ACL).
  */
-export interface ACL {
-    AclRevision: number
-    Sbsz1: number
-    AclSize: number
-    AceCount: number
-    Sbsz2: number
+export class ACL {
+    readonly AclRevision = Internals.ACL_REVISION
+    declare Sbsz1: number
+    declare AclSize: number
+    declare AceCount: number
+    declare Sbsz2: number
 }
 
-export const ACL_REVISION = 1
-
+/** @internal */
 export const cACL = koffi.struct('ACL', {
     AclRevision: cBYTE,
     Sbsz1: cBYTE,
@@ -115,6 +119,7 @@ export interface CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE {
     Name:    String
 }
 
+/** @internal */
 export const cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE = koffi.struct('CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE', {
     Version: cDWORD64,
     Name:    cPWSTR
@@ -128,6 +133,7 @@ export interface CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE {
     ValueLength: number
 }
 
+/** @internal */
 export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct('CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE', {
     pValue:      cPVOID,
     ValueLength: cDWORD
@@ -152,6 +158,7 @@ export interface CLAIM_SECURITY_ATTRIBUTE_V1 {
     }[]
 }
 
+/** @internal */
 export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct('CLAIM_SECURITY_ATTRIBUTE_V1', {
     Name:       cPWSTR,
     ValueType:  cWORD,
@@ -170,22 +177,21 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct('CLAIM_SECURITY_ATTRIBU
 /**
  * The CLAIM_SECURITY_ATTRIBUTES_INFORMATION structure defines the security attributes for the claim.
  */
-export interface CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
-    Version:        number
-    Reserved:       0         // Reserved, must be 0
-    AttributeCount: number
-    Attribute: null | {
+export class CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
+    readonly Version = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION
+    readonly Reserved = 0         // Reserved, must be 0
+    declare AttributeCount: number
+    declare Attribute: null | {
         AttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[]
     }
 }
 
-export const CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1 = 1
-
+/** @internal */
 export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct('CLAIM_SECURITY_ATTRIBUTES_INFORMATION', {
     Version:        cWORD,
     Reserved:       cWORD,
     AttributeCount: cDWORD,
-    Attribute: cPVOID
+    Attribute:      cPVOID
     // Attribute: koffi.union({
     //     pAttributeV1: koffi.pointer(cCLAIM_SECURITY_ATTRIBUTE_V1)
     // })
@@ -201,6 +207,7 @@ export interface GUID {
     Data4: [ number, number, number, number, number, number, number, number ]
 }
 
+/** @internal */
 export const cGUID = koffi.struct('GUID', {
     Data1: koffi.types.uint32,
     Data2: koffi.types.uint16,
@@ -212,6 +219,8 @@ export const cGUID = koffi.struct('GUID', {
  * The UUID structure is a typedef'd synonym for the GUID structure.
  */
 export type UUID = GUID
+
+/** @internal */
 export const cUUID = koffi.alias('UUID', cGUID)
 
 /**
@@ -222,6 +231,7 @@ export interface LUID {
     HighPart: number
 }
 
+/** @internal */
 export const cLUID = koffi.struct('LUID', {
     LowPart: cDWORD,
     HighPart: cLONG
@@ -235,6 +245,7 @@ export interface LUID_AND_ATTRIBUTES {
     Attributes: number
 }
 
+/** @internal */
 export const cLUID_AND_ATTRIBUTES = koffi.struct('LUID_AND_ATTRIBUTES', {
     Luid: cLUID,
     Attributes: cDWORD
@@ -245,10 +256,10 @@ export const cLUID_AND_ATTRIBUTES = koffi.struct('LUID_AND_ATTRIBUTES', {
  */
 export class LSA_UNICODE_STRING {
     /** The length, in bytes, of the string pointed to by the Buffer member, not including the terminating null character, if any. */
-    Length: number
+    readonly Length: number
     /** The total size, in bytes, of the memory allocated for Buffer. Up to MaximumLength bytes can be written into the buffer without trampling memory. */
-    MaximumLength: number
-    Buffer: Uint16Array
+    readonly MaximumLength: number
+    readonly Buffer: Uint16Array
 
     constructor(string: string)
     constructor(length: number)
@@ -260,6 +271,7 @@ export class LSA_UNICODE_STRING {
     }
 }
 
+/** @internal */
 export const cLSA_UNICODE_STRING = koffi.struct('LSA_UNICODE_STRING', {
     Length:        cUSHORT,
     MaximumLength: cUSHORT,
@@ -270,7 +282,7 @@ export const cLSA_UNICODE_STRING = koffi.struct('LSA_UNICODE_STRING', {
  * Used with the LsaOpenPolicy function to specify the attributes of the connection to the Policy object.
  */
 export class LSA_OBJECT_ATTRIBUTES {
-    Length = koffi.sizeof(cLSA_OBJECT_ATTRIBUTES)
+    readonly Length = koffi.sizeof(cLSA_OBJECT_ATTRIBUTES)
     declare RootDirectory:            HANDLE
     declare ObjectName:               LSA_UNICODE_STRING
     declare Attributes:               number
@@ -278,6 +290,7 @@ export class LSA_OBJECT_ATTRIBUTES {
     declare SecurityQualityOfService: unknown       // Points to type SECURITY_QUALITY_OF_SERVICE
 }
 
+/** @internal */
 export const cLSA_OBJECT_ATTRIBUTES = koffi.struct('LSA_OBJECT_ATTRIBUTES', {
     Length:                   cULONG,
     RootDirectory:            cHANDLE,
@@ -292,15 +305,12 @@ export const cLSA_OBJECT_ATTRIBUTES = koffi.struct('LSA_OBJECT_ATTRIBUTES', {
  */
 export interface SID {
     Revision:            number
-    IdentifierAuthority: [ number, number, number, number, number, number ]
+    IdentifierAuthority: SID_IDENTIFIER_AUTHORITY
     SubAuthorityCount:   number
     SubAuthority:        number[]
 }
 
-export const SID_REVISION = 1                       // Current revision level
-export const SID_MAX_SUB_AUTHORITIES = 15
-export const SID_RECOMMENDED_SUB_AUTHORITIES = 1    // Will change to around 6
-
+/** @internal */
 export const cSID = koffi.struct('SID', {
     Revision:            cBYTE,
     IdentifierAuthority: koffi.array(cBYTE, 6, 'Array'),
@@ -313,6 +323,7 @@ export const cSID = koffi.struct('SID', {
  */
 export type SID_IDENTIFIER_AUTHORITY = [ number, number, number, number, number, number ]
 
+/** @internal */
 export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6)
 
 /**
@@ -323,6 +334,7 @@ export interface SID_AND_ATTRIBUTES {
     Attributes: number
 }
 
+/** @internal */
 export const cSID_AND_ATTRIBUTES = koffi.struct('SID_AND_ATTRIBUTES', {
     Sid: koffi.pointer(cSID),
     Attributes: cDWORD
@@ -337,12 +349,11 @@ export interface SID_AND_ATTRIBUTES_HASH {
     Hash:     BigInt[]
 }
 
-export const SID_HASH_SIZE = 32
-
+/** @internal */
 export const cSID_AND_ATTRIBUTES_HASH = koffi.struct('SID_AND_ATTRIBUTES_HASH', {
     SidCount: cDWORD,
     SidAttr:  koffi.pointer(koffi.array(cSID_AND_ATTRIBUTES, 1)),
-    Hash:     koffi.array(cULONG_PTR, SID_HASH_SIZE)
+    Hash:     koffi.array(cULONG_PTR, Internals.SID_HASH_SIZE)
 })
 
 /**
@@ -358,6 +369,7 @@ export interface MSG {
     lPrivate: number
 }
 
+/** @internal */
 export const cMSG = koffi.struct('MSG', {
     HWND:     cHANDLE,
     message:  cUINT,
@@ -387,6 +399,7 @@ export class WNDCLASS {
     declare lpszClassName: string | null
 }
 
+/** @internal */
 export const cWNDCLASS = koffi.struct('WNDCLASS', {
     style:         cUINT,
     lpfnWndProc:   cWNDPROC,
@@ -420,6 +433,7 @@ export class WNDCLASSEX {
     declare lpszClassName: string | null
 }
 
+/** @internal */
 export const cWNDCLASSEX = koffi.struct('WNDCLASSEX', {
     cbSize:        cUINT,
     style:         cUINT,
@@ -445,6 +459,7 @@ export class BSMINFO {
     declare luid:  LUID
 }
 
+/** @internal */
 export const cBSMINFO = koffi.struct('BSMINFO', {
     cbSize: cUINT,
     hdesk:  cHANDLE,
@@ -476,6 +491,7 @@ export class NOTIFYICONDATA {
     declare hBalloonIcon:     HICON | null
 }
 
+/** @internal */
 export const cNOTIFYICONDATA = koffi.struct('NOTIFYICONDATA', {
     cbSize:           cDWORD,
     hWnd:             cHANDLE,
@@ -501,6 +517,7 @@ export interface TOKEN_APPCONTAINER_INFORMATION {
     TokenAppContainer: SID
 }
 
+/** @internal */
 export const cTOKEN_APPCONTAINER_INFORMATION = koffi.struct('TOKEN_APPCONTAINER_INFORMATION', {
     TokenAppContainer: koffi.pointer(cSID)
 })
@@ -512,6 +529,7 @@ export interface TOKEN_DEFAULT_DACL {
     DefaultDacl: ACL
 }
 
+/** @internal */
 export const cTOKEN_DEFAULT_DACL = koffi.struct('TOKEN_DEFAULT_DACL', {
     DefaultDacl: koffi.pointer(cACL)
 })
@@ -523,6 +541,7 @@ export interface TOKEN_ELEVATION {
     TokenIsElevated: number
 }
 
+/** @internal */
 export const cTOKEN_ELEVATION = koffi.struct('TOKEN_ELEVATION', {
     TokenIsElevated: cDWORD
 })
@@ -535,6 +554,7 @@ export interface TOKEN_GROUPS {
     Groups: SID_AND_ATTRIBUTES[]
 }
 
+/** @internal */
 export const cTOKEN_GROUPS = koffi.struct('TOKEN_GROUPS', {
     GroupCount: cDWORD,
     Groups: koffi.array(cSID_AND_ATTRIBUTES, 1)
@@ -556,6 +576,7 @@ export interface TOKEN_GROUPS_AND_PRIVILEGES {
     AuthenticationId:    LUID,
 }
 
+/** @internal */
 export const cTOKEN_GROUPS_AND_PRIVILEGES = koffi.struct('TOKEN_GROUPS_AND_PRIVILEGES', {
     SidCount:            cDWORD,
     SidLength:           cDWORD,
@@ -576,6 +597,7 @@ export interface TOKEN_LINKED_TOKEN {
     LinkedToken: HTOKEN
 }
 
+/** @internal */
 export const cTOKEN_LINKED_TOKEN = koffi.struct('TOKEN_LINKED_TOKEN', {
     LinkedToken: cHANDLE
 })
@@ -587,6 +609,7 @@ export interface TOKEN_MANDATORY_LABEL {
     Label: SID_AND_ATTRIBUTES
 }
 
+/** @internal */
 export const cTOKEN_MANDATORY_LABEL = koffi.struct('TOKEN_MANDATORY_LABEL', {
     Label: cSID_AND_ATTRIBUTES
 })
@@ -598,6 +621,7 @@ export interface TOKEN_MANDATORY_POLICY {
     Policy: number
 }
 
+/** @internal */
 export const cTOKEN_MANDATORY_POLICY = koffi.struct('TOKEN_MANDATORY_POLICY', {
     Policy: cDWORD
 })
@@ -609,6 +633,7 @@ export interface TOKEN_ORIGIN {
     OriginatingLogonSession: LUID
 }
 
+/** @internal */
 export const cTOKEN_ORIGIN = koffi.struct('TOKEN_ORIGIN', {
     OriginatingLogonSession: cLUID
 })
@@ -620,6 +645,7 @@ export interface TOKEN_OWNER {
     Owner: SID
 }
 
+/** @internal */
 export const cTOKEN_OWNER = koffi.struct('TOKEN_OWNER', {
     Owner: koffi.pointer(cSID)
 })
@@ -631,6 +657,7 @@ export interface TOKEN_PRIMARY_GROUP {
     PrimaryGroup: SID
 }
 
+/** @internal */
 export const cTOKEN_PRIMARY_GROUP = koffi.struct('TOKEN_PRIMARY_GROUP', {
     PrimaryGroup: koffi.pointer(cSID)
 })
@@ -643,6 +670,7 @@ export interface TOKEN_PRIVILEGES {
     Privileges: LUID_AND_ATTRIBUTES[]
 }
 
+/** @internal */
 export const cTOKEN_PRIVILEGES = koffi.struct('TOKEN_PRIVILEGES', {
     PrivilegeCount: cDWORD,
     Privileges: koffi.array(cLUID_AND_ATTRIBUTES, 1)
@@ -656,10 +684,9 @@ export interface TOKEN_SOURCE {
     SourceIdentifier: LUID
 }
 
-export const TOKEN_SOURCE_LENGTH = 8
-
+/** @internal */
 export const cTOKEN_SOURCE = koffi.struct('TOKEN_SOURCE', {
-    SourceName: koffi.array(cCHAR, TOKEN_SOURCE_LENGTH),
+    SourceName: koffi.array(cCHAR, Internals.TOKEN_SOURCE_LENGTH),
     SourceIdentifier: cLUID
 })
 
@@ -679,6 +706,7 @@ export interface TOKEN_STATISTICS {
     ModifiedId:         LUID
 }
 
+/** @internal */
 export const cTOKEN_STATISTICS = koffi.struct('TOKEN_STATISTICS', {
   TokenId:            cLUID,
   AuthenticationId:   cLUID,
@@ -699,6 +727,7 @@ export interface TOKEN_USER {
     User: SID_AND_ATTRIBUTES
 }
 
+/** @internal */
 export const cTOKEN_USER = koffi.struct('TOKEN_USER', {
     User: cSID_AND_ATTRIBUTES
 })
@@ -722,6 +751,7 @@ export interface TOKEN_ACCESS_INFORMATION {
     SecurityAttributes: null    // Reserved, must be null
 }
 
+/** @internal */
 export const cTOKEN_ACCESS_INFORMATION = koffi.struct('TOKEN_ACCESS_INFORMATION', {
     SidHash:            koffi.pointer(cSID_AND_ATTRIBUTES_HASH),
     RestrictedSidHash:  koffi.pointer(cSID_AND_ATTRIBUTES_HASH),

@@ -49,6 +49,10 @@
       "types": "./lib/win32/consts.d.ts",
       "default": "./lib/win32/consts.js"
     },
+    "./structs": {
+      "types": "./lib/win32/structs.d.ts",
+      "default": "./lib/win32/structs.js"
+    },
     "./rollup": {
       "types": "./lib/rollup/index.d.ts",
       "default": "./lib/rollup/index.js"

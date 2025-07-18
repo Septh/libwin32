@@ -1,9 +1,6 @@
-import { koffi, Win32Dll, textDecoder } from './private.js'
+import { koffi, Win32Dll, textDecoder, Internals } from './private.js'
 import { cBOOL, cINT, cPWSTR, cPDWORD, type OUT } from './ctypes.js'
-import {
-    UNLEN,
-    type EXTENDED_NAME_FORMAT
-} from './consts.js'
+import type { EXTENDED_NAME_FORMAT } from './consts.js'
 
 const secur32 = /*#__PURE__*/new Win32Dll('secur32.dll')
 
@@ -15,7 +12,7 @@ const secur32 = /*#__PURE__*/new Win32Dll('secur32.dll')
 export function GetUserNameEx(NameFormat: EXTENDED_NAME_FORMAT): string | null {
     GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cPWSTR, koffi.inout(cPDWORD) ])
 
-    const out = new Uint16Array(UNLEN)
+    const out = new Uint16Array(Internals.UNLEN)
     const len: OUT<number> = [ out.length ]
     return GetUserNameEx.native(NameFormat, out, len) === 0
         ? null

@@ -94,6 +94,6 @@ export const cWNDPROC     = koffi.pointer(koffi.proto('WNDPROC',     cLRESULT, [
 export const cWNDENUMPROC = koffi.pointer(koffi.proto('WNDENUMPROC', cBOOL,    [ cHANDLE, cLPARAM ]))
 export const cDLGPROC     = koffi.pointer(koffi.proto('DLGPROC',     cINT_PTR, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
 
-export type WNDPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => LRESULT
-export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
-export type DLGPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt
+export type WNDPROC       = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => LRESULT
+export type WNDENUMPROC   = (hWnd: HWND, lParam: LPARAM) => number
+export type DLGPROC       = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt

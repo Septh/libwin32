@@ -32,7 +32,7 @@ import {
     cSID_IDENTIFIER_AUTHORITY, type SID_IDENTIFIER_AUTHORITY
 } from './structs.js'
 import {
-    UNLEN, TOKEN_INFORMATION_CLASS,
+    TOKEN_INFORMATION_CLASS,
     type NTSTATUS_,
     type SID_NAME_USE, type ACCESS_MASK, type TOKEN_
 } from './consts.js'
@@ -44,8 +44,8 @@ const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-allocateandinitializesid
  *
- * Note: because the allocated SID is turned into a JS object, its memory is immediately returned to the system
- *       by this function. The net effect is that you don't need to call FreeSid() afterwards.
+ * Note: in libwin32, because the allocated SID is turned into a JS object, its memory is immediately returned to the system
+ *       by this function. The net effect is that you don't need to call {@link FreeSid()} afterwards.
  */
 export function AllocateAndInitializeSid(pIdentifierAuthority: SID_IDENTIFIER_AUTHORITY, nSubAuthorityCount: number, nSubAuthority0: number, nSubAuthority1: number, nSubAuthority2: number, nSubAuthority3: number, nSubAuthority4: number, nSubAuthority5: number, nSubAuthority6: number, nSubAuthority7: number): SID | null {
     AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [ koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, koffi.out(koffi.pointer(cPVOID)) ])
@@ -59,7 +59,7 @@ export function AllocateAndInitializeSid(pIdentifierAuthority: SID_IDENTIFIER_AU
     return sid
 }
 
-// Note: the SID parameter type is only a type guard, as the actual value is a Koffi pointer.
+// Note: the SID parameter is actually a Koffi pointer.
 function _decodeAndCleanSid(pSID: SID): SID {
     const sid: SID = koffi.decode(pSID, cSID)
     for (let i = sid.SubAuthorityCount; i < Internals.SID_MAX_SUB_AUTHORITIES; i++)
@@ -70,9 +70,7 @@ function _decodeAndCleanSid(pSID: SID): SID {
 // Ditto.
 function _freeSid(pSID: SID): void {
     _freeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
-    if (pSID) {
-        _freeSid.native(pSID)
-    }
+    _freeSid.native(pSID)
 }
 
 /**
@@ -86,14 +84,14 @@ export function EqualSid(pSid1: SID, pSid2: SID): boolean {
 }
 
 /**
- * Frees a security identifier (SID) previously allocated by using the AllocateAndInitializeSid function.
+ * Frees a security identifier (SID) previously allocated by using the {@link AllocateAndInitializeSid} function.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-freesid
  *
  * Note: because libwin32 doesn't keep pointers to allocated memory around, this functions is a NOOP.
  *       See `AllocateAndInitializeSid()` for details.
  */
-export function FreeSid(pSid: SID): void {}
+export function FreeSid(_pSid: SID): void {}
 
 /**
  * Retrieves a specified type of information about an access token. The calling process must have appropriate access rights to obtain the information.
@@ -312,7 +310,7 @@ export function GetTokenInformation(TokenHandle: HTOKEN, TokenInformationClass: 
 export function GetUserName(): string | null {
     GetUserName.native ??= advapi32.func('GetUserNameW', cBOOL, [ cPWSTR, koffi.inout(cPDWORD) ])
 
-    const out = new Uint16Array(UNLEN + 1)
+    const out = new Uint16Array(Internals.UNLEN + 1)
     const len: OUT<number> = [ out.length ]
     return GetUserName.native(out, len) === 0
         ? null
