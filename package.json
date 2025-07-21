@@ -65,8 +65,8 @@
     "!zz_*"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "build:demos": "rollup -c rollup.demos.js",
+    "build": "rimraf lib && tsc -p tsconfig.build.json",
+    "build:demos": "rimraf demos && rollup -c rollup.demos.js",
     "clean": "rimraf lib demos",
     "test": "echo No test yet",
     "prepublishOnly": "npm run clean && npm run build && npm run build:demos"
