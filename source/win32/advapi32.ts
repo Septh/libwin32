@@ -2,8 +2,8 @@ import { koffi, Win32Dll, StringOutputBuffer, Internals, type OUT } from './priv
 import {
     cVOID, cBOOL, cINT, cBYTE, cDWORD, cULONG, cPVOID, cSTR,
     cHANDLE, type HANDLE, type HTOKEN, type LSA_HANDLE, type HKEY,
+    cLSTATUS, type LSTATUS,
     cNTSTATUS,
-    cLSTATUS, type LSTATUS
 } from './ctypes.js'
 import {
     cACL,
@@ -34,7 +34,7 @@ import {
 import {
     TOKEN_INFORMATION_CLASS,
     type NTSTATUS_, type TOKEN_, type POLICY_,
-    type HKEY_, type REG_OPTION_, type KEY_, type REG_,
+    type HKEY_, type REG_OPTION_, type KEY_, type REG_, type RRF_,
     type SID_NAME_USE
 } from './consts.js'
 
@@ -139,7 +139,7 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
 
     const output = new Uint8Array(4096)
     const pLength: OUT<number> = [0]
-    if (GetTokenInformation.native(tokenHandle, tokenInformationClass, output, output.byteLength, pLength) === 0)
+    if (GetTokenInformation.native(tokenHandle, tokenInformationClass, output.buffer, output.byteLength, pLength) === 0)
         return null
 
     switch (tokenInformationClass) {
@@ -374,7 +374,7 @@ export function LsaOpenPolicy(systemName: string | null, desiredAcces: POLICY_):
 
     const name = typeof systemName === 'string' ? new LSA_UNICODE_STRING(systemName) : null
     const pHandle: OUT<LSA_HANDLE | null> = [null]
-    if (LsaOpenPolicy.native(name, new LSA_OBJECT_ATTRIBUTES(), desiredAcces, pHandle) === Internals.STATUS_SUCCESS)
+    if (LsaOpenPolicy.native(name, new LSA_OBJECT_ATTRIBUTES(), desiredAcces, pHandle) === Internals.ERROR_SUCCESS)
         return pHandle[0]
     return null
 }
@@ -404,6 +404,21 @@ export function RegCloseKey(hKey: HKEY): LSTATUS {
 }
 
 /**
+ * Establishes a connection to a predefined registry key on another computer.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regconnectregistryw
+ */
+export function RegConnectRegistry(machineName: string, hKey: HKEY | HKEY_): HKEY | LSTATUS {
+    RegConnectRegistry.native ??= advapi32.func('RegConnectRegistryW', cLSTATUS, [ cSTR, cHANDLE, koffi.out(koffi.pointer(cHANDLE)) ])
+
+    const pHandle: OUT<HKEY> = [null!]
+    const status: LSTATUS = RegConnectRegistry.native(machineName, hKey, pHandle)
+    if (status === Internals.ERROR_SUCCESS)
+        return pHandle[0]
+    return status
+}
+
+/**
  * Creates the specified registry key. If the key already exists, the function opens it.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcreatekeyexw
@@ -413,7 +428,7 @@ export function RegCreateKeyEx(hKey: HKEY | HKEY_, subKey: string, className: st
 
     const pHandle: OUT<HKEY> = [null!]
     const status: LSTATUS = RegCreateKeyEx.native(hKey, subKey, 0, className, options, samDesired, securityAttributes, pHandle, null)
-    if (status === Internals.STATUS_SUCCESS)
+    if (status === Internals.ERROR_SUCCESS)
         return pHandle[0]
     return status
 }
@@ -480,7 +495,7 @@ export function RegEnumKeyEx(hKey: HKEY | HKEY_, index: number): RegEnumKeyExRes
     const className = new StringOutputBuffer(Internals.MAX_VALUE_NAME + 1)
     const pLastWriteTime: OUT<FILETIME> = [{} as FILETIME]
     const status: LSTATUS = RegEnumKeyEx.native(hKey, index, name.buffer, name.pLength, null, className.buffer, className.pLength, pLastWriteTime)
-    if (status === Internals.STATUS_SUCCESS) {
+    if (status === Internals.ERROR_SUCCESS) {
         return {
             name: name.decode(),
             className: className.decode(),
@@ -507,7 +522,7 @@ export function RegEnumValue(hKey: HKEY | HKEY_, index: number): RegEnumValueRes
     const name = new StringOutputBuffer(Internals.MAX_VALUE_NAME + 1)
     const pType: OUT<REG_> = [0]
     const status: LSTATUS = RegEnumValue.native(hKey, index, name.buffer, name.pLength, null, pType, null, null)
-    if (status === Internals.STATUS_SUCCESS) {
+    if (status === Internals.ERROR_SUCCESS) {
         return {
             name: name.decode(),
             type: pType[0]
@@ -519,6 +534,68 @@ export function RegEnumValue(hKey: HKEY | HKEY_, index: number): RegEnumValueRes
 export interface RegEnumValueResult {
     name: string
     type: REG_
+}
+
+/**
+ * Writes all the attributes of the specified open registry key into the registry.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regflushkey
+ */
+export function RegFlushKey(hKey: HKEY | HKEY_): LSTATUS {
+    RegFlushKey.native ??= advapi32.func('RegFlushKey', cLSTATUS, [ cHANDLE ])
+    return RegFlushKey.native(hKey)
+}
+
+/**
+ * Retrieves the type and data for the specified registry value.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
+ */
+export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: string | null, flags: RRF_, cbData: number = 16384): RegGetValueResult | LSTATUS {
+    RegGetValue.native ??= advapi32.func('RegGetValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, koffi.out(koffi.pointer(cDWORD)), koffi.out(cPVOID), koffi.out(koffi.pointer(cDWORD)) ])
+
+    const pType: OUT<REG_> = [0]
+    const pData = new Uint8Array(cbData)
+    const pcbData: OUT<number> = [cbData]
+    const status: LSTATUS = RegGetValue.native(hKey, subKey, value, flags, pType, pData.buffer, pcbData)
+    if (status === Internals.ERROR_SUCCESS) {
+        return {
+            type: pType[0],
+            data: pData,
+            cbData: pData.byteLength
+        }
+    }
+    return status
+}
+
+export interface RegGetValueResult {
+    type: REG_
+    data: Uint8Array
+    cbData: number
+}
+
+/**
+ * Loads the specified registry hive as an application hive.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regloadappkeyw
+ */
+export function RegLoadAppKey(file: string, samDesired: KEY_, options: number): HKEY | LSTATUS {
+    RegLoadAppKey.native ??= advapi32.func('RegLoadAppKeyW', cLSTATUS, [ cSTR, koffi.out(koffi.pointer(cHANDLE)), cDWORD, cDWORD, cDWORD ])
+    const pHandle: OUT<HKEY> = [null!]
+    const status: LSTATUS = RegLoadAppKey.native(file, pHandle, samDesired, options, 0)
+    if (status === Internals.ERROR_SUCCESS)
+        return pHandle[0]
+    return status
+}
+
+/**
+ * Creates a subkey under HKEY_USERS or HKEY_LOCAL_MACHINE and loads the data from the specified registry hive into that subkey.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regloadkeyw
+ */
+export function RegLoadKey(hKey: HKEY | HKEY_, subKey: string | null, file: string): LSTATUS {
+    RegLoadKey.native ??= advapi32.func('RegLoadKeyW', cLSTATUS, [ cHANDLE, cSTR, cSTR ])
+    return RegLoadKey.native(hKey, subKey, file)
 }
 
 /**
@@ -542,7 +619,7 @@ export function RegOpenKeyEx(hKey: HKEY | HKEY_, subKey: string | undefined, opt
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regqueryinfokeyw
  */
 export function RegQueryInfoKey(hKey: HKEY | HKEY_): RegQueryInfoKeyResult | LSTATUS {
-    RegQueryInfoKey.native = advapi32.func('RegQueryInfoKeyW', cLSTATUS, [ cHANDLE, cPVOID, koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cFILETIME)) ])
+    RegQueryInfoKey.native ??= advapi32.func('RegQueryInfoKeyW', cLSTATUS, [ cHANDLE, cPVOID, koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cFILETIME)) ])
 
     const className = new StringOutputBuffer(Internals.MAX_PATH)
     const pSubKeys: OUT<number> = [0]
@@ -565,4 +642,54 @@ export interface RegQueryInfoKeyResult {
     subKeys: number
     values: number
     lastWriteTime: FILETIME
+}
+
+/**
+ * Saves the specified key and all of its subkeys and values to a new file, in the standard format.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsavekeyw
+ */
+export function RegSaveKey(hKey: HKEY | HKEY_, file: string, securityAttributes: SECURITY_ATTRIBUTES): LSTATUS {
+    RegSaveKey.native ??= advapi32.func('RegSaveKeyW', cLSTATUS, [ cHANDLE, cSTR, cSECURITY_ATTRIBUTES ])
+    return RegSaveKey.native(hKey, file, securityAttributes)
+}
+
+/**
+ * Saves the specified key and all of its subkeys and values to a new file, in the specified format.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsavekeyexw
+ */
+export function RegSaveKeyEx(hKey: HKEY | HKEY_, file: string, securityAttributes: SECURITY_ATTRIBUTES, flags: number): LSTATUS {
+    RegSaveKeyEx.native ??= advapi32.func('RegSaveKeyW', cLSTATUS, [ cHANDLE, cSTR, cSECURITY_ATTRIBUTES, cDWORD ])
+    return RegSaveKeyEx.native(hKey, file, securityAttributes, flags)
+}
+
+/**
+ * Sets the data for the specified value in the specified registry key and subkey.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetkeyvaluew
+ */
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_, data: any, cbData: number): LSTATUS {
+    RegSetKeyValue.native ??= advapi32.func('RegSetKeyValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, cVOID, cDWORD ])
+    return RegSetKeyValue.native(hKey, subKey, valueName, type, data, cbData)
+}
+
+/**
+ * Sets the data and type of a specified value under a registry key.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetvalueexw
+ */
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string, type: REG_, data: any, cbData: number): LSTATUS {
+    RegSetValueEx.native ??= advapi32.func('RegSetValueExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cDWORD, cPVOID, cDWORD ])
+    return RegSetValueEx.native(hKey, valueName, 0, type, data, cbData)
+}
+
+/**
+ * Unloads the specified registry key and its subkeys from the registry.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regunloadkeyw
+ */
+export function RegUnLoadKey(hKey: HKEY | HKEY_, subKey: string | null): LSTATUS {
+    RegUnLoadKey.native ??= advapi32.func('RegUnLoadKeyW', cLSTATUS, [ cHANDLE, cSTR ])
+    return RegUnLoadKey.native(hKey, subKey)
 }

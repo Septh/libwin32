@@ -44,9 +44,9 @@ export class StringOutputBuffer {
         }
     }
 
-    static #decoder = /*#__PURE__*/new TextDecoder('utf-16')
+    static #textDecoder  = /*#__PURE__*/new TextDecoder('utf-16')
     decode(length: number = this.length): string {
-        return StringOutputBuffer.#decoder.decode(this.buffer.subarray(0, length))
+        return StringOutputBuffer.#textDecoder.decode(this.buffer.subarray(0, length))
     }
 }
 
@@ -75,7 +75,6 @@ export const enum Internals {
     ERROR_SUCCESS  = 0,
     MAX_KEY_LENGTH = 255,
     MAX_VALUE_NAME = 16383,
-    STATUS_SUCCESS = 0,
 }
 
 /** koffi.out() and koffi.inout() expect a table with a single entry. */

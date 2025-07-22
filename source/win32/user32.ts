@@ -328,7 +328,7 @@ export function GetClassInfoEx(hInstance: HINSTANCE | null, className: string): 
 export function GetClassName(hWnd: HWND): string {
     GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cPVOID), cINT ])
 
-    const className = new StringOutputBuffer(128)
+    const className = new StringOutputBuffer(256)
     const len = GetClassName.native(hWnd, className.buffer, className.length)
     return className.decode(len)
 }
@@ -381,7 +381,7 @@ export function GetMessage(hWnd: HWND | null | -1, msgFilterMin: number = 0, msg
 export function GetWindowText(hWnd: HWND): string {
     GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cPVOID), cINT ])
 
-    const text = new StringOutputBuffer(512)
+    const text = new StringOutputBuffer(1024)
     const len = GetWindowText.native(hWnd, text.buffer, text.length)
     return text.decode(len)
 }

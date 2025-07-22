@@ -41,6 +41,10 @@
       "types": "./lib/win32/user32.d.ts",
       "default": "./lib/win32/user32.js"
     },
+    "./secur32": {
+      "types": "./lib/win32/secur32.d.ts",
+      "default": "./lib/win32/secur32.js"
+    },
     "./shell32": {
       "types": "./lib/win32/shell32.d.ts",
       "default": "./lib/win32/shell32.js"

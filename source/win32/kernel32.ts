@@ -1,15 +1,13 @@
 import { koffi, Win32Dll, StringOutputBuffer, Internals, type OUT } from './private.js'
 import {
-    cVOID, cBOOL, cBYTE, cDWORD, cPVOID, cSTR, cLSTATUS,
-    cHANDLE, type HANDLE, type HMODULE, type HWND, type HKEY
-} from './ctypes.js'
+    cVOID, cBOOL, cDWORD, cPVOID, cSTR,
+    cHANDLE, type HANDLE, type HMODULE, type HWND} from './ctypes.js'
 import type {
     FORMAT_MESSAGE_, GET_MODULE_HANDLE_EX_FLAG_,
-    PSAR_, HKEY_, REG_OPTION_, KEY_
-} from './consts.js'
+    PSAR_} from './consts.js'
 import {
     cFILETIME, type FILETIME,
-    cSECURITY_ATTRIBUTES, type SECURITY_ATTRIBUTES,
+
     cSYSTEMTIME,
     type SYSTEMTIME
 } from './structs.js'
@@ -24,6 +22,19 @@ const kernel32 = /*#__PURE__*/new Win32Dll('kernel32.dll')
 export function Beep(freq: number, duration: number): boolean {
     Beep.native ??= kernel32.func('Beep', cBOOL, [ cDWORD, cDWORD ])
     return !!Beep.native(freq, duration)
+}
+
+/**
+ * Expands environment-variable strings and replaces them with the values defined for the current user.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-expandenvironmentstringsw
+ */
+export function ExpandEnvironmentStrings(src: string): string {
+    ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cSTR, cPVOID, cDWORD ])
+
+    const out = new StringOutputBuffer(4096)
+    const len = ExpandEnvironmentStrings.native(src, out.buffer, out.length)
+    return out.decode(len - 1)
 }
 
 /**
@@ -120,7 +131,7 @@ export function GetLastError(): number {
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamew
  */
 export function GetModuleFileName(hModule: HMODULE | null): string | null {
-    GetModuleFileName.native = kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, cPVOID, cDWORD ])
+    GetModuleFileName.native ??= kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, cPVOID, cDWORD ])
 
     const name = new StringOutputBuffer(1024)
     const len = GetModuleFileName.native(hModule, name.buffer, name.length)

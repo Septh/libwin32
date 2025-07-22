@@ -8,8 +8,8 @@ import {
 import type {
     CS_, NIF_, TOKEN_TYPE_,
     CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_,
-    SECURITY_IMPERSONATION_LEVEL,
-    SECURITY_DESCRIPTOR_CONTROL
+    SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL,
+    REG_
 } from './consts.js'
 
 /**
@@ -929,4 +929,24 @@ export const cSECURITY_ATTRIBUTES = koffi.struct('SECURITY_ATTRIBUTES', {
     nLength:              cDWORD,
     lpSecurityDescriptor: koffi.pointer(cSECURITY_DESCRIPTOR),
     bInheritHandle:       cBOOL
+})
+
+/**
+ * Contains information about a registry value.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/ns-winreg-valentw
+ */
+export interface VALENT {
+    ve_valuename: string
+    ve_valuelen:  number
+    ve_valueptr:  any
+    ve_type:      REG_
+}
+
+/** @internal */
+export const cVALENT = koffi.struct('VALENT', {
+    ve_valuename: cSTR,
+    ve_valuelen:  cDWORD,
+    ve_valueptr:  cPVOID,
+    ve_type:      cDWORD
 })
