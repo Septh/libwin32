@@ -3,7 +3,8 @@ import { cBOOL, cDWORD } from './ctypes.js'
 import { cNOTIFYICONDATA, type NOTIFYICONDATA } from './structs.js'
 import type { NIM_ } from './consts.js'
 
-const shell32 = /*#__PURE__*/new Win32Dll('shell32.dll')
+/** @internal */
+export const shell32 = /*#__PURE__*/new Win32Dll('shell32.dll')
 
 /**
  * Adds, modifies, or deletes an icon from the taskbar status area.

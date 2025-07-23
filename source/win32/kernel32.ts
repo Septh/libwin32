@@ -7,12 +7,11 @@ import type {
     PSAR_} from './consts.js'
 import {
     cFILETIME, type FILETIME,
-
-    cSYSTEMTIME,
-    type SYSTEMTIME
+    cSYSTEMTIME, type SYSTEMTIME
 } from './structs.js'
 
-const kernel32 = /*#__PURE__*/new Win32Dll('kernel32.dll')
+/** @internal */
+export const kernel32 = /*#__PURE__*/new Win32Dll('kernel32.dll')
 
 /**
  * Generates simple tones on the speaker.
@@ -32,9 +31,9 @@ export function Beep(freq: number, duration: number): boolean {
 export function ExpandEnvironmentStrings(src: string): string {
     ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cSTR, cPVOID, cDWORD ])
 
-    const out = new StringOutputBuffer(4096)
-    const len = ExpandEnvironmentStrings.native(src, out.buffer, out.length)
-    return out.decode(len - 1)
+    const str = new StringOutputBuffer(4096)
+    const len = ExpandEnvironmentStrings.native(src, str.buffer, str.length)
+    return str.decode(len - 1)
 }
 
 /**
@@ -74,7 +73,7 @@ export function FormatMessage(flags: FORMAT_MESSAGE_, source: HMODULE | string |
     FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cPVOID, cDWORD, cDWORD, cSTR, cDWORD, '...' as any ])
 
     const pSource = typeof source === 'string' ? Uint16Array.from(source, c => c.charCodeAt(0)) : source
-    const message = new StringOutputBuffer(4096)
+    const message = new StringOutputBuffer(2048)
     const len = FormatMessage.native(flags, pSource, messageId, languageId, message.buffer, message.length, 'int', 0)
     return message.decode(len)
 }
@@ -133,7 +132,7 @@ export function GetLastError(): number {
 export function GetModuleFileName(hModule: HMODULE | null): string | null {
     GetModuleFileName.native ??= kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, cPVOID, cDWORD ])
 
-    const name = new StringOutputBuffer(1024)
+    const name = new StringOutputBuffer(Internals.MAX_PATH)
     const len = GetModuleFileName.native(hModule, name.buffer, name.length)
     return name.decode(len)
 }
@@ -172,7 +171,7 @@ export function GetModuleHandleEx(flags: GET_MODULE_HANDLE_EX_FLAG_, moduleName:
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystemregistryquota
  */
-export function GetSystemRegistryQuota() {
+export function GetSystemRegistryQuota(): { allowed: number, used: number } | null {
     GetSystemRegistryQuota.native ??= kernel32.func('GetSystemRegistryQuota', cBOOL, [ koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)) ])
 
     const pAllowed: OUT<number> = [0]

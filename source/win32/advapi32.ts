@@ -1,4 +1,5 @@
-import { koffi, Win32Dll, StringOutputBuffer, Internals, type OUT } from './private.js'
+import assert from 'node:assert'
+import { koffi, Win32Dll, binaryBuffer, textDecoder, StringOutputBuffer, Internals, type OUT } from './private.js'
 import {
     cVOID, cBOOL, cINT, cBYTE, cDWORD, cULONG, cPVOID, cSTR,
     cHANDLE, type HANDLE, type HTOKEN, type LSA_HANDLE, type HKEY,
@@ -32,13 +33,14 @@ import {
     cFILETIME, type FILETIME
 } from './structs.js'
 import {
-    TOKEN_INFORMATION_CLASS,
+    TOKEN_INFORMATION_CLASS, REG_,
     type NTSTATUS_, type TOKEN_, type POLICY_,
-    type HKEY_, type REG_OPTION_, type KEY_, type REG_, type RRF_,
+    type HKEY_, type REG_OPTION_, type KEY_, type RRF_,
     type SID_NAME_USE
 } from './consts.js'
 
-const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
+/** @internal */
+export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 
 /**
  * Allocates and initializes a security identifier (SID) with up to eight subauthorities.
@@ -135,16 +137,15 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups): TOKEN_GROUPS | null
 
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS) {
-    GetTokenInformation.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, koffi.out(cPVOID), cDWORD, koffi.out(koffi.pointer(cDWORD)) ])
+    GetTokenInformation.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cPVOID, cDWORD, koffi.out(koffi.pointer(cDWORD)) ])
 
-    const output = new Uint8Array(4096)
     const pLength: OUT<number> = [0]
-    if (GetTokenInformation.native(tokenHandle, tokenInformationClass, output.buffer, output.byteLength, pLength) === 0)
+    if (GetTokenInformation.native(tokenHandle, tokenInformationClass, binaryBuffer.buffer, binaryBuffer.byteLength, pLength) === 0)
         return null
 
     switch (tokenInformationClass) {
         case TOKEN_INFORMATION_CLASS.TokenUser: {
-            const ret: TOKEN_USER = koffi.decode(output, cTOKEN_USER)
+            const ret: TOKEN_USER = koffi.decode(binaryBuffer, cTOKEN_USER)
             ret.User.Sid = _decodeAndCleanSid(ret.User.Sid)
             return ret
         }
@@ -155,48 +156,48 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         case TOKEN_INFORMATION_CLASS.TokenCapabilities:
         case TOKEN_INFORMATION_CLASS.TokenDeviceGroups:
         case TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups: {
-            const ret: TOKEN_GROUPS = koffi.decode(output, cTOKEN_GROUPS)
-            ret.Groups = koffi.decode(output, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
+            const ret: TOKEN_GROUPS = koffi.decode(binaryBuffer, cTOKEN_GROUPS)
+            ret.Groups = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
             ret.Groups.forEach(group => group.Sid = _decodeAndCleanSid(group.Sid))
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenPrivileges: {
-            const ret: TOKEN_PRIVILEGES = koffi.decode(output, cTOKEN_PRIVILEGES)
-            ret.Privileges = koffi.decode(output, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
+            const ret: TOKEN_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
+            ret.Privileges = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenOwner: {
-            const ret: TOKEN_OWNER = koffi.decode(output, cTOKEN_OWNER)
+            const ret: TOKEN_OWNER = koffi.decode(binaryBuffer, cTOKEN_OWNER)
             ret.Owner = _decodeAndCleanSid(ret.Owner)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenPrimaryGroup: {
-            const ret: TOKEN_PRIMARY_GROUP = koffi.decode(output, cTOKEN_PRIMARY_GROUP)
+            const ret: TOKEN_PRIMARY_GROUP = koffi.decode(binaryBuffer, cTOKEN_PRIMARY_GROUP)
             ret.PrimaryGroup = _decodeAndCleanSid(ret.PrimaryGroup)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenDefaultDacl: {
-            const ret: TOKEN_DEFAULT_DACL = koffi.decode(output, cTOKEN_DEFAULT_DACL)
+            const ret: TOKEN_DEFAULT_DACL = koffi.decode(binaryBuffer, cTOKEN_DEFAULT_DACL)
             ret.DefaultDacl = koffi.decode(ret.DefaultDacl, cACL)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenSource: {
-            const ret: TOKEN_SOURCE = koffi.decode(output, cTOKEN_SOURCE)
+            const ret: TOKEN_SOURCE = koffi.decode(binaryBuffer, cTOKEN_SOURCE)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenStatistics: {
-            const ret: TOKEN_STATISTICS = koffi.decode(output, cTOKEN_STATISTICS)
+            const ret: TOKEN_STATISTICS = koffi.decode(binaryBuffer, cTOKEN_STATISTICS)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges: {
-            const ret: TOKEN_GROUPS_AND_PRIVILEGES = koffi.decode(output, cTOKEN_GROUPS_AND_PRIVILEGES)
+            const ret: TOKEN_GROUPS_AND_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_GROUPS_AND_PRIVILEGES)
 
             if (ret.Sids && ret.SidCount > 0) {
                 ret.Sids = koffi.decode(ret.Sids, cSID_AND_ATTRIBUTES, ret.SidCount)
@@ -219,22 +220,22 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         }
 
         case TOKEN_INFORMATION_CLASS.TokenOrigin: {
-            const ret: TOKEN_ORIGIN = koffi.decode(output, cTOKEN_ORIGIN)
+            const ret: TOKEN_ORIGIN = koffi.decode(binaryBuffer, cTOKEN_ORIGIN)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenLinkedToken: {
-            const ret: TOKEN_LINKED_TOKEN = koffi.decode(output, cTOKEN_LINKED_TOKEN)
+            const ret: TOKEN_LINKED_TOKEN = koffi.decode(binaryBuffer, cTOKEN_LINKED_TOKEN)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenElevation: {
-            const ret: TOKEN_ELEVATION = koffi.decode(output, cTOKEN_ELEVATION)
+            const ret: TOKEN_ELEVATION = koffi.decode(binaryBuffer, cTOKEN_ELEVATION)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenAccessInformation: {
-            const ret: TOKEN_ACCESS_INFORMATION = koffi.decode(output, cTOKEN_ACCESS_INFORMATION)
+            const ret: TOKEN_ACCESS_INFORMATION = koffi.decode(binaryBuffer, cTOKEN_ACCESS_INFORMATION)
 
             ret.SidHash = koffi.decode(ret.SidHash, cSID_AND_ATTRIBUTES_HASH)
             ret.SidHash.SidAttr = koffi.decode(ret.SidHash.SidAttr, cSID_AND_ATTRIBUTES, ret.SidHash.SidCount)
@@ -256,25 +257,25 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         }
 
         case TOKEN_INFORMATION_CLASS.TokenIntegrityLevel: {
-            const ret: TOKEN_MANDATORY_LABEL = koffi.decode(output, cTOKEN_MANDATORY_LABEL)
+            const ret: TOKEN_MANDATORY_LABEL = koffi.decode(binaryBuffer, cTOKEN_MANDATORY_LABEL)
             ret.Label.Sid = _decodeAndCleanSid(ret.Label.Sid)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy: {
-            const ret: TOKEN_MANDATORY_POLICY = koffi.decode(output, cTOKEN_MANDATORY_POLICY)
+            const ret: TOKEN_MANDATORY_POLICY = koffi.decode(binaryBuffer, cTOKEN_MANDATORY_POLICY)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenAppContainerSid: {
-            const ret: TOKEN_APPCONTAINER_INFORMATION = koffi.decode(output, cTOKEN_APPCONTAINER_INFORMATION)
+            const ret: TOKEN_APPCONTAINER_INFORMATION = koffi.decode(binaryBuffer, cTOKEN_APPCONTAINER_INFORMATION)
             ret.TokenAppContainer = _decodeAndCleanSid(ret.TokenAppContainer)
             return ret
         }
 
         case TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes:
         case TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes: {
-            const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(output, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
+            const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(binaryBuffer, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
             if (ret.Attribute && ret.AttributeCount > 0) {
                 // TODO
             }
@@ -293,7 +294,7 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         case TOKEN_INFORMATION_CLASS.TokenIsAppContainer:
         case TOKEN_INFORMATION_CLASS.TokenAppContainerNumber:
         case TOKEN_INFORMATION_CLASS.TokenElevationType: {
-            const ptr = new Uint32Array(output.buffer)
+            const ptr = new Uint32Array(binaryBuffer.buffer)
             return ptr[0]
         }
 
@@ -323,7 +324,7 @@ export function GetUserName(): string | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountsidw
  */
 export function LookupAccountSid(systemName: string | null, sid: SID): LookupAccountSidResult | null {
-    LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [ cSTR, koffi.pointer(cSID), koffi.out(cPVOID), koffi.inout(koffi.pointer(cDWORD)), koffi.out(cPVOID), koffi.inout(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cINT)) ])
+    LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [ cSTR, koffi.pointer(cSID), cPVOID, koffi.inout(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cINT)) ])
 
     const name = new StringOutputBuffer(Internals.UNLEN)
     const domain = new StringOutputBuffer(256)
@@ -373,7 +374,7 @@ export function LsaOpenPolicy(systemName: string | null, desiredAcces: POLICY_):
     LsaOpenPolicy.native ??= advapi32.func('LsaOpenPolicy', cNTSTATUS, [ koffi.pointer(cLSA_UNICODE_STRING), koffi.pointer(cLSA_OBJECT_ATTRIBUTES), cDWORD, koffi.inout(koffi.pointer(cHANDLE)) ])
 
     const name = typeof systemName === 'string' ? new LSA_UNICODE_STRING(systemName) : null
-    const pHandle: OUT<LSA_HANDLE | null> = [null]
+    const pHandle: OUT<LSA_HANDLE> = [null!]
     if (LsaOpenPolicy.native(name, new LSA_OBJECT_ATTRIBUTES(), desiredAcces, pHandle) === Internals.ERROR_SUCCESS)
         return pHandle[0]
     return null
@@ -387,7 +388,7 @@ export function LsaOpenPolicy(systemName: string | null, desiredAcces: POLICY_):
 export function OpenProcessToken(processHandle: HANDLE, desiredAccess: TOKEN_): HTOKEN | null {
     OpenProcessToken.native ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
 
-    const pHandle: OUT<HTOKEN | null> = [null]
+    const pHandle: OUT<HTOKEN> = [null!]
     if (OpenProcessToken.native(processHandle, desiredAccess, pHandle) !== 0)
         return pHandle[0]
     return null
@@ -492,7 +493,7 @@ export function RegEnumKeyEx(hKey: HKEY | HKEY_, index: number): RegEnumKeyExRes
     RegEnumKeyEx.native ??= advapi32.func('RegEnumKeyExW', cLSTATUS, [ cHANDLE, cDWORD, cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.pointer(cDWORD), cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.pointer(cFILETIME) ])
 
     const name = new StringOutputBuffer(Internals.MAX_KEY_LENGTH + 1)
-    const className = new StringOutputBuffer(Internals.MAX_VALUE_NAME + 1)
+    const className = new StringOutputBuffer(Internals.MAX_PATH + 1)
     const pLastWriteTime: OUT<FILETIME> = [{} as FILETIME]
     const status: LSTATUS = RegEnumKeyEx.native(hKey, index, name.buffer, name.pLength, null, className.buffer, className.pLength, pLastWriteTime)
     if (status === Internals.ERROR_SUCCESS) {
@@ -519,7 +520,7 @@ export interface RegEnumKeyExResult {
 export function RegEnumValue(hKey: HKEY | HKEY_, index: number): RegEnumValueResult | LSTATUS {
     RegEnumValue.native ??= advapi32.func('RegEnumValueW', cLSTATUS, [ cHANDLE, cDWORD, cPVOID, koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cBYTE)), koffi.out(koffi.pointer(cDWORD)) ])
 
-    const name = new StringOutputBuffer(Internals.MAX_VALUE_NAME + 1)
+    const name = new StringOutputBuffer(Internals.MAX_KEY_LENGTH + 1)
     const pType: OUT<REG_> = [0]
     const status: LSTATUS = RegEnumValue.native(hKey, index, name.buffer, name.pLength, null, pType, null, null)
     if (status === Internals.ERROR_SUCCESS) {
@@ -551,27 +552,63 @@ export function RegFlushKey(hKey: HKEY | HKEY_): LSTATUS {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
  */
-export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: string | null, flags: RRF_, cbData: number = 16384): RegGetValueResult | LSTATUS {
-    RegGetValue.native ??= advapi32.func('RegGetValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, koffi.out(koffi.pointer(cDWORD)), koffi.out(cPVOID), koffi.out(koffi.pointer(cDWORD)) ])
+export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: string | null, flags: RRF_): RegGetValueResult | LSTATUS {
+    RegGetValue.native ??= advapi32.func('RegGetValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, koffi.out(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
 
     const pType: OUT<REG_> = [0]
-    const pData = new Uint8Array(cbData)
-    const pcbData: OUT<number> = [cbData]
-    const status: LSTATUS = RegGetValue.native(hKey, subKey, value, flags, pType, pData.buffer, pcbData)
+    const pCount: OUT<number> = [binaryBuffer.byteLength]
+    const status: LSTATUS = RegGetValue.native(hKey, subKey, value, flags, pType, binaryBuffer, pCount)
     if (status === Internals.ERROR_SUCCESS) {
-        return {
-            type: pType[0],
-            data: pData,
-            cbData: pData.byteLength
+        const type = pType[0]
+        const count = pCount[0]
+        let value: any
+        switch (type) {
+            case REG_.NONE:
+                value = null
+                break
+
+            case REG_.SZ:
+            case REG_.EXPAND_SZ:
+                value = new Uint16Array(binaryBuffer.buffer, binaryBuffer.byteOffset, (count / Uint16Array.BYTES_PER_ELEMENT) - 1)
+                value = textDecoder.decode(value)
+                break
+
+            case REG_.MULTI_SZ:
+                value = new Uint16Array(binaryBuffer.buffer, binaryBuffer.byteOffset, (count / Uint16Array.BYTES_PER_ELEMENT) - 2)
+                value = textDecoder.decode(value).split('\0')
+                break
+
+            case REG_.BINARY:
+                value = new Uint8Array(binaryBuffer.buffer, binaryBuffer.byteOffset, count)
+                break
+
+            case REG_.DWORD:
+                assert(count === Uint32Array.BYTES_PER_ELEMENT)
+                value = new Uint32Array(binaryBuffer.buffer, binaryBuffer.byteOffset, 1)
+                value = value[0]
+                break
+
+            case REG_.DWORD_BIG_ENDIAN:
+                assert(count === Uint32Array.BYTES_PER_ELEMENT)
+                value = new Uint32Array(binaryBuffer.buffer, binaryBuffer.byteOffset, 1)
+                value = new DataView(value).getUint32(0, false)
+                break
+
+            case REG_.QWORD:
+                assert(count === BigUint64Array.BYTES_PER_ELEMENT)
+                value = new BigUint64Array(binaryBuffer.buffer, binaryBuffer.byteOffset, 1)
+                value = value[0]
+                break
         }
+
+        return { type, value }
     }
     return status
 }
 
 export interface RegGetValueResult {
     type: REG_
-    data: Uint8Array
-    cbData: number
+    value: unknown
 }
 
 /**
@@ -621,7 +658,7 @@ export function RegOpenKeyEx(hKey: HKEY | HKEY_, subKey: string | undefined, opt
 export function RegQueryInfoKey(hKey: HKEY | HKEY_): RegQueryInfoKeyResult | LSTATUS {
     RegQueryInfoKey.native ??= advapi32.func('RegQueryInfoKeyW', cLSTATUS, [ cHANDLE, cPVOID, koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cFILETIME)) ])
 
-    const className = new StringOutputBuffer(Internals.MAX_PATH)
+    const className = new StringOutputBuffer(Internals.MAX_PATH + 1)
     const pSubKeys: OUT<number> = [0]
     const pValues: OUT<number> = [0]
     const pLastWriteTime: OUT<FILETIME> = [{} as FILETIME]

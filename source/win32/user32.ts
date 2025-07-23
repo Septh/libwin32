@@ -22,7 +22,8 @@ import type {
     PM_
 } from './consts.js'
 
-const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
+/** @internal */
+export const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
 
 /**
  * Calculates the required size of the window rectangle, based on the desired client-rectangle size.
@@ -31,7 +32,7 @@ const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
  */
 export function AdjustWindowRect(rect: RECT, style: WS_, menu: boolean): boolean {
     AdjustWindowRect.native ??= user32.func('AdjustWindowRect', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL ])
-    return Boolean(AdjustWindowRect.native(rect, style, Number(menu)))
+    return AdjustWindowRect.native(rect, style, Number(menu)) !== 0
 }
 
 /**
@@ -41,7 +42,7 @@ export function AdjustWindowRect(rect: RECT, style: WS_, menu: boolean): boolean
  */
 export function AdjustWindowRectEx(rect: RECT, style: WS_, menu: boolean, exStyle: WS_EX_): boolean {
     AdjustWindowRectEx.native ??= user32.func('AdjustWindowRectEx', cBOOL, [ koffi.inout(cRECT), cDWORD, cBOOL, cDWORD ])
-    return Boolean(AdjustWindowRectEx.native(rect, style, Number(menu), exStyle))
+    return AdjustWindowRectEx.native(rect, style, Number(menu), exStyle) !== 0
 }
 
 /**
@@ -51,7 +52,7 @@ export function AdjustWindowRectEx(rect: RECT, style: WS_, menu: boolean, exStyl
  */
 export function AdjustWindowRectExForDpi(rect: RECT, style: WS_, menu: boolean, exStyle: WS_EX_, dpi: number): boolean {
     AdjustWindowRectExForDpi.native ??= user32.func('AdjustWindowRectExForDpi', cBOOL, [ koffi.inout(koffi.pointer(cRECT)), cDWORD, cBOOL, cDWORD, cUINT ])
-    return Boolean(AdjustWindowRectExForDpi.native(rect, style, Number(menu), exStyle, dpi))
+    return AdjustWindowRectExForDpi.native(rect, style, Number(menu), exStyle, dpi) !== 0
 }
 
 /**
@@ -61,7 +62,7 @@ export function AdjustWindowRectExForDpi(rect: RECT, style: WS_, menu: boolean, 
  */
 export function AnimateWindow(hWnd: HWND, time: number, flags: AW_): boolean {
     AnimateWindow.native ??= user32.func('AnimateWindow', cBOOL, [ cHANDLE, cDWORD, cDWORD ])
-    return Boolean(AnimateWindow.native(hWnd, time, flags))
+    return AnimateWindow.native(hWnd, time, flags) !== 0
 }
 
 /**
@@ -71,7 +72,7 @@ export function AnimateWindow(hWnd: HWND, time: number, flags: AW_): boolean {
  */
 export function AppendMenu(hMenu: HMENU, flags: MF_, idNewItem: number | HMENU, newItem: string | null): boolean {
     AppendMenu.native ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cSTR ]);
-    return Boolean(AppendMenu.native(hMenu, flags, idNewItem, newItem))
+    return AppendMenu.native(hMenu, flags, idNewItem, newItem) !== 0
 }
 
 /**
@@ -81,7 +82,7 @@ export function AppendMenu(hMenu: HMENU, flags: MF_, idNewItem: number | HMENU, 
  */
 export function BringWindowToTop(hWnd: HWND): boolean {
     BringWindowToTop.native ??= user32.func('BringWindowToTop', cBOOL, [ cHANDLE ])
-    return Boolean(BringWindowToTop.native(hWnd))
+    return BringWindowToTop.native(hWnd) !== 0
 }
 
 /**

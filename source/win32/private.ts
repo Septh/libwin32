@@ -30,23 +30,29 @@ export class Win32Dll implements Disposable {
     }
 }
 
+export const binaryBuffer = /*#__PURE__*/Buffer.alloc(32768)
+export const textDecoder  = /*#__PURE__*/new TextDecoder('utf-16')
+
 export class StringOutputBuffer {
-    readonly buffer: Uint16Array
-    readonly pLength: [ number ]
+    readonly buffer: Buffer<ArrayBuffer>
+    readonly array: Uint16Array
+    readonly pLength: [number]
     get length() { return this.pLength[0] }
 
     constructor(length: number, from?: string) {
-        this.buffer = new Uint16Array(length)
-        this.pLength = [ length ]
+        this.buffer  = Buffer.allocUnsafe(length * Uint16Array.BYTES_PER_ELEMENT)
+        this.array   = new Uint16Array(this.buffer.buffer, this.buffer.byteOffset, length)
+        this.pLength = [length]
+
         if (typeof from === 'string') {
             assert(from.length <= length)
-            this.buffer.set([...from].map(c => c.charCodeAt(0)))
+            for (let i = 0, len = from.length; i < len; i++)
+                this.array[i] = from.charCodeAt(i)
         }
     }
 
-    static #textDecoder  = /*#__PURE__*/new TextDecoder('utf-16')
     decode(length: number = this.length): string {
-        return StringOutputBuffer.#textDecoder.decode(this.buffer.subarray(0, length))
+        return textDecoder.decode(this.array.subarray(0, length))
     }
 }
 
