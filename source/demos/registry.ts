@@ -29,7 +29,7 @@ function QueryKey(hKey: HKEY) {
         for (let i = 0; i < info.values; i++) {
             const value = RegEnumValue(hKey, i)
             if (typeof value === 'object') {
-                console.log('(%d) %s', value.name)
+                console.log('(%d) %s', i + 1, value.name)
             }
         }
     }
