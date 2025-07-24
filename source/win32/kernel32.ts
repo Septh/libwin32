@@ -214,3 +214,9 @@ export function SetLastError(errCode: number): void {
     SetLastError.native ??= kernel32.func('SetLastError', cVOID, [ cDWORD ])
     return SetLastError.native(errCode)
 }
+
+/** @internal only used by some functions in some libs and not intended to be exposed to the user. */
+export function LocalFree(ptr: unknown) {
+    LocalFree.native ??= kernel32.func('LocalFree', cPVOID, [ cPVOID ])
+    return LocalFree.native(ptr)
+}

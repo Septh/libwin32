@@ -69,7 +69,6 @@ export const enum Internals {
     SID_HASH_SIZE = 32,
     SID_MAX_SUB_AUTHORITIES = 15,
     SID_RECOMMENDED_SUB_AUTHORITIES = 1,
-    SID_REVISION = 1,
     TOKEN_SOURCE_LENGTH = 8,
 
     // lmcons.h

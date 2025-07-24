@@ -302,8 +302,8 @@ export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
  */
 export interface SID {
     Revision:            number
-    IdentifierAuthority: SID_IDENTIFIER_AUTHORITY
     SubAuthorityCount:   number
+    IdentifierAuthority: SID_IDENTIFIER_AUTHORITY
     SubAuthority:        number[]
 }
 
@@ -314,6 +314,8 @@ export const cSID = koffi.struct('SID', {
     IdentifierAuthority: cSID_IDENTIFIER_AUTHORITY,
     SubAuthority:        koffi.array(cDWORD, Internals.SID_MAX_SUB_AUTHORITIES, 'Array')   // DWORD SubAuthority[]
 })
+
+export const SID_REVISION = 1
 
 /**
  * The SID_AND_ATTRIBUTES structure represents a security identifier (SID) and its attributes.

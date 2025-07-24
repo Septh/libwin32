@@ -96,6 +96,8 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | CallWindowProc            | user32    | 0.3.0 |
 | CheckMenuItem             | user32    | 0.4.0 |
 | CloseHandle               | kernel32  | 0.5.0 |
+| ConvertSidToStringSid     | advapi32  | 0.8.0 |
+| ConvertStringSidToSid     | advapi32  | 0.8.0 |
 | CreatePopupMenu           | user32    | 0.4.0 |
 | CreateWindow              | user32    | 0.1.0 |
 | CreateWindowEx            | user32    | 0.1.0 |

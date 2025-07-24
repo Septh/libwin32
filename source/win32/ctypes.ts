@@ -12,7 +12,7 @@ export const {
     uint:   cUINT,
     char:   cCHAR,
     uchar:  cUCHAR,
-    uchar:  cBYTE,
+    uint8:  cBYTE,
     short:  cSHORT,
     ushort: cUSHORT,
     ushort: cWORD,
