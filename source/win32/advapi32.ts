@@ -47,10 +47,10 @@ export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 /**
  * Allocates and initializes a security identifier (SID) with up to eight subauthorities.
  *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-allocateandinitializesid
- *
  * Note: in libwin32, because the allocated SID is turned into a JS object, its memory is immediately returned to the system
  *       by this function. The net effect is that you don't need to call {@link FreeSid()} afterwards (which is a NOOP anyway).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-allocateandinitializesid
  */
 export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUTHORITY, subAuthorityCount: number, subAuthority0: number, subAuthority1: number, subAuthority2: number, subAuthority3: number, subAuthority4: number, subAuthority5: number, subAuthority6: number, subAuthority7: number): SID | null {
 
@@ -157,9 +157,9 @@ export function EqualSid(sid1: SID, sid2: SID): boolean {
 /**
  * Frees a security identifier (SID) previously allocated by using the {@link AllocateAndInitializeSid} function.
  *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-freesid
- *
  * Note: because libwin32 doesn't keep pointers to allocated memory around, this functions is a NOOP.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-freesid
  */
 export function FreeSid(_sid: SID): void {}
 
@@ -589,10 +589,10 @@ export interface RegEnumKeyExResult {
 /**
  * Enumerates the values for the specified open registry key.
  *
- * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumvaluew
- *
  * Note: in libwin32, this function doest not return the value's data, only its type and size (in bytes).
  *       use {@link RegGetValue()} to actually read the data.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumvaluew
  */
 export function RegEnumValue(hKey: HKEY | HKEY_, index: number): RegEnumValueResult | LSTATUS {
     RegEnumValue.native ??= advapi32.func('RegEnumValueW', cLSTATUS, [ cHANDLE, cDWORD, cPVOID, koffi.inout(koffi.pointer(cDWORD)), cPVOID, koffi.out(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])

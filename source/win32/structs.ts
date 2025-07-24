@@ -19,19 +19,19 @@ import type {
  */
 export class ACL {
     readonly AclRevision = Internals.ACL_REVISION
-    declare Sbsz1: number
-    declare AclSize: number
+    declare Sbsz1:    number
+    declare AclSize:  number
     declare AceCount: number
-    declare Sbsz2: number
+    declare Sbsz2:    number
 }
 
 /** @internal */
 export const cACL = koffi.struct('ACL', {
     AclRevision: cBYTE,
-    Sbsz1: cBYTE,
-    AclSize: cWORD,
-    AceCount: cWORD,
-    Sbsz2: cWORD
+    Sbsz1:       cBYTE,
+    AclSize:     cWORD,
+    AceCount:    cWORD,
+    Sbsz2:       cWORD
 })
 
 /**
