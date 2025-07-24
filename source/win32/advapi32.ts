@@ -590,17 +590,22 @@ export interface RegEnumKeyExResult {
  * Enumerates the values for the specified open registry key.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumvaluew
+ *
+ * Note: in libwin32, this function doest not return the value's data, only its type and size (in bytes).
+ *       use {@link RegGetValue()} to actually read the data.
  */
 export function RegEnumValue(hKey: HKEY | HKEY_, index: number): RegEnumValueResult | LSTATUS {
-    RegEnumValue.native ??= advapi32.func('RegEnumValueW', cLSTATUS, [ cHANDLE, cDWORD, cPVOID, koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cBYTE)), koffi.out(koffi.pointer(cDWORD)) ])
+    RegEnumValue.native ??= advapi32.func('RegEnumValueW', cLSTATUS, [ cHANDLE, cDWORD, cPVOID, koffi.inout(koffi.pointer(cDWORD)), cPVOID, koffi.out(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
 
     const name = new StringOutputBuffer(Internals.MAX_KEY_LENGTH + 1)
     const pType: OUT<REG_> = [0]
-    const status: LSTATUS = RegEnumValue.native(hKey, index, name.buffer, name.pLength, null, pType, null, null)
+    const pSize: OUT<number> = [0]
+    const status: LSTATUS = RegEnumValue.native(hKey, index, name.buffer, name.pLength, null, pType, null, pSize)
     if (status === Internals.ERROR_SUCCESS) {
         return {
             name: name.decode(),
-            type: pType[0]
+            type: pType[0],
+            size: pSize[0]
         }
     }
     return status
@@ -609,6 +614,7 @@ export function RegEnumValue(hKey: HKEY | HKEY_, index: number): RegEnumValueRes
 export interface RegEnumValueResult {
     name: string
     type: REG_
+    size: number
 }
 
 /**
@@ -680,10 +686,16 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
     return status
 }
 
-export interface RegGetValueResult {
-    type: REG_
-    value: unknown
-}
+export type RegGetValueResult =
+    | { type: REG_.NONE,             value: null       }
+    | { type: REG_.SZ,               value: string     }
+    | { type: REG_.EXPAND_SZ,        value: string     }
+    | { type: REG_.MULTI_SZ,         value: string[]   }
+    | { type: REG_.BINARY,           value: Uint8Array }
+    | { type: REG_.DWORD,            value: number     }
+    | { type: REG_.DWORD_BIG_ENDIAN, value: number     }
+    | { type: REG_.QWORD,            value: BigInt     }
+    | { type: REG_,                  value: unknown    }
 
 /**
  * Loads the specified registry hive as an application hive.
