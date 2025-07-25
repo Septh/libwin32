@@ -1,33 +1,11 @@
 {
+  "extends": "./tsconfig.base.json",
   "include": [
     "source",
     "rollup.demos.js"
   ],
   "compilerOptions": {
     "checkJs": true,
-    "resolveJsonModule": true,
-    "noEmit": true,
-
-    // Module
-    "module": "Node18",
-
-    // Libs
-    "target": "ES2023",
-    "lib": [ "ES2023" ],
-    "skipLibCheck": false,
-    "skipDefaultLibCheck": true,
-
-    // Type checking
-    "strict": true,
-    "exactOptionalPropertyTypes": false,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": false,
-    "noUncheckedIndexedAccess": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": false,
-    "forceConsistentCasingInFileNames": true,
-    // "isolatedModules": true,
+    "noEmit": true
   }
 }

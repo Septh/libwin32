@@ -5,7 +5,6 @@
       "label": "clean",
       "type": "npm",
       "script": "clean",
-      "detail": "npm run clean",
       "presentation": {
         "reveal": "silent",
         "clear": false
@@ -17,17 +16,17 @@
         "kind": "build",
         "isDefault": true
       },
-      "presentation": {
-        "echo": true,
-        "reveal": "silent",
-        "clear": false
-      },
       "type": "typescript",
       "tsconfig": "tsconfig.build.json",
       "option": "watch",
       "problemMatcher": [
         "$tsc-watch"
       ],
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "clear": false
+      },
       "dependsOn": [ "clean" ],
       "dependsOrder": "sequence",
       "runOptions": {

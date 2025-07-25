@@ -66,12 +66,13 @@
     "lib",
     "!lib/demos",
     "!*.map",
+    "!*.tsbuildinfo",
     "!zz_*"
   ],
   "scripts": {
-    "build": "rimraf lib && tsc -p tsconfig.build.json",
+    "build": "tsc --build tsconfig.build.json",
     "build:demos": "rimraf demos && rollup -c rollup.demos.js",
-    "clean": "rimraf lib demos",
+    "clean": "tsc --build tsconfig.build.json --clean",
     "test": "echo No test yet",
     "prepublishOnly": "npm run clean && npm run build && npm run build:demos"
   },

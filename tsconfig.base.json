@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+
+    // Input
+    "resolveJsonModule": true,
+
+    // Output
+    "module": "Node18",
+    "declaration": true,
+    "declarationMap": true,
+
+    // Libs
+    "target": "ES2024",
+    "lib": [ "ES2024" ],
+    "skipLibCheck": false,
+    "skipDefaultLibCheck": true,
+
+    // Type checking
+    "strict": true,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false,
+    "forceConsistentCasingInFileNames": true
+  }
+}

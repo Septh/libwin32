@@ -1,18 +1,8 @@
 {
-  "extends": "./tsconfig.json",
-  "include": [ "source" ],
-  "exclude": [ "**/zz*" ],
-  "compilerOptions": {
-    "rootDir": "source",
-    "outDir": "lib",
-    "removeComments": false,
-    "preserveConstEnums": false,
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-    "importHelpers": true,
-    "noEmitOnError": true,
-    "noEmit": false,
-    "stripInternal": true
-  }
+  "files": [],
+  "references": [
+    { "path": "./source/win32"},
+    { "path": "./source/rollup"},
+    { "path": "./source/demos"},
+  ]
 }
