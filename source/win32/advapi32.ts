@@ -55,34 +55,29 @@ export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUTHORITY, subAuthorityCount: number, subAuthority0: number, subAuthority1: number, subAuthority2: number, subAuthority3: number, subAuthority4: number, subAuthority5: number, subAuthority6: number, subAuthority7: number): SID | null {
 
     // A note about the last parameter (pSid):
-    // `[out] PSID *pSid` should be declared as `koffi.out(koffi.pointer(koffi.pointer(cSID)))`
-    // but we can't do that because:
-    // 1) Koffi won't decode a double pointed structure, and even if it did
-    // 2) we need to dispose the allocated SID anyway by passing the pointer to FreeSid()
+    // `[out] PSID *pSid` should be declared as `koffi.out(koffi.pointer(koffi.pointer(cSID)))`,
+    // and we could even use a disposable type.
+    // We don't do that however because Koffi does not handle variable-length arrays: it would always decode
+    // 15 sub-authorities, possibly accessing random memory beyond the allocated SID.
+    // To avoid that, we manually decode the SID before freeing its memory.
     AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [ koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, koffi.out(koffi.pointer(cPVOID)) ])
 
     const pSID: OUT<unknown> = [null]
     if (AllocateAndInitializeSid.native([ identifierAuthority ], subAuthorityCount, subAuthority0, subAuthority1, subAuthority2, subAuthority3, subAuthority4, subAuthority5, subAuthority6, subAuthority7, pSID) !== 0) {
 
-        // Decode the SID. We use a different (and slower) approach than GetTokenInformation() because there is a risk
-        // of reading some memory we did not allocate ourselves since Koffi does not handle variable-length structures
-        // and most of the time SIDs have less than SID_MAX_SUB_AUTHORITIES sub authorities.
-
-        // Decode the 8 bytes header first...
+        // Decode the SID, reading only the exact number of sub-authorities.
         const [ Revision, SubAuthorityCount, ...IdentifierAuthority ] = koffi.decode(pSID[0], koffi.array(cBYTE, 8, 'Array')) as [ number, number, number, number, number, number, number, number ]
-
-        // Then get the right number of sub authorities.
-        const SubAuthority = koffi.decode(pSID[0], 8, koffi.array(cDWORD, SubAuthorityCount, 'Array')) as number[]
+        const SubAuthority = koffi.decode(pSID[0], koffi.offsetof(cSID, 'SubAuthority'), koffi.array(cDWORD, SubAuthorityCount, 'Array')) as number[]
 
         // We still must let Koffi think that there are SID_MAX_SUB_AUTHORITIES SubAuthorities
         // otherwise calls to other advapi32 functions that expect a SID parameter would fail.
         SubAuthority.length = Internals.SID_MAX_SUB_AUTHORITIES
         SubAuthority.fill(0, SubAuthorityCount)
 
-        // Free the allocated sid.
+        // Free the allocated SID.
         freeSid()
 
-        // Return the decoded sid.
+        // Return the decoded SID.
         return {
             Revision,
             SubAuthorityCount,
