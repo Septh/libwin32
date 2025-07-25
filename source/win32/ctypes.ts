@@ -5,6 +5,7 @@ import { koffi } from './private.js'
  * https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
  */
 
+/** @internal */
 export const {
     void:   cVOID,
     int:    cBOOL,
@@ -35,8 +36,8 @@ export const {
     int32:  cNTSTATUS,      // == LONG
 } = koffi.types as koffi.PrimitiveTypes
 
-export const cPVOID  = koffi.pointer('PVOID',  koffi.types.void)
-export const cHANDLE = koffi.pointer('HANDLE', koffi.opaque())
+/** @internal */ export const cPVOID = koffi.pointer('PVOID',  koffi.types.void)
+/** @internal */ export const cHANDLE = koffi.pointer('HANDLE', koffi.opaque())
 
 // Handles
 export type __HANDLE__<Kind extends string> = koffi.IKoffiCType & { __kind: Kind }
@@ -67,10 +68,10 @@ export type ATOM        = number
 export type LSTATUS     = number
 
 // Procedures.
-export const cWNDPROC     = koffi.pointer(koffi.proto('WNDPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
-export const cWNDENUMPROC = koffi.pointer(koffi.proto('WNDENUMPROC', cBOOL,    [ cHANDLE, cLPARAM ]))
-export const cDLGPROC     = koffi.pointer(koffi.proto('DLGPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+export type WNDPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => LRESULT
+export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
+export type DLGPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt
 
-export type WNDPROC       = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => LRESULT
-export type WNDENUMPROC   = (hWnd: HWND, lParam: LPARAM) => number
-export type DLGPROC       = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt
+/** @internal */ export const cWNDPROC     = koffi.pointer(koffi.proto('WNDPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+/** @internal */ export const cWNDENUMPROC = koffi.pointer(koffi.proto('WNDENUMPROC', cBOOL,    [ cHANDLE, cLPARAM ]))
+/** @internal */ export const cDLGPROC     = koffi.pointer(koffi.proto('DLGPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))

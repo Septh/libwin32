@@ -1,10 +1,11 @@
-import { koffi, Win32Dll, StringOutputBuffer, Internals, type OUT } from './private.js'
+import { koffi, Win32Dll, StringOutputBuffer, Internals, type OUT, textDecoder } from './private.js'
 import {
     cVOID, cBOOL, cDWORD, cPVOID, cSTR,
-    cHANDLE, type HANDLE, type HMODULE, type HWND} from './ctypes.js'
-import type {
-    FORMAT_MESSAGE_, GET_MODULE_HANDLE_EX_FLAG_,
-    PSAR_} from './consts.js'
+    cHANDLE, type HANDLE, type HMODULE, type HWND
+} from './ctypes.js'
+import {
+    FORMAT_MESSAGE_, type GET_MODULE_HANDLE_EX_FLAG_, type PSAR_
+} from './consts.js'
 import {
     cFILETIME, type FILETIME,
     cSYSTEMTIME, type SYSTEMTIME
@@ -64,18 +65,19 @@ export function FileTimeToSystemTime(fileTime: FILETIME): SYSTEMTIME | null {
 /**
  * Formats a message string.
  *
- * Note: the Arguments parameter is not yet supported. Right now, you can use FormatMessage()
- *       to retrieve the message text for a system-defined error returned by GetLastError().
- *
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
+ *
+ * Notes:
+ * - `FORMAT_MESSAGE_ALLOCATE_BUFFER` and `FORMAT_MESSAGE_ARGUMENT_ARRAY` are not supported.
+ * - the Arguments parameter is not yet supported.
  */
-export function FormatMessage(flags: FORMAT_MESSAGE_, source: HMODULE | string | null, messageId: number, languageId: number): string {
-    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cPVOID, cDWORD, cDWORD, cSTR, cDWORD, '...' as any ])
+export function FormatMessage(flags: FORMAT_MESSAGE_, source: HMODULE | string | null, messageId: number, languageId: number = 0): string {
+    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cPVOID, cDWORD, cDWORD, cPVOID, cDWORD, '...' as any ])
 
     const pSource = typeof source === 'string' ? Uint16Array.from(source, c => c.charCodeAt(0)) : source
-    const message = new StringOutputBuffer(2048)
-    const len = FormatMessage.native(flags, pSource, messageId, languageId, message.buffer, message.length, 'int', 0)
-    return message.decode(len)
+    const buffer = new StringOutputBuffer(1024)
+    const len = FormatMessage.native(flags & ~(FORMAT_MESSAGE_.ALLOCATE_BUFFER | FORMAT_MESSAGE_.ARGUMENT_ARRAY), pSource, messageId, languageId, buffer.buffer, buffer.length, 'int', 0)
+    return buffer.decode(len)
 }
 
 /**

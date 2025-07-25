@@ -20,104 +20,6 @@ export enum ACCESS_MASK {
 }
 
 /**
- * Access types for the Policy object.
- *
- * https://learn.microsoft.com/en-us/windows/win32/secmgmt/policy-object-access-rights
- */
-export enum POLICY_ {
-    VIEW_LOCAL_INFORMATION   = 0x00000001,
-    VIEW_AUDIT_INFORMATION   = 0x00000002,
-    GET_PRIVATE_INFORMATION  = 0x00000004,
-    TRUST_ADMIN              = 0x00000008,
-    CREATE_ACCOUNT           = 0x00000010,
-    CREATE_SECRET            = 0x00000020,
-    CREATE_PRIVILEGE         = 0x00000040,
-    SET_DEFAULT_QUOTA_LIMITS = 0x00000080,
-    SET_AUDIT_REQUIREMENTS   = 0x00000100,
-    AUDIT_LOG_ADMIN          = 0x00000200,
-    SERVER_ADMIN             = 0x00000400,
-    LOOKUP_NAMES             = 0x00000800,
-    NOTIFICATION             = 0x00001000,
-
-    ALL_ACCESS = (
-        ACCESS_MASK.STANDARD_RIGHTS_REQUIRED |
-        VIEW_LOCAL_INFORMATION |
-        VIEW_AUDIT_INFORMATION |
-        GET_PRIVATE_INFORMATION |
-        TRUST_ADMIN |
-        CREATE_ACCOUNT |
-        CREATE_SECRET |
-        CREATE_PRIVILEGE |
-        SET_DEFAULT_QUOTA_LIMITS |
-        SET_AUDIT_REQUIREMENTS |
-        AUDIT_LOG_ADMIN |
-        SERVER_ADMIN |
-        LOOKUP_NAMES
-    ),
-
-    READ = (
-        ACCESS_MASK.STANDARD_RIGHTS_READ |
-        VIEW_AUDIT_INFORMATION |
-        GET_PRIVATE_INFORMATION
-    ),
-
-    WRITE = (
-        ACCESS_MASK.STANDARD_RIGHTS_WRITE |
-        TRUST_ADMIN |
-        CREATE_ACCOUNT |
-        CREATE_SECRET |
-        CREATE_PRIVILEGE |
-        SET_DEFAULT_QUOTA_LIMITS |
-        SET_AUDIT_REQUIREMENTS |
-        AUDIT_LOG_ADMIN |
-        SERVER_ADMIN
-    ),
-
-    EXECUTE = (
-        ACCESS_MASK.STANDARD_RIGHTS_EXECUTE |
-        VIEW_LOCAL_INFORMATION |
-        LOOKUP_NAMES
-    )
-}
-
-/**
- * Registry Specific Access Rights.
- *
- * https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-key-security-and-access-rights
- */
-export enum KEY_ {
-    QUERY_VALUE          = 0x0001,
-    SET_VALUE            = 0x0002,
-    CREATE_SUB_KEY       = 0x0004,
-    ENUMERATE_SUB_KEYS   = 0x0008,
-    NOTIFY               = 0x0010,
-    CREATE_LINK          = 0x0020,
-    WOW64_64KEY          = 0x0100,
-    WOW64_32KEY          = 0x0200,
-    WOW64_RES            = 0x0300,
-
-    READ = (
-        (ACCESS_MASK.STANDARD_RIGHTS_READ | QUERY_VALUE | ENUMERATE_SUB_KEYS | NOTIFY)
-        & (~ACCESS_MASK.SYNCHRONIZE)
-    ),
-
-    WRITE = (
-        (ACCESS_MASK.STANDARD_RIGHTS_WRITE | SET_VALUE | CREATE_SUB_KEY)
-        & (~ACCESS_MASK.SYNCHRONIZE)
-    ),
-
-    EXECUTE = (
-        (READ)
-        & (~ACCESS_MASK.SYNCHRONIZE)
-    ),
-
-    ALL_ACCESS = (
-        (ACCESS_MASK.STANDARD_RIGHTS_ALL | QUERY_VALUE | SET_VALUE | CREATE_SUB_KEY | ENUMERATE_SUB_KEYS | NOTIFY | CREATE_LINK)
-        & (~ACCESS_MASK.SYNCHRONIZE)
-    )
-}
-
-/**
  * AnimateWindow() Commands.
  */
 export enum AW_ {
@@ -131,6 +33,9 @@ export enum AW_ {
     AW_SLIDE        = 0x00040000,
     AW_BLEND        = 0x00080000
 }
+
+/** Return this value to deny a query. */
+export const BROADCAST_QUERY_DENY = 0x424D5144
 
 /**
  * Broadcast Special Message Flags.
@@ -148,9 +53,6 @@ export enum BSF_ {
     RETURNHDESK        = 0x00000200,
     LUID               = 0x00000400
 }
-
-/** Return this value to deny a query. */
-export const BROADCAST_QUERY_DENY = 0x424D5144
 
 /**
  * Broadcast Special Message Recipient list.
@@ -269,18 +171,29 @@ export enum DOMAIN_ALIAS_ {
     RID_OPENSSH_USERS                  = 0x00000249,
 }
 
-export const SECURITY_NULL_SID_AUTHORITY: SID_IDENTIFIER_AUTHORITY         = [ 0, 0, 0, 0, 0,  0 ]
-export const SECURITY_WORLD_SID_AUTHORITY: SID_IDENTIFIER_AUTHORITY        = [ 0, 0, 0, 0, 0,  1 ]
-export const SECURITY_LOCAL_SID_AUTHORITY: SID_IDENTIFIER_AUTHORITY        = [ 0, 0, 0, 0, 0,  2 ]
-export const SECURITY_CREATOR_SID_AUTHORITY: SID_IDENTIFIER_AUTHORITY      = [ 0, 0, 0, 0, 0,  3 ]
-export const SECURITY_NON_UNIQUE_AUTHORITY: SID_IDENTIFIER_AUTHORITY       = [ 0, 0, 0, 0, 0,  4 ]
-export const SECURITY_NT_AUTHORITY: SID_IDENTIFIER_AUTHORITY               = [ 0, 0, 0, 0, 0,  5 ]
-export const SECURITY_RESOURCE_MANAGER_AUTHORITY: SID_IDENTIFIER_AUTHORITY = [ 0, 0, 0, 0, 0,  9 ]
-export const SECURITY_APP_PACKAGE_AUTHORITY: SID_IDENTIFIER_AUTHORITY      = [ 0, 0, 0, 0, 0, 15 ]
-export const SECURITY_MANDATORY_LABEL_AUTHORITY: SID_IDENTIFIER_AUTHORITY  = [ 0, 0, 0, 0, 0, 16 ]
-export const SECURITY_SCOPED_POLICY_ID_AUTHORITY: SID_IDENTIFIER_AUTHORITY = [ 0, 0, 0, 0, 0, 17 ]
-export const SECURITY_AUTHENTICATION_AUTHORITY: SID_IDENTIFIER_AUTHORITY   = [ 0, 0, 0, 0, 0, 18 ]
-export const SECURITY_PROCESS_TRUST_AUTHORITY: SID_IDENTIFIER_AUTHORITY    = [ 0, 0, 0, 0, 0, 19 ]
+/**
+ * Most common error codes.
+ * See https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes for more.
+ */
+export const enum ERROR_ {
+    SUCCESS              = 0,
+    FILE_NOT_FOUND       = 2,
+    PATH_NOT_FOUND       = 3,
+    ACCESS_DENIED        = 5,
+    INVALID_HANDLE       = 6,
+    NOT_ENOUGH_MEMORY    = 8,
+    NO_MORE_FILES        = 18,
+    NOT_SUPPORTED        = 50,
+    CALL_NOT_IMPLEMENTED = 120,
+    INVALID_NAME         = 123,
+    BAD_ARGUMENTS        = 160,
+    BAD_PATHNAME         = 161,
+    NO_DATA              = 232,
+    MORE_DATA            = 234,
+    NO_MORE_ITEMS        = 259,
+    INVALID_TOKEN        = 315,
+    INVALID_ADDRESS      = 487
+}
 
 /**
  * Extended Name APIs for ADS.
@@ -332,7 +245,7 @@ export enum GET_MODULE_HANDLE_EX_FLAG_ {
 }
 
 /**
- * Reserved Key Handles.
+ * Reserved Registry Key Handles.
  */
 export enum HKEY_ {
     CLASSES_ROOT                = 0x80000000,
@@ -411,6 +324,43 @@ export enum IMAGE_ {
     ICON        = 1,
     CURSOR      = 2,
     ENHMETAFILE = 3
+}
+
+/**
+ * Registry Specific Access Rights.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-key-security-and-access-rights
+ */
+export enum KEY_ {
+    QUERY_VALUE          = 0x0001,
+    SET_VALUE            = 0x0002,
+    CREATE_SUB_KEY       = 0x0004,
+    ENUMERATE_SUB_KEYS   = 0x0008,
+    NOTIFY               = 0x0010,
+    CREATE_LINK          = 0x0020,
+    WOW64_64KEY          = 0x0100,
+    WOW64_32KEY          = 0x0200,
+    WOW64_RES            = 0x0300,
+
+    READ = (
+        (ACCESS_MASK.STANDARD_RIGHTS_READ | QUERY_VALUE | ENUMERATE_SUB_KEYS | NOTIFY)
+        & (~ACCESS_MASK.SYNCHRONIZE)
+    ),
+
+    WRITE = (
+        (ACCESS_MASK.STANDARD_RIGHTS_WRITE | SET_VALUE | CREATE_SUB_KEY)
+        & (~ACCESS_MASK.SYNCHRONIZE)
+    ),
+
+    EXECUTE = (
+        (READ)
+        & (~ACCESS_MASK.SYNCHRONIZE)
+    ),
+
+    ALL_ACCESS = (
+        (ACCESS_MASK.STANDARD_RIGHTS_ALL | QUERY_VALUE | SET_VALUE | CREATE_SUB_KEY | ENUMERATE_SUB_KEYS | NOTIFY | CREATE_LINK)
+        & (~ACCESS_MASK.SYNCHRONIZE)
+    )
 }
 
 /**
@@ -633,6 +583,161 @@ export enum OIC_ {
 }
 
 /**
+ * QueueStatus flags.
+ */
+export enum QS_ {
+    KEY         = 0x0001,
+    MOUSEMOVE   = 0x0002,
+    MOUSEBUTTON = 0x0004,
+    POSTMSG     = 0x0008,
+    TIMER       = 0x0010,
+    PAINT       = 0x0020,
+    SENDMSG     = 0x0040,
+    HOTKEY      = 0x0080,
+    ALLPOSTMSG  = 0x0100,
+    RAWINPUT    = 0x0400,
+    MOUSE       = MOUSEMOVE | MOUSEBUTTON,
+    INPUT       = MOUSE | KEY | RAWINPUT,
+    ALLEVENTS   = INPUT | POSTMSG | TIMER | PAINT | HOTKEY,
+    ALLINPUT    = INPUT | POSTMSG | TIMER | PAINT | HOTKEY | SENDMSG
+}
+
+/**
+ * Predefined Value Types.
+ */
+export enum REG_ {
+    NONE                       = 0,     // No value type
+    SZ                         = 1,     // Unicode nul terminated string
+    EXPAND_SZ                  = 2,     // Unicode nul terminated string (with environment variable references)
+    BINARY                     = 3,     // Free form binary
+    DWORD                      = 4,     // 32-bit number
+    DWORD_LITTLE_ENDIAN        = 4,     // 32-bit number (same as REG_DWORD)
+    DWORD_BIG_ENDIAN           = 5,     // 32-bit number
+    LINK                       = 6,     // Symbolic Link (unicode)
+    MULTI_SZ                   = 7,     // Multiple Unicode strings
+    RESOURCE_LIST              = 8,     // Resource list in the resource map
+    FULL_RESOURCE_DESCRIPTOR   = 9,     // Resource list in the hardware description
+    RESOURCE_REQUIREMENTS_LIST = 10,
+    QWORD                      = 11,    // 64-bit number
+    QWORD_LITTLE_ENDIAN        = 11,    // 64-bit number (same as REG_QWORD)
+}
+
+export enum REG_OPTION_ {
+    RESERVED        = 0x00000000,
+    NON_VOLATILE    = 0x00000000,
+    VOLATILE        = 0x00000001,
+    CREATE_LINK     = 0x00000002,
+    BACKUP_RESTORE  = 0x00000004,
+    OPEN_LINK       = 0x00000008,
+    DONT_VIRTUALIZE = 0x00000010,
+}
+
+/**
+ * Registry Routine Flags (for RegGetValue)
+ */
+export enum RRF_ {
+    RT_REG_NONE       = 0x00000001,                         // restrict type to REG_NONE      (other data types will not return ERROR_SUCCESS)
+    RT_REG_SZ         = 0x00000002,                         // restrict type to REG_SZ        (other data types will not return ERROR_SUCCESS) (automatically converts REG_EXPAND_SZ to REG_SZ unless RRF_NOEXPAND is specified)
+    RT_REG_EXPAND_SZ  = 0x00000004,                         // restrict type to REG_EXPAND_SZ (other data types will not return ERROR_SUCCESS) (must specify RRF_NOEXPAND or RegGetValue will fail with ERROR_INVALID_PARAMETER)
+    RT_REG_BINARY     = 0x00000008,                         // restrict type to REG_BINARY    (other data types will not return ERROR_SUCCESS)
+    RT_REG_DWORD      = 0x00000010,                         // restrict type to REG_DWORD     (other data types will not return ERROR_SUCCESS)
+    RT_REG_MULTI_SZ   = 0x00000020,                         // restrict type to REG_MULTI_SZ  (other data types will not return ERROR_SUCCESS)
+    RT_REG_QWORD      = 0x00000040,                         // restrict type to REG_QWORD     (other data types will not return ERROR_SUCCESS)
+    RT_DWORD          = (RT_REG_BINARY | RT_REG_DWORD),     // restrict type to *32-bit* RRF_RT_REG_BINARY or RRF_RT_REG_DWORD (other data types will not return ERROR_SUCCESS)
+    RT_QWORD          = (RT_REG_BINARY | RT_REG_QWORD),     // restrict type to *64-bit* RRF_RT_REG_BINARY or RRF_RT_REG_DWORD (other data types will not return ERROR_SUCCESS)
+    RT_ANY            = 0x0000ffff,                         // no type restriction
+    SUBKEY_WOW6464KEY = 0x00010000,                         // when opening the subkey (if provided) force open from the 64bit location (only one SUBKEY_WOW64* flag can be set or RegGetValue will fail with ERROR_INVALID_PARAMETER)
+    SUBKEY_WOW6432KEY = 0x00020000,                         // when opening the subkey (if provided) force open from the 32bit location (only one SUBKEY_WOW64* flag can be set or RegGetValue will fail with ERROR_INVALID_PARAMETER)
+    WOW64_MASK        = 0x00030000,
+    NOEXPAND          = 0x10000000,                         // do not automatically expand environment strings if value is of type REG_EXPAND_SZ
+    ZEROONFAILURE     = 0x20000000,                         // if pvData is not NULL, set content to all zeros on failure
+}
+
+export const REG_CREATED_NEW_KEY              = 1
+export const REG_OPENED_EXISTING_KEY          = 2
+export const REG_PROCESS_APPKEY               = 0x00000001
+export const REG_USE_CURRENT_SECURITY_CONTEXT = 0x00000002
+export const REG_STANDARD_FORMAT              = 1
+export const REG_LATEST_FORMAT                = 2
+export const REG_NO_COMPRESSION               = 4
+
+/**
+ * PeekMessage flags.
+ */
+export enum PM_ {
+    NOREMOVE   = 0x0000,
+    REMOVE     = 0x0001,
+    NOYIELD    = 0x0002,
+    QS_INPUT   = (QS_.INPUT << 16),
+    QS_POSTMSG = (QS_.POSTMSG << 16),
+    QS_HOTKEY  = (QS_.HOTKEY << 16),
+    QS_TIMER   = (QS_.TIMER << 16),
+    QS_PAINT   = (QS_.PAINT << 16),
+    QS_SENDMSG = (QS_.SENDMSG << 16)
+}
+
+/**
+ * Access types for the Policy object.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/secmgmt/policy-object-access-rights
+ */
+export enum POLICY_ {
+    VIEW_LOCAL_INFORMATION   = 0x00000001,
+    VIEW_AUDIT_INFORMATION   = 0x00000002,
+    GET_PRIVATE_INFORMATION  = 0x00000004,
+    TRUST_ADMIN              = 0x00000008,
+    CREATE_ACCOUNT           = 0x00000010,
+    CREATE_SECRET            = 0x00000020,
+    CREATE_PRIVILEGE         = 0x00000040,
+    SET_DEFAULT_QUOTA_LIMITS = 0x00000080,
+    SET_AUDIT_REQUIREMENTS   = 0x00000100,
+    AUDIT_LOG_ADMIN          = 0x00000200,
+    SERVER_ADMIN             = 0x00000400,
+    LOOKUP_NAMES             = 0x00000800,
+    NOTIFICATION             = 0x00001000,
+
+    ALL_ACCESS = (
+        ACCESS_MASK.STANDARD_RIGHTS_REQUIRED |
+        VIEW_LOCAL_INFORMATION |
+        VIEW_AUDIT_INFORMATION |
+        GET_PRIVATE_INFORMATION |
+        TRUST_ADMIN |
+        CREATE_ACCOUNT |
+        CREATE_SECRET |
+        CREATE_PRIVILEGE |
+        SET_DEFAULT_QUOTA_LIMITS |
+        SET_AUDIT_REQUIREMENTS |
+        AUDIT_LOG_ADMIN |
+        SERVER_ADMIN |
+        LOOKUP_NAMES
+    ),
+
+    READ = (
+        ACCESS_MASK.STANDARD_RIGHTS_READ |
+        VIEW_AUDIT_INFORMATION |
+        GET_PRIVATE_INFORMATION
+    ),
+
+    WRITE = (
+        ACCESS_MASK.STANDARD_RIGHTS_WRITE |
+        TRUST_ADMIN |
+        CREATE_ACCOUNT |
+        CREATE_SECRET |
+        CREATE_PRIVILEGE |
+        SET_DEFAULT_QUOTA_LIMITS |
+        SET_AUDIT_REQUIREMENTS |
+        AUDIT_LOG_ADMIN |
+        SERVER_ADMIN
+    ),
+
+    EXECUTE = (
+        ACCESS_MASK.STANDARD_RIGHTS_EXECUTE |
+        VIEW_LOCAL_INFORMATION |
+        LOOKUP_NAMES
+    )
+}
+
+/**
  * Process Security and Access Rights.
  *
  * https://learn.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights
@@ -654,39 +759,55 @@ export enum PSAR_ {
     SYNCHRONIZE                       = 0x00100000
 }
 
-/**
- * QueueStatus flags.
+/*
+ * Scroll Bar Constants and Commands.
  */
-export enum QS_ {
-    KEY         = 0x0001,
-    MOUSEMOVE   = 0x0002,
-    MOUSEBUTTON = 0x0004,
-    POSTMSG     = 0x0008,
-    TIMER       = 0x0010,
-    PAINT       = 0x0020,
-    SENDMSG     = 0x0040,
-    HOTKEY      = 0x0080,
-    ALLPOSTMSG  = 0x0100,
-    RAWINPUT    = 0x0400,
-    MOUSE       = MOUSEMOVE | MOUSEBUTTON,
-    INPUT       = MOUSE | KEY | RAWINPUT,
-    ALLEVENTS   = INPUT | POSTMSG | TIMER | PAINT | HOTKEY,
-    ALLINPUT    = INPUT | POSTMSG | TIMER | PAINT | HOTKEY | SENDMSG
+export enum SB_ {
+    // Constants
+    MIN           = 0,
+    HORZ          = 0,
+    VERT          = 1,
+    CTL           = 2,
+    BOTH          = 3,
+    // Commands
+    LINEUP        = 0,
+    LINELEFT      = 0,
+    LINEDOWN      = 1,
+    LINERIGHT     = 1,
+    PAGEUP        = 2,
+    PAGELEFT      = 2,
+    PAGEDOWN      = 3,
+    PAGERIGHT     = 3,
+    THUMBPOSITION = 4,
+    THUMBTRACK    = 5,
+    TOP           = 6,
+    LEFT          = 6,
+    BOTTOM        = 7,
+    RIGHT         = 7,
+    ENDSCROLL     = 8,
 }
 
 /**
- * PeekMessage flags.
+ * The SECURITY_DESCRIPTOR_CONTROL data type is a set of bit flags that qualify the meaning of a security descriptor or its components.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-control
  */
-export enum PM_ {
-    NOREMOVE   = 0x0000,
-    REMOVE     = 0x0001,
-    NOYIELD    = 0x0002,
-    QS_INPUT   = (QS_.INPUT << 16),
-    QS_POSTMSG = (QS_.POSTMSG << 16),
-    QS_HOTKEY  = (QS_.HOTKEY << 16),
-    QS_TIMER   = (QS_.TIMER << 16),
-    QS_PAINT   = (QS_.PAINT << 16),
-    QS_SENDMSG = (QS_.SENDMSG << 16)
+export type SECURITY_DESCRIPTOR_CONTROL = SE_
+export enum SE_ {
+    OWNER_DEFAULTED       = 0x0001,
+    GROUP_DEFAULTED       = 0x0002,
+    DACL_PRESENT          = 0x0004,
+    DACL_DEFAULTED        = 0x0008,
+    SACL_PRESENT          = 0x0010,
+    SACL_DEFAULTED        = 0x0020,
+    DACL_AUTO_INHERIT_REQ = 0x0100,
+    SACL_AUTO_INHERIT_REQ = 0x0200,
+    DACL_AUTO_INHERITED   = 0x0400,
+    SACL_AUTO_INHERITED   = 0x0800,
+    DACL_PROTECTED        = 0x1000,
+    SACL_PROTECTED        = 0x2000,
+    RM_CONTROL_VALID      = 0x4000,
+    SELF_RELATIVE         = 0x8000,
 }
 
 /**
@@ -717,7 +838,8 @@ export enum SE_GROUP_ {
 }
 
 /**
- *
+ * (RID) The portion of a security identifier (SID) that identifies a user or group
+ * in relation to the authority that issued the SID.
  */
 export enum SECURITY_ {
     DIALUP_RID                                    = 0x00000001,
@@ -811,63 +933,6 @@ export enum SECURITY_ {
     //
     LOCAL_ACCOUNT_RID                             = 0x00000071,
     LOCAL_ACCOUNT_AND_ADMIN_RID                   = 0x00000072,
-}
-
-/**
- * The SECURITY_IMPERSONATION_LEVEL enumeration contains values that specify security impersonation levels.
- */
-export enum SECURITY_IMPERSONATION_LEVEL {
-    SecurityAnonymous,
-    SecurityIdentification,
-    SecurityImpersonation,
-    SecurityDelegation
-}
-
-/*
- * Scroll Bar Constants and Commands.
- */
-export enum SB_ {
-    // Constants
-    MIN           = 0,
-    HORZ          = 0,
-    VERT          = 1,
-    CTL           = 2,
-    BOTH          = 3,
-    // Commands
-    LINEUP        = 0,
-    LINELEFT      = 0,
-    LINEDOWN      = 1,
-    LINERIGHT     = 1,
-    PAGEUP        = 2,
-    PAGELEFT      = 2,
-    PAGEDOWN      = 3,
-    PAGERIGHT     = 3,
-    THUMBPOSITION = 4,
-    THUMBTRACK    = 5,
-    TOP           = 6,
-    LEFT          = 6,
-    BOTTOM        = 7,
-    RIGHT         = 7,
-    ENDSCROLL     = 8,
-}
-
-/**
- * The SID_NAME_USE enumeration contains values that specify the type of a security identifier (SID).
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-sid_name_use
- */
-export enum SID_NAME_USE {
-    SidTypeUser = 1,
-    SidTypeGroup,
-    SidTypeDomain,
-    SidTypeAlias,
-    SidTypeWellKnownGroup,
-    SidTypeDeletedAccount,
-    SidTypeInvalid,
-    SidTypeUnknown,
-    SidTypeComputer,
-    SidTypeLabel,
-    SidTypeLogonSession
 }
 
 /*
@@ -1468,84 +1533,44 @@ export enum WS_EX_ {
     PALETTEWINDOW       = WINDOWEDGE | TOOLWINDOW | TOPMOST
 }
 
+export const SECURITY_NULL_SID_AUTHORITY: SID_IDENTIFIER_AUTHORITY         = [ 0, 0, 0, 0, 0,  0 ]
+export const SECURITY_WORLD_SID_AUTHORITY: SID_IDENTIFIER_AUTHORITY        = [ 0, 0, 0, 0, 0,  1 ]
+export const SECURITY_LOCAL_SID_AUTHORITY: SID_IDENTIFIER_AUTHORITY        = [ 0, 0, 0, 0, 0,  2 ]
+export const SECURITY_CREATOR_SID_AUTHORITY: SID_IDENTIFIER_AUTHORITY      = [ 0, 0, 0, 0, 0,  3 ]
+export const SECURITY_NON_UNIQUE_AUTHORITY: SID_IDENTIFIER_AUTHORITY       = [ 0, 0, 0, 0, 0,  4 ]
+export const SECURITY_NT_AUTHORITY: SID_IDENTIFIER_AUTHORITY               = [ 0, 0, 0, 0, 0,  5 ]
+export const SECURITY_RESOURCE_MANAGER_AUTHORITY: SID_IDENTIFIER_AUTHORITY = [ 0, 0, 0, 0, 0,  9 ]
+export const SECURITY_APP_PACKAGE_AUTHORITY: SID_IDENTIFIER_AUTHORITY      = [ 0, 0, 0, 0, 0, 15 ]
+export const SECURITY_MANDATORY_LABEL_AUTHORITY: SID_IDENTIFIER_AUTHORITY  = [ 0, 0, 0, 0, 0, 16 ]
+export const SECURITY_SCOPED_POLICY_ID_AUTHORITY: SID_IDENTIFIER_AUTHORITY = [ 0, 0, 0, 0, 0, 17 ]
+export const SECURITY_AUTHENTICATION_AUTHORITY: SID_IDENTIFIER_AUTHORITY   = [ 0, 0, 0, 0, 0, 18 ]
+export const SECURITY_PROCESS_TRUST_AUTHORITY: SID_IDENTIFIER_AUTHORITY    = [ 0, 0, 0, 0, 0, 19 ]
+
 /**
- * The SECURITY_DESCRIPTOR_CONTROL data type is a set of bit flags that qualify the meaning of a security descriptor or its components.
+ * The SECURITY_IMPERSONATION_LEVEL enumeration contains values that specify security impersonation levels.
+ */
+export enum SECURITY_IMPERSONATION_LEVEL {
+    SecurityAnonymous,
+    SecurityIdentification,
+    SecurityImpersonation,
+    SecurityDelegation
+}
+
+/**
+ * The SID_NAME_USE enumeration contains values that specify the type of a security identifier (SID).
  *
- * https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-control
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-sid_name_use
  */
-export type SECURITY_DESCRIPTOR_CONTROL = SE_
-export enum SE_ {
-    OWNER_DEFAULTED       = 0x0001,
-    GROUP_DEFAULTED       = 0x0002,
-    DACL_PRESENT          = 0x0004,
-    DACL_DEFAULTED        = 0x0008,
-    SACL_PRESENT          = 0x0010,
-    SACL_DEFAULTED        = 0x0020,
-    DACL_AUTO_INHERIT_REQ = 0x0100,
-    SACL_AUTO_INHERIT_REQ = 0x0200,
-    DACL_AUTO_INHERITED   = 0x0400,
-    SACL_AUTO_INHERITED   = 0x0800,
-    DACL_PROTECTED        = 0x1000,
-    SACL_PROTECTED        = 0x2000,
-    RM_CONTROL_VALID      = 0x4000,
-    SELF_RELATIVE         = 0x8000,
+export enum SID_NAME_USE {
+    SidTypeUser = 1,
+    SidTypeGroup,
+    SidTypeDomain,
+    SidTypeAlias,
+    SidTypeWellKnownGroup,
+    SidTypeDeletedAccount,
+    SidTypeInvalid,
+    SidTypeUnknown,
+    SidTypeComputer,
+    SidTypeLabel,
+    SidTypeLogonSession
 }
-
-/**
- * Predefined Value Types.
- */
-export enum REG_ {
-    NONE                       = 0,     // No value type
-    SZ                         = 1,     // Unicode nul terminated string
-    EXPAND_SZ                  = 2,     // Unicode nul terminated string (with environment variable references)
-    BINARY                     = 3,     // Free form binary
-    DWORD                      = 4,     // 32-bit number
-    DWORD_LITTLE_ENDIAN        = 4,     // 32-bit number (same as REG_DWORD)
-    DWORD_BIG_ENDIAN           = 5,     // 32-bit number
-    LINK                       = 6,     // Symbolic Link (unicode)
-    MULTI_SZ                   = 7,     // Multiple Unicode strings
-    RESOURCE_LIST              = 8,     // Resource list in the resource map
-    FULL_RESOURCE_DESCRIPTOR   = 9,     // Resource list in the hardware description
-    RESOURCE_REQUIREMENTS_LIST = 10,
-    QWORD                      = 11,    // 64-bit number
-    QWORD_LITTLE_ENDIAN        = 11,    // 64-bit number (same as REG_QWORD)
-}
-
-export enum REG_OPTION_ {
-    RESERVED        = 0x00000000,
-    NON_VOLATILE    = 0x00000000,
-    VOLATILE        = 0x00000001,
-    CREATE_LINK     = 0x00000002,
-    BACKUP_RESTORE  = 0x00000004,
-    OPEN_LINK       = 0x00000008,
-    DONT_VIRTUALIZE = 0x00000010,
-}
-
-/**
- * Registry Routine Flags (for RegGetValue)
- */
-export enum RRF_ {
-    RT_REG_NONE       = 0x00000001,                         // restrict type to REG_NONE      (other data types will not return ERROR_SUCCESS)
-    RT_REG_SZ         = 0x00000002,                         // restrict type to REG_SZ        (other data types will not return ERROR_SUCCESS) (automatically converts REG_EXPAND_SZ to REG_SZ unless RRF_NOEXPAND is specified)
-    RT_REG_EXPAND_SZ  = 0x00000004,                         // restrict type to REG_EXPAND_SZ (other data types will not return ERROR_SUCCESS) (must specify RRF_NOEXPAND or RegGetValue will fail with ERROR_INVALID_PARAMETER)
-    RT_REG_BINARY     = 0x00000008,                         // restrict type to REG_BINARY    (other data types will not return ERROR_SUCCESS)
-    RT_REG_DWORD      = 0x00000010,                         // restrict type to REG_DWORD     (other data types will not return ERROR_SUCCESS)
-    RT_REG_MULTI_SZ   = 0x00000020,                         // restrict type to REG_MULTI_SZ  (other data types will not return ERROR_SUCCESS)
-    RT_REG_QWORD      = 0x00000040,                         // restrict type to REG_QWORD     (other data types will not return ERROR_SUCCESS)
-    RT_DWORD          = (RT_REG_BINARY | RT_REG_DWORD),     // restrict type to *32-bit* RRF_RT_REG_BINARY or RRF_RT_REG_DWORD (other data types will not return ERROR_SUCCESS)
-    RT_QWORD          = (RT_REG_BINARY | RT_REG_QWORD),     // restrict type to *64-bit* RRF_RT_REG_BINARY or RRF_RT_REG_DWORD (other data types will not return ERROR_SUCCESS)
-    RT_ANY            = 0x0000ffff,                         // no type restriction
-    SUBKEY_WOW6464KEY = 0x00010000,                         // when opening the subkey (if provided) force open from the 64bit location (only one SUBKEY_WOW64* flag can be set or RegGetValue will fail with ERROR_INVALID_PARAMETER)
-    SUBKEY_WOW6432KEY = 0x00020000,                         // when opening the subkey (if provided) force open from the 32bit location (only one SUBKEY_WOW64* flag can be set or RegGetValue will fail with ERROR_INVALID_PARAMETER)
-    WOW64_MASK        = 0x00030000,
-    NOEXPAND          = 0x10000000,                         // do not automatically expand environment strings if value is of type REG_EXPAND_SZ
-    ZEROONFAILURE     = 0x20000000,                         // if pvData is not NULL, set content to all zeros on failure
-}
-
-export const REG_CREATED_NEW_KEY              = 1
-export const REG_OPENED_EXISTING_KEY          = 2
-export const REG_PROCESS_APPKEY               = 0x00000001
-export const REG_USE_CURRENT_SECURITY_CONTEXT = 0x00000002
-export const REG_STANDARD_FORMAT              = 1
-export const REG_LATEST_FORMAT                = 2
-export const REG_NO_COMPRESSION               = 4
