@@ -4,6 +4,7 @@ import {
     cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cDWORD64, cPVOID, cSTR,
     cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN,
     cWNDPROC, type WNDPROC, cWPARAM, type WPARAM, cLPARAM, type LPARAM,
+    type CUnion,
 } from './ctypes.js'
 import type {
     CS_, NIF_, TOKEN_TYPE_,
@@ -71,20 +72,20 @@ export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct('CLAIM_
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-claim_security_attribute_v1
  */
-export interface CLAIM_SECURITY_ATTRIBUTE_V1 {
+export type CLAIM_SECURITY_ATTRIBUTE_V1 = {
     Name:       string
     ValueType:  CLAIM_SECURITY_ATTRIBUTE_TYPE_
-    Reserved:   0       // Reserved, must be 0
+    Reserved:   0
     Flags:      CLAIM_SECURITY_ATTRIBUTE_
     ValueCount: number
     /** `Values` is union, only one member is present at a time, based on ValueType. */
-    Values: {
-        pInt64?:        BigInt[]
-        pUint64?:       BigInt[]
-        ppString?:      string[]
-        pFqbn?:         CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]
-        pOctectString?: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[]
-    }[]
+    Values: CUnion<{
+        pInt64:        BigInt[]
+        pUint64:       BigInt[]
+        ppString:      string[]
+        pFqbn:         CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]
+        pOctectString: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[]
+    }>
 }
 
 /** @internal */

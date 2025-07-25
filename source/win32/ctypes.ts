@@ -72,6 +72,18 @@ export type WNDPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPAR
 export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
 export type DLGPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt
 
-/** @internal */ export const cWNDPROC     = koffi.pointer(koffi.proto('WNDPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
-/** @internal */ export const cWNDENUMPROC = koffi.pointer(koffi.proto('WNDENUMPROC', cBOOL,    [ cHANDLE, cLPARAM ]))
-/** @internal */ export const cDLGPROC     = koffi.pointer(koffi.proto('DLGPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+/** @internal */
+export const cWNDPROC     = koffi.pointer(koffi.proto('WNDPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+
+/** @internal */
+export const cWNDENUMPROC = koffi.pointer(koffi.proto('WNDENUMPROC', cBOOL,    [ cHANDLE, cLPARAM ]))
+
+/** @internal */
+export const cDLGPROC     = koffi.pointer(koffi.proto('DLGPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+
+/**
+ * An helper type that mimics a C union.
+ */
+export type CUnion<T extends Record<PropertyKey, unknown>> = {
+    [K in keyof T]: { [_ in K]: T[K] } & { [_ in Exclude<keyof T, K>]: never }
+}[keyof T]
