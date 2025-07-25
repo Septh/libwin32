@@ -378,6 +378,34 @@ export function GetUserName(): string | null {
 }
 
 /**
+ * Retrieves a security identifier (SID) for the account and the name of the domain on which the account was found.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountnamew
+ */
+export function LookupAccountName(systemName: string | null, accountName: string): LookupAccountNameResult | null {
+    LookupAccountName.native ??= advapi32.func('LookupAccountNameW', cBOOL, [ cSTR, cSTR, koffi.out(koffi.pointer(cSID)), koffi.inout(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cINT)) ])
+
+    const pSID: OUT<SID> = [{} as SID]
+    const pcbSid: OUT<number> = [koffi.sizeof(cSID)]
+    const domain = new StringOutputBuffer(Internals.MAX_NAME)
+    const peUse: OUT<SID_NAME_USE> = [0 as SID_NAME_USE]
+    if (LookupAccountName.native(systemName, accountName, pSID, pcbSid, domain.buffer, domain.pLength, peUse) !== 0) {
+        return {
+            sid: pSID[0],
+            referencedDomainName: domain.decode(),
+            use: peUse[0]
+        }
+    }
+    return null
+}
+
+export interface LookupAccountNameResult {
+    sid: SID,
+    referencedDomainName: string
+    use: SID_NAME_USE
+}
+
+/**
  * Retrieves the name of the account for a security identifier (SID) and the name of the domain where the account was found.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountsidw
@@ -385,8 +413,8 @@ export function GetUserName(): string | null {
 export function LookupAccountSid(systemName: string | null, sid: SID): LookupAccountSidResult | null {
     LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [ cSTR, koffi.pointer(cSID), cPVOID, koffi.inout(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cINT)) ])
 
-    const name = new StringOutputBuffer(Internals.UNLEN)
-    const domain = new StringOutputBuffer(256)
+    const name = new StringOutputBuffer(Internals.MAX_NAME)
+    const domain = new StringOutputBuffer(Internals.MAX_NAME)
     const pUse: OUT<SID_NAME_USE> = [0 as SID_NAME_USE]
     if (LookupAccountSid.native(systemName, sid, name.buffer, name.pLength, domain.buffer, domain.pLength, pUse) !== 0) {
         return {

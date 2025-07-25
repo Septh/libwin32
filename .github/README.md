@@ -137,6 +137,7 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | LoadIcon                  | user32    | 0.1.0 |
 | LoadImage                 | user32    | 0.1.0 |
 | LookupAccountSid          | advapi32  | 0.6.0 |
+| LookupAccountName         | advapi32  | 0.8.1 |
 | LsaClose                  | advapi32  | 0.6.0 |
 | LsaNtStatusToWinError     | advapi32  | 0.6.0 |
 | LsaOpenPolicy             | advapi32  | 0.6.0 |

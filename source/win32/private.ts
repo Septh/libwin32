@@ -80,6 +80,7 @@ export const enum Internals {
     ERROR_SUCCESS  = 0,
     MAX_KEY_LENGTH = 255,
     MAX_VALUE_NAME = 16383,
+    MAX_NAME = 256
 }
 
 /** koffi.out() and koffi.inout() expect a table with a single entry. */
