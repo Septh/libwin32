@@ -222,3 +222,6 @@ export function LocalFree(ptr: unknown) {
     LocalFree.native ??= kernel32.func('LocalFree', cPVOID, [ cPVOID ])
     return LocalFree.native(ptr)
 }
+
+/** @internal only used by some functions in some libs and not intended to be exposed to the user. */
+export const cLocalAllocatedString = koffi.disposable('cLocalAllocatedString', cSTR, LocalFree)

@@ -39,7 +39,7 @@ import {
     type HKEY_, type REG_OPTION_, type KEY_, type RRF_,
     type SID_NAME_USE
 } from './consts.js'
-import { LocalFree } from './kernel32.js'
+import { LocalFree, cLocalAllocatedString } from './kernel32.js'
 
 /** @internal */
 export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
@@ -59,39 +59,43 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
     // and we could even use a disposable type.
     // We don't do that however because Koffi does not handle variable-length arrays: it would always decode
     // 15 sub-authorities, possibly accessing random memory beyond the allocated SID.
-    // To avoid that, we manually decode the SID before freeing its memory.
+    // To avoid that, we manually decode the SID and explicitly call FreeSid() on it.
     AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [ koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, koffi.out(koffi.pointer(cPVOID)) ])
 
     const pSID: OUT<unknown> = [null]
     if (AllocateAndInitializeSid.native([ identifierAuthority ], subAuthorityCount, subAuthority0, subAuthority1, subAuthority2, subAuthority3, subAuthority4, subAuthority5, subAuthority6, subAuthority7, pSID) !== 0) {
-
-        // Decode the SID, reading only the exact number of sub-authorities.
-        const [ Revision, SubAuthorityCount, ...IdentifierAuthority ] = koffi.decode(pSID[0], koffi.array(cBYTE, 8, 'Array')) as [ number, number, number, number, number, number, number, number ]
-        const SubAuthority = koffi.decode(pSID[0], koffi.offsetof(cSID, 'SubAuthority'), koffi.array(cDWORD, SubAuthorityCount, 'Array')) as number[]
-
-        // We still must let Koffi think that there are SID_MAX_SUB_AUTHORITIES SubAuthorities
-        // otherwise calls to other advapi32 functions that expect a SID parameter would fail.
-        SubAuthority.length = Internals.SID_MAX_SUB_AUTHORITIES
-        SubAuthority.fill(0, SubAuthorityCount)
-
-        // Free the allocated SID.
-        freeSid()
-
-        // Return the decoded SID.
-        return {
-            Revision,
-            SubAuthorityCount,
-            IdentifierAuthority,
-            SubAuthority
-        }
+        const sid = decodeSid(pSID[0])
+        freeSid(pSID[0])
+        return sid
     }
-
     return null
+}
 
-    function freeSid(): void {
-        freeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
-        freeSid.native(pSID[0])
+function decodeSid(sidPtr: unknown): SID {
+
+    // Decode the 8-bytes header.
+    const [ Revision, SubAuthorityCount, ...IdentifierAuthority ] = koffi.decode(sidPtr, koffi.array(cBYTE, 8, 'Array')) as [ number, number, number, number, number, number, number, number ]
+
+    // Decode the exact number of sub-authorities.
+    const SubAuthority = koffi.decode(sidPtr, koffi.offsetof(cSID, 'SubAuthority'), koffi.array(cDWORD, SubAuthorityCount, 'Array')) as number[]
+
+    // We still must let Koffi think that there are SID_MAX_SUB_AUTHORITIES SubAuthorities
+    // otherwise calls to other advapi32 functions that expect a SID parameter would fail.
+    SubAuthority.length = Internals.SID_MAX_SUB_AUTHORITIES
+    SubAuthority.fill(0, SubAuthorityCount)
+
+    // Return the decoded SID.
+    return {
+        Revision,
+        SubAuthorityCount,
+        IdentifierAuthority,
+        SubAuthority
     }
+}
+
+function freeSid(sidPtr: unknown): void {
+    freeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
+    freeSid.native(sidPtr)
 }
 
 /**
@@ -103,14 +107,10 @@ export function ConvertSidToStringSid(sid: SID): string | null {
     ConvertSidToStringSid.native ??= advapi32.func('ConvertSidToStringSidW', cBOOL, [ koffi.pointer(cSID), koffi.out(koffi.pointer(cLocalAllocatedString)) ])
 
     const pStr: OUT<string> = [null!]
-    if (ConvertSidToStringSid.native(sid, pStr) !== 0) {
+    if (ConvertSidToStringSid.native(sid, pStr) !== 0)
         return pStr[0]
-    }
-
     return null
 }
-
-const cLocalAllocatedString = koffi.disposable('cLocalStr', cSTR, LocalFree)
 
 /**
  * The ConvertStringSidToSid function converts a string-format security identifier (SID) into a valid, functional SID.
@@ -122,19 +122,9 @@ export function ConvertStringSidToSid(stringSid: string): SID | null {
 
     const pSID: OUT<unknown> = [null]
     if (ConvertStringSidToSid.native(stringSid, pSID) !== 0) {
-        // Decode the SID using the same technique as AllocateAndInitializeSid()
-        const [ Revision, SubAuthorityCount, ...IdentifierAuthority ] = koffi.decode(pSID[0], koffi.array(cBYTE, 8, 'Array')) as [ number, number, number, number, number, number, number, number ]
-        const SubAuthority = koffi.decode(pSID[0], 8, koffi.array(cDWORD, SubAuthorityCount, 'Array')) as number[]
-        SubAuthority.length = Internals.SID_MAX_SUB_AUTHORITIES
-        SubAuthority.fill(0, SubAuthorityCount)
-
+        const sid = decodeSid(pSID[0])
         LocalFree(pSID[0])
-        return {
-            Revision,
-            SubAuthorityCount,
-            IdentifierAuthority,
-            SubAuthority
-        }
+        return sid
     }
     return null
 }
@@ -152,7 +142,7 @@ export function EqualSid(sid1: SID, sid2: SID): boolean {
 /**
  * Frees a security identifier (SID) previously allocated by using the {@link AllocateAndInitializeSid} function.
  *
- * Note: because libwin32 doesn't keep pointers to allocated memory around, this functions is a NOOP.
+ * Note: because `AllocateAndInitializeSid()` already freed the allocated memory, this functions is a NOOP.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-freesid
  */
