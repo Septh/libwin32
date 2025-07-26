@@ -63,4 +63,6 @@ function makeSingleConfig(demo) {
 }
 
 // Use distinct configs (one per demo) to prevent Rollup from code-splitting the library.
-export default fs.readdir('./source/demos').then(demos => demos.map(makeSingleConfig))
+export default fs.readdir('./source/demos')
+    .then(demos => demos.filter(demo => demo !== 'tsconfig.json'))
+    .then(demos => demos.map(makeSingleConfig))
