@@ -31,7 +31,9 @@ import {
     cTOKEN_STATISTICS, type TOKEN_STATISTICS,
     cTOKEN_USER, type TOKEN_USER,
     cSECURITY_ATTRIBUTES, type SECURITY_ATTRIBUTES,
-    cFILETIME, type FILETIME
+    cFILETIME, type FILETIME,
+    type LUID,
+    cLUID
 } from './structs.js'
 import {
     TOKEN_INFORMATION_CLASS, REG_,
@@ -440,6 +442,20 @@ export interface LookupAccountSidResult {
  */
 export function LookupAccountSidLocal(sid: SID): LookupAccountSidResult | null {
     return LookupAccountSid(null, sid)
+}
+
+/**
+ * Retrieves the name that corresponds to the privilege represented on a specific system by a specified locally unique identifier (LUID).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupprivilegenamew
+ */
+export function LookupPrivilegeName(systemName: string | null, luid: LUID): string | null {
+    LookupPrivilegeName.native ??= advapi32.func('LookupPrivilegeNameW', cBOOL, [ cSTR, koffi.pointer(cLUID), cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
+
+    const name = new StringOutputBuffer(Internals.MAX_NAME)
+    if (LookupPrivilegeName.native(systemName, luid, name.buffer, name.pLength) !== 0)
+        return name.decode()
+    return null
 }
 
 /**

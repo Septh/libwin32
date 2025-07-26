@@ -223,7 +223,7 @@ export const cLUID = koffi.struct('LUID', {
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-luid_and_attributes
  */
 export interface LUID_AND_ATTRIBUTES {
-    Lui: LUID
+    Luid: LUID
     Attributes: number
 }
 
