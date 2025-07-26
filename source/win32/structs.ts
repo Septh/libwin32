@@ -9,7 +9,7 @@ import {
 import type {
     CS_, NIF_, TOKEN_TYPE_,
     CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_,
-    SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL,
+    SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL_,
     REG_
 } from './consts.js'
 
@@ -898,7 +898,7 @@ export const cTOKEN_ACCESS_INFORMATION = koffi.struct('TOKEN_ACCESS_INFORMATION'
 export interface SECURITY_DESCRIPTOR {
     Revision: number
     Sbsz1:    number
-    Control:  SECURITY_DESCRIPTOR_CONTROL
+    Control:  SECURITY_DESCRIPTOR_CONTROL_
     Owner:    SID
     Group:    SID
     Sacl:     ACL

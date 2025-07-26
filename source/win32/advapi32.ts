@@ -14,6 +14,7 @@ import {
     cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, type CLAIM_SECURITY_ATTRIBUTES_INFORMATION,
     cSID, type SID,
     cSID_IDENTIFIER_AUTHORITY, type SID_IDENTIFIER_AUTHORITY,
+    cLUID, type LUID,
     cTOKEN_ACCESS_INFORMATION, type TOKEN_ACCESS_INFORMATION,
     cTOKEN_APPCONTAINER_INFORMATION, type TOKEN_APPCONTAINER_INFORMATION,
     cTOKEN_DEFAULT_DACL, type TOKEN_DEFAULT_DACL,
@@ -31,15 +32,14 @@ import {
     cTOKEN_STATISTICS, type TOKEN_STATISTICS,
     cTOKEN_USER, type TOKEN_USER,
     cSECURITY_ATTRIBUTES, type SECURITY_ATTRIBUTES,
-    cFILETIME, type FILETIME,
-    type LUID,
-    cLUID
+    cFILETIME, type FILETIME
 } from './structs.js'
 import {
     TOKEN_INFORMATION_CLASS, REG_,
     type NTSTATUS_, type TOKEN_, type POLICY_,
     type HKEY_, type REG_OPTION_, type KEY_, type RRF_,
-    type SID_NAME_USE
+    type SID_NAME_USE,
+    type SE_NAME
 } from './consts.js'
 import { LocalFree, cLocalAllocatedString } from './kernel32.js'
 
@@ -455,6 +455,20 @@ export function LookupPrivilegeName(systemName: string | null, luid: LUID): stri
     const name = new StringOutputBuffer(Internals.MAX_NAME)
     if (LookupPrivilegeName.native(systemName, luid, name.buffer, name.pLength) !== 0)
         return name.decode()
+    return null
+}
+
+/**
+ * Retrieves the locally unique identifier (LUID) used on a specified system to locally represent the specified privilege name.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupprivilegevaluew
+ */
+export function LookupPrivilegeValue(systemName: string | null, name: SE_NAME): LUID | null {
+    LookupPrivilegeValue.native ??= advapi32.func('LookupPrivilegeValueW', cBOOL, [ cSTR, cSTR, koffi.out(koffi.pointer(cLUID)) ])
+
+    const pLUID: OUT<LUID> = [{} as LUID]
+    if (LookupPrivilegeValue.native(systemName, name, pLUID) !== 0)
+        return pLUID[0]
     return null
 }
 

@@ -792,8 +792,7 @@ export enum SB_ {
  *
  * https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-control
  */
-export type SECURITY_DESCRIPTOR_CONTROL = SE_
-export enum SE_ {
+export enum SECURITY_DESCRIPTOR_CONTROL_ {
     OWNER_DEFAULTED       = 0x0001,
     GROUP_DEFAULTED       = 0x0002,
     DACL_PRESENT          = 0x0004,
@@ -835,6 +834,49 @@ export enum SE_GROUP_ {
         | INTEGRITY
         | INTEGRITY_ENABLED
     )
+}
+
+/**
+ * Privilege Constants
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/secauthz/privilege-constants
+ */
+export enum SE_NAME {
+    CREATE_TOKEN           = "SeCreateTokenPrivilege",
+    ASSIGNPRIMARYTOKEN     = "SeAssignPrimaryTokenPrivilege",
+    LOCK_MEMORY            = "SeLockMemoryPrivilege",
+    INCREASE_QUOTA         = "SeIncreaseQuotaPrivilege",
+    UNSOLICITED_INPUT      = "SeUnsolicitedInputPrivilege",
+    MACHINE_ACCOUNT        = "SeMachineAccountPrivilege",
+    TCB                    = "SeTcbPrivilege",
+    SECURITY               = "SeSecurityPrivilege",
+    TAKE_OWNERSHIP         = "SeTakeOwnershipPrivilege",
+    LOAD_DRIVER            = "SeLoadDriverPrivilege",
+    SYSTEM_PROFILE         = "SeSystemProfilePrivilege",
+    SYSTEMTIME             = "SeSystemtimePrivilege",
+    PROF_SINGLE_PROCESS    = "SeProfileSingleProcessPrivilege",
+    INC_BASE_PRIORITY      = "SeIncreaseBasePriorityPrivilege",
+    CREATE_PAGEFILE        = "SeCreatePagefilePrivilege",
+    CREATE_PERMANENT       = "SeCreatePermanentPrivilege",
+    BACKUP                 = "SeBackupPrivilege",
+    RESTORE                = "SeRestorePrivilege",
+    SHUTDOWN               = "SeShutdownPrivilege",
+    DEBUG                  = "SeDebugPrivilege",
+    AUDIT                  = "SeAuditPrivilege",
+    SYSTEM_ENVIRONMENT     = "SeSystemEnvironmentPrivilege",
+    CHANGE_NOTIFY          = "SeChangeNotifyPrivilege",
+    REMOTE_SHUTDOWN        = "SeRemoteShutdownPrivilege",
+    UNDOCK                 = "SeUndockPrivilege",
+    SYNC_AGENT             = "SeSyncAgentPrivilege",
+    ENABLE_DELEGATION      = "SeEnableDelegationPrivilege",
+    MANAGE_VOLUME          = "SeManageVolumePrivilege",
+    IMPERSONATE            = "SeImpersonatePrivilege",
+    CREATE_GLOBAL          = "SeCreateGlobalPrivilege",
+    TRUSTED_CREDMAN_ACCESS = "SeTrustedCredManAccessPrivilege",
+    RELABEL                = "SeRelabelPrivilege",
+    INC_WORKING_SET        = "SeIncreaseWorkingSetPrivilege",
+    TIME_ZONE              = "SeTimeZonePrivilege",
+    CREATE_SYMBOLIC_LINK   = "SeCreateSymbolicLinkPrivilege",
 }
 
 /**
