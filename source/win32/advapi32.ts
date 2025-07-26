@@ -547,6 +547,16 @@ export function RegConnectRegistry(machineName: string, hKey: HKEY | HKEY_): HKE
 }
 
 /**
+ * Copies the specified registry key, along with its values and subkeys, to the specified destination key.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcopytreew
+ */
+export function RegCopyTree(hKeySrc: HKEY | HKEY_, subKey: string | null, hKeyDest: HKEY | HKEY_): LSTATUS {
+    RegCopyTree.native ??= advapi32.func('RegCopyTreeW', cLSTATUS, [ cHANDLE, cSTR, cHANDLE ])
+    return RegCopyTree.native(hKeySrc, subKey, hKeyDest)
+}
+
+/**
  * Creates the specified registry key. If the key already exists, the function opens it.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcreatekeyexw
@@ -586,7 +596,7 @@ export function RegDeleteKeyEx(hKey: HKEY | HKEY_, subKey: string, samDesired: K
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletekeyvaluew
  */
-export function RegDeleteKeyValue(hKey: HKEY | HKEY_, subKey?: string, valueName?: string): LSTATUS {
+export function RegDeleteKeyValue(hKey: HKEY | HKEY_, subKey: string | null = null, valueName: string | null = null): LSTATUS {
     RegDeleteKeyValue.native ??= advapi32.func('RegDeleteKeyValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR ])
     return RegDeleteKeyValue.native(hKey, subKey, valueName)
 }
@@ -596,7 +606,7 @@ export function RegDeleteKeyValue(hKey: HKEY | HKEY_, subKey?: string, valueName
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletetreew
  */
-export function RegDeleteTree(hKey: HKEY | HKEY_, subKey?: string): LSTATUS {
+export function RegDeleteTree(hKey: HKEY | HKEY_, subKey: string | null = null): LSTATUS {
     RegDeleteTree.native ??= advapi32.func('RegDeleteTreeW', cLSTATUS, [ cHANDLE, cSTR ])
     return RegDeleteTree.native(hKey, subKey)
 }
@@ -606,7 +616,7 @@ export function RegDeleteTree(hKey: HKEY | HKEY_, subKey?: string): LSTATUS {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletevaluew
  */
-export function RegDeleteValue(hKey: HKEY | HKEY_, valueName?: string): LSTATUS {
+export function RegDeleteValue(hKey: HKEY | HKEY_, valueName: string | null = null): LSTATUS {
     RegDeleteValue.native ??= advapi32.func('RegDeleteValueW', cLSTATUS, [ cHANDLE, cSTR ])
     return RegDeleteValue.native(hKey, valueName)
 }
@@ -779,7 +789,7 @@ export function RegLoadKey(hKey: HKEY | HKEY_, subKey: string | null, file: stri
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regopenkeyexw
  */
-export function RegOpenKeyEx(hKey: HKEY | HKEY_, subKey: string | undefined, options: REG_OPTION_, samDesired: KEY_): HKEY | LSTATUS {
+export function RegOpenKeyEx(hKey: HKEY | HKEY_, subKey: string | null, options: REG_OPTION_, samDesired: KEY_): HKEY | LSTATUS {
     RegOpenKeyEx.native ??= advapi32.func('RegOpenKeyExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const pHandle: OUT<HKEY> = [null!]
@@ -855,7 +865,7 @@ export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueN
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetvalueexw
  */
-export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string, type: REG_, data: any, cbData: number): LSTATUS {
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_, data: any, cbData: number): LSTATUS {
     RegSetValueEx.native ??= advapi32.func('RegSetValueExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cDWORD, cPVOID, cDWORD ])
     return RegSetValueEx.native(hKey, valueName, 0, type, data, cbData)
 }
