@@ -433,6 +433,16 @@ export interface LookupAccountSidResult {
 }
 
 /**
+ * Retrieves the name of the account for the specified SID on the local machine.
+ * LookupAccountSidLocal is defined as a function that calls LookupAccountSid with null as the first parameter.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountsidlocalw
+ */
+export function LookupAccountSidLocal(sid: SID): LookupAccountSidResult | null {
+    return LookupAccountSid(null, sid)
+}
+
+/**
  * Closes a handle to a Policy or TrustedDomain object.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaclose
