@@ -59,18 +59,23 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
     // A note about the last parameter (pSid):
     // `[out] PSID *pSid` should be declared as `koffi.out(koffi.pointer(koffi.pointer(cSID)))`,
     // and we could even use a disposable type.
-    // We don't do that however because Koffi does not handle variable-length arrays: it would always decode
-    // 15 sub-authorities, possibly accessing random memory beyond the allocated SID.
-    // To avoid that, we manually decode the SID and explicitly call FreeSid() on it.
+    // We don't do that however because Koffi does not handle variable-length arrays:
+    // it would always decode 15 sub-authorities, possibly accessing random memory beyond the allocated SID.
+    // To avoid that, we have to manually decode the SID.
     AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [ koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, koffi.out(koffi.pointer(cPVOID)) ])
 
     const pSID: OUT<unknown> = [null]
     if (AllocateAndInitializeSid.native([ identifierAuthority ], subAuthorityCount, subAuthority0, subAuthority1, subAuthority2, subAuthority3, subAuthority4, subAuthority5, subAuthority6, subAuthority7, pSID) !== 0) {
         const sid = decodeSid(pSID[0])
-        freeSid(pSID[0])
+        freeSid()
         return sid
     }
     return null
+
+    function freeSid(): void {
+        freeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
+        freeSid.native(pSID[0])
+    }
 }
 
 function decodeSid(sidPtr: unknown): SID {
@@ -78,11 +83,11 @@ function decodeSid(sidPtr: unknown): SID {
     // Decode the 8-bytes header.
     const [ Revision, SubAuthorityCount, ...IdentifierAuthority ] = koffi.decode(sidPtr, koffi.array(cBYTE, 8, 'Array')) as [ number, number, number, number, number, number, number, number ]
 
-    // Decode the exact number of sub-authorities.
+    // Decode the exact number of sub-authorities present in the SID.
     const SubAuthority = koffi.decode(sidPtr, koffi.offsetof(cSID, 'SubAuthority'), koffi.array(cDWORD, SubAuthorityCount, 'Array')) as number[]
 
     // We still must let Koffi think that there are SID_MAX_SUB_AUTHORITIES SubAuthorities
-    // otherwise calls to other advapi32 functions that expect a SID parameter would fail.
+    // otherwise calls to other functions that expect a SID parameter would fail.
     SubAuthority.length = Internals.SID_MAX_SUB_AUTHORITIES
     SubAuthority.fill(0, SubAuthorityCount)
 
@@ -93,11 +98,6 @@ function decodeSid(sidPtr: unknown): SID {
         IdentifierAuthority,
         SubAuthority
     }
-}
-
-function freeSid(sidPtr: unknown): void {
-    freeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
-    freeSid.native(sidPtr)
 }
 
 /**
