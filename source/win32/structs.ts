@@ -110,10 +110,10 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct('CLAIM_SECURITY_ATTRIBU
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-claim_security_attributes_information
  */
 export class CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
-    readonly Version = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION
+    readonly Version = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1
     readonly Reserved = 0         // Reserved, must be 0
     declare AttributeCount: number
-    declare Attribute: null | {
+    declare Attribute: {
         AttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[]
     }
 }
@@ -125,7 +125,7 @@ export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct('CLAIM_SECURI
     AttributeCount: cDWORD,
     Attribute:      cPVOID
     // Attribute: koffi.union({
-    //     pAttributeV1: koffi.pointer(cCLAIM_SECURITY_ATTRIBUTE_V1)
+    //     pAttributeV1: koffi.pointer(koffi.array(cCLAIM_SECURITY_ATTRIBUTE_V1, 1))
     // })
 })
 

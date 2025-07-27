@@ -153,6 +153,8 @@ export function FreeSid(_sid: SID): void {}
 /**
  * Retrieves a specified type of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
+ * Note: `TokenUserClaimAttributes` and `TokenDeviceClaimAttributes` queries are not yet supported.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenUser):                   TOKEN_USER | null
@@ -332,7 +334,9 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
             const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(binaryBuffer, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
             if (ret.Attribute && ret.AttributeCount > 0) {
                 // TODO
+                throw new Error('Decoding the CLAIM_SECURITY_ATTRIBUTES_INFORMATION class is not yet implemented.')
             }
+            else ret.Attribute = { AttributeV1: [] }
             return ret
         }
 
