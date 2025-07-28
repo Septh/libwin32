@@ -34,7 +34,7 @@ export const {
     uint16: cATOM,          // == WORD
     int32:  cLSTATUS,       // == LONG
     int32:  cNTSTATUS,      // == LONG
-} = koffi.types as koffi.PrimitiveTypes
+} = koffi.types
 
 /** @internal */ export const cPVOID = koffi.pointer('PVOID',  koffi.types.void)
 /** @internal */ export const cHANDLE = koffi.pointer('HANDLE', koffi.opaque())
