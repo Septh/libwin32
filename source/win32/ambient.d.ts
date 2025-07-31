@@ -5,6 +5,3 @@ declare global {
         native?: KoffiFunction
     }
 }
-
-declare module 'koffi-cream' {
-}
