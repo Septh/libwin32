@@ -41,7 +41,7 @@ export function enums(): Plugin {
       )
       (?<body>.*)
       (?<outro>
-        \}\)\(\k<name>\s*\|\|\s*\(\k<name>\s*=\s\{\}\)\);?  # })(XX || XX={});
+        \}\)\(\k<name>\s*\|\|\s*\(\k<name>\s*=\s*\{\}\)\);? # })(XX || XX={});
       )
     `
     let match: RegExpMatchArray | null
