@@ -36,8 +36,11 @@ export const {
     int32:  cNTSTATUS,      // == LONG
 } = koffi.types
 
-/** @internal */ export const cPVOID = koffi.pointer('PVOID',  koffi.types.void)
-/** @internal */ export const cHANDLE = koffi.pointer('HANDLE', koffi.opaque())
+/** @internal */
+export const cPVOID = koffi.pointer(koffi.types.void)
+
+/** @internal */
+export const cHANDLE = koffi.pointer(koffi.opaque())
 
 // Handles
 export type __HANDLE__<Kind extends string> = koffi.IKoffiCType & { __kind: Kind }
@@ -73,13 +76,13 @@ export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
 export type DLGPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt
 
 /** @internal */
-export const cWNDPROC     = koffi.pointer(koffi.proto('WNDPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+export const cWNDPROC = koffi.pointer(koffi.proto(cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
 
 /** @internal */
-export const cWNDENUMPROC = koffi.pointer(koffi.proto('WNDENUMPROC', cBOOL,    [ cHANDLE, cLPARAM ]))
+export const cWNDENUMPROC = koffi.pointer(koffi.proto(cBOOL,    [ cHANDLE, cLPARAM ]))
 
 /** @internal */
-export const cDLGPROC     = koffi.pointer(koffi.proto('DLGPROC',     cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+export const cDLGPROC = koffi.pointer(koffi.proto(cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
 
 /**
  * An helper type that mimics a C union.

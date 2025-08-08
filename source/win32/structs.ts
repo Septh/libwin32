@@ -27,7 +27,7 @@ export class ACL {
 }
 
 /** @internal */
-export const cACL = koffi.struct('ACL', {
+export const cACL = koffi.struct({
     AclRevision: cBYTE,
     Sbsz1:       cBYTE,
     AclSize:     cWORD,
@@ -46,7 +46,7 @@ export interface CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE {
 }
 
 /** @internal */
-export const cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE = koffi.struct('CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE', {
+export const cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE = koffi.struct({
     Version: cDWORD64,
     Name:    cSTR
 })
@@ -62,7 +62,7 @@ export interface CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE {
 }
 
 /** @internal */
-export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct('CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE', {
+export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct({
     pValue:      cPVOID,
     ValueLength: cDWORD
 })
@@ -89,7 +89,7 @@ export type CLAIM_SECURITY_ATTRIBUTE_V1 = {
 }
 
 /** @internal */
-export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct('CLAIM_SECURITY_ATTRIBUTE_V1', {
+export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
     Name:       cSTR,
     ValueType:  cWORD,
     Reserved:   cWORD,
@@ -119,7 +119,7 @@ export class CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
 }
 
 /** @internal */
-export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct('CLAIM_SECURITY_ATTRIBUTES_INFORMATION', {
+export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct({
     Version:        cWORD,
     Reserved:       cWORD,
     AttributeCount: cDWORD,
@@ -140,7 +140,7 @@ export interface FILETIME {
 }
 
 /** @internal */
-export const cFILETIME = koffi.struct('FILETIME', {
+export const cFILETIME = koffi.struct({
     dwLowDateTime: cDWORD,
     dwHighDateTime: cDWORD
 })
@@ -162,7 +162,7 @@ export interface SYSTEMTIME {
 }
 
 /** @internal */
-export const cSYSTEMTIME = koffi.struct('SYSTEMTIME', {
+export const cSYSTEMTIME = koffi.struct({
     wYear:         cDWORD,
     wMonth:        cDWORD,
     wDayOfWeek:    cDWORD,
@@ -186,7 +186,7 @@ export interface GUID {
 }
 
 /** @internal */
-export const cGUID = koffi.struct('GUID', {
+export const cGUID = koffi.struct({
     Data1: koffi.types.uint32,
     Data2: koffi.types.uint16,
     Data3: koffi.types.uint16,
@@ -212,7 +212,7 @@ export interface LUID {
 }
 
 /** @internal */
-export const cLUID = koffi.struct('LUID', {
+export const cLUID = koffi.struct({
     LowPart: cDWORD,
     HighPart: cLONG
 })
@@ -228,7 +228,7 @@ export interface LUID_AND_ATTRIBUTES {
 }
 
 /** @internal */
-export const cLUID_AND_ATTRIBUTES = koffi.struct('LUID_AND_ATTRIBUTES', {
+export const cLUID_AND_ATTRIBUTES = koffi.struct({
     Luid: cLUID,
     Attributes: cDWORD
 })
@@ -256,7 +256,7 @@ export class LSA_UNICODE_STRING {
 }
 
 /** @internal */
-export const cLSA_UNICODE_STRING = koffi.struct('LSA_UNICODE_STRING', {
+export const cLSA_UNICODE_STRING = koffi.struct({
     Length:        cUSHORT,
     MaximumLength: cUSHORT,
     Buffer:        cSTR
@@ -277,7 +277,7 @@ export class LSA_OBJECT_ATTRIBUTES {
 }
 
 /** @internal */
-export const cLSA_OBJECT_ATTRIBUTES = koffi.struct('LSA_OBJECT_ATTRIBUTES', {
+export const cLSA_OBJECT_ATTRIBUTES = koffi.struct({
     Length:                   cULONG,
     RootDirectory:            cHANDLE,
     ObjectName:               koffi.pointer(cLSA_UNICODE_STRING),
@@ -309,7 +309,7 @@ export interface SID {
 }
 
 /** @internal */
-export const cSID = koffi.struct('SID', {
+export const cSID = koffi.struct({
     Revision:            cBYTE,
     SubAuthorityCount:   cBYTE,
     IdentifierAuthority: cSID_IDENTIFIER_AUTHORITY,
@@ -329,7 +329,7 @@ export interface SID_AND_ATTRIBUTES {
 }
 
 /** @internal */
-export const cSID_AND_ATTRIBUTES = koffi.struct('SID_AND_ATTRIBUTES', {
+export const cSID_AND_ATTRIBUTES = koffi.struct({
     Sid: koffi.pointer(cSID),
     Attributes: cDWORD
 })
@@ -346,7 +346,7 @@ export interface SID_AND_ATTRIBUTES_HASH {
 }
 
 /** @internal */
-export const cSID_AND_ATTRIBUTES_HASH = koffi.struct('SID_AND_ATTRIBUTES_HASH', {
+export const cSID_AND_ATTRIBUTES_HASH = koffi.struct({
     SidCount: cDWORD,
     SidAttr:  koffi.pointer(koffi.array(cSID_AND_ATTRIBUTES, 1)),
     Hash:     koffi.array(cULONG_PTR, Internals.SID_HASH_SIZE)
@@ -363,7 +363,7 @@ export interface POINT {
 }
 
 /** @internal */
-export const cPOINT = koffi.struct('POINT', {
+export const cPOINT = koffi.struct({
     x: cLONG,
     y: cLONG
 })
@@ -379,7 +379,7 @@ export interface POINTS {
 }
 
 /** @internal */
-export const cPOINTS = koffi.struct('POINTS', {
+export const cPOINTS = koffi.struct({
     x: cSHORT,
     y: cSHORT
 })
@@ -397,7 +397,7 @@ export interface RECT {
 }
 
 /** @internal */
-export const cRECT = koffi.struct('RECT', {
+export const cRECT = koffi.struct({
     left:   cLONG,
     top:    cLONG,
     right:  cLONG,
@@ -415,7 +415,7 @@ export interface SIZE {
 }
 
 /** @internal */
-export const cSIZE = koffi.struct('SIZE', {
+export const cSIZE = koffi.struct({
     cx: cLONG,
     yy: cLONG
 })
@@ -434,7 +434,7 @@ export interface MINMAXINFO {
 }
 
 /** @internal */
-export const cMINMAXINFO = koffi.struct('MINMAXINFO', {
+export const cMINMAXINFO = koffi.struct({
     ptReserved:     cPOINT,
     ptMaxSize:      cPOINT,
     ptMaxPosition:  cPOINT,
@@ -458,7 +458,7 @@ export interface MSG {
 }
 
 /** @internal */
-export const cMSG = koffi.struct('MSG', {
+export const cMSG = koffi.struct({
     HWND:     cHANDLE,
     message:  cUINT,
     wParam:   cWPARAM,
@@ -488,7 +488,7 @@ export class WNDCLASS {
 }
 
 /** @internal */
-export const cWNDCLASS = koffi.struct('WNDCLASS', {
+export const cWNDCLASS = koffi.struct({
     style:         cUINT,
     lpfnWndProc:   cWNDPROC,
     cbClsExtra:    cINT,
@@ -522,7 +522,7 @@ export class WNDCLASSEX {
 }
 
 /** @internal */
-export const cWNDCLASSEX = koffi.struct('WNDCLASSEX', {
+export const cWNDCLASSEX = koffi.struct({
     cbSize:        cUINT,
     style:         cUINT,
     lpfnWndProc:   cWNDPROC,
@@ -550,7 +550,7 @@ export class BSMINFO {
 }
 
 /** @internal */
-export const cBSMINFO = koffi.struct('BSMINFO', {
+export const cBSMINFO = koffi.struct({
     cbSize: cUINT,
     hdesk:  cHANDLE,
     hwnd:   cHANDLE,
@@ -582,7 +582,7 @@ export class NOTIFYICONDATA {
 }
 
 /** @internal */
-export const cNOTIFYICONDATA = koffi.struct('NOTIFYICONDATA', {
+export const cNOTIFYICONDATA = koffi.struct({
     cbSize:           cDWORD,
     hWnd:             cHANDLE,
     uID:              cUINT,
@@ -610,7 +610,7 @@ export interface TOKEN_APPCONTAINER_INFORMATION {
 }
 
 /** @internal */
-export const cTOKEN_APPCONTAINER_INFORMATION = koffi.struct('TOKEN_APPCONTAINER_INFORMATION', {
+export const cTOKEN_APPCONTAINER_INFORMATION = koffi.struct({
     TokenAppContainer: koffi.pointer(cSID)
 })
 
@@ -624,7 +624,7 @@ export interface TOKEN_DEFAULT_DACL {
 }
 
 /** @internal */
-export const cTOKEN_DEFAULT_DACL = koffi.struct('TOKEN_DEFAULT_DACL', {
+export const cTOKEN_DEFAULT_DACL = koffi.struct({
     DefaultDacl: koffi.pointer(cACL)
 })
 
@@ -638,7 +638,7 @@ export interface TOKEN_ELEVATION {
 }
 
 /** @internal */
-export const cTOKEN_ELEVATION = koffi.struct('TOKEN_ELEVATION', {
+export const cTOKEN_ELEVATION = koffi.struct({
     TokenIsElevated: cDWORD
 })
 
@@ -653,7 +653,7 @@ export interface TOKEN_GROUPS {
 }
 
 /** @internal */
-export const cTOKEN_GROUPS = koffi.struct('TOKEN_GROUPS', {
+export const cTOKEN_GROUPS = koffi.struct({
     GroupCount: cDWORD,
     Groups: koffi.array(cSID_AND_ATTRIBUTES, 1)
 })
@@ -677,7 +677,7 @@ export interface TOKEN_GROUPS_AND_PRIVILEGES {
 }
 
 /** @internal */
-export const cTOKEN_GROUPS_AND_PRIVILEGES = koffi.struct('TOKEN_GROUPS_AND_PRIVILEGES', {
+export const cTOKEN_GROUPS_AND_PRIVILEGES = koffi.struct({
     SidCount:            cDWORD,
     SidLength:           cDWORD,
     Sids:                koffi.pointer(koffi.array(cSID_AND_ATTRIBUTES, 1)),
@@ -700,7 +700,7 @@ export interface TOKEN_LINKED_TOKEN {
 }
 
 /** @internal */
-export const cTOKEN_LINKED_TOKEN = koffi.struct('TOKEN_LINKED_TOKEN', {
+export const cTOKEN_LINKED_TOKEN = koffi.struct({
     LinkedToken: cHANDLE
 })
 
@@ -714,7 +714,7 @@ export interface TOKEN_MANDATORY_LABEL {
 }
 
 /** @internal */
-export const cTOKEN_MANDATORY_LABEL = koffi.struct('TOKEN_MANDATORY_LABEL', {
+export const cTOKEN_MANDATORY_LABEL = koffi.struct({
     Label: cSID_AND_ATTRIBUTES
 })
 
@@ -728,7 +728,7 @@ export interface TOKEN_MANDATORY_POLICY {
 }
 
 /** @internal */
-export const cTOKEN_MANDATORY_POLICY = koffi.struct('TOKEN_MANDATORY_POLICY', {
+export const cTOKEN_MANDATORY_POLICY = koffi.struct({
     Policy: cDWORD
 })
 
@@ -742,7 +742,7 @@ export interface TOKEN_ORIGIN {
 }
 
 /** @internal */
-export const cTOKEN_ORIGIN = koffi.struct('TOKEN_ORIGIN', {
+export const cTOKEN_ORIGIN = koffi.struct({
     OriginatingLogonSession: cLUID
 })
 
@@ -756,7 +756,7 @@ export interface TOKEN_OWNER {
 }
 
 /** @internal */
-export const cTOKEN_OWNER = koffi.struct('TOKEN_OWNER', {
+export const cTOKEN_OWNER = koffi.struct({
     Owner: koffi.pointer(cSID)
 })
 
@@ -770,7 +770,7 @@ export interface TOKEN_PRIMARY_GROUP {
 }
 
 /** @internal */
-export const cTOKEN_PRIMARY_GROUP = koffi.struct('TOKEN_PRIMARY_GROUP', {
+export const cTOKEN_PRIMARY_GROUP = koffi.struct({
     PrimaryGroup: koffi.pointer(cSID)
 })
 
@@ -785,7 +785,7 @@ export interface TOKEN_PRIVILEGES {
 }
 
 /** @internal */
-export const cTOKEN_PRIVILEGES = koffi.struct('TOKEN_PRIVILEGES', {
+export const cTOKEN_PRIVILEGES = koffi.struct({
     PrivilegeCount: cDWORD,
     Privileges: koffi.array(cLUID_AND_ATTRIBUTES, 1)
 })
@@ -801,7 +801,7 @@ export interface TOKEN_SOURCE {
 }
 
 /** @internal */
-export const cTOKEN_SOURCE = koffi.struct('TOKEN_SOURCE', {
+export const cTOKEN_SOURCE = koffi.struct({
     SourceName: koffi.array(cCHAR, Internals.TOKEN_SOURCE_LENGTH),
     SourceIdentifier: cLUID
 })
@@ -825,7 +825,7 @@ export interface TOKEN_STATISTICS {
 }
 
 /** @internal */
-export const cTOKEN_STATISTICS = koffi.struct('TOKEN_STATISTICS', {
+export const cTOKEN_STATISTICS = koffi.struct({
   TokenId:            cLUID,
   AuthenticationId:   cLUID,
   ExpirationTime:     cLONGLONG,
@@ -848,7 +848,7 @@ export interface TOKEN_USER {
 }
 
 /** @internal */
-export const cTOKEN_USER = koffi.struct('TOKEN_USER', {
+export const cTOKEN_USER = koffi.struct({
     User: cSID_AND_ATTRIBUTES
 })
 
@@ -874,7 +874,7 @@ export interface TOKEN_ACCESS_INFORMATION {
 }
 
 /** @internal */
-export const cTOKEN_ACCESS_INFORMATION = koffi.struct('TOKEN_ACCESS_INFORMATION', {
+export const cTOKEN_ACCESS_INFORMATION = koffi.struct({
     SidHash:            koffi.pointer(cSID_AND_ATTRIBUTES_HASH),
     RestrictedSidHash:  koffi.pointer(cSID_AND_ATTRIBUTES_HASH),
     Privileges:         koffi.pointer(cTOKEN_PRIVILEGES),
@@ -906,7 +906,7 @@ export interface SECURITY_DESCRIPTOR {
 }
 
 /** @internal */
-export const cSECURITY_DESCRIPTOR = koffi.struct('SECURITY_DESCRIPTOR', {
+export const cSECURITY_DESCRIPTOR = koffi.struct({
     Revision: cBYTE,
     Sbsz1:    cBYTE,
     Control:  cWORD,
@@ -928,7 +928,7 @@ export class SECURITY_ATTRIBUTES {
 }
 
 /** @internal */
-export const cSECURITY_ATTRIBUTES = koffi.struct('SECURITY_ATTRIBUTES', {
+export const cSECURITY_ATTRIBUTES = koffi.struct({
     nLength:              cDWORD,
     lpSecurityDescriptor: koffi.pointer(cSECURITY_DESCRIPTOR),
     bInheritHandle:       cBOOL
@@ -947,7 +947,7 @@ export interface VALENT {
 }
 
 /** @internal */
-export const cVALENT = koffi.struct('VALENT', {
+export const cVALENT = koffi.struct({
     ve_valuename: cSTR,
     ve_valuelen:  cDWORD,
     ve_valueptr:  cPVOID,
