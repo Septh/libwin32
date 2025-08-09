@@ -2,14 +2,14 @@ import { koffi, Win32Dll, StringOutputBuffer, type OUT } from './private.js'
 import {
     cVOID, cBOOL, cINT, cUINT, cWORD, cLONG, cDWORD, cPVOID, cSTR,
     cATOM, type ATOM, cHANDLE, type HINSTANCE, type HCURSOR, type HICON, type HMENU, type HWND,
-    cLRESULT, type LRESULT, cWPARAM, type WPARAM, cLPARAM, type LPARAM,
-    cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC
+    cLRESULT, type LRESULT, cWPARAM, type WPARAM, cLPARAM, type LPARAM
 } from './ctypes.js'
 import {
     cPOINT, type POINT,
     cRECT, type RECT,
     cBSMINFO, type BSMINFO,
     cMSG, type MSG,
+    cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
     cWNDCLASS, WNDCLASS,
     cWNDCLASSEX, WNDCLASSEX
 } from './structs.js'

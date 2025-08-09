@@ -3,8 +3,9 @@ import {
     cBOOL, cINT, cUINT, cCHAR, cBYTE, cSHORT, cUSHORT, cWORD,
     cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cDWORD64, cPVOID, cSTR,
     cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN,
-    cWNDPROC, type WNDPROC, cWPARAM, type WPARAM, cLPARAM, type LPARAM,
-    type CUnion,
+    cWPARAM, type WPARAM, cLPARAM, type LPARAM,
+    cLRESULT, type LRESULT,
+    type CUnion
 } from './ctypes.js'
 import type {
     CS_, NIF_, TOKEN_TYPE_,
@@ -467,6 +468,36 @@ export const cMSG = koffi.struct({
     pt:       cPOINT,
     lPrivate: cDWORD
 })
+
+/**
+ * An application-defined function that processes messages sent to a window.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc
+ */
+export type WNDPROC = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => LRESULT
+
+/** @internal */
+export const cWNDPROC = koffi.pointer(koffi.proto(cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+
+/**
+ * An application-defined callback function used with the EnumWindows or EnumDesktopWindows function.
+ *
+ * https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms633498(v=vs.85)
+ */
+export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
+
+/** @internal */
+export const cWNDENUMPROC = koffi.pointer(koffi.proto(cBOOL,    [ cHANDLE, cLPARAM ]))
+
+/**
+ * Application-defined callback function used with the CreateDialog and DialogBox families of functions.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-dlgproc
+ */
+export type DLGPROC = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt
+
+/** @internal */
+export const cDLGPROC = koffi.pointer(koffi.proto(cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
 
 /**
  * Contains the window class attributes that are registered by the RegisterClass function.

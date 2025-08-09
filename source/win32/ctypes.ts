@@ -70,20 +70,6 @@ export type LRESULT     = number | BigInt | HANDLE
 export type ATOM        = number
 export type LSTATUS     = number
 
-// Procedures.
-export type WNDPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => LRESULT
-export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
-export type DLGPROC     = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt
-
-/** @internal */
-export const cWNDPROC = koffi.pointer(koffi.proto(cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
-
-/** @internal */
-export const cWNDENUMPROC = koffi.pointer(koffi.proto(cBOOL,    [ cHANDLE, cLPARAM ]))
-
-/** @internal */
-export const cDLGPROC = koffi.pointer(koffi.proto(cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
-
 /**
  * An helper type that mimics a C union.
  */
