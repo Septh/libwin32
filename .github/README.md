@@ -17,7 +17,7 @@ const result = MessageBox(
 
 
 ### In a nutshell:
-* Very simple and intuitive API (see [demos](./source//demos/)), with TypeScript definitions included.
+* Very simple and intuitive API (see [demos](../source/demos/)), with TypeScript definitions included.
 * Opinionated:
     * Only targets **64-bit** platforms (*Intel/AMD for now, ARM may be added later, no warranty though*).
     * Only exposes **Unicode** functions and data structures (those whose name ends in `W` in the Win32 API).
@@ -200,5 +200,5 @@ Many thanks to [@shrirajh](https://github.com/shrirajh) for the impressive work 
 * [koffi-cream](https://github.com/Septh/koffi-cream), a lighter repackaging of Koffi.
 
 
-### Licence
+### License
 MIT.

@@ -17,7 +17,7 @@ const result = MessageBox(
 
 
 ### In a nutshell:
-* Very simple and intuitive API (see [demos](./source//demos/)), with TypeScript definitions included.
+* Very simple and intuitive API (see [demos](./source/demos/)), with TypeScript definitions included.
 * Bundler friendly, designed with tree-shakeability in mind.
 * Opinionated:
     * Only targets **64-bit** platforms (*Intel/AMD for now, ARM may be added later, no warranty though*).
@@ -26,5 +26,5 @@ const result = MessageBox(
 
 See [the repo on Github](https://github.com/Septh/libwin32#readme) for full documentation.
 
-### Licence
+### License
 MIT.
