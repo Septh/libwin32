@@ -107,6 +107,7 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | DestroyMenu               | user32    | 0.4.0 |
 | DispatchMessage           | user32    | 0.1.0 |
 | EnumWindows               | user32    | 0.3.0 |
+| EnumDesktopWindows        | user32    | 0.8.2 |
 | EqualSid                  | advapi32  | 0.7.0 |
 | ExpandEnvironmentStrings  | kernel32  | 0.8.0 |
 | FileTimeToSystemTime      | kernel32  | 0.8.0 |

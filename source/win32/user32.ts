@@ -1,7 +1,7 @@
 import { koffi, Win32Dll, StringOutputBuffer, type OUT } from './private.js'
 import {
     cVOID, cBOOL, cINT, cUINT, cWORD, cLONG, cDWORD, cPVOID, cSTR,
-    cATOM, type ATOM, cHANDLE, type HINSTANCE, type HCURSOR, type HICON, type HMENU, type HWND,
+    cATOM, type ATOM, cHANDLE, type HINSTANCE, type HCURSOR, type HICON, type HMENU, type HWND, type HDESK,
     cLRESULT, type LRESULT, cWPARAM, type WPARAM, cLPARAM, type LPARAM
 } from './ctypes.js'
 import {
@@ -250,13 +250,23 @@ export function DispatchMessage(msg: MSG): LRESULT {
 }
 
 /**
- * Enumerates all top-level windows on the screen by passing the handle to each window, in turn, to an application-defined callback function.
+ * Enumerates all top-level windows on the screen.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumwindows
  */
 export function EnumWindows(lpEnumFunc: WNDENUMPROC, lParam: LPARAM): boolean {
     EnumWindows.native ??= user32.func('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
     return EnumWindows.native(lpEnumFunc, lParam) !== 0
+}
+
+/**
+ * Enumerates all top-level windows associated with the specified desktop.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumdesktopwindows
+ */
+export function EnumDesktopWindows(hDesktop: HDESK | null, lpEnumFunc: WNDENUMPROC, lParam: LPARAM): boolean {
+    EnumDesktopWindows.native ??= user32.func('EnumDesktopWindows', cBOOL, [ cHANDLE, cWNDENUMPROC, cLPARAM ])
+    return EnumDesktopWindows.native(hDesktop, lpEnumFunc, lParam) !== 0
 }
 
 /**
