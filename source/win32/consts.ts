@@ -424,6 +424,16 @@ export enum MB_ {
     MISCMASK             = 0x0000C000
 }
 
+export const IDOK       = 1
+export const IDCANCEL   = 2
+export const IDABORT    = 3
+export const IDRETRY    = 4
+export const IDIGNORE   = 5
+export const IDYES      = 6
+export const IDNO       = 7
+export const IDTRYAGAIN = 10
+export const IDCONTINUE = 11
+
 /**
  * Menu Flags.
  */
