@@ -81,15 +81,14 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
 function decodeSid(sidPtr: unknown): SID {
 
     // Decode the 8-bytes header.
-    const [ Revision, SubAuthorityCount, ...IdentifierAuthority ] = koffi.decode(sidPtr, koffi.array(cBYTE, 8, 'Array')) as [ number, number, number, number, number, number, number, number ]
+    const [ Revision, SubAuthorityCount, ...IdentifierAuthority ] = koffi.decode(sidPtr, 0, cBYTE, 8) as [ number, number, number, number, number, number, number, number ]
 
-    // Decode the exact number of sub-authorities present in the SID.
-    const SubAuthority = koffi.decode(sidPtr, koffi.offsetof(cSID, 'SubAuthority'), koffi.array(cDWORD, SubAuthorityCount, 'Array')) as number[]
-
-    // We still must let Koffi think that there are SID_MAX_SUB_AUTHORITIES SubAuthorities
-    // otherwise calls to other functions that expect a SID parameter would fail.
-    SubAuthority.length = Internals.SID_MAX_SUB_AUTHORITIES
-    SubAuthority.fill(0, SubAuthorityCount)
+    // Decode the exact number of sub-authorities present in the SID. Yet, we still must set the array length
+    // to SID_MAX_SUB_AUTHORITIES otherwise calls to other functions that expect a SID parameter would fail.
+    const SubAuthority: number[] = [
+        ...koffi.decode(sidPtr, koffi.offsetof(cSID, 'SubAuthority'), cDWORD, SubAuthorityCount),
+        ...Array(Internals.SID_MAX_SUB_AUTHORITIES - SubAuthorityCount).fill(0)
+    ]
 
     // Return the decoded SID.
     return {
