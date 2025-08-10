@@ -83,6 +83,7 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 
 | Function name             | Win32 DLL | Since |
 |---------------------------|-----------|-------|
+| AdjustTokenPrivileges     | advapi32  | 0.8.3 |
 | AdjustWindowRect          | user32    | 0.3.0 |
 | AdjustWindowRectEx        | user32    | 0.3.0 |
 | AdjustWindowRectExForDpi  | user32    | 0.7.0 |

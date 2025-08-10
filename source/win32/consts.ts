@@ -890,6 +890,25 @@ export enum SE_NAME {
 }
 
 /**
+ * Privilege attributes
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-token_privileges
+ */
+export enum SE_PRIVILEGE_ {
+    ENABLED_BY_DEFAULT  = 0x00000001,
+    ENABLED             = 0x00000002,
+    REMOVED             = 0X00000004,
+    USED_FOR_ACCESS     = 0x80000000,
+
+    VALID_ATTRIBUTES    = (
+        ENABLED_BY_DEFAULT
+        | ENABLED
+        | REMOVED
+        | USED_FOR_ACCESS
+    )
+}
+
+/**
  * (RID) The portion of a security identifier (SID) that identifies a user or group
  * in relation to the authority that issued the SID.
  */
