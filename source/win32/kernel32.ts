@@ -115,6 +115,16 @@ export function GetCurrentProcess(): HANDLE {
 }
 
 /**
+ * Retrieves the process identifier of the calling process.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentprocessid
+ */
+export function GetCurrentProcessId(): number {
+    GetCurrentProcessId.native ??= kernel32.func('GetCurrentProcessId', cDWORD, [])
+    return GetCurrentProcessId.native()
+}
+
+/**
  * Retrieves the calling thread's last-error code value.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror
