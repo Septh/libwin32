@@ -12,6 +12,7 @@ import {
     cLSA_UNICODE_STRING, LSA_UNICODE_STRING,
     cLUID_AND_ATTRIBUTES, cSID_AND_ATTRIBUTES, cSID_AND_ATTRIBUTES_HASH,
     cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, type CLAIM_SECURITY_ATTRIBUTES_INFORMATION,
+    cCLAIM_SECURITY_ATTRIBUTE_V1, type CLAIM_SECURITY_ATTRIBUTE_V1,
     cSID, type SID,
     cSID_IDENTIFIER_AUTHORITY, type SID_IDENTIFIER_AUTHORITY,
     cLUID, type LUID,
@@ -332,14 +333,15 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         case TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes: {
             const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(binaryBuffer, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
             if (ret.Attribute && ret.AttributeCount > 0) {
-                // TODO
-                throw new Error('Decoding the CLAIM_SECURITY_ATTRIBUTES_INFORMATION class is not yet implemented.')
+                ret.Attribute = {
+                    AttributeV1: koffi.decode(binaryBuffer, koffi.offsetof(cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, 'Attribute'), cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
+                }
             }
             else ret.Attribute = { AttributeV1: [] }
             return ret
         }
 
-        // Theses queries return a DWORD.
+        // Theses queries return a single DWORD.
         case TOKEN_INFORMATION_CLASS.TokenType:
         case TOKEN_INFORMATION_CLASS.TokenImpersonationLevel:
         case TOKEN_INFORMATION_CLASS.TokenSessionId:
@@ -351,7 +353,7 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         case TOKEN_INFORMATION_CLASS.TokenIsAppContainer:
         case TOKEN_INFORMATION_CLASS.TokenAppContainerNumber:
         case TOKEN_INFORMATION_CLASS.TokenElevationType: {
-            const ptr = new Uint32Array(binaryBuffer.buffer)
+            const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
             return ptr[0]
         }
 

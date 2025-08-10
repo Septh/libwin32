@@ -73,6 +73,6 @@ export type LSTATUS     = number
 /**
  * An helper type that mimics a C union.
  */
-export type CUnion<T extends Record<PropertyKey, unknown>> = {
+export type CUnion<T extends Record<string, unknown>> = {
     [K in keyof T]: { [_ in K]: T[K] } & { [_ in Exclude<keyof T, K>]: never }
 }[keyof T]

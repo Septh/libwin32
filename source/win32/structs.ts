@@ -75,19 +75,20 @@ export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct({
  */
 export type CLAIM_SECURITY_ATTRIBUTE_V1 = {
     Name:       string
-    ValueType:  CLAIM_SECURITY_ATTRIBUTE_TYPE_
     Reserved:   0
     Flags:      CLAIM_SECURITY_ATTRIBUTE_
     ValueCount: number
-    /** `Values` is union, only one member is present at a time, based on ValueType. */
-    Values: CUnion<{
-        pInt64:        BigInt[]
-        pUint64:       BigInt[]
-        ppString:      string[]
-        pFqbn:         CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]
-        pOctectString: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[]
-    }>
-}
+} & (
+    /** `Values` is union, only one member is present at a time, based on `ValueType`. */
+    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.INT64,        Values: { pInt64:       BigInt[]                                      }}
+    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.UINT64,       Values: { pUint64:      BigInt[]                                      }}
+    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.STRING,       Values: { ppString:     string[]                                      }}
+    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.FQBN,         Values: { pFqbn:        CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]         }}
+    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.SID,          Values: { pOctetString: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[] }}
+    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.BOOLEAN,      Values: { pUint64:      BigInt[]                                      }}
+    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.OCTET_STRING, Values: { pOctetString: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[] }}
+    | { ValueType: number,                                      Values: never }
+)
 
 /** @internal */
 export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
@@ -96,7 +97,8 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
     Reserved:   cWORD,
     Flags:      cDWORD,
     ValueCount: cDWORD,
-    Values:     koffi.union({
+    // Values:     cPVOID
+    Values:     koffi.union('CLAIM_SECURITY_ATTRIBUTE_V1_Values', {
         pInt64:        koffi.pointer(koffi.array(cLONG64, 1)),
         pUint64:       koffi.pointer(koffi.array(cDWORD64, 1)),
         ppString:      koffi.pointer(koffi.array(cSTR, 1)),
@@ -124,10 +126,10 @@ export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct({
     Version:        cWORD,
     Reserved:       cWORD,
     AttributeCount: cDWORD,
-    Attribute:      cPVOID
-    // Attribute: koffi.union({
-    //     pAttributeV1: koffi.pointer(koffi.array(cCLAIM_SECURITY_ATTRIBUTE_V1, 1))
-    // })
+    Attribute:      cPVOID  // should be the union below, but we must decode manually
+    /* Attribute:      koffi.union({
+        pAttributeV1: koffi.pointer(koffi.array(cCLAIM_SECURITY_ATTRIBUTE_V1, 1))
+    }) */
 })
 
 /**
