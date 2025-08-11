@@ -1,6 +1,6 @@
 export type * from './ctypes.js'
 export * from './structs.js'
-export * from './advapi32.js'
+export * from './advapi32/index.js'
 export * from './kernel32.js'
 export * from './secur32.js'
 export * from './shell32.js'

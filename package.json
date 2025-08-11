@@ -49,6 +49,10 @@
       "types": "./lib/win32/shell32.d.ts",
       "default": "./lib/win32/shell32.js"
     },
+    "./advapi32": {
+      "types": "./lib/win32/advapi32/advpapi32.d.ts",
+      "default": "./lib/win32/advapi32/advpapi32.js"
+    },
     "./psapi": {
       "types": "./lib/win32/psapi.d.ts",
       "default": "./lib/win32/psapi.js"
@@ -67,11 +71,10 @@
     }
   },
   "files": [
-    "lib",
-    "!lib/demos",
+    "lib/win32",
+    "lib/rollup",
     "!*.map",
-    "!*.tsbuildinfo",
-    "!zz_*"
+    "!*.tsbuildinfo"
   ],
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
