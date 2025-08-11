@@ -382,13 +382,6 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         default:
             return null
     }
-
-    // Note: the SID parameter is actually a Koffi pointer.
-    function decodeSid(pSID: SID): SID {
-        const sid: SID = koffi.decode(pSID, cSID)
-        sid.SubAuthority.fill(0, sid.SubAuthorityCount)
-        return sid
-    }
 }
 
 /**
