@@ -480,7 +480,7 @@ export const cMSG = koffi.struct({
 export type WNDPROC = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => LRESULT
 
 /** @internal */
-export const cWNDPROC = koffi.pointer(koffi.proto(cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+export const cWNDPROC = koffi.pointer(koffi.proto('WND', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
 
 /**
  * An application-defined callback function used with the EnumWindows or EnumDesktopWindows function.
@@ -490,7 +490,7 @@ export const cWNDPROC = koffi.pointer(koffi.proto(cLRESULT, [ cHANDLE, cUINT, cW
 export type WNDENUMPROC = (hWnd: HWND, lParam: LPARAM) => number
 
 /** @internal */
-export const cWNDENUMPROC = koffi.pointer(koffi.proto(cBOOL,    [ cHANDLE, cLPARAM ]))
+export const cWNDENUMPROC = koffi.pointer(koffi.proto('WNDENUM', cBOOL, [ cHANDLE, cLPARAM ]))
 
 /**
  * Application-defined callback function used with the CreateDialog and DialogBox families of functions.
@@ -500,7 +500,7 @@ export const cWNDENUMPROC = koffi.pointer(koffi.proto(cBOOL,    [ cHANDLE, cLPAR
 export type DLGPROC = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt
 
 /** @internal */
-export const cDLGPROC = koffi.pointer(koffi.proto(cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+export const cDLGPROC = koffi.pointer(koffi.proto('DLG', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
 
 /**
  * Contains the window class attributes that are registered by the RegisterClass function.
