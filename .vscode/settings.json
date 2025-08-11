@@ -19,8 +19,9 @@
     "secur32",
     "shell32",
     "user32",
+    "psapi",
     "demos",
-    "build"
+    "build",
   ],
   "cSpell.words": [
     "advapi",

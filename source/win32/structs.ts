@@ -1,11 +1,11 @@
 import { koffi, Internals } from './private.js'
 import {
-    cBOOL, cINT, cUINT, cCHAR, cBYTE, cSHORT, cUSHORT, cWORD,
-    cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cDWORD64, cPVOID, cSTR,
+    cBOOL, cINT, cUINT, cCHAR, cBYTE, cWCHAR, cSHORT, cUSHORT, cWORD,
+    cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cULONG64, cDWORD64, cPVOID, cSTR, cSIZE_T,
     cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM,
     cLRESULT, type LRESULT,
-    type CUnion
+
 } from './ctypes.js'
 import type {
     CS_, NIF_, TOKEN_TYPE_,
@@ -937,6 +937,44 @@ export const cPRIVILEGE_SET = koffi.struct({
     PrivilegeCount: cDWORD,
     Control:        cDWORD,
     Privilege:      koffi.array(cLUID_AND_ATTRIBUTES, 1)
+})
+
+/**
+ * Contains extended memory statistics for a process. Extends PROCESS_MEMORY_COUNTERS_EX and PROCESS_MEMORY_COUNTERS.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex2
+ */
+export class PROCESS_MEMORY_COUNTERS_EX2 {
+    readonly cb = koffi.sizeof(cPROCESS_MEMORY_COUNTERS_EX2)
+    declare PageFaultCount:             number
+    declare PeakWorkingSetSize:         number | BigInt
+    declare WorkingSetSize:             number | BigInt
+    declare QuotaPeakPagedPoolUsage:    number | BigInt
+    declare QuotaPagedPoolUsage:        number | BigInt
+    declare QuotaPeakNonPagedPoolUsage: number | BigInt
+    declare QuotaNonPagedPoolUsage:     number | BigInt
+    declare PagefileUsage:              number | BigInt
+    declare PeakPagefileUsage:          number | BigInt
+    declare PrivateUsage:               number | BigInt
+    declare PrivateWorkingSetSize:      number | BigInt
+    declare SharedCommitUsage:          number | BigInt
+}
+
+/** @internal */
+export const cPROCESS_MEMORY_COUNTERS_EX2 = koffi.struct({
+    cb:                         cDWORD,
+    PageFaultCount:             cDWORD,
+    PeakWorkingSetSize:         cSIZE_T,
+    WorkingSetSize:             cSIZE_T,
+    QuotaPeakPagedPoolUsage:    cSIZE_T,
+    QuotaPagedPoolUsage:        cSIZE_T,
+    QuotaPeakNonPagedPoolUsage: cSIZE_T,
+    QuotaNonPagedPoolUsage:     cSIZE_T,
+    PagefileUsage:              cSIZE_T,
+    PeakPagefileUsage:          cSIZE_T,
+    PrivateUsage:               cSIZE_T,
+    PrivateWorkingSetSize:      cSIZE_T,
+    SharedCommitUsage:          cULONG64,
 })
 
 /**

@@ -49,6 +49,10 @@
       "types": "./lib/win32/shell32.d.ts",
       "default": "./lib/win32/shell32.js"
     },
+    "./psapi": {
+      "types": "./lib/win32/psapi.d.ts",
+      "default": "./lib/win32/psapi.js"
+    },
     "./consts": {
       "types": "./lib/win32/consts.d.ts",
       "default": "./lib/win32/consts.js"

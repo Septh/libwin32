@@ -131,6 +131,7 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | GetModuleFileName         | kernel32  | 0.6.0 |
 | GetModuleHandle           | kernel32  | 0.1.0 |
 | GetModuleHandleEx         | kernel32  | 0.5.0 |
+| GetProcessMemoryInfo      | kernel32  | 0.8.3 |
 | GetSystemRegistryQuota    | kernel32  | 0.8.0 |
 | GetTokenInformation       | advapi32  | 0.6.0 |
 | GetUserName               | advapi32  | 0.6.0 |
