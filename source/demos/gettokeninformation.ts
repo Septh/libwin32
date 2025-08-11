@@ -4,13 +4,13 @@
  *
  */
 import {
-    GetCurrentProcess,
-    OpenProcessToken, GetTokenInformation,
+    GetCurrentProcess, OpenProcessToken,
+    GetTokenGroupsInformation,
     AllocateAndInitializeSid, FreeSid, EqualSid, LookupAccountSid,
     GetLastError, FormatMessage
 } from 'libwin32'
 import {
-    TOKEN_, TOKEN_INFORMATION_CLASS,
+    TOKEN_,
     SECURITY_, DOMAIN_ALIAS_, SECURITY_NT_AUTHORITY, SE_GROUP_,
     FORMAT_MESSAGE_
 } from 'libwin32/consts'
@@ -25,7 +25,7 @@ function SearchTokenGroupsForSID() {
     }
 
     // Call GetTokenInformation to get the group information.
-    const groupInfo = GetTokenInformation(hToken, TOKEN_INFORMATION_CLASS.TokenGroups)
+    const groupInfo = GetTokenGroupsInformation(hToken)
     if (!groupInfo) {
         console.error("GetTokenInformation Error:", FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError(), 0))
         return
