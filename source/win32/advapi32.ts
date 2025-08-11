@@ -51,18 +51,20 @@ export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 /**
  * The AdjustTokenPrivileges function enables or disables privileges in the specified access token.
  *
+ * Note: in libwin32, the function returns the previous state of any privileges that the function modifies.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-adjusttokenprivileges
  */
-export function AdjustTokenPrivileges(tokenHandle: HANDLE, disableAllPrivileges: boolean, newState: TOKEN_PRIVILEGES | null): TOKEN_PRIVILEGES | null {
+export function AdjustTokenPrivileges(tokenHandle: HANDLE, disableAllPrivileges: boolean, newState?: TOKEN_PRIVILEGES | null): TOKEN_PRIVILEGES | null {
     AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [ cHANDLE, cBOOL, cTOKEN_PRIVILEGES, cDWORD, cPVOID, koffi.out(koffi.pointer(cDWORD)) ])
 
     const pReturnLength: OUT<number> = [0]
-    if (AdjustTokenPrivileges.native(tokenHandle, disableAllPrivileges, newState, binaryBuffer.byteLength, binaryBuffer, pReturnLength) !== 0) {
-        const ret: TOKEN_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
-        ret.Privileges = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
-        return ret
+    if (AdjustTokenPrivileges.native(tokenHandle, Number(disableAllPrivileges), newState, binaryBuffer.byteLength, binaryBuffer, pReturnLength) !== 0) {
+        const previousState: TOKEN_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
+        if (previousState.PrivilegeCount > 1)
+            previousState.Privileges = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, previousState.PrivilegeCount)
+        return previousState
     }
-
     return null
 }
 
