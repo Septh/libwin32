@@ -1,4 +1,5 @@
-import { koffi, Internals } from './private.js'
+import koffi from 'koffi-cream'
+import { Internals } from './private.js'
 import {
     cBOOL, cINT, cUINT, cCHAR, cBYTE, cWCHAR, cSHORT, cUSHORT, cWORD,
     cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cULONG64, cDWORD64, cPVOID, cSTR, cSIZE_T,

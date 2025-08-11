@@ -1,4 +1,5 @@
-import { koffi, Win32Dll } from './private.js'
+import koffi from 'koffi-cream'
+import { Win32Dll } from './private.js'
 import { cBOOL, cDWORD } from './ctypes.js'
 import { cNOTIFYICONDATA, type NOTIFYICONDATA } from './structs.js'
 import type { NIM_ } from './consts.js'

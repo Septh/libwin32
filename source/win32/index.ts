@@ -1,4 +1,3 @@
-export { koffi } from './private.js'
 export type * from './ctypes.js'
 export * from './structs.js'
 export * from './advapi32.js'

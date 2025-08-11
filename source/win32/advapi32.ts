@@ -1,5 +1,6 @@
 import assert from 'node:assert'
-import { koffi, Win32Dll, binaryBuffer, textDecoder, StringOutputBuffer, Internals, type OUT } from './private.js'
+import koffi from 'koffi-cream'
+import { Win32Dll, binaryBuffer, textDecoder, StringOutputBuffer, Internals, type OUT } from './private.js'
 import {
     cVOID, cBOOL, cINT, cBYTE, cDWORD, cULONG, cPVOID, cSTR,
     cHANDLE, type HANDLE, type HTOKEN, type LSA_HANDLE, type HKEY,

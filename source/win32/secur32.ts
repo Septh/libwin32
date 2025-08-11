@@ -1,4 +1,5 @@
-import { koffi, Win32Dll, StringOutputBuffer, Internals } from './private.js'
+import koffi from 'koffi-cream'
+import { Win32Dll, StringOutputBuffer, Internals } from './private.js'
 import { cBOOL, cINT, cDWORD, cSTR } from './ctypes.js'
 import type { EXTENDED_NAME_FORMAT } from './consts.js'
 

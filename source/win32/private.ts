@@ -1,8 +1,6 @@
 import assert from 'node:assert'
 import koffi from 'koffi-cream'
 
-export { koffi }
-
 export class Win32Dll implements Disposable {
     get x64() { return true }
     get Unicode() { return true }

@@ -1,4 +1,5 @@
-import { koffi, Win32Dll, StringOutputBuffer, type OUT } from './private.js'
+import koffi from 'koffi-cream'
+import { Win32Dll, StringOutputBuffer, type OUT } from './private.js'
 import {
     cVOID, cBOOL, cINT, cUINT, cWORD, cLONG, cDWORD, cPVOID, cSTR,
     cATOM, type ATOM, cHANDLE, type HINSTANCE, type HCURSOR, type HICON, type HMENU, type HWND, type HDESK,

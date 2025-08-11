@@ -1,4 +1,5 @@
-import { koffi, Win32Dll, type OUT } from './private.js'
+import koffi from 'koffi-cream'
+import { Win32Dll, type OUT } from './private.js'
 import {
     cBOOL, cDWORD,
     cHANDLE, type HANDLE} from './ctypes.js'

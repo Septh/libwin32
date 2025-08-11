@@ -1,4 +1,4 @@
-import { koffi } from './private.js'
+import koffi from 'koffi-cream'
 
 /*
  * C typedefs used in the Windows API.
