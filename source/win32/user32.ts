@@ -8,19 +8,19 @@ import {
 import {
     cPOINT, type POINT,
     cRECT, type RECT,
-    cBSMINFO, type BSMINFO,
+    cBSMINFO, BSMINFO,
     cMSG, type MSG,
     cWNDPROC, type WNDPROC, cWNDENUMPROC, type WNDENUMPROC,
     cWNDCLASS, WNDCLASS,
     cWNDCLASSEX, WNDCLASSEX
 } from './structs.js'
-import type {
-    WS_, WS_EX_, WM_, HWND_,
-    AW_, MF_, BSF_, GA_,
-    IDC_, IDI_, OIC_, OCR_, OBM_, IMAGE_,
-    LR_, MB_, SW_, TPM_,
+import {
     BSM_,
-    PM_
+    type WS_, type WS_EX_, type WM_, type HWND_,
+    type AW_, type MF_, type BSF_, type GA_,
+    type IDC_, type IDI_, type OIC_, type OCR_, type OBM_, type IMAGE_,
+    type LR_, type MB_, type SW_, type TPM_,
+    type PM_
 } from './consts.js'
 
 /** @internal */
@@ -94,15 +94,20 @@ export function BringWindowToTop(hWnd: HWND): boolean {
 export function BroadcastSystemMessage(flags: BSF_, info: BSM_ | null, msg: number, wParam: WPARAM, lParam: LPARAM): BroadcastSystemMessageResult {
     BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(koffi.pointer(cDWORD)), cUINT, cWPARAM, cLPARAM ])
 
-    const pBsm: OUT<BSM_> | null = typeof info === 'number' ? [info] : null
-    return BroadcastSystemMessage.native(flags, pBsm, msg, wParam, lParam) > 0
-        ? { success: true,  info: pBsm?.[0] }
-        : { success: false }
+    const pBsm: OUT<BSM_> = [info ?? BSM_.ALLCOMPONENTS]
+    const ret = BroadcastSystemMessage.native(flags, pBsm, msg, wParam, lParam)
+    return ret === 0
+        ? { success: true,  denied: pBsm[0] }
+        : { success: ret > 0 }
 }
 
 export interface BroadcastSystemMessageResult {
     success: boolean
-    info?: BSM_
+    /**
+     * If the flags parameter is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY`,
+     * `success` will be `true` and these flags tells you what components denied the query.
+     */
+    denied?: BSM_
 }
 
 /**
@@ -112,18 +117,23 @@ export interface BroadcastSystemMessageResult {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
  *
  */
-export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_ | null, msg: number, wParam: WPARAM, lParam: LPARAM, bsmInfo: BSMINFO | null = null): BroadcastSystemMessageExResult {
+export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_ | null, msg: number, wParam: WPARAM, lParam: LPARAM): BroadcastSystemMessageExResult {
     BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(koffi.pointer(cDWORD)), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
 
-    const pBsm: OUT<BSM_> | null = typeof info === 'string' ? [info] : null
-    return BroadcastSystemMessageEx.native(flags, pBsm, msg, wParam, lParam, bsmInfo)
-        ? { success: true,  info: pBsm?.[0] }
-        : { success: false }
+    const pBsm: OUT<BSM_> = [info ?? BSM_.ALLCOMPONENTS]
+    const pBsmInfo: OUT<BSMINFO> = [new BSMINFO()]
+    const ret = BroadcastSystemMessageEx.native(flags, pBsm, msg, wParam, lParam, pBsmInfo)
+    return ret === 0
+        ? { success: true, denied: pBsm[0], denier: pBsmInfo[0] }
+        : { success: ret > 0 }
 }
 
-export interface BroadcastSystemMessageExResult {
-    success: boolean
-    info?: BSM_
+export interface BroadcastSystemMessageExResult extends BroadcastSystemMessageResult {
+    /**
+     * If the flags parameter is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY`,
+     * `success` will be `true` and this structure tells you what recipient denied the query.
+     */
+    denier?: BSMINFO
 }
 
 /**
