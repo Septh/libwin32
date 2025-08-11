@@ -1,4 +1,5 @@
 import assert from 'node:assert'
+import { deprecate } from 'node:util'
 import koffi from 'koffi-cream'
 import { Win32Dll, binaryBuffer, textDecoder, StringOutputBuffer, Internals, type OUT } from './private.js'
 import {
@@ -38,7 +39,7 @@ import {
     cFILETIME, type FILETIME
 } from './structs.js'
 import {
-    TOKEN_INFORMATION_CLASS, REG_,
+    REG_,
     type NTSTATUS_, type TOKEN_, type POLICY_,
     type HKEY_, type REG_OPTION_, type KEY_, type RRF_,
     type SID_NAME_USE,
@@ -48,6 +49,60 @@ import { LocalFree, cLocalAllocatedString } from './kernel32.js'
 
 /** @internal */
 export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
+
+/** @internal */
+export const enum TOKEN_INFORMATION_CLASS {
+    TokenUser = 1,
+    TokenGroups,
+    TokenPrivileges,
+    TokenOwner,
+    TokenPrimaryGroup,
+    TokenDefaultDacl,
+    TokenSource,
+    TokenType,
+    TokenImpersonationLevel,
+    TokenStatistics,
+    TokenRestrictedSids,
+    TokenSessionId,
+    TokenGroupsAndPrivileges,
+    TokenSessionReference,
+    TokenSandBoxInert,
+    TokenAuditPolicy,
+    TokenOrigin,
+    TokenElevationType,
+    TokenLinkedToken,
+    TokenElevation,
+    TokenHasRestrictions,
+    TokenAccessInformation,
+    TokenVirtualizationAllowed,
+    TokenVirtualizationEnabled,
+    TokenIntegrityLevel,
+    TokenUIAccess,
+    TokenMandatoryPolicy,
+    TokenLogonSid,
+    TokenIsAppContainer,
+    TokenCapabilities,
+    TokenAppContainerSid,
+    TokenAppContainerNumber,
+    TokenUserClaimAttributes,
+    TokenDeviceClaimAttributes,
+    TokenRestrictedUserClaimAttributes,
+    TokenRestrictedDeviceClaimAttributes,
+    TokenDeviceGroups,
+    TokenRestrictedDeviceGroups,
+    TokenSecurityAttributes,
+    TokenIsRestricted,
+    TokenProcessTrustLevel,
+    TokenPrivateNameSpace,
+    TokenSingletonAttributes,
+    TokenBnoIsolation,
+    TokenChildProcessFlags,
+    TokenIsLessPrivilegedAppContainer,
+    TokenIsSandboxed,
+    TokenIsAppSilo,
+    TokenLastEnforce = TokenIsAppSilo,
+    MaxTokenInfoClass
+}
 
 /**
  * The AdjustTokenPrivileges function enables or disables privileges in the specified access token.
@@ -690,6 +745,8 @@ function getTokenInfo(hToken: HTOKEN, infoClass: TOKEN_INFORMATION_CLASS): boole
  * Retrieves a specified type of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ *
+ * @deprecated Use one of `GetToken<xxx>Information` instead.
  */
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenUser):                   TOKEN_USER | null
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenGroups):                 TOKEN_GROUPS | null
@@ -726,6 +783,10 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenDeviceGroups):           TOKEN_GROUPS | null
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups): TOKEN_GROUPS | null
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS) {
+    return gti_deprecation(tokenHandle, tokenInformationClass)
+}
+
+const gti_deprecation = /*#__PURE__*/ deprecate( (tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS) => {
     switch (tokenInformationClass) {
         case TOKEN_INFORMATION_CLASS.TokenAccessInformation:      return GetTokenAccessInformation(tokenHandle)
         case TOKEN_INFORMATION_CLASS.TokenAppContainerNumber:     return GetTokenAppContainerNumberInformation(tokenHandle)
@@ -766,7 +827,7 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         default:
             return null
     }
-}
+}, 'GetTokenInformation() is deprecated, use one of GetToken<xxx>Information() instead', 'LIBWIN32_0001')
 
 /**
  * Retrieves the name of the user associated with the current thread.

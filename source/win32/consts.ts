@@ -1179,7 +1179,9 @@ export enum TOKEN_ELEVATION_TYPE {
 }
 
 /**
- * Token information class values for GetTokenInformation() and SetTokenInformation()
+ * Token information class values for GetTokenInformation() and SetTokenInformation().
+ *
+ * @deprecated
  */
 export enum TOKEN_INFORMATION_CLASS {
     TokenUser = 1,
