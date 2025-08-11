@@ -33,6 +33,7 @@ import {
     cTOKEN_STATISTICS, type TOKEN_STATISTICS,
     cTOKEN_USER, type TOKEN_USER,
     cSECURITY_ATTRIBUTES, type SECURITY_ATTRIBUTES,
+    cPRIVILEGE_SET, type PRIVILEGE_SET,
     cFILETIME, type FILETIME
 } from './structs.js'
 import {
@@ -541,6 +542,22 @@ export function OpenProcessToken(processHandle: HANDLE, desiredAccess: TOKEN_): 
     const pHandle: OUT<HTOKEN> = [null!]
     if (OpenProcessToken.native(processHandle, desiredAccess, pHandle) !== 0)
         return pHandle[0]
+    return null
+}
+
+/**
+ * The PrivilegeCheck function determines whether a specified set of privileges are enabled in an access token.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-privilegecheck
+ */
+export function PrivilegeCheck(clientToken: HANDLE, RequiredPrivileges: PRIVILEGE_SET): boolean | null {
+    PrivilegeCheck.native ??= advapi32.func('PrivilegeCheck', cBOOL, [ cHANDLE, koffi.inout(koffi.pointer(cPRIVILEGE_SET)), koffi.out(koffi.pointer(cBOOL)) ])
+
+    const pRequiredPrivileges: OUT<PRIVILEGE_SET> = [RequiredPrivileges]
+    const pfResult: OUT<number> = [0]
+    if (PrivilegeCheck.native(clientToken, pRequiredPrivileges, pfResult) !== 0) {
+        return Boolean(pfResult[0])
+    }
     return null
 }
 

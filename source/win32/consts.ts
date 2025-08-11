@@ -908,6 +908,8 @@ export enum SE_PRIVILEGE_ {
     )
 }
 
+export const PRIVILEGE_SET_ALL_NECESSARY = 1
+
 /**
  * (RID) The portion of a security identifier (SID) that identifies a user or group
  * in relation to the authority that issued the SID.

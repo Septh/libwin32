@@ -924,6 +924,22 @@ export const cTOKEN_ACCESS_INFORMATION = koffi.struct({
 })
 
 /**
+ * Privilege Set - This is defined for a privilege set of one.
+ */
+export interface PRIVILEGE_SET {
+    PrivilegeCount: number
+    Control:        number
+    Privilege:      LUID_AND_ATTRIBUTES[]
+}
+
+/** @internal */
+export const cPRIVILEGE_SET = koffi.struct({
+    PrivilegeCount: cDWORD,
+    Control:        cDWORD,
+    Privilege:      koffi.array(cLUID_AND_ATTRIBUTES, 1)
+})
+
+/**
  * The SECURITY_DESCRIPTOR structure contains the security information associated with an object.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-security_descriptor

@@ -152,6 +152,7 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | OpenProcess               | kernel32  | 0.5.0 |
 | OpenProcessToken          | advapi32  | 0.6.0 |
 | PostQuitMessage           | user32    | 0.1.0 |
+| PrivilegeCheck            | advapi32  | 0.8.3 |
 | QueryFullProcessImageName | kernel32  | 0.5.0 |
 | RegCloseKey               | advapi32  | 0.8.0 |
 | RegConnectRegistry        | advapi32  | 0.8.0 |
