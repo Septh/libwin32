@@ -25,7 +25,9 @@ import {
     cTOKEN_PRIVILEGES, type TOKEN_PRIVILEGES,
     cTOKEN_SOURCE, type TOKEN_SOURCE,
     cTOKEN_STATISTICS, type TOKEN_STATISTICS,
-    cTOKEN_USER, type TOKEN_USER
+    cTOKEN_USER, type TOKEN_USER,
+    type SID,
+    cSID
 } from '../structs.js'
 import { advapi32, getTokenInfo, TOKEN_INFORMATION_CLASS, decodeSid } from './lib.js'
 
@@ -46,6 +48,20 @@ export function AdjustTokenPrivileges(tokenHandle: HANDLE, disableAllPrivileges:
             previousState.Privileges = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, previousState.PrivilegeCount)
         return previousState
     }
+    return null
+}
+
+/**
+ * Determines whether a specified security identifier (SID) is enabled in an access token.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-checktokenmembership
+ */
+export function CheckTokenMembership(tokenHandle: HANDLE | null, sidToCheck: SID): boolean | null {
+    CheckTokenMembership.native ??= advapi32.func('CheckTokenMembership', cBOOL, [ cHANDLE, koffi.pointer(cSID), koffi.out(koffi.pointer(cBOOL)) ])
+
+    const pBool: OUT<number> = [0]
+    if (CheckTokenMembership.native(tokenHandle, sidToCheck, pBool) !== 0)
+        return Boolean(pBool[0])
     return null
 }
 
