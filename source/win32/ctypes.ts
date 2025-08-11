@@ -13,6 +13,7 @@ export const {
     uint:   cUINT,
     char:   cCHAR,
     uchar:  cUCHAR,
+    wchar:  cWCHAR,
     uint8:  cBYTE,
     short:  cSHORT,
     ushort: cUSHORT,
@@ -22,6 +23,7 @@ export const {
     ulong:  cDWORD,
     uint64: cDWORD64,
     int64:  cLONG64,
+    uint64: cULONG64,
     int64:  cLONGLONG,
     int64:  cLONG_PTR,
     uint64: cULONG_PTR,
@@ -34,6 +36,7 @@ export const {
     uint16: cATOM,          // == WORD
     int32:  cLSTATUS,       // == LONG
     int32:  cNTSTATUS,      // == LONG
+    uint64: cSIZE_T,        // == ULONG_PTR
 } = koffi.types
 
 /** @internal */

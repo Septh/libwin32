@@ -245,6 +245,14 @@ export enum GET_MODULE_HANDLE_EX_FLAG_ {
 }
 
 /**
+ * Returned by GetHandleInformation().
+ */
+export enum HANDLE_FLAG_ {
+    INHERIT = 1,
+    PROTECT_FROM_CLOSE = 2
+}
+
+/**
  * Reserved Registry Key Handles.
  */
 export enum HKEY_ {

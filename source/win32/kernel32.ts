@@ -1,15 +1,15 @@
-import { koffi, Win32Dll, StringOutputBuffer, Internals, type OUT, textDecoder } from './private.js'
+import { koffi, Win32Dll, StringOutputBuffer, Internals, type OUT } from './private.js'
 import {
     cVOID, cBOOL, cDWORD, cPVOID, cSTR,
     cHANDLE, type HANDLE, type HMODULE, type HWND
 } from './ctypes.js'
 import {
-    FORMAT_MESSAGE_, type GET_MODULE_HANDLE_EX_FLAG_, type PSAR_
+    FORMAT_MESSAGE_,
+    type GET_MODULE_HANDLE_EX_FLAG_, type HANDLE_FLAG_, type PSAR_
 } from './consts.js'
 import {
     cFILETIME, type FILETIME,
-    cSYSTEMTIME, type SYSTEMTIME
-} from './structs.js'
+    cSYSTEMTIME, type SYSTEMTIME} from './structs.js'
 
 /** @internal */
 export const kernel32 = /*#__PURE__*/new Win32Dll('kernel32.dll')
@@ -122,6 +122,20 @@ export function GetCurrentProcess(): HANDLE {
 export function GetCurrentProcessId(): number {
     GetCurrentProcessId.native ??= kernel32.func('GetCurrentProcessId', cDWORD, [])
     return GetCurrentProcessId.native()
+}
+
+/**
+ * Retrieves certain properties of an object handle.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-gethandleinformation
+ */
+export function GetHandleInformation(hObject: HANDLE): HANDLE_FLAG_ | null {
+    GetHandleInformation.native ??= kernel32.func('GetHandleInformation', cBOOL, [ cHANDLE, koffi.out(koffi.pointer(cDWORD)) ])
+
+    const pFlags: OUT<HANDLE_FLAG_> = [0 as HANDLE_FLAG_]
+    if (GetHandleInformation.native(hObject, pFlags) !== 0)
+        return pFlags[0]
+    return null
 }
 
 /**
