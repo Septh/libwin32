@@ -6,6 +6,7 @@
 
     // Output
     "module": "Node18",
+    "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
 

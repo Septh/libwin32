@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "include": [ "." ],
   "compilerOptions": {
-    "composite": true,
     "outDir": "../../lib/win32",
+    "composite": true,
     "noEmit": false
   }
 }
