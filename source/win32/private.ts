@@ -24,7 +24,7 @@ export class Win32Dll implements Disposable {
 
     func(name: string, result: koffi.IKoffiCType, parameters: koffi.IKoffiCType[]) {
         assert(this.#lib, `${JSON.stringify(this.#dll)} has been unloaded.`)
-        return /*#__PURE__*/this.#lib.func(name, result, parameters)
+        return this.#lib.func(name, result, parameters)
     }
 }
 
