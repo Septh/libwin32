@@ -107,10 +107,9 @@ function decodeSid(sidPtr: unknown): SID {
 
     // Decode the exact number of sub-authorities present in the SID. Yet, we still must set the array length
     // to SID_MAX_SUB_AUTHORITIES otherwise calls to other functions that expect a SID parameter would fail.
-    const SubAuthority: number[] = [
-        ...koffi.decode(sidPtr, koffi.offsetof(cSID, 'SubAuthority'), cDWORD, SubAuthorityCount),
-        ...Array(Internals.SID_MAX_SUB_AUTHORITIES - SubAuthorityCount).fill(0)
-    ]
+    const SubAuthority: number[] = koffi.decode(sidPtr, koffi.offsetof(cSID, 'SubAuthority'), cDWORD, SubAuthorityCount).slice()    // Need to slice() because .length is read-only :(
+    SubAuthority.length = Internals.SID_MAX_SUB_AUTHORITIES
+    SubAuthority.fill(0, SubAuthorityCount)
 
     // Return the decoded SID.
     return {
