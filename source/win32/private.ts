@@ -75,8 +75,9 @@ export const enum Internals {
     PWLEN = 256,
 
     // misc
-    ERROR_SUCCESS  = 0,
     NOERROR = 0,
+    ERROR_SUCCESS  = 0,
+    STATUS_SUCCESS = 0, // NTSTATUS
     MAX_KEY_LENGTH = 255,
     MAX_VALUE_NAME = 16383,
     MAX_NAME = 256,
