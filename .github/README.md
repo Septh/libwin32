@@ -184,6 +184,7 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | SetForegroundWindow       | user32    | 0.4.0 |
 | SetLastError              | kernel32  | 0.5.0 |
 | Shell_NotifyIcon          | shell32   | 0.4.0 |
+| ShellExecuteEx            | shell32   | 0.9.0 |
 | ShowWindow                | user32    | 0.1.0 |
 | ShowWindowAsync           | user32    | 0.1.0 |
 | TrackPopupMenu            | user32    | 0.4.0 |

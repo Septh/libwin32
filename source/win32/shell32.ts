@@ -27,5 +27,5 @@ export function Shell_NotifyIcon(message: NIM_, data: NOTIFYICONDATA): number {
  */
 export function ShellExecuteEx(execInfo: SHELLEXECUTEINFO): boolean {
     ShellExecuteEx.native ??= shell32.func('ShellExecuteExW', cBOOL, [ koffi.inout(koffi.pointer(cSHELLEXECUTEINFO)) ])
-    return ShellExecuteEx.native([ execInfo ]) !== 0
+    return ShellExecuteEx.native(execInfo) !== 0
 }
