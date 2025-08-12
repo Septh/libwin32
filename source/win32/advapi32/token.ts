@@ -3,7 +3,7 @@ import koffi from 'koffi-cream'
 import { binaryBuffer, type OUT } from '../private.js'
 import {
     cBOOL, cDWORD, cPVOID,
-    cHANDLE, type HANDLE, type HTOKEN
+    cHANDLE, type HTOKEN
 } from '../ctypes.js'
 import {
     cACL,
@@ -38,7 +38,7 @@ import { advapi32, getTokenInfo, TOKEN_INFORMATION_CLASS, decodeSid } from './li
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-adjusttokenprivileges
  */
-export function AdjustTokenPrivileges(tokenHandle: HANDLE, disableAllPrivileges: boolean, newState?: TOKEN_PRIVILEGES | null): TOKEN_PRIVILEGES | null {
+export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges: boolean, newState?: TOKEN_PRIVILEGES | null): TOKEN_PRIVILEGES | null {
     AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [ cHANDLE, cBOOL, cTOKEN_PRIVILEGES, cDWORD, cPVOID, koffi.out(koffi.pointer(cDWORD)) ])
 
     const pReturnLength: OUT<number> = [0]
@@ -56,7 +56,7 @@ export function AdjustTokenPrivileges(tokenHandle: HANDLE, disableAllPrivileges:
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-checktokenmembership
  */
-export function CheckTokenMembership(tokenHandle: HANDLE | null, sidToCheck: SID): boolean | null {
+export function CheckTokenMembership(tokenHandle: HTOKEN | null, sidToCheck: SID): boolean | null {
     CheckTokenMembership.native ??= advapi32.func('CheckTokenMembership', cBOOL, [ cHANDLE, koffi.pointer(cSID), koffi.out(koffi.pointer(cBOOL)) ])
 
     const pBool: OUT<number> = [0]
