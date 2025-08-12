@@ -57,9 +57,9 @@ export function CloseHandle(hObject: HANDLE): number {
 export function FileTimeToSystemTime(fileTime: FILETIME): SYSTEMTIME | null {
     FileTimeToSystemTime.native ??= kernel32.func('FileTimeToSystemTime', cBOOL, [ cFILETIME, koffi.out(koffi.pointer(cSYSTEMTIME)) ])
 
-    const pSystemTime: OUT<SYSTEMTIME> = [{} as SYSTEMTIME]
-    if (FileTimeToSystemTime.native(fileTime, pSystemTime) !== 0)
-        return pSystemTime[0]
+    const systemTime = {} as SYSTEMTIME
+    if (FileTimeToSystemTime.native(fileTime, systemTime) !== 0)
+        return systemTime
     return null
 }
 

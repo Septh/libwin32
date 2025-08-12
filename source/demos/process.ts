@@ -1,31 +1,23 @@
 import {
     GetForegroundWindow, GetWindowThreadProcessId, GetWindowText,
-    OpenProcess, GetClassName, QueryFullProcessImageName, CloseHandle,
-    MessageBox
+    OpenProcess, QueryFullProcessImageName, CloseHandle
 } from 'libwin32'
 import { PSAR_ } from 'libwin32/consts'
 
-const windowHref = GetForegroundWindow()
-const { processId } = GetWindowThreadProcessId(windowHref)
-const windowText = GetWindowText(windowHref)
+const hWnd = GetForegroundWindow()
+const windowText = GetWindowText(hWnd)
 
-const openProcess = OpenProcess(PSAR_.PROCESS_QUERY_INFORMATION | PSAR_.PROCESS_VM_READ, false, processId)
-const className = GetClassName(windowHref)
+const { processId, threadId } = GetWindowThreadProcessId(hWnd)
+const hProc = OpenProcess(PSAR_.PROCESS_QUERY_INFORMATION | PSAR_.PROCESS_VM_READ, false, processId)
 
 let executable
-
-MessageBox(null, 'Testing2', 'libwin32', 0)
-if (openProcess) {
-    MessageBox(null, 'Testing', 'libwin32', 0)
-    executable = QueryFullProcessImageName(openProcess, 0)
-    CloseHandle(openProcess)
+if (hProc) {
+    executable = QueryFullProcessImageName(hProc, 0)
+    CloseHandle(hProc)
 }
 
-MessageBox(
-    null,
-    `processId: ${processId}\n
-    windowText: ${windowText}\n
-    executable: ${executable}\n
-    className: ${className}\n`,
-    'libwin32', 0
+console.log(`Foreground window is "${windowText}"
+    processId: ${processId}
+    threadId: ${threadId}
+    executable: ${executable}`
 )

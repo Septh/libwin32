@@ -4,7 +4,7 @@ import { cBOOL, cDWORD, cHRESULT, cPVOID, type HRESULT } from './ctypes.js'
 import type { COINIT_ } from './consts.js'
 
 /** @internal */
-export const olel32 = /*#__PURE__*/new Win32Dll('shell32.dll')
+export const olel32 = /*#__PURE__*/new Win32Dll('ole32.dll')
 
 /**
  * Initializes the COM library for use by the calling thread, sets the thread's concurrency model,

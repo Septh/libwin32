@@ -844,7 +844,7 @@ export enum SECURITY_DESCRIPTOR_CONTROL_ {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
  */
-export enum SE_ERR {
+export enum SE_ERR_ {
     FNF             = 2,
     PNF             = 3,
     ACCESSDENIED    = 5,

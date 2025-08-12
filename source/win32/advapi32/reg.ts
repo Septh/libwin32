@@ -125,13 +125,13 @@ export function RegEnumKeyEx(hKey: HKEY | HKEY_, index: number): RegEnumKeyExRes
 
     const name = new StringOutputBuffer(Internals.MAX_KEY_LENGTH + 1)
     const className = new StringOutputBuffer(Internals.MAX_PATH + 1)
-    const pLastWriteTime: OUT<FILETIME> = [{} as FILETIME]
-    const status: LSTATUS = RegEnumKeyEx.native(hKey, index, name.buffer, name.pLength, null, className.buffer, className.pLength, pLastWriteTime)
+    const lastWriteTime = {} as FILETIME
+    const status: LSTATUS = RegEnumKeyEx.native(hKey, index, name.buffer, name.pLength, null, className.buffer, className.pLength, lastWriteTime)
     if (status === Internals.ERROR_SUCCESS) {
         return {
             name: name.decode(),
             className: className.decode(),
-            lastWriteTime: pLastWriteTime[0]
+            lastWriteTime
         }
     }
     return status
@@ -304,14 +304,14 @@ export function RegQueryInfoKey(hKey: HKEY | HKEY_): RegQueryInfoKeyResult | LST
     const className = new StringOutputBuffer(Internals.MAX_PATH + 1)
     const pSubKeys: OUT<number> = [0]
     const pValues: OUT<number> = [0]
-    const pLastWriteTime: OUT<FILETIME> = [{} as FILETIME]
-    const status: LSTATUS = RegQueryInfoKey.native(hKey, className.buffer, className.pLength, null, pSubKeys, null, null, pValues, null, null, null, pLastWriteTime)
+    const lastWriteTime = {} as FILETIME
+    const status: LSTATUS = RegQueryInfoKey.native(hKey, className.buffer, className.pLength, null, pSubKeys, null, null, pValues, null, null, null, lastWriteTime)
     if (status === Internals.ERROR_SUCCESS) {
         return {
             className: className.decode(),
             subKeys: pSubKeys[0],
             values: pValues[0],
-            lastWriteTime: pLastWriteTime[0]
+            lastWriteTime
         }
     }
     return status

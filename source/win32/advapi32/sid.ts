@@ -17,7 +17,7 @@ import { advapi32, decodeSid, freeSid } from './lib.js'
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-allocateandinitializesid
  */
-export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUTHORITY, subAuthorityCount: number, subAuthority0 = 0, subAuthority1 = 0, subAuthority2 = 0, subAuthority3 = 0, subAuthority4 = 0, subAuthority5 = 0, subAuthority6 = 0, subAuthority7 = 0): SID | null {
+export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUTHORITY, subAuthorityCount: number, subAuthority0: number = 0, subAuthority1: number = 0, subAuthority2: number = 0, subAuthority3: number = 0, subAuthority4: number = 0, subAuthority5: number = 0, subAuthority6: number = 0, subAuthority7: number = 0): SID | null {
 
     // A note about the last parameter (pSid):
     // `[out] PSID *pSid` should be declared as `koffi.out(koffi.pointer(koffi.pointer(cSID)))`,

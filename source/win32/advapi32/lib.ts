@@ -1,6 +1,6 @@
 import koffi from 'koffi-cream'
 import { Win32Dll, Internals, binaryBuffer, type OUT } from '../private.js'
-import { cBOOL, cBYTE, cINT, cDWORD, cHANDLE, cPVOID, type HTOKEN, cVOID } from '../ctypes.js'
+import { cVOID, cBOOL, cBYTE, cINT, cDWORD, cHANDLE, cPVOID, type HTOKEN } from '../ctypes.js'
 import { cSID, type SID } from '../structs.js'
 
 export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')

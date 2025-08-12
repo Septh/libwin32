@@ -121,10 +121,10 @@ export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_ | null, msg: nu
     BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(koffi.pointer(cDWORD)), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
 
     const pBsm: OUT<BSM_> = [info ?? BSM_.ALLCOMPONENTS]
-    const pBsmInfo: OUT<BSMINFO> = [new BSMINFO()]
-    const ret = BroadcastSystemMessageEx.native(flags, pBsm, msg, wParam, lParam, pBsmInfo)
+    const bsmInfo = new BSMINFO()
+    const ret = BroadcastSystemMessageEx.native(flags, pBsm, msg, wParam, lParam, bsmInfo)
     return ret === 0
-        ? { success: true, denied: pBsm[0], denier: pBsmInfo[0] }
+        ? { success: true, denied: pBsm[0], denier: bsmInfo }
         : { success: ret > 0 }
 }
 
@@ -320,9 +320,9 @@ export function GetAncestor(hWnd: HWND, flags: GA_): HWND | null {
 export function GetClassInfo(hInstance: HINSTANCE | null, className: string): WNDCLASS | null {
     GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
 
-    const pWndClass: OUT<WNDCLASS> = [new WNDCLASS()]
-    if (GetClassInfo.native(hInstance, className, pWndClass) !== 0)
-        return pWndClass[0]
+    const wndClass = new WNDCLASS()
+    if (GetClassInfo.native(hInstance, className, wndClass) !== 0)
+        return wndClass
     return null
 }
 
@@ -336,9 +336,9 @@ export function GetClassInfo(hInstance: HINSTANCE | null, className: string): WN
 export function GetClassInfoEx(hInstance: HINSTANCE | null, className: string): WNDCLASSEX | null {
     GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cSTR, koffi.out(koffi.pointer(cWNDCLASSEX)) ])
 
-    const pWndClassEx: OUT<WNDCLASSEX> = [new WNDCLASSEX()]
-    if (GetClassInfoEx.native(hInstance, className, pWndClassEx) !== 0)
-        return pWndClassEx[0]
+    const wndClassEx = new WNDCLASSEX()
+    if (GetClassInfoEx.native(hInstance, className, wndClassEx) !== 0)
+        return wndClassEx
     return null
 }
 
@@ -363,9 +363,9 @@ export function GetClassName(hWnd: HWND): string {
 export function GetCursorPos(): POINT | null {
     GetCursorPos.native ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(koffi.pointer(cPOINT)) ])
 
-    const pPoint: OUT<POINT> = [{} as POINT]
-    if (GetCursorPos.native(pPoint) !== 0)
-        return pPoint[0]
+    const point = {} as POINT
+    if (GetCursorPos.native(point) !== 0)
+        return point
     return null
 }
 
@@ -389,9 +389,9 @@ export function GetForegroundWindow(): HWND {
 export function GetMessage(hWnd: HWND | null | -1, msgFilterMin: number = 0, msgFilterMax: number = 0): MSG | null {
     GetMessage.native ??= user32.func('GetMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT ])
 
-    const pMsg: OUT<MSG> = [{} as MSG]
-    if (GetMessage.native(pMsg, hWnd, msgFilterMin, msgFilterMax) !== 0)
-        return pMsg[0]
+    const msg = {} as MSG
+    if (GetMessage.native(msg, hWnd, msgFilterMin, msgFilterMax) !== 0)
+        return msg
     return null
 }
 
@@ -488,9 +488,9 @@ export function MessageBoxEx(hWnd: HWND | null, text: string | null, caption: st
 export function PeekMessage(hWnd: HWND | null | -1, msgFilterMin: number, msgFilterMax: number, removeMsg: PM_): MSG | null {
     PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT, cUINT ])
 
-    const pMsg: OUT<MSG> = [{} as MSG]
-    if (PeekMessage.native(pMsg, hWnd, msgFilterMin, msgFilterMax, removeMsg) !== 0)
-        return pMsg[0]
+    const msg = {} as MSG
+    if (PeekMessage.native(msg, hWnd, msgFilterMin, msgFilterMax, removeMsg) !== 0)
+        return msg
     return null
 }
 

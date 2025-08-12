@@ -12,7 +12,8 @@ import type {
     CS_, NIF_, TOKEN_TYPE_,
     CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_,
     SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL_,
-    REG_, SEE_MASK, SW_
+    REG_, SEE_MASK, SW_,
+    SE_ERR_
 } from './consts.js'
 
 /**
@@ -314,7 +315,7 @@ export class SHELLEXECUTEINFO {
     declare lpParameters: string
     declare lpDirectory:  string
     declare nShow:        SW_
-    declare hInstApp:     HINSTANCE
+    declare hInstApp:     HINSTANCE | SE_ERR_
     declare lpIDList:     any
     declare lpClass:      string
     declare hkeyClass:    HKEY
@@ -343,7 +344,7 @@ export const cSHELLEXECUTEINFO = koffi.struct({
     dwHotKey:       cDWORD,
     DUMMYUNIONNAME: koffi.union({
         hIcon:    cHANDLE,
-        hMONOTOR: cHANDLE
+        hMONITOR: cHANDLE
     }),
     hProcess: cHANDLE
 })

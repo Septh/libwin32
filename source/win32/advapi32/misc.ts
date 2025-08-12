@@ -34,13 +34,13 @@ export function GetUserName(): string | null {
 export function LookupAccountName(systemName: string | null, accountName: string): LookupAccountNameResult | null {
     LookupAccountName.native ??= advapi32.func('LookupAccountNameW', cBOOL, [ cSTR, cSTR, koffi.out(koffi.pointer(cSID)), koffi.inout(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cINT)) ])
 
-    const pSID: OUT<SID> = [{} as SID]
+    const sid = {} as SID
     const pcbSid: OUT<number> = [koffi.sizeof(cSID)]
     const domain = new StringOutputBuffer(Internals.MAX_NAME)
-    const peUse: OUT<SID_NAME_USE> = [0 as SID_NAME_USE]
-    if (LookupAccountName.native(systemName, accountName, pSID, pcbSid, domain.buffer, domain.pLength, peUse) !== 0) {
+    const peUse: OUT<number> = [0]
+    if (LookupAccountName.native(systemName, accountName, sid, pcbSid, domain.buffer, domain.pLength, peUse) !== 0) {
         return {
-            sid: pSID[0],
+            sid,
             referencedDomainName: domain.decode(),
             use: peUse[0]
         }
@@ -76,9 +76,9 @@ export function LookupPrivilegeName(systemName: string | null, luid: LUID): stri
 export function LookupPrivilegeValue(systemName: string | null, name: SE_NAME): LUID | null {
     LookupPrivilegeValue.native ??= advapi32.func('LookupPrivilegeValueW', cBOOL, [ cSTR, cSTR, koffi.out(koffi.pointer(cLUID)) ])
 
-    const pLUID: OUT<LUID> = [{} as LUID]
-    if (LookupPrivilegeValue.native(systemName, name, pLUID) !== 0)
-        return pLUID[0]
+    const LUID = {} as LUID
+    if (LookupPrivilegeValue.native(systemName, name, LUID) !== 0)
+        return LUID
     return null
 }
 
@@ -101,13 +101,11 @@ export function OpenProcessToken(processHandle: HANDLE, desiredAccess: TOKEN_): 
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-privilegecheck
  */
-export function PrivilegeCheck(clientToken: HANDLE, RequiredPrivileges: PRIVILEGE_SET): boolean | null {
+export function PrivilegeCheck(clientToken: HANDLE, requiredPrivileges: PRIVILEGE_SET): boolean | null {
     PrivilegeCheck.native ??= advapi32.func('PrivilegeCheck', cBOOL, [ cHANDLE, koffi.inout(koffi.pointer(cPRIVILEGE_SET)), koffi.out(koffi.pointer(cBOOL)) ])
 
-    const pRequiredPrivileges: OUT<PRIVILEGE_SET> = [RequiredPrivileges]
     const pfResult: OUT<number> = [0]
-    if (PrivilegeCheck.native(clientToken, pRequiredPrivileges, pfResult) !== 0) {
+    if (PrivilegeCheck.native(clientToken, requiredPrivileges, pfResult) !== 0)
         return Boolean(pfResult[0])
-    }
     return null
 }

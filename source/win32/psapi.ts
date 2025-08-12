@@ -18,8 +18,8 @@ const psapi = new Win32Dll('psapi.dll')
 export function GetProcessMemoryInfo(hProcess: HANDLE): PROCESS_MEMORY_COUNTERS_EX2 | null {
     GetProcessMemoryInfo.native ??= psapi.func('GetProcessMemoryInfo', cBOOL, [ cHANDLE, koffi.out(koffi.pointer(cPROCESS_MEMORY_COUNTERS_EX2)), cDWORD ])
 
-    const pMemCounters: OUT<PROCESS_MEMORY_COUNTERS_EX2> = [new PROCESS_MEMORY_COUNTERS_EX2()]
-    if (GetProcessMemoryInfo.native(hProcess, pMemCounters, koffi.sizeof(cPROCESS_MEMORY_COUNTERS_EX2)) !== 0)
-        return pMemCounters[0]
+    const memCounters = new PROCESS_MEMORY_COUNTERS_EX2()
+    if (GetProcessMemoryInfo.native(hProcess, memCounters, koffi.sizeof(cPROCESS_MEMORY_COUNTERS_EX2)) !== 0)
+        return memCounters
     return null
 }
