@@ -3,7 +3,7 @@ import { Internals } from './private.js'
 import {
     cBOOL, cINT, cUINT, cCHAR, cBYTE, cWCHAR, cSHORT, cUSHORT, cWORD,
     cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cULONG64, cDWORD64, cPVOID, cSTR, cSIZE_T,
-    cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN,
+    cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN, type HKEY,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM,
     cLRESULT, type LRESULT,
 
@@ -12,7 +12,7 @@ import type {
     CS_, NIF_, TOKEN_TYPE_,
     CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_,
     SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL_,
-    REG_
+    REG_, SEE_MASK, SW_
 } from './consts.js'
 
 /**
@@ -299,6 +299,54 @@ export type SID_IDENTIFIER_AUTHORITY = [ number, number, number, number, number,
 
 /** @internal */
 export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
+
+/**
+ * Contains information used by ShellExecuteEx().
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
+ */
+export class SHELLEXECUTEINFO {
+    readonly cbSize = koffi.sizeof(cSHELLEXECUTEINFO)
+    declare fMask:        SEE_MASK
+    declare hwnd:         HWND
+    declare lpVerb:       string
+    declare lpFile:       string
+    declare lpParameters: string
+    declare lpDirectory:  string
+    declare nShow:        SW_
+    declare hInstApp:     HINSTANCE
+    declare lpIDList:     any
+    declare lpClass:      string
+    declare hkeyClass:    HKEY
+    declare dwHotKey:     number
+    declare DUMMYUNIONNAME: {
+        hIcon?: HANDLE
+        hMonitor?: HANDLE
+    }
+    declare hProcess: HANDLE
+}
+
+/** @internal */
+export const cSHELLEXECUTEINFO = koffi.struct({
+    cbSize:         cDWORD,
+    fMask:          cULONG,
+    hwnd:           cHANDLE,
+    lpVerb:         cSTR,
+    lpFile:         cSTR,
+    lpParameters:   cSTR,
+    lpDirectory:    cSTR,
+    nShow:          cINT,
+    hInstApp:       cHANDLE,
+    lpIDList:       cPVOID,
+    lpClass:        cSTR,
+    hkeyClass:      cHANDLE,
+    dwHotKey:       cDWORD,
+    DUMMYUNIONNAME: koffi.union({
+        hIcon:    cHANDLE,
+        hMONOTOR: cHANDLE
+    }),
+    hProcess: cHANDLE
+})
 
 /**
  * The security identifier (SID) structure is a variable-length structure used to uniquely identify users or groups.
