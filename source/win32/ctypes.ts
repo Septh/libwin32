@@ -71,7 +71,6 @@ export type LPARAM      = number | BigInt | HANDLE
 export type HRESULT     = number | HANDLE
 export type LRESULT     = number | BigInt | HANDLE
 export type ATOM        = number
-export type LSTATUS     = number
 
 /**
  * An helper type that mimics a C union.
