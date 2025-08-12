@@ -222,19 +222,15 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
                 break
 
             case REG_.DWORD:
-                assert(count === Uint32Array.BYTES_PER_ELEMENT)
                 value = new Uint32Array(binaryBuffer.buffer, binaryBuffer.byteOffset, 1)
                 value = value[0]
                 break
 
             case REG_.DWORD_BIG_ENDIAN:
-                assert(count === Uint32Array.BYTES_PER_ELEMENT)
-                value = new Uint32Array(binaryBuffer.buffer, binaryBuffer.byteOffset, 1)
-                value = new DataView(value).getUint32(0, false)
+                value = new DataView(binaryBuffer.buffer, binaryBuffer.byteOffset, Uint32Array.BYTES_PER_ELEMENT).getUint32(0, false)
                 break
 
             case REG_.QWORD:
-                assert(count === BigUint64Array.BYTES_PER_ELEMENT)
                 value = new BigUint64Array(binaryBuffer.buffer, binaryBuffer.byteOffset, 1)
                 value = value[0]
                 break
