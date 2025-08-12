@@ -9,6 +9,7 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+    "stripInternal": true,
 
     // Libs
     "target": "ES2024",
