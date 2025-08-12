@@ -126,6 +126,20 @@ export function GetCurrentProcessId(): number {
 }
 
 /**
+ * Retrieves the termination status of the specified process.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getexitcodeprocess
+ */
+export function GetExitCodeProcess(hProcess: HANDLE): number | null {
+    GetExitCodeProcess.native ??= kernel32.func('GetExitCodeProcess', cBOOL, [ cHANDLE, koffi.out(koffi.pointer(cDWORD)) ])
+
+    const pExitCode: OUT<number> = [0]
+    if (GetExitCodeProcess.native(hProcess, pExitCode) !== 0)
+        return pExitCode[0]
+    return null
+}
+
+/**
  * Retrieves certain properties of an object handle.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-gethandleinformation

@@ -127,6 +127,7 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | GetCurrentProcessId       | kernel32  | 0.8.3 |
 | GetCursorPos              | user32    | 0.4.0 |
 | GetDesktopWindow          | user32    | 0.7.0 |
+| GetExitCodeProcess        | kernel32  | 0.9.0 |
 | GetHandleInformation      | kernel32  | 0.8.3 |
 | GetLastError              | kernel32  | 0.1.0 |
 | GetMessage                | user32    | 0.1.0 |
