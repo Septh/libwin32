@@ -98,6 +98,7 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | CheckMenuItem             | user32    | 0.4.0 |
 | CheckTokenMembership      | advapi32  | 0.9.0 |
 | CloseHandle               | kernel32  | 0.5.0 |
+| CoInitializeEx            | ole32     | 0.9.0 |
 | ConvertSidToStringSid     | advapi32  | 0.8.0 |
 | ConvertStringSidToSid     | advapi32  | 0.8.0 |
 | CreatePopupMenu           | user32    | 0.4.0 |
