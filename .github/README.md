@@ -189,6 +189,7 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | TranslateMessageEx        | user32    | 0.1.0 |
 | UnregisterClass           | user32    | 0.1.0 |
 | UpdateWindow              | user32    | 0.1.0 |
+| WaitForSingleObject       | user32    | 0.9.0 |
 
 Many thanks to [@MomoRazor](https://github.com/MomoRazor) for the impressive work on [53e99ef](https://github.com/Septh/libwin32/commit/53e99ef3ef63298e3b84ec1835acdbf61810296e)!
 

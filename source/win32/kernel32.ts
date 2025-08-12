@@ -242,6 +242,19 @@ export function SetLastError(errCode: number): void {
     return SetLastError.native(errCode)
 }
 
+/**
+ * Waits until the specified object is in the signaled state or the time-out interval elapses.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject
+ */
+export function WaitForSingleObject(hHandle: HANDLE, milliseconds: number): number {
+    WaitForSingleObject.native ??= kernel32.func('WaitForSingleObject', cDWORD, [ cHANDLE, cDWORD ])
+
+    if (!Number.isFinite(milliseconds))
+        milliseconds = Internals.INFINITE
+    return WaitForSingleObject.native(hHandle, milliseconds)
+}
+
 /** @internal only used by some functions in some libs and not intended to be exposed to the user. */
 export function LocalFree(ptr: unknown) {
     LocalFree.native ??= kernel32.func('LocalFree', cPVOID, [ cPVOID ])
