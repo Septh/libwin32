@@ -502,7 +502,7 @@ export enum NIF_ {
 }
 
 /**
- * Values for the dwMessagge parameter of Shell_NotifyIcon()
+ * Values for the dwMessage parameter of Shell_NotifyIcon()
  */
 export enum NIM_ {
     ADD        = 0x00000000,
