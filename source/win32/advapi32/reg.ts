@@ -218,6 +218,7 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
 
             case REG_.BINARY:
                 value = new Uint8Array(binaryBuffer.buffer, binaryBuffer.byteOffset, count)
+                value = value.slice()   // Return a copy of the buffer
                 break
 
             case REG_.DWORD:
