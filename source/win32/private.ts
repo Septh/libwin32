@@ -56,27 +56,22 @@ export class StringOutputBuffer {
 
 /** Various Win32 constants. */
 export const enum Internals {
-
-    // minwindef.h
+    UNLEN = 256,
+    GNLEN = UNLEN,
+    PWLEN = 256,
     MAX_PATH = 260,
 
-    // winnt.h
     ACL_REVISION = 2,
-    ANYSIZE_ARRAY = 1,
     CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1 = 1,
     SID_HASH_SIZE = 32,
     SID_MAX_SUB_AUTHORITIES = 15,
     SID_RECOMMENDED_SUB_AUTHORITIES = 1,
+    SID_REVISION = 1,
     TOKEN_SOURCE_LENGTH = 8,
 
-    // lmcons.h
-    UNLEN = 256,
-    GNLEN = UNLEN,
-    PWLEN = 256,
-
-    // misc
+    ANYSIZE_ARRAY = 1,
     NOERROR = 0,
-    ERROR_SUCCESS  = 0,
+    ERROR_SUCCESS  = 0, // LSTATUS
     STATUS_SUCCESS = 0, // NTSTATUS
     MAX_KEY_LENGTH = 255,
     MAX_VALUE_NAME = 16383,

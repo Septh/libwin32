@@ -354,11 +354,11 @@ export const cSHELLEXECUTEINFO = koffi.struct({
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid
  */
-export interface SID {
-    Revision:            number
-    SubAuthorityCount:   number
-    IdentifierAuthority: SID_IDENTIFIER_AUTHORITY
-    SubAuthority:        number[]
+export class SID {
+    readonly Revision = Internals.SID_REVISION
+    declare SubAuthorityCount:   number
+    declare IdentifierAuthority: SID_IDENTIFIER_AUTHORITY
+    declare SubAuthority:        number[]
 }
 
 /** @internal */
@@ -369,7 +369,7 @@ export const cSID = koffi.struct({
     SubAuthority:        koffi.array(cDWORD, Internals.SID_MAX_SUB_AUTHORITIES, 'Array')   // DWORD SubAuthority[]
 })
 
-export const SID_REVISION = 1
+export const SID_REVISION = Internals.SID_REVISION
 
 /**
  * The SID_AND_ATTRIBUTES structure represents a security identifier (SID) and its attributes.
