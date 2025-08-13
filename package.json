@@ -82,10 +82,11 @@
   ],
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
+    "build:release": "rimraf lib && tsc --build tsconfig.build.json",
     "build:demos": "rimraf demos && rollup -c rollup.demos.js",
     "clean": "tsc --build tsconfig.build.json --clean",
     "test": "echo No test yet",
-    "prepublishOnly": "npm run clean && npm run build && npm run build:demos"
+    "prepublishOnly": "npm run build:release && npm run build:demos"
   },
   "dependencies": {
     "koffi-cream": "^2.13.0"
