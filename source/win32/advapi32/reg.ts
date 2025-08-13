@@ -196,6 +196,12 @@ export function RegFlushKey(hKey: HKEY | HKEY_): LSTATUS {
 /**
  * Retrieves the type and data for the specified registry value.
  *
+ * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`,
+ *       `REG_BINARY`, `REG_DWORD`, `REG_DWORD_BIG_ENDIAN` and `REG_QWORD`
+ *       are supported. All other types return `ERROR_UNSUPPORTED`.
+ *
+ * `REG_BINARY` values are always returned as a `Uint8Array`.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
  */
 export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: string | null, flags: RRF_): RegGetValueResult | LSTATUS {
@@ -245,8 +251,7 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
                 break
 
             default:
-                value = null
-                break
+                return ERROR_.NOT_SUPPORTED
         }
 
         return { type, value }
@@ -330,10 +335,11 @@ export function RegSaveKeyEx(hKey: HKEY | HKEY_, file: string, securityAttribute
 /**
  * Sets the data for the specified value in the specified registry key and subkey.
  *
- * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_BINARY`, `REG_DWORD`,
- *       `REG_DWORD_BIG_ENDIAN`, `REG_MULTI_SZ` and `REG_QWORD` are supported.
- *       All other types return `ERROR_UNSUPPORTED`.
- *       If the `data` parameter if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
+ * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`,
+ *       `REG_BINARY`, `REG_DWORD`, `REG_DWORD_BIG_ENDIAN` and `REG_QWORD`
+ *       are supported. All other types return `ERROR_UNSUPPORTED`.
+ *
+ * If the `data` parameter if not of the expected type, then `ERROR_BAD_ARGUMENTS` is returned.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetkeyvaluew
  */
@@ -357,10 +363,11 @@ export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueN
 /**
  * Sets the data and type of a specified value under a registry key.
  *
- * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_BINARY`, `REG_DWORD`,
- *       `REG_DWORD_BIG_ENDIAN`, `REG_MULTI_SZ` and `REG_QWORD` are supported.
- *       All other types return `ERROR_UNSUPPORTED`.
- *       If the `data` parameter if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
+ * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`,
+ *       `REG_BINARY`, `REG_DWORD`, `REG_DWORD_BIG_ENDIAN` and `REG_QWORD`
+ *       are supported. All other types return `ERROR_UNSUPPORTED`.
+ *
+ * If the `data` parameter if not of the expected type, then `ERROR_BAD_ARGUMENTS` is returned.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetvalueexw
  */
