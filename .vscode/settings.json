@@ -12,20 +12,21 @@
     }
   ],
   "conventionalCommits.scopes": [
-    "libs",
-    "ctypes",
     "advapi32",
     "kernel32",
-    "secur32",
-    "shell32",
     "user32",
+    "shell32",
+    "secur32",
     "ole32",
     "psapi",
+    "ctypes",
+    "libs",
     "demos",
     "build"
   ],
   "cSpell.words": [
     "advapi",
+    "psapi",
     "bundable",
     "Koffi",
     "libwin",
@@ -37,4 +38,5 @@
       "**/node_modules/**"
     ]
   },
+  "todo-tree.regex.regex": "($TAGS):",
 }
