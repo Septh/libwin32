@@ -9,6 +9,12 @@ import { LocalFree, cLocalAllocatedString } from '../kernel32.js'
 import type { SID_NAME_USE} from '../consts.js'
 import { advapi32, decodeSid } from './lib.js'
 
+export interface LookupAccountSidResult {
+    name: string
+    referencedDomainName: string
+    use: SID_NAME_USE
+}
+
 /**
  * Allocates and initializes a security identifier (SID) with up to eight subauthorities.
  *
@@ -49,9 +55,9 @@ export function ConvertSidToStringSid(sid: SID): string | null {
     ConvertSidToStringSid.native ??= advapi32.func('ConvertSidToStringSidW', cBOOL, [ koffi.pointer(cSID), koffi.out(koffi.pointer(cLocalAllocatedString)) ])
 
     const pStr: OUT<string> = [null!]
-    if (ConvertSidToStringSid.native(sid, pStr) !== 0)
-        return pStr[0]
-    return null
+    return ConvertSidToStringSid.native(sid, pStr) !== 0
+        ? pStr[0]
+        : null
 }
 
 /**
@@ -109,12 +115,6 @@ export function LookupAccountSid(systemName: string | null, sid: SID): LookupAcc
         }
     }
     return null
-}
-
-export interface LookupAccountSidResult {
-    name: string
-    referencedDomainName: string
-    use: SID_NAME_USE
 }
 
 /**

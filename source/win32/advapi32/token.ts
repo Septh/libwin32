@@ -58,9 +58,9 @@ export function CheckTokenMembership(tokenHandle: HTOKEN | null, sidToCheck: SID
     CheckTokenMembership.native ??= advapi32.func('CheckTokenMembership', cBOOL, [ cHANDLE, koffi.pointer(cSID), koffi.out(koffi.pointer(cBOOL)) ])
 
     const pBool: OUT<number> = [0]
-    if (CheckTokenMembership.native(tokenHandle, sidToCheck, pBool) !== 0)
-        return Boolean(pBool[0])
-    return null
+    return CheckTokenMembership.native(tokenHandle, sidToCheck, pBool) !== 0
+        ? Boolean(pBool[0])
+        : null
 }
 
 /**
@@ -99,11 +99,9 @@ export function GetTokenAccessInformation(tokenHandle: HTOKEN): TOKEN_ACCESS_INF
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenAppContainerNumberInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAppContainerNumber)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAppContainerNumber)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -202,11 +200,9 @@ export function GetTokenElevationInformation(tokenHandle: HTOKEN): TOKEN_ELEVATI
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenElevationTypeInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevationType)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevationType)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -261,11 +257,9 @@ export function GetTokenGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenHasRestrictions)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenHasRestrictions)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -274,11 +268,9 @@ export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): number 
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenImpersonationLevelInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenImpersonationLevel)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenImpersonationLevel)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -301,11 +293,9 @@ export function GetTokenIntegrityLevelInformation(tokenHandle: HTOKEN): TOKEN_MA
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenIsAppContainerInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenIsAppContainer)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenIsAppContainer)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -314,11 +304,9 @@ export function GetTokenIsAppContainerInformation(tokenHandle: HTOKEN): number |
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenLinkedTokenInformation(tokenHandle: HTOKEN): TOKEN_LINKED_TOKEN | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenLinkedToken)) {
-        const ret: TOKEN_LINKED_TOKEN = koffi.decode(binaryBuffer, cTOKEN_LINKED_TOKEN)
-        return ret
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenLinkedToken)
+        ? koffi.decode(binaryBuffer, cTOKEN_LINKED_TOKEN)
+        : null
 }
 
 /**
@@ -342,11 +330,9 @@ export function GetTokenLogonSidInformation(tokenHandle: HTOKEN): TOKEN_GROUPS |
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenMandatoryPolicyInformation(tokenHandle: HTOKEN): TOKEN_MANDATORY_POLICY | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy)) {
-        const ret: TOKEN_MANDATORY_POLICY = koffi.decode(binaryBuffer, cTOKEN_MANDATORY_POLICY)
-        return ret
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy)
+        ? koffi.decode(binaryBuffer, cTOKEN_MANDATORY_POLICY)
+        : null
 }
 
 /**
@@ -355,11 +341,9 @@ export function GetTokenMandatoryPolicyInformation(tokenHandle: HTOKEN): TOKEN_M
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenOriginInformation(tokenHandle: HTOKEN): TOKEN_ORIGIN | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenOrigin)) {
-        const ret: TOKEN_ORIGIN = koffi.decode(binaryBuffer, cTOKEN_ORIGIN)
-        return ret
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenOrigin)
+        ? koffi.decode(binaryBuffer, cTOKEN_ORIGIN)
+        : null
 }
 
 /**
@@ -440,11 +424,9 @@ export function GetTokenRestrictedSidsInformation(tokenHandle: HTOKEN): TOKEN_GR
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenSandBoxInertInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSandBoxInert)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSandBoxInert)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -453,11 +435,9 @@ export function GetTokenSandBoxInertInformation(tokenHandle: HTOKEN): number | n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSessionId)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSessionId)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -466,11 +446,9 @@ export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenSourceInformation(tokenHandle: HTOKEN): TOKEN_SOURCE | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSource)) {
-        const ret: TOKEN_SOURCE = koffi.decode(binaryBuffer, cTOKEN_SOURCE)
-        return ret
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSource)
+        ? koffi.decode(binaryBuffer, cTOKEN_SOURCE)
+        : null
 }
 
 /**
@@ -479,11 +457,9 @@ export function GetTokenSourceInformation(tokenHandle: HTOKEN): TOKEN_SOURCE | n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenStatisticsInformation(tokenHandle: HTOKEN): TOKEN_STATISTICS | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenStatistics)) {
-        const ret: TOKEN_STATISTICS = koffi.decode(binaryBuffer, cTOKEN_STATISTICS)
-        return ret
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenStatistics)
+        ? koffi.decode(binaryBuffer, cTOKEN_STATISTICS)
+        : null
 }
 
 /**
@@ -492,11 +468,9 @@ export function GetTokenStatisticsInformation(tokenHandle: HTOKEN): TOKEN_STATIS
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenTypeInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenType)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenType)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -505,11 +479,9 @@ export function GetTokenTypeInformation(tokenHandle: HTOKEN): number | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenUIAccessInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUIAccess)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUIAccess)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -551,11 +523,9 @@ export function GetTokenUserInformation(tokenHandle: HTOKEN): TOKEN_USER | null 
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenVirtualizationAllowedInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
@@ -564,11 +534,9 @@ export function GetTokenVirtualizationAllowedInformation(tokenHandle: HTOKEN): n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenVirtualizationEnabledInformation(tokenHandle: HTOKEN): number | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled)) {
-        const ptr = new Uint32Array(binaryBuffer.buffer, 0, 1)
-        return ptr[0]
-    }
-    return null
+    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled)
+        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        : null
 }
 
 /**
