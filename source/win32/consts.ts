@@ -863,7 +863,7 @@ export enum SE_ERR_ {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
  */
-export enum SEE_MASK {
+export enum SEE_MASK_ {
     DEFAULT           = 0x00000000,
     CLASSNAME         = 0x00000001,
     CLASSKEY          = 0x00000003,
