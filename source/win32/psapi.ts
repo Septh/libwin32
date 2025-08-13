@@ -8,7 +8,7 @@ import {
 } from './structs.js'
 
 /** @internal */
-const psapi = new Win32Dll('psapi.dll')
+const psapi = /*#__PURE__*/new Win32Dll('psapi.dll')
 
 /**
  * Retrieves information about the memory usage of the specified process.
