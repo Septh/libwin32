@@ -10,11 +10,13 @@ import {
     cFILETIME, type FILETIME
 } from '../structs.js'
 import {
+    ERROR_,
     REG_, type REG_OPTION_,
-    type HKEY_, type KEY_, type RRF_,
-    type ERROR_ as LSTATUS
+    type HKEY_, type KEY_, type RRF_
 } from '../consts.js'
 import { advapi32 } from './lib.js'
+
+type LSTATUS = ERROR_
 
 /**
  * Closes a handle to the specified registry key.
@@ -227,12 +229,17 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
                 break
 
             case REG_.DWORD_BIG_ENDIAN:
-                value = new DataView(binaryBuffer.buffer, binaryBuffer.byteOffset, Uint32Array.BYTES_PER_ELEMENT).getUint32(0, false)
+                value = new DataView(binaryBuffer.buffer, binaryBuffer.byteOffset, Uint32Array.BYTES_PER_ELEMENT)
+                value = value.getUint32(0, false)
                 break
 
             case REG_.QWORD:
                 value = new BigUint64Array(binaryBuffer.buffer, binaryBuffer.byteOffset, 1)
                 value = value[0]
+                break
+
+            default:
+                value = null
                 break
         }
 
@@ -345,21 +352,96 @@ export function RegSaveKeyEx(hKey: HKEY | HKEY_, file: string, securityAttribute
 /**
  * Sets the data for the specified value in the specified registry key and subkey.
  *
+ * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_BINARY`, `REG_DWORD`,
+ *       `REG_DWORD_BIG_ENDIAN`, `REG_MULTI_SZ` and `REG_QWORD` are supported.
+ *       All other types return `ERROR_UNSUPPORTED`.
+ *       If the `data` parameter if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetkeyvaluew
  */
-export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_, data: any, cbData: number): LSTATUS {
-    RegSetKeyValue.native ??= advapi32.func('RegSetKeyValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, cVOID, cDWORD ])
-    return RegSetKeyValue.native(hKey, subKey, valueName, type, data, cbData)
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.NONE,             data?: null):           LSTATUS
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.SZ,               data: string):          LSTATUS
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.EXPAND_SZ,        data: string):          LSTATUS
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.BINARY,           data: BufferSource):    LSTATUS
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.DWORD,            data: number):          LSTATUS
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.DWORD_BIG_ENDIAN, data: number):          LSTATUS
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.MULTI_SZ,         data: string[]):        LSTATUS
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.QWORD,            data: number | bigint): LSTATUS
+export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_, data: any): LSTATUS {
+    RegSetKeyValue.native ??= advapi32.func('RegSetKeyValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, cPVOID, cDWORD ])
+
+    const buffer = regKeyDataToBuffer(type, data)
+    if (typeof buffer === 'number')
+        return buffer
+    return RegSetKeyValue.native(hKey, subKey, valueName, type, buffer, buffer.byteLength)
 }
 
 /**
  * Sets the data and type of a specified value under a registry key.
  *
+ * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_BINARY`, `REG_DWORD`,
+ *       `REG_DWORD_BIG_ENDIAN`, `REG_MULTI_SZ` and `REG_QWORD` are supported.
+ *       All other types return `ERROR_UNSUPPORTED`.
+ *       If the `data` parameter if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetvalueexw
  */
-export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_, data: any, cbData: number): LSTATUS {
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.NONE,             data?: null):           LSTATUS
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.SZ,               data: string):          LSTATUS
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.EXPAND_SZ,        data: string):          LSTATUS
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.BINARY,           data: BufferSource):    LSTATUS
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.DWORD,            data: number):          LSTATUS
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.DWORD_BIG_ENDIAN, data: number):          LSTATUS
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.MULTI_SZ,         data: string[]):        LSTATUS
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.QWORD,            data: number | bigint): LSTATUS
+export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_, data: any): LSTATUS {
     RegSetValueEx.native ??= advapi32.func('RegSetValueExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cDWORD, cPVOID, cDWORD ])
-    return RegSetValueEx.native(hKey, valueName, 0, type, data, cbData)
+
+    const buffer = regKeyDataToBuffer(type, data)
+    if (typeof buffer === 'number')
+        return buffer
+    return RegSetValueEx.native(hKey, valueName, 0, type, buffer, buffer.byteLength)
+}
+
+/** Anything that has a `buffer: ArrayBuffer` property: `Buffer`, `TypedArrays`, `DataView`. */
+type BufferSource = { buffer: ArrayBuffer, byteLength: number }
+
+function regKeyDataToBuffer(type: REG_, data: any): ArrayBuffer | ERROR_ {
+
+    switch (type) {
+        case REG_.NONE:
+            return new Uint8Array().buffer
+
+        case REG_.SZ:
+        case REG_.EXPAND_SZ:
+            return typeof data === 'string'
+                ? Uint16Array.from(data + '\0', c => c.charCodeAt(0)).buffer
+                : ERROR_.BAD_ARGUMENTS
+
+        case REG_.BINARY:
+            return data && typeof data === 'object' && data.buffer instanceof ArrayBuffer
+                ? data.buffer
+                : ERROR_.BAD_ARGUMENTS
+
+        case REG_.MULTI_SZ:
+            return Array.isArray(data)
+                ? Uint16Array.from(data.join('\0') + '\0\0', c => c.charCodeAt(0)).buffer
+                : ERROR_.BAD_ARGUMENTS
+
+        case REG_.DWORD:
+        case REG_.DWORD_BIG_ENDIAN:
+            return typeof data === 'number'
+                ? new Uint32Array([data]).buffer
+                : ERROR_.BAD_ARGUMENTS
+
+        case REG_.QWORD:
+            return typeof data === 'number' || typeof data === 'bigint'
+                ? new BigUint64Array([BigInt(data)]).buffer
+                : ERROR_.BAD_ARGUMENTS
+
+        default:
+            return ERROR_.NOT_SUPPORTED
+    }
 }
 
 /**
