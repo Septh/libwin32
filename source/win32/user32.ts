@@ -549,6 +549,7 @@ export function RegisterClass(wndClass: WNDCLASS): ATOM {
             lpfnWndProc: cb as any
         }
     }
+    else wndClass.lpfnWndProc = null
     return RegisterClass.native(wndClass)
 }
 
@@ -567,6 +568,7 @@ export function RegisterClassEx(wndClassEx: WNDCLASSEX): ATOM {
             lpfnWndProc: cb as any
         }
     }
+    else wndClassEx.lpfnWndProc = null
     return RegisterClassEx.native(wndClassEx)
 }
 
