@@ -7,7 +7,7 @@ import {
 } from '../structs.js'
 import { LocalFree, cLocalAllocatedString } from '../kernel32.js'
 import type { SID_NAME_USE} from '../consts.js'
-import { advapi32, decodeSid, freeSid } from './lib.js'
+import { advapi32, decodeSid } from './lib.js'
 
 /**
  * Allocates and initializes a security identifier (SID) with up to eight subauthorities.
@@ -30,10 +30,14 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
     const pSID: OUT<unknown> = [null]
     if (AllocateAndInitializeSid.native([ identifierAuthority ], subAuthorityCount, subAuthority0, subAuthority1, subAuthority2, subAuthority3, subAuthority4, subAuthority5, subAuthority6, subAuthority7, pSID) !== 0) {
         const sid = decodeSid(pSID[0])
-        freeSid(pSID[0])
+        freeSid()
         return sid
     }
     return null
+
+    function freeSid(): void {
+        (freeSid.native ??= advapi32.func('FreeSid', cPVOID, [ cPVOID ]))(pSID[0])
+    }
 }
 
 /**

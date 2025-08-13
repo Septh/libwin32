@@ -1,10 +1,11 @@
 import koffi from 'koffi-cream'
 import { Win32Dll, Internals, binaryBuffer, type OUT } from '../private.js'
-import { cVOID, cBOOL, cBYTE, cINT, cDWORD, cHANDLE, cPVOID, type HTOKEN } from '../ctypes.js'
+import { cBOOL, cBYTE, cINT, cDWORD, cHANDLE, cPVOID, type HTOKEN } from '../ctypes.js'
 import { cSID, type SID } from '../structs.js'
 
 export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 
+// To be removed when Koffi support for variable-length arrays is live.
 export function decodeSid(sidPtr: unknown): SID {
 
     // Decode the 8-bytes header.
@@ -23,11 +24,6 @@ export function decodeSid(sidPtr: unknown): SID {
         IdentifierAuthority,
         SubAuthority
     }
-}
-
-export function freeSid(sidPtr: unknown): void {
-    freeSid.native ??= advapi32.func('FreeSid', cVOID, [ cPVOID ])
-    freeSid.native(sidPtr)
 }
 
 export const enum TOKEN_INFORMATION_CLASS {
@@ -83,6 +79,7 @@ export const enum TOKEN_INFORMATION_CLASS {
     MaxTokenInfoClass
 }
 
+// Called by the various GetToken<xxx>Information() stubs.
 export function getTokenInfo(hToken: HTOKEN, infoClass: TOKEN_INFORMATION_CLASS): boolean {
     getTokenInfo.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cPVOID, cDWORD, koffi.out(koffi.pointer(cDWORD)) ])
 
