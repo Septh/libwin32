@@ -4,7 +4,8 @@ import {
     CreateWindowEx, ShowWindow, UpdateWindow, DefWindowProc,
     GetMessage, TranslateMessage, DispatchMessage, PostQuitMessage,
     FormatMessage, MessageBox,
-    type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG
+    type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG,
+    type HBRUSH
 } from 'libwin32'
 import { CS_, CW_USEDEFAULT, FORMAT_MESSAGE_, IDC_, IDI_, MB_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
 
@@ -31,15 +32,16 @@ function wndProc(hWnd: HWND, uMmsg: WM_, wParam: WPARAM, lParam: LPARAM) {
 
 function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
 
-    const wcex = new WNDCLASSEX()   // Note: cbSize is set by the WNDCLASSEX constructor
-    wcex.lpszClassName = windowClass
-    wcex.style         = CS_.HREDRAW | CS_.VREDRAW
-    wcex.hInstance     = hInstance
-    wcex.lpfnWndProc   = wndProc
-    wcex.hCursor       = LoadCursor(null, IDC_.ARROW)
-    wcex.hIcon         = LoadIcon(hInstance, IDI_.APPLICATION)
-    wcex.hIconSm       = LoadIcon(hInstance, IDI_.APPLICATION)
-    wcex.hbrBackground = 13 as any  // Note: brushes are not yet implemented. 13 is the standard background.
+    // Note: cbSize is set by the WNDCLASSEX constructor
+    const wcex = new WNDCLASSEX(
+        hInstance,
+        windowClass, CS_.HREDRAW | CS_.VREDRAW,
+        wndProc,
+        LoadCursor(null, IDC_.ARROW),
+        LoadIcon(hInstance, IDI_.APPLICATION),
+        LoadIcon(hInstance, IDI_.APPLICATION),
+        13 as unknown as HBRUSH     // Note: brushes are not yet implemented. 13 is the standard background.
+    )
 
     const atom = RegisterClassEx(wcex)
     if (!atom) {

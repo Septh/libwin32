@@ -23,10 +23,12 @@ import type {
  */
 export class ACL {
     readonly AclRevision = Internals.ACL_REVISION
-    declare Sbsz1:    number
-    declare AclSize:  number
-    declare AceCount: number
-    declare Sbsz2:    number
+    readonly Sbsz1 = 0
+    readonly Sbsz2 = 0
+    constructor(
+        public AceCount: number = 0,
+        public AclSize:  number = 0
+    ) {}
 }
 
 /** @internal */
@@ -116,10 +118,17 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
  */
 export class CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
     readonly Version = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1
-    readonly Reserved = 0         // Reserved, must be 0
-    declare AttributeCount: number
-    declare Attribute: {
+    readonly Reserved = 0
+    public Attribute: {
         AttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[]
+    } | null
+    constructor(
+        public AttributeCount: number = 0,
+        public AttributeV1?:   CLAIM_SECURITY_ATTRIBUTE_V1[]
+    ){
+        this.Attribute = Array.isArray(AttributeV1)
+            ? { AttributeV1 }
+            : null
     }
 }
 
@@ -274,11 +283,13 @@ export const cLSA_UNICODE_STRING = koffi.struct({
  */
 export class LSA_OBJECT_ATTRIBUTES {
     readonly Length = koffi.sizeof(cLSA_OBJECT_ATTRIBUTES)
-    declare RootDirectory:            HANDLE
-    declare ObjectName:               LSA_UNICODE_STRING
-    declare Attributes:               number
-    declare SecurityDescriptor:       SECURITY_DESCRIPTOR
-    declare SecurityQualityOfService: unknown       // Points to type SECURITY_QUALITY_OF_SERVICE
+    constructor(
+        public RootDirectory:            HANDLE | null              = null,
+        public ObjectName:               LSA_UNICODE_STRING | null  = null,
+        public Attributes:               number                     = 0,
+        public SecurityDescriptor:       SECURITY_DESCRIPTOR | null = null,
+        public SecurityQualityOfService: unknown                    = null,     // TODO: Points to type SECURITY_QUALITY_OF_SERVICE
+    ){}
 }
 
 /** @internal */
@@ -308,23 +319,32 @@ export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
  */
 export class SHELLEXECUTEINFO {
     readonly cbSize = koffi.sizeof(cSHELLEXECUTEINFO)
-    declare fMask:        SEE_MASK
-    declare hwnd:         HWND
-    declare lpVerb:       string
-    declare lpFile:       string
-    declare lpParameters: string
-    declare lpDirectory:  string
-    declare nShow:        SW_
-    declare hInstApp:     HINSTANCE | SE_ERR_
-    declare lpIDList:     any
-    declare lpClass:      string
-    declare hkeyClass:    HKEY
-    declare dwHotKey:     number
-    declare DUMMYUNIONNAME: {
+    readonly DUMMYUNIONNAME = new koffi.Union('SHELLEXECUTEINFO_DUMMYUNIONNAME') as {
         hIcon?: HANDLE
         hMonitor?: HANDLE
     }
-    declare hProcess: HANDLE
+    constructor(
+        public fMask:        SEE_MASK            = 0,
+        public hwnd:         HWND | null         = null,
+        public lpVerb:       string | null       = null,
+        public lpFile:       string | null       = null,
+        public lpParameters: string | null       = null,
+        public lpDirectory:  string | null       = null,
+        public nShow:        SW_                 = 0,
+        public hInstApp:     HINSTANCE | SE_ERR_ = 0 as any,
+        public lpIDList:     any                 = null,
+        public lpClass:      string | null       = null,
+        public hkeyClass:    HKEY | null         = null,
+        public dwHotKey:     number              = 0,
+        public hProcess:     HANDLE | null       = null,
+               hIcon?:       HICON,
+               hMonitor?:    HANDLE
+    ){
+        if (hIcon)
+            this.DUMMYUNIONNAME.hIcon = hIcon
+        else if (hMonitor)
+            this.DUMMYUNIONNAME.hMonitor = hMonitor
+    }
 }
 
 /** @internal */
@@ -342,11 +362,11 @@ export const cSHELLEXECUTEINFO = koffi.struct({
     lpClass:        cSTR,
     hkeyClass:      cHANDLE,
     dwHotKey:       cDWORD,
-    DUMMYUNIONNAME: koffi.union({
-        hIcon:    cHANDLE,
-        hMONITOR: cHANDLE
+    DUMMYUNIONNAME: koffi.union('SHELLEXECUTEINFO_DUMMYUNIONNAME', {
+        hIcon:      cHANDLE,
+        hMONITOR:   cHANDLE
     }),
-    hProcess: cHANDLE
+    hProcess:       cHANDLE
 })
 
 /**
@@ -356,9 +376,11 @@ export const cSHELLEXECUTEINFO = koffi.struct({
  */
 export class SID {
     readonly Revision = Internals.SID_REVISION
-    declare SubAuthorityCount:   number
-    declare IdentifierAuthority: SID_IDENTIFIER_AUTHORITY
-    declare SubAuthority:        number[]
+    constructor(
+        public SubAuthorityCount:   number                   = 0,
+        public IdentifierAuthority: SID_IDENTIFIER_AUTHORITY = [ 0, 0, 0, 0, 0, 0 ],
+        public SubAuthority:        number[]                 = new Array(SubAuthorityCount)
+    ){}
 }
 
 /** @internal */
@@ -558,16 +580,18 @@ export const cDLGPROC = koffi.pointer(koffi.proto('DLG', cLRESULT, [ cHANDLE, cU
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassw
  */
 export class WNDCLASS {
-    declare style:         CS_
-    declare lpfnWndProc:   WNDPROC | null
-    declare cbClsExtra:    number
-    declare cbWndExtra:    number
-    declare hInstance:     HINSTANCE | null
-    declare hIcon:         HICON | null
-    declare hCursor:       HCURSOR | null
-    declare hbrBackground: HBRUSH | null
-    declare lpszMenuName:  string | null
-    declare lpszClassName: string | null
+    constructor(
+        public hInstance:     HINSTANCE | null = null,
+        public lpszClassName: string = '',
+        public style:         CS_ = 0,
+        public lpfnWndProc:   WNDPROC | null = null,
+        public hCursor:       HCURSOR | null = null,
+        public hIcon:         HICON   | null = null,
+        public hbrBackground: HBRUSH  | null = null,
+        public lpszMenuName:  string  | null = null,
+        public cbClsExtra:    number = 0,
+        public cwWndExtra:    number = 0
+    ) {}
 }
 
 /** @internal */
@@ -591,17 +615,19 @@ export const cWNDCLASS = koffi.struct({
  */
 export class WNDCLASSEX {
     readonly cbSize = koffi.sizeof(cWNDCLASSEX)
-    declare style:         CS_
-    declare lpfnWndProc:   WNDPROC | null
-    declare cbClsExtra:    number
-    declare cbWndExtra:    number
-    declare hInstance:     HINSTANCE | null
-    declare hIcon:         HICON | null
-    declare hIconSm:       HICON | null
-    declare hCursor:       HCURSOR | null
-    declare hbrBackground: HBRUSH | null
-    declare lpszMenuName:  string | null
-    declare lpszClassName: string | null
+    constructor(
+        public hInstance:     HINSTANCE | null = null,
+        public lpszClassName: string = '',
+        public style:         CS_ = 0,
+        public lpfnWndProc:   WNDPROC | null = null,
+        public hCursor:       HCURSOR | null = null,
+        public hIcon:         HICON   | null = null,
+        public hIconSm:       HICON   | null = null,
+        public hbrBackground: HBRUSH  | null = null,
+        public lpszMenuName:  string  | null = null,
+        public cbClsExtra:    number = 0,
+        public cwWndExtra:    number = 0
+    ) {}
 }
 
 /** @internal */
@@ -627,9 +653,11 @@ export const cWNDCLASSEX = koffi.struct({
  */
 export class BSMINFO {
     readonly cbSize = koffi.sizeof(cBSMINFO)
-    declare hDesk: HDESK
-    declare hWnd:  HWND
-    declare luid:  LUID
+    constructor(
+        public hDesk: HDESK | null = null,
+        public hWnd:  HWND | null = null,
+        public luid:  LUID | null = null
+    ) {}
 }
 
 /** @internal */
@@ -647,21 +675,34 @@ export const cBSMINFO = koffi.struct({
  */
 export class NOTIFYICONDATA {
     readonly cbSize = koffi.sizeof(cNOTIFYICONDATA)
-    declare hWnd:             HWND
-    declare uID:              number
-    declare uFlags:           NIF_
-    declare uCallbackMessage: number
-    declare hIcon:            HICON
-    declare szTip:            string
-    declare dwState:          number
-    declare dwStateMask:      number
-    declare szInfo:           string
-    declare uTimeout?:        number          // Union with uVersion
-    declare uVersion?:        number          // Union with uTimeout
-    declare szInfoTitle:      string
-    declare dwInfoFlags:      number
-    declare guidItem:         GUID            // Changed from number to GUID
-    declare hBalloonIcon:     HICON | null
+    public DUMMYUNIONNAME = new koffi.Union('NOTIFYICONDATA_DUMMYUNIONNAME') as {
+        uTimeout?: number
+        uVersion?: number
+    }
+    constructor(
+        public hWnd:             HWND   | null = null,
+        public uID:              number | null = null,
+        public uFlags:           NIF_          = 0 as NIF_,
+        public uCallbackMessage: number        = 0,
+        public hIcon:            HICON  | null = null,
+        public szTip:            string | null = null,
+        public dwState:          number        = 0,
+        public dwStateMask:      number        = 0,
+        public szInfo:           string | null = null,
+        public szInfoTitle:      string | null = null,
+        public dwInfoFlags:      number        = 0,
+        public guidItem:         GUID   | null = null,
+        public hBalloonIcon:     HICON  | null = null,
+               uTimeout?:        number,
+               uVersion?:        number,
+    ) {
+        if (typeof uTimeout === 'number')
+            this.DUMMYUNIONNAME.uTimeout = uTimeout
+        else if (typeof uVersion === 'number')
+            this.DUMMYUNIONNAME.uVersion = uVersion
+        else
+            this.DUMMYUNIONNAME.uTimeout = 0
+    }
 }
 
 /** @internal */
@@ -672,14 +713,17 @@ export const cNOTIFYICONDATA = koffi.struct({
     uFlags:           cUINT,
     uCallbackMessage: cUINT,
     hIcon:            cHANDLE,
-    szTip:            koffi.array(koffi.types.char16, 128, 'String'),     // Fixed size array. Koffi will automatically convert from string
+    szTip:            koffi.array(koffi.types.char16, 128, 'String'),
     dwState:          cDWORD,
     dwStateMask:      cDWORD,
     szInfo:           koffi.array(koffi.types.char16, 256, 'String'),
-    uVersion:         cUINT,    // Union field (can be uTimeout)
+    DUMMYUNIONNAME:   koffi.union('NOTIFYICONDATA_DUMMYUNIONNAME', {
+        uTimeout: cUINT,
+        uVersion: cUINT
+    }),
     szInfoTitle:      koffi.array(koffi.types.char16, 64, 'String'),
     dwInfoFlags:      cDWORD,
-    guidItem:         cGUID,    // Changed to GUID type
+    guidItem:         cGUID,
     hBalloonIcon:     cHANDLE
 })
 
@@ -996,18 +1040,20 @@ export const cPRIVILEGE_SET = koffi.struct({
  */
 export class PROCESS_MEMORY_COUNTERS_EX2 {
     readonly cb = koffi.sizeof(cPROCESS_MEMORY_COUNTERS_EX2)
-    declare PageFaultCount:             number
-    declare PeakWorkingSetSize:         number | BigInt
-    declare WorkingSetSize:             number | BigInt
-    declare QuotaPeakPagedPoolUsage:    number | BigInt
-    declare QuotaPagedPoolUsage:        number | BigInt
-    declare QuotaPeakNonPagedPoolUsage: number | BigInt
-    declare QuotaNonPagedPoolUsage:     number | BigInt
-    declare PagefileUsage:              number | BigInt
-    declare PeakPagefileUsage:          number | BigInt
-    declare PrivateUsage:               number | BigInt
-    declare PrivateWorkingSetSize:      number | BigInt
-    declare SharedCommitUsage:          number | BigInt
+    constructor(
+        public PageFaultCount:             number          = 0,
+        public PeakWorkingSetSize:         number | BigInt = 0,
+        public WorkingSetSize:             number | BigInt = 0,
+        public QuotaPeakPagedPoolUsage:    number | BigInt = 0,
+        public QuotaPagedPoolUsage:        number | BigInt = 0,
+        public QuotaPeakNonPagedPoolUsage: number | BigInt = 0,
+        public QuotaNonPagedPoolUsage:     number | BigInt = 0,
+        public PagefileUsage:              number | BigInt = 0,
+        public PeakPagefileUsage:          number | BigInt = 0,
+        public PrivateUsage:               number | BigInt = 0,
+        public PrivateWorkingSetSize:      number | BigInt = 0,
+        public SharedCommitUsage:          number | BigInt = 0
+    ) {}
 }
 
 /** @internal */
@@ -1060,8 +1106,10 @@ export const cSECURITY_DESCRIPTOR = koffi.struct({
  */
 export class SECURITY_ATTRIBUTES {
     readonly nLength = koffi.sizeof(cSECURITY_ATTRIBUTES)
-    declare lpSecurityDescriptor: SECURITY_DESCRIPTOR
-    declare bInheritHandle: boolean
+    constructor(
+        public lpSecurityDescriptor: SECURITY_DESCRIPTOR | null = null,
+        public bInheritHandle:       number                     = 0,
+    ) {}
 }
 
 /** @internal */
