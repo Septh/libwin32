@@ -1,6 +1,5 @@
-import koffi from 'koffi-cream'
 import { Win32Dll } from './private.js'
-import { cBOOL, cDWORD, cHRESULT, cPVOID, type HRESULT } from './ctypes.js'
+import { cDWORD, cHRESULT, cPVOID, type HRESULT } from './ctypes.js'
 import type { COINIT_ } from './consts.js'
 
 /** @internal */
