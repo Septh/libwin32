@@ -187,7 +187,7 @@ export enum DOMAIN_ALIAS_ {
  * Most common error codes.
  * See https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes for more.
  */
-export const enum ERROR_ {
+export enum ERROR_ {
     SUCCESS              = 0,
     FILE_NOT_FOUND       = 2,
     PATH_NOT_FOUND       = 3,
