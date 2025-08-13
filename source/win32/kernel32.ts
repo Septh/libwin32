@@ -58,9 +58,9 @@ export function FileTimeToSystemTime(fileTime: FILETIME): SYSTEMTIME | null {
     FileTimeToSystemTime.native ??= kernel32.func('FileTimeToSystemTime', cBOOL, [ cFILETIME, koffi.out(koffi.pointer(cSYSTEMTIME)) ])
 
     const systemTime = {} as SYSTEMTIME
-    if (FileTimeToSystemTime.native(fileTime, systemTime) !== 0)
-        return systemTime
-    return null
+    return FileTimeToSystemTime.native(fileTime, systemTime) !== 0
+        ? systemTime
+        : null
 }
 
 /**
@@ -90,9 +90,9 @@ export function GetComputerName(): string | null {
     GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
 
     const name = new StringOutputBuffer(Internals.UNLEN)
-    if (GetComputerName.native(name.buffer, name.pLength))
-        return name.decode()
-    return null
+    return GetComputerName.native(name.buffer, name.pLength) !== 0
+        ? name.decode()
+        : null
 }
 
 /**
@@ -134,9 +134,9 @@ export function GetExitCodeProcess(hProcess: HANDLE): number | null {
     GetExitCodeProcess.native ??= kernel32.func('GetExitCodeProcess', cBOOL, [ cHANDLE, koffi.out(koffi.pointer(cDWORD)) ])
 
     const pExitCode: OUT<number> = [0]
-    if (GetExitCodeProcess.native(hProcess, pExitCode) !== 0)
-        return pExitCode[0]
-    return null
+    return GetExitCodeProcess.native(hProcess, pExitCode) !== 0
+        ? pExitCode[0]
+        : null
 }
 
 /**
@@ -148,9 +148,9 @@ export function GetHandleInformation(hObject: HANDLE): HANDLE_FLAG_ | null {
     GetHandleInformation.native ??= kernel32.func('GetHandleInformation', cBOOL, [ cHANDLE, koffi.out(koffi.pointer(cDWORD)) ])
 
     const pFlags: OUT<HANDLE_FLAG_> = [0 as HANDLE_FLAG_]
-    if (GetHandleInformation.native(hObject, pFlags) !== 0)
-        return pFlags[0]
-    return null
+    return GetHandleInformation.native(hObject, pFlags) !== 0
+        ? pFlags[0]
+        : null
 }
 
 /**
@@ -202,9 +202,9 @@ export function GetModuleHandleEx(flags: GET_MODULE_HANDLE_EX_FLAG_, moduleName:
     GetModuleHandleEx.native ??= kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cSTR, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const pHandle: OUT<HMODULE | null> = [null]
-    if (GetModuleHandleEx.native(flags, moduleName, pHandle))
-        return pHandle[0]
-    return null
+    return GetModuleHandleEx.native(flags, moduleName, pHandle) !== 0
+        ? pHandle[0]
+        : null
 }
 
 /**
@@ -217,9 +217,9 @@ export function GetSystemRegistryQuota(): { allowed: number, used: number } | nu
 
     const pAllowed: OUT<number> = [0]
     const pUsed: OUT<number> = [0]
-    if (GetSystemRegistryQuota.native(pAllowed, pUsed))
-        return { allowed: pAllowed[0], used: pUsed[0] }
-    return null
+    return GetSystemRegistryQuota.native(pAllowed, pUsed) !== 0
+        ? { allowed: pAllowed[0], used: pUsed[0] }
+        : null
 }
 
 /**
@@ -241,9 +241,9 @@ export function QueryFullProcessImageName(hProcess: HANDLE, flags: number): stri
     QueryFullProcessImageName.native ??= kernel32.func('QueryFullProcessImageNameW', cBOOL, [ cHANDLE, cDWORD, cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
 
     const name = new StringOutputBuffer(Internals.MAX_PATH)
-    if (QueryFullProcessImageName.native(hProcess, flags, name.buffer, name.pLength))
-        return name.decode()
-    return null
+    return QueryFullProcessImageName.native(hProcess, flags, name.buffer, name.pLength) !== 0
+        ? name.decode()
+        : null
 }
 
 /**
@@ -263,10 +263,7 @@ export function SetLastError(errCode: number): void {
  */
 export function WaitForSingleObject(hHandle: HANDLE, milliseconds: number): number {
     WaitForSingleObject.native ??= kernel32.func('WaitForSingleObject', cDWORD, [ cHANDLE, cDWORD ])
-
-    if (!Number.isFinite(milliseconds))
-        milliseconds = Internals.INFINITE
-    return WaitForSingleObject.native(hHandle, milliseconds)
+    return WaitForSingleObject.native(hHandle, Number.isFinite(milliseconds) ? milliseconds : Internals.INFINITE)
 }
 
 /** @internal only used by some functions in some libs and not intended to be exposed to the user. */
@@ -276,4 +273,4 @@ export function LocalFree(ptr: unknown) {
 }
 
 /** @internal only used by some functions in some libs and not intended to be exposed to the user. */
-export const cLocalAllocatedString = koffi.disposable('cLocalAllocatedString', cSTR, LocalFree)
+export const cLocalAllocatedString = koffi.disposable(cSTR, LocalFree)
