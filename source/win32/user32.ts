@@ -26,6 +26,28 @@ import {
 /** @internal */
 export const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
 
+export interface BroadcastSystemMessageResult {
+    success: boolean
+    /**
+     * If the flags parameter is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY`,
+     * `success` will be `true` and these flags tells you what components denied the query.
+     */
+    denied?: BSM_
+}
+
+export interface BroadcastSystemMessageExResult extends BroadcastSystemMessageResult {
+    /**
+     * If the flags parameter is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY`,
+     * `success` will be `true` and this structure tells you what recipient denied the query.
+     */
+    denier?: BSMINFO
+}
+
+export interface GetWindowThreadProcessIdResult {
+    threadId: number
+    processId: number
+}
+
 /**
  * Calculates the required size of the window rectangle, based on the desired client-rectangle size.
  *
@@ -101,15 +123,6 @@ export function BroadcastSystemMessage(flags: BSF_, info: BSM_ | null, msg: numb
         : { success: ret > 0 }
 }
 
-export interface BroadcastSystemMessageResult {
-    success: boolean
-    /**
-     * If the flags parameter is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY`,
-     * `success` will be `true` and these flags tells you what components denied the query.
-     */
-    denied?: BSM_
-}
-
 /**
  * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
  * except that this function can return more information from the recipients.
@@ -126,14 +139,6 @@ export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_ | null, msg: nu
     return ret === 0
         ? { success: true, denied: pBsm[0], denier: bsmInfo }
         : { success: ret > 0 }
-}
-
-export interface BroadcastSystemMessageExResult extends BroadcastSystemMessageResult {
-    /**
-     * If the flags parameter is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY`,
-     * `success` will be `true` and this structure tells you what recipient denied the query.
-     */
-    denier?: BSMINFO
 }
 
 /**
@@ -364,9 +369,9 @@ export function GetCursorPos(): POINT | null {
     GetCursorPos.native ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(koffi.pointer(cPOINT)) ])
 
     const point = {} as POINT
-    if (GetCursorPos.native(point) !== 0)
-        return point
-    return null
+    return GetCursorPos.native(point) !== 0
+        ? point
+        : null
 }
 
 /**
@@ -390,9 +395,9 @@ export function GetMessage(hWnd: HWND | null | -1, msgFilterMin: number = 0, msg
     GetMessage.native ??= user32.func('GetMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT ])
 
     const msg = {} as MSG
-    if (GetMessage.native(msg, hWnd, msgFilterMin, msgFilterMax) !== 0)
-        return msg
-    return null
+    return GetMessage.native(msg, hWnd, msgFilterMin, msgFilterMax) !== 0
+        ? msg
+        : null
 }
 
 /**
@@ -421,11 +426,6 @@ export function GetWindowThreadProcessId(hWnd: HWND): GetWindowThreadProcessIdRe
     const pProcessId: OUT<number> = [0]
     const threadId: number = GetWindowThreadProcessId.native(hWnd, pProcessId)
     return { threadId, processId: pProcessId[0] }
-}
-
-export interface GetWindowThreadProcessIdResult {
-    threadId: number
-    processId: number
 }
 
 /**
@@ -461,6 +461,8 @@ export function LoadImage(hInstance: HINSTANCE | null, name: IDC_ | IDI_ | OIC_ 
 /**
  * Displays a modal dialog box that contains a system icon, a set of buttons, and a brief application-specific message, such as status or error information.
  *
+ * Note: you may use the IDxxx constants from libwin32/consts to test the result.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxw
  */
 export function MessageBox(hWnd: HWND | null, text: string | null, caption: string | null, type: MB_): number {
@@ -469,9 +471,9 @@ export function MessageBox(hWnd: HWND | null, text: string | null, caption: stri
 }
 
 /**
- * Creates, displays, and operates a message box.
+ * Creates, displays, and operates a message box. Currently `MessageBoxEx` and `MessageBox` work the same way.
  *
- * Currently `MessageBoxEx` and `MessageBox` work the same way.
+ * Note: you may use the IDxxx constants from libwin32/consts to test the result.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxexw
  */
@@ -489,9 +491,9 @@ export function PeekMessage(hWnd: HWND | null | -1, msgFilterMin: number, msgFil
     PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT, cUINT ])
 
     const msg = {} as MSG
-    if (PeekMessage.native(msg, hWnd, msgFilterMin, msgFilterMax, removeMsg) !== 0)
-        return msg
-    return null
+    return PeekMessage.native(msg, hWnd, msgFilterMin, msgFilterMax, removeMsg) !== 0
+        ? msg
+        : null
 }
 
 /**
