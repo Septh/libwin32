@@ -1,6 +1,7 @@
 import koffi from 'koffi-cream'
 import { Win32Dll, Internals, binaryBuffer, type OUT } from '../private.js'
 import { cBOOL, cBYTE, cINT, cDWORD, cHANDLE, cPVOID, type HTOKEN } from '../ctypes.js'
+import { TOKEN_INFORMATION_CLASS } from '../consts.js'
 import { cSID, type SID } from '../structs.js'
 
 export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
@@ -24,59 +25,6 @@ export function decodeSid(sidPtr: unknown): SID {
         IdentifierAuthority,
         SubAuthority
     }
-}
-
-export const enum TOKEN_INFORMATION_CLASS {
-    TokenUser = 1,
-    TokenGroups,
-    TokenPrivileges,
-    TokenOwner,
-    TokenPrimaryGroup,
-    TokenDefaultDacl,
-    TokenSource,
-    TokenType,
-    TokenImpersonationLevel,
-    TokenStatistics,
-    TokenRestrictedSids,
-    TokenSessionId,
-    TokenGroupsAndPrivileges,
-    TokenSessionReference,
-    TokenSandBoxInert,
-    TokenAuditPolicy,
-    TokenOrigin,
-    TokenElevationType,
-    TokenLinkedToken,
-    TokenElevation,
-    TokenHasRestrictions,
-    TokenAccessInformation,
-    TokenVirtualizationAllowed,
-    TokenVirtualizationEnabled,
-    TokenIntegrityLevel,
-    TokenUIAccess,
-    TokenMandatoryPolicy,
-    TokenLogonSid,
-    TokenIsAppContainer,
-    TokenCapabilities,
-    TokenAppContainerSid,
-    TokenAppContainerNumber,
-    TokenUserClaimAttributes,
-    TokenDeviceClaimAttributes,
-    TokenRestrictedUserClaimAttributes,
-    TokenRestrictedDeviceClaimAttributes,
-    TokenDeviceGroups,
-    TokenRestrictedDeviceGroups,
-    TokenSecurityAttributes,
-    TokenIsRestricted,
-    TokenProcessTrustLevel,
-    TokenPrivateNameSpace,
-    TokenSingletonAttributes,
-    TokenBnoIsolation,
-    TokenChildProcessFlags,
-    TokenIsLessPrivilegedAppContainer,
-    TokenIsSandboxed,
-    TokenIsAppSilo,
-    TokenLastEnforce = TokenIsAppSilo,
-    MaxTokenInfoClass
 }
 
 const dwTokens = /*#__PURE__*/new Set<TOKEN_INFORMATION_CLASS>([

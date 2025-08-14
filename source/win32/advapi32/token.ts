@@ -1,4 +1,3 @@
-import { deprecate } from 'node:util'
 import koffi from 'koffi-cream'
 import { binaryBuffer, type OUT } from '../private.js'
 import {
@@ -27,8 +26,8 @@ import {
     cTOKEN_STATISTICS, type TOKEN_STATISTICS,
     cTOKEN_USER, type TOKEN_USER,
 } from '../structs.js'
-import { advapi32, getTokenInfo, TOKEN_INFORMATION_CLASS, decodeSid } from './lib.js'
-import { ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE_ } from '../consts.js'
+import { advapi32, getTokenInfo, decodeSid } from './lib.js'
+import { ERROR_, TOKEN_INFORMATION_CLASS, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE_ } from '../consts.js'
 import { SetLastError } from '../kernel32.js'
 
 /**
@@ -543,8 +542,6 @@ export function GetTokenVirtualizationEnabledInformation(tokenHandle: HTOKEN): n
  * Retrieves a specified class of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- *
- * @deprecated Use one of `GetToken<xxx>Information` instead.
  */
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenUser):                   TOKEN_USER | null
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenGroups):                 TOKEN_GROUPS | null
@@ -581,10 +578,7 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenDeviceGroups):           TOKEN_GROUPS | null
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups): TOKEN_GROUPS | null
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS) {
-    return gti_deprecation(tokenHandle, tokenInformationClass)
-}
 
-const gti_deprecation = /*#__PURE__*/ deprecate((tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS) => {
     switch (tokenInformationClass) {
         case TOKEN_INFORMATION_CLASS.TokenUser:                   return GetTokenUserInformation(tokenHandle)
         case TOKEN_INFORMATION_CLASS.TokenGroups:                 return GetTokenGroupsInformation(tokenHandle)
@@ -626,4 +620,4 @@ const gti_deprecation = /*#__PURE__*/ deprecate((tokenHandle: HTOKEN, tokenInfor
             SetLastError(ERROR_.NOT_SUPPORTED)
             return null
     }
-}, 'GetTokenInformation() is deprecated, use one of GetToken<xxx>Information() instead', 'LIBWIN32_0001')
+}
