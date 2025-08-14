@@ -28,6 +28,8 @@ import {
     cTOKEN_USER, type TOKEN_USER,
 } from '../structs.js'
 import { advapi32, getTokenInfo, TOKEN_INFORMATION_CLASS, decodeSid } from './lib.js'
+import { ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE_ } from '../consts.js'
+import { SetLastError } from '../kernel32.js'
 
 /**
  * The AdjustTokenPrivileges function enables or disables privileges in the specified access token.
@@ -112,7 +114,7 @@ export function GetTokenAppContainerNumberInformation(tokenHandle: HTOKEN): numb
 export function GetTokenAppContainerSidInformation(tokenHandle: HTOKEN): TOKEN_APPCONTAINER_INFORMATION | null {
     if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAppContainerSid)) {
         const ret: TOKEN_APPCONTAINER_INFORMATION = koffi.decode(binaryBuffer, cTOKEN_APPCONTAINER_INFORMATION)
-        ret.TokenAppContainer = decodeSid(ret.TokenAppContainer)
+        ret.TokenAppContainer = ret.TokenAppContainer ? decodeSid(ret.TokenAppContainer) : {} as SID
         return ret
     }
     return null
@@ -157,10 +159,10 @@ export function GetTokenDeviceClaimAttributesInformation(tokenHandle: HTOKEN): C
         const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(binaryBuffer, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
         if (ret.Attribute && ret.AttributeCount > 0) {
             ret.Attribute = {
-                AttributeV1: koffi.decode(binaryBuffer, koffi.offsetof(cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, 'Attribute'), cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
+                pAttributeV1: koffi.decode(binaryBuffer, koffi.offsetof(cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, 'Attribute'), cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
             }
         }
-        else ret.Attribute = { AttributeV1: [] }
+        else ret.Attribute = { pAttributeV1: [] }
         return ret
     }
     return null
@@ -256,7 +258,7 @@ export function GetTokenGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | n
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): number | null {
+export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_TYPE_ | null {
     return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenHasRestrictions)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
@@ -267,7 +269,7 @@ export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): number 
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenImpersonationLevelInformation(tokenHandle: HTOKEN): number | null {
+export function GetTokenImpersonationLevelInformation(tokenHandle: HTOKEN): SECURITY_IMPERSONATION_LEVEL | null {
     return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenImpersonationLevel)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
@@ -492,12 +494,10 @@ export function GetTokenUIAccessInformation(tokenHandle: HTOKEN): number | null 
 export function GetTokenUserClaimAttributesInformation(tokenHandle: HTOKEN): CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null {
     if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes)) {
         const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(binaryBuffer, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
-        if (ret.Attribute && ret.AttributeCount > 0) {
-            ret.Attribute = {
-                AttributeV1: koffi.decode(binaryBuffer, koffi.offsetof(cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, 'Attribute'), cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
-            }
+        if (ret.Attribute.pAttributeV1 && ret.AttributeCount > 0) {
+            ret.Attribute.pAttributeV1 = koffi.decode(binaryBuffer, koffi.offsetof(cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, 'pAttributeV1'), cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
         }
-        else ret.Attribute = { AttributeV1: [] }
+        else ret.Attribute = { pAttributeV1: [] }
         return ret
     }
     return null
@@ -623,6 +623,7 @@ const gti_deprecation = /*#__PURE__*/ deprecate((tokenHandle: HTOKEN, tokenInfor
 
         // Dismiss all other cases
         default:
+            SetLastError(ERROR_.NOT_SUPPORTED)
             return null
     }
 }, 'GetTokenInformation() is deprecated, use one of GetToken<xxx>Information() instead', 'LIBWIN32_0001')

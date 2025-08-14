@@ -3,16 +3,15 @@ import { Internals } from './private.js'
 import {
     cBOOL, cINT, cUINT, cCHAR, cBYTE, cWCHAR, cSHORT, cUSHORT, cWORD,
     cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cULONG64, cDWORD64, cPVOID, cSTR, cSIZE_T,
-    cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN, type HKEY,
+    cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN, type HKEY, type HMONITOR,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM,
-    cLRESULT, type LRESULT,
-
+    cLRESULT, type LRESULT
 } from './ctypes.js'
-import type {
+import {
     CS_, NIF_, TOKEN_TYPE_,
     CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_,
     SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL_,
-    REG_, SEE_MASK, SW_,
+    REG_, SEE_MASK_, SW_,
     SE_ERR_
 } from './consts.js'
 
@@ -23,8 +22,8 @@ import type {
  */
 export class ACL {
     readonly AclRevision = Internals.ACL_REVISION
-    readonly Sbsz1 = 0
-    readonly Sbsz2 = 0
+    readonly Sbsz1 = 0  // Used for alignment
+    readonly Sbsz2 = 0  // Used for alignment
     constructor(
         public AceCount: number = 0,
         public AclSize:  number = 0
@@ -77,22 +76,34 @@ export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct({
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-claim_security_attribute_v1
  */
-export type CLAIM_SECURITY_ATTRIBUTE_V1 = {
-    Name:       string
-    Reserved:   0
-    Flags:      CLAIM_SECURITY_ATTRIBUTE_
-    ValueCount: number
-} & (
-    /** `Values` is union, only one member is present at a time, based on `ValueType`. */
-    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.INT64,        Values: { pInt64:       BigInt[]                                      }}
-    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.UINT64,       Values: { pUint64:      BigInt[]                                      }}
-    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.STRING,       Values: { ppString:     string[]                                      }}
-    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.FQBN,         Values: { pFqbn:        CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]         }}
-    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.SID,          Values: { pOctetString: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[] }}
-    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.BOOLEAN,      Values: { pUint64:      BigInt[]                                      }}
-    | { ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_.OCTET_STRING, Values: { pOctetString: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[] }}
-    | { ValueType: number,                                      Values: never }
-)
+export class CLAIM_SECURITY_ATTRIBUTE_V1 {
+    readonly Reserved = 0
+    public Values = new koffi.Union('CLAIM_SECURITY_ATTRIBUTE_V1_Values') as {
+        pInt64?:       BigInt[]
+        pUint64?:      BigInt[]
+        ppString?:     string[]
+        pFqbn?:        CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]
+        pOctetString?: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[]
+    }
+    constructor(
+        public Name: string = null!,
+        public Flags: CLAIM_SECURITY_ATTRIBUTE_ = 0 as CLAIM_SECURITY_ATTRIBUTE_,
+        public ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_ = 0,
+        public ValueCount = 0,
+               { pInt64, pUint64, ppString, pFqbn, pOctetString }: CLAIM_SECURITY_ATTRIBUTE_V1['Values'] = {}
+    ) {
+        if (pInt64)
+            this.Values.pInt64 = pInt64
+        else if (pUint64)
+            this.Values.pInt64 = pUint64
+        else if (ppString)
+            this.Values.ppString = ppString
+        else if (pFqbn)
+            this.Values.pFqbn = pFqbn
+        else if (pOctetString)
+            this.Values.pOctetString = pOctetString
+    }
+}
 
 /** @internal */
 export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
@@ -101,7 +112,6 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
     Reserved:   cWORD,
     Flags:      cDWORD,
     ValueCount: cDWORD,
-    // Values:     cPVOID
     Values:     koffi.union('CLAIM_SECURITY_ATTRIBUTE_V1_Values', {
         pInt64:        koffi.pointer(koffi.array(cLONG64, 1)),
         pUint64:       koffi.pointer(koffi.array(cDWORD64, 1)),
@@ -119,16 +129,12 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
 export class CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
     readonly Version = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1
     readonly Reserved = 0
-    public Attribute: {
-        AttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[]
-    } | null
+    public Attribute: { pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[] }
     constructor(
-        public AttributeCount: number = 0,
-        public AttributeV1?:   CLAIM_SECURITY_ATTRIBUTE_V1[]
-    ){
-        this.Attribute = Array.isArray(AttributeV1)
-            ? { AttributeV1 }
-            : null
+        public AttributeCount = 0,
+               ...pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[]
+    ) {
+        this.Attribute = { pAttributeV1 }
     }
 }
 
@@ -137,10 +143,9 @@ export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct({
     Version:        cWORD,
     Reserved:       cWORD,
     AttributeCount: cDWORD,
-    Attribute:      cPVOID  // should be the union below, but we must decode manually
-    /* Attribute:      koffi.union({
+    Attribute:      koffi.struct({  // Should be a union, but there is only one member...
         pAttributeV1: koffi.pointer(koffi.array(cCLAIM_SECURITY_ATTRIBUTE_V1, 1))
-    }) */
+    })
 })
 
 /**
@@ -282,14 +287,14 @@ export const cLSA_UNICODE_STRING = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_object_attributes
  */
 export class LSA_OBJECT_ATTRIBUTES {
-    readonly Length = koffi.sizeof(cLSA_OBJECT_ATTRIBUTES)
+    readonly Length = SIZEOF_LSA_OBJECT_ATTRIBUTES
     constructor(
-        public RootDirectory:            HANDLE | null              = null,
-        public ObjectName:               LSA_UNICODE_STRING | null  = null,
-        public Attributes:               number                     = 0,
-        public SecurityDescriptor:       SECURITY_DESCRIPTOR | null = null,
-        public SecurityQualityOfService: unknown                    = null,     // TODO: Points to type SECURITY_QUALITY_OF_SERVICE
-    ){}
+        public RootDirectory:            HANDLE              = null!,
+        public ObjectName:               LSA_UNICODE_STRING  = null!,
+        public Attributes:               number              = 0,
+        public SecurityDescriptor:       SECURITY_DESCRIPTOR = null!,
+        public SecurityQualityOfService: unknown             = null,     // TODO: SECURITY_QUALITY_OF_SERVICE
+    ) {}
 }
 
 /** @internal */
@@ -301,6 +306,8 @@ export const cLSA_OBJECT_ATTRIBUTES = koffi.struct({
     SecurityDescriptor:       cPVOID,
     SecurityQualityOfService: cPVOID
 })
+
+export const SIZEOF_LSA_OBJECT_ATTRIBUTES = koffi.sizeof(cLSA_OBJECT_ATTRIBUTES)
 
 /**
  * The SID_IDENTIFIER_AUTHORITY structure represents the top-level authority of a security identifier (SID).
@@ -318,56 +325,45 @@ export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
  * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
  */
 export class SHELLEXECUTEINFO {
-    readonly cbSize = koffi.sizeof(cSHELLEXECUTEINFO)
-    readonly DUMMYUNIONNAME = new koffi.Union('SHELLEXECUTEINFO_DUMMYUNIONNAME') as {
-        hIcon?: HANDLE
-        hMonitor?: HANDLE
-    }
+    readonly cbSize = SIZEOF_SHELLEXECUTEINFO
+    readonly hInstApp: SE_ERR_ = 0 as SE_ERR_   // [out]
+    readonly hProcess: HANDLE | null = null     // [out]
     constructor(
-        public fMask:        SEE_MASK            = 0,
-        public hwnd:         HWND | null         = null,
-        public lpVerb:       string | null       = null,
-        public lpFile:       string | null       = null,
-        public lpParameters: string | null       = null,
-        public lpDirectory:  string | null       = null,
-        public nShow:        SW_                 = 0,
-        public hInstApp:     HINSTANCE | SE_ERR_ = 0 as any,
-        public lpIDList:     any                 = null,
-        public lpClass:      string | null       = null,
-        public hkeyClass:    HKEY | null         = null,
-        public dwHotKey:     number              = 0,
-        public hProcess:     HANDLE | null       = null,
-               hIcon?:       HICON,
-               hMonitor?:    HANDLE
-    ){
-        if (hIcon)
-            this.DUMMYUNIONNAME.hIcon = hIcon
-        else if (hMonitor)
-            this.DUMMYUNIONNAME.hMonitor = hMonitor
-    }
+        public lpVerb:       string    = null!,
+        public fMask:        SEE_MASK_ = SEE_MASK_.DEFAULT,
+        public lpFile:       string    = null!,
+        public lpParameters: string    = null!,
+        public lpDirectory:  string    = null!,
+        public hwnd:         HWND      = null!,
+        public nShow:        SW_       = 0,
+        public lpClass:      string    = null!,
+        public hkeyClass:    HKEY      = null!,
+        public dwHotKey:     number    = 0,
+        public lpIDList:     any       = null,
+        public hMonitor:     HMONITOR  = null!,
+    ) {}
 }
 
 /** @internal */
 export const cSHELLEXECUTEINFO = koffi.struct({
-    cbSize:         cDWORD,
-    fMask:          cULONG,
-    hwnd:           cHANDLE,
-    lpVerb:         cSTR,
-    lpFile:         cSTR,
-    lpParameters:   cSTR,
-    lpDirectory:    cSTR,
-    nShow:          cINT,
-    hInstApp:       cHANDLE,
-    lpIDList:       cPVOID,
-    lpClass:        cSTR,
-    hkeyClass:      cHANDLE,
-    dwHotKey:       cDWORD,
-    DUMMYUNIONNAME: koffi.union('SHELLEXECUTEINFO_DUMMYUNIONNAME', {
-        hIcon:      cHANDLE,
-        hMONITOR:   cHANDLE
-    }),
-    hProcess:       cHANDLE
+    cbSize:       cDWORD,
+    fMask:        cULONG,
+    hwnd:         cHANDLE,
+    lpVerb:       cSTR,
+    lpFile:       cSTR,
+    lpParameters: cSTR,
+    lpDirectory:  cSTR,
+    nShow:        cINT,
+    hInstApp:     cINT,
+    lpIDList:     cPVOID,
+    lpClass:      cSTR,
+    hkeyClass:    cHANDLE,
+    dwHotKey:     cDWORD,
+    hMonitor:     cHANDLE,  // Should be a union, but the other member hIcon is unused since Windows Vista.
+    hProcess:     cHANDLE
 })
+
+export const SIZEOF_SHELLEXECUTEINFO = koffi.sizeof(cSHELLEXECUTEINFO)
 
 /**
  * The security identifier (SID) structure is a variable-length structure used to uniquely identify users or groups.
@@ -376,11 +372,15 @@ export const cSHELLEXECUTEINFO = koffi.struct({
  */
 export class SID {
     readonly Revision = Internals.SID_REVISION
+    public SubAuthorityCount: number
+    public SubAuthority: number[]
     constructor(
-        public SubAuthorityCount:   number                   = 0,
-        public IdentifierAuthority: SID_IDENTIFIER_AUTHORITY = [ 0, 0, 0, 0, 0, 0 ],
-        public SubAuthority:        number[]                 = new Array(SubAuthorityCount)
-    ){}
+        public IdentifierAuthority: SID_IDENTIFIER_AUTHORITY,
+        ...SubAuthority:        number[]
+    ) {
+        this.SubAuthorityCount = SubAuthority.length
+        this.SubAuthority = SubAuthority.slice()
+    }
 }
 
 /** @internal */
@@ -614,7 +614,7 @@ export const cWNDCLASS = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassexw
  */
 export class WNDCLASSEX {
-    readonly cbSize = koffi.sizeof(cWNDCLASSEX)
+    readonly cbSize = SIZEOF_WNDCLASSEX
     constructor(
         public hInstance:     HINSTANCE | null = null,
         public lpszClassName: string = '',
@@ -646,13 +646,15 @@ export const cWNDCLASSEX = koffi.struct({
     hIconSm:       cHANDLE
 })
 
+export const SIZEOF_WNDCLASSEX = koffi.sizeof(cWNDCLASSEX)
+
 /**
  * Contains information about a window that denied a request from `BroadcastSystemMessageEx`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-bsminfo
  */
 export class BSMINFO {
-    readonly cbSize = koffi.sizeof(cBSMINFO)
+    readonly cbSize = SIZEOF_BSMINFO
     constructor(
         public hDesk: HDESK | null = null,
         public hWnd:  HWND | null = null,
@@ -668,40 +670,40 @@ export const cBSMINFO = koffi.struct({
     luid:   cLUID
 })
 
+export const SIZEOF_BSMINFO = koffi.sizeof(cBSMINFO)
+
 /**
  * Contains information that the system needs to display notifications in the notification area.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-notifyicondataw
  */
 export class NOTIFYICONDATA {
-    readonly cbSize = koffi.sizeof(cNOTIFYICONDATA)
-    public DUMMYUNIONNAME = new koffi.Union('NOTIFYICONDATA_DUMMYUNIONNAME') as {
+    readonly cbSize = SIZEOF_NOTIFYICONDATA
+    readonly DUMMYUNIONNAME = new koffi.Union('NOTIFYICONDATA_DUMMYUNIONNAME') as {
         uTimeout?: number
         uVersion?: number
     }
     constructor(
-        public hWnd:             HWND   | null = null,
-        public uID:              number | null = null,
-        public uFlags:           NIF_          = 0 as NIF_,
-        public uCallbackMessage: number        = 0,
-        public hIcon:            HICON  | null = null,
-        public szTip:            string | null = null,
-        public dwState:          number        = 0,
-        public dwStateMask:      number        = 0,
-        public szInfo:           string | null = null,
-        public szInfoTitle:      string | null = null,
-        public dwInfoFlags:      number        = 0,
-        public guidItem:         GUID   | null = null,
-        public hBalloonIcon:     HICON  | null = null,
+        public hWnd:             HWND   = null!,
+        public uID:              number = 0,
+        public uFlags:           NIF_   = 0 as NIF_,
+        public uCallbackMessage: number = 0,
+        public hIcon:            HICON  = null!,
+        public szTip:            string = null!,
+        public dwState:          number = 0,
+        public dwStateMask:      number = 0,
+        public szInfo:           string = null!,
+        public szInfoTitle:      string = null!,
+        public dwInfoFlags:      number = 0,
+        public guidItem:         GUID   = null!,
+        public hBalloonIcon:     HICON  = null!,
                uTimeout?:        number,
-               uVersion?:        number,
+               uVersion?:        number
     ) {
         if (typeof uTimeout === 'number')
             this.DUMMYUNIONNAME.uTimeout = uTimeout
         else if (typeof uVersion === 'number')
             this.DUMMYUNIONNAME.uVersion = uVersion
-        else
-            this.DUMMYUNIONNAME.uTimeout = 0
     }
 }
 
@@ -726,6 +728,8 @@ export const cNOTIFYICONDATA = koffi.struct({
     guidItem:         cGUID,
     hBalloonIcon:     cHANDLE
 })
+
+export const SIZEOF_NOTIFYICONDATA = koffi.sizeof(cNOTIFYICONDATA)
 
 /**
  * The TOKEN_APPCONTAINER_INFORMATION structure specifies all the information in a token that is necessary for an app container.
@@ -929,7 +933,7 @@ export interface TOKEN_SOURCE {
 
 /** @internal */
 export const cTOKEN_SOURCE = koffi.struct({
-    SourceName: koffi.array(cCHAR, Internals.TOKEN_SOURCE_LENGTH),
+    SourceName: koffi.array(cCHAR, Internals.TOKEN_SOURCE_LENGTH, 'String'),
     SourceIdentifier: cLUID
 })
 
@@ -1039,7 +1043,7 @@ export const cPRIVILEGE_SET = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex2
  */
 export class PROCESS_MEMORY_COUNTERS_EX2 {
-    readonly cb = koffi.sizeof(cPROCESS_MEMORY_COUNTERS_EX2)
+    readonly cb = SIZEOF_PROCESS_MEMORY_COUNTERS_EX2
     constructor(
         public PageFaultCount:             number          = 0,
         public PeakWorkingSetSize:         number | BigInt = 0,
@@ -1073,6 +1077,8 @@ export const cPROCESS_MEMORY_COUNTERS_EX2 = koffi.struct({
     SharedCommitUsage:          cULONG64,
 })
 
+export const SIZEOF_PROCESS_MEMORY_COUNTERS_EX2 = koffi.sizeof(cPROCESS_MEMORY_COUNTERS_EX2)
+
 /**
  * The SECURITY_DESCRIPTOR structure contains the security information associated with an object.
  *
@@ -1105,7 +1111,7 @@ export const cSECURITY_DESCRIPTOR = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/wtypesbase/ns-wtypesbase-security_attributes
  */
 export class SECURITY_ATTRIBUTES {
-    readonly nLength = koffi.sizeof(cSECURITY_ATTRIBUTES)
+    readonly nLength = SIZEOF_SECURITY_ATTRIBUTES
     constructor(
         public lpSecurityDescriptor: SECURITY_DESCRIPTOR | null = null,
         public bInheritHandle:       number                     = 0,
@@ -1118,6 +1124,8 @@ export const cSECURITY_ATTRIBUTES = koffi.struct({
     lpSecurityDescriptor: koffi.pointer(cSECURITY_DESCRIPTOR),
     bInheritHandle:       cBOOL
 })
+
+export const SIZEOF_SECURITY_ATTRIBUTES = koffi.sizeof(cSECURITY_ATTRIBUTES)
 
 /**
  * Contains information about a registry value.

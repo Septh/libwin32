@@ -5,7 +5,7 @@ import { cSID, type SID } from '../structs.js'
 
 export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
 
-// To be removed when Koffi support for variable-length arrays is live.
+// To be removed when Koffi has support for variable-length arrays is live.
 export function decodeSid(sidPtr: unknown): SID {
 
     // Decode the 8-bytes header.
@@ -79,10 +79,35 @@ export const enum TOKEN_INFORMATION_CLASS {
     MaxTokenInfoClass
 }
 
+const dwTokens = /*#__PURE__*/new Set<TOKEN_INFORMATION_CLASS>([
+    TOKEN_INFORMATION_CLASS.TokenType,
+    TOKEN_INFORMATION_CLASS.TokenImpersonationLevel,
+    TOKEN_INFORMATION_CLASS.TokenSessionId,
+    TOKEN_INFORMATION_CLASS.TokenSandBoxInert,
+    TOKEN_INFORMATION_CLASS.TokenElevationType,
+    TOKEN_INFORMATION_CLASS.TokenElevation,
+    TOKEN_INFORMATION_CLASS.TokenHasRestrictions,
+    TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed,
+    TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled,
+    TOKEN_INFORMATION_CLASS.TokenUIAccess,
+    TOKEN_INFORMATION_CLASS.TokenIsAppContainer,
+    TOKEN_INFORMATION_CLASS.TokenAppContainerNumber,
+])
+
+const pTokens = /*#__PURE__*/new Set<TOKEN_INFORMATION_CLASS>([
+    TOKEN_INFORMATION_CLASS.TokenLinkedToken,
+    TOKEN_INFORMATION_CLASS.TokenAppContainerSid,
+])
+
 // Called by the various GetToken<xxx>Information() stubs.
 export function getTokenInfo(hToken: HTOKEN, infoClass: TOKEN_INFORMATION_CLASS): boolean {
     getTokenInfo.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cPVOID, cDWORD, koffi.out(koffi.pointer(cDWORD)) ])
 
+    const bufferLength = dwTokens.has(infoClass)
+        ? koffi.sizeof(cDWORD)
+        : pTokens.has(infoClass)
+            ? koffi.sizeof(cPVOID)
+            : binaryBuffer.length
     const pLength: OUT<number> = [0]
-    return getTokenInfo.native(hToken, infoClass, binaryBuffer.buffer, binaryBuffer.byteLength, pLength) !== 0
+    return getTokenInfo.native(hToken, infoClass, binaryBuffer.buffer, bufferLength, pLength) !== 0
 }
