@@ -33,24 +33,16 @@ export const textDecoder  = /*#__PURE__*/new TextDecoder('utf-16')
 
 export class StringOutputBuffer {
     readonly buffer: Buffer<ArrayBuffer>
-    readonly array: Uint16Array
-    readonly pLength: [number]
+    readonly pLength: OUT<number>
     get length() { return this.pLength[0] }
 
-    constructor(length: number, from?: string) {
+    constructor(length: number) {
         this.buffer  = Buffer.allocUnsafe(length * Uint16Array.BYTES_PER_ELEMENT)
-        this.array   = new Uint16Array(this.buffer.buffer, this.buffer.byteOffset, length)
         this.pLength = [length]
-
-        if (typeof from === 'string') {
-            assert(from.length <= length)
-            for (let i = 0, len = from.length; i < len; i++)
-                this.array[i] = from.charCodeAt(i)
-        }
     }
 
     decode(length: number = this.length): string {
-        return textDecoder.decode(this.array.subarray(0, length))
+        return textDecoder.decode(this.buffer.subarray(0, length))
     }
 }
 
