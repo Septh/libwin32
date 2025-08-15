@@ -132,7 +132,7 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
 export class CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
     readonly Version = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1
     readonly Reserved = 0
-    public Attribute: { pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[] }
+    public Attribute: { pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[] | null }
     constructor(
         public AttributeCount = 0,
                ...pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[]
@@ -754,7 +754,7 @@ export const cTOKEN_APPCONTAINER_INFORMATION = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-token_default_dacl
  */
 export interface TOKEN_DEFAULT_DACL {
-    DefaultDacl: ACL
+    DefaultDacl: ACL | null
 }
 
 /** @internal */
@@ -1003,7 +1003,7 @@ export interface TOKEN_ACCESS_INFORMATION {
     AppContainerNumber: number
     PackageSid:         SID | null
     CapabilitiesHash:   SID_AND_ATTRIBUTES_HASH
-    TrustLevelSid:      SID
+    TrustLevelSid:      SID | null
     SecurityAttributes: null    // Reserved, must be null
 }
 
