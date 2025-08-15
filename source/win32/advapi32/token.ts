@@ -26,9 +26,12 @@ import {
     cTOKEN_STATISTICS, type TOKEN_STATISTICS,
     cTOKEN_USER, type TOKEN_USER,
 } from '../structs.js'
-import { advapi32, getTokenInfo, decodeSid } from './lib.js'
-import { ERROR_, TOKEN_INFORMATION_CLASS, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE_ } from '../consts.js'
+import { TOKEN_INFORMATION_CLASS, ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE_ } from '../consts.js'
 import { SetLastError } from '../kernel32.js'
+import { advapi32, getTokenInfo, decodeSid, INTERNAL_TOKEN_INFORMATION_CLASS } from './lib.js'
+
+const dwLength = koffi.sizeof(cDWORD)
+const pLength = koffi.sizeof(cPVOID)
 
 /**
  * The AdjustTokenPrivileges function enables or disables privileges in the specified access token.
@@ -70,7 +73,7 @@ export function CheckTokenMembership(tokenHandle: HTOKEN | null, sidToCheck: SID
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenAccessInformation(tokenHandle: HTOKEN): TOKEN_ACCESS_INFORMATION | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAccessInformation)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenAccessInformation)) {
         const ret: TOKEN_ACCESS_INFORMATION = koffi.decode(binaryBuffer, cTOKEN_ACCESS_INFORMATION)
 
         ret.SidHash = koffi.decode(ret.SidHash, cSID_AND_ATTRIBUTES_HASH)
@@ -100,7 +103,7 @@ export function GetTokenAccessInformation(tokenHandle: HTOKEN): TOKEN_ACCESS_INF
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenAppContainerNumberInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAppContainerNumber)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenAppContainerNumber, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -111,7 +114,7 @@ export function GetTokenAppContainerNumberInformation(tokenHandle: HTOKEN): numb
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenAppContainerSidInformation(tokenHandle: HTOKEN): TOKEN_APPCONTAINER_INFORMATION | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAppContainerSid)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenAppContainerSid, pLength)) {
         const ret: TOKEN_APPCONTAINER_INFORMATION = koffi.decode(binaryBuffer, cTOKEN_APPCONTAINER_INFORMATION)
         ret.TokenAppContainer = ret.TokenAppContainer ? decodeSid(ret.TokenAppContainer) : {} as SID
         return ret
@@ -125,7 +128,7 @@ export function GetTokenAppContainerSidInformation(tokenHandle: HTOKEN): TOKEN_A
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenCapabilitiesInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenCapabilities)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenCapabilities)) {
         const ret: TOKEN_GROUPS = koffi.decode(binaryBuffer, cTOKEN_GROUPS)
         ret.Groups = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
         ret.Groups.forEach(group => group.Sid = decodeSid(group.Sid))
@@ -140,7 +143,7 @@ export function GetTokenCapabilitiesInformation(tokenHandle: HTOKEN): TOKEN_GROU
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenDefaultDaclInformation(tokenHandle: HTOKEN): TOKEN_DEFAULT_DACL | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenDefaultDacl)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenDefaultDacl)) {
         const ret: TOKEN_DEFAULT_DACL = koffi.decode(binaryBuffer, cTOKEN_DEFAULT_DACL)
         ret.DefaultDacl = koffi.decode(ret.DefaultDacl, cACL)
         return ret
@@ -154,7 +157,7 @@ export function GetTokenDefaultDaclInformation(tokenHandle: HTOKEN): TOKEN_DEFAU
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenDeviceClaimAttributesInformation(tokenHandle: HTOKEN): CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes)) {
         const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(binaryBuffer, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
         if (ret.Attribute && ret.AttributeCount > 0) {
             ret.Attribute = {
@@ -173,7 +176,7 @@ export function GetTokenDeviceClaimAttributesInformation(tokenHandle: HTOKEN): C
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenDeviceGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenDeviceGroups)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenDeviceGroups)) {
         const ret: TOKEN_GROUPS = koffi.decode(binaryBuffer, cTOKEN_GROUPS)
         ret.Groups = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
         ret.Groups.forEach(group => group.Sid = decodeSid(group.Sid))
@@ -188,7 +191,7 @@ export function GetTokenDeviceGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROU
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenElevationInformation(tokenHandle: HTOKEN): TOKEN_ELEVATION | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevation)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenElevation, dwLength)) {
         const ret: TOKEN_ELEVATION = koffi.decode(binaryBuffer, cTOKEN_ELEVATION)
         return ret
     }
@@ -201,7 +204,7 @@ export function GetTokenElevationInformation(tokenHandle: HTOKEN): TOKEN_ELEVATI
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenElevationTypeInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevationType)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenElevationType, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -212,7 +215,7 @@ export function GetTokenElevationTypeInformation(tokenHandle: HTOKEN): number | 
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenGroupsAndPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_GROUPS_AND_PRIVILEGES | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges)) {
         const ret: TOKEN_GROUPS_AND_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_GROUPS_AND_PRIVILEGES)
 
         if (ret.Sids && ret.SidCount > 0) {
@@ -243,7 +246,7 @@ export function GetTokenGroupsAndPrivilegesInformation(tokenHandle: HTOKEN): TOK
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenGroups)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenGroups)) {
         const ret: TOKEN_GROUPS = koffi.decode(binaryBuffer, cTOKEN_GROUPS)
         ret.Groups = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
         ret.Groups.forEach(group => group.Sid = decodeSid(group.Sid))
@@ -258,7 +261,7 @@ export function GetTokenGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_TYPE_ | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenHasRestrictions)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenHasRestrictions, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -269,7 +272,7 @@ export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_T
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenImpersonationLevelInformation(tokenHandle: HTOKEN): SECURITY_IMPERSONATION_LEVEL | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenImpersonationLevel)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenImpersonationLevel, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -280,7 +283,7 @@ export function GetTokenImpersonationLevelInformation(tokenHandle: HTOKEN): SECU
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenIntegrityLevelInformation(tokenHandle: HTOKEN): TOKEN_MANDATORY_LABEL | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenIntegrityLevel)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenIntegrityLevel)) {
         const ret: TOKEN_MANDATORY_LABEL = koffi.decode(binaryBuffer, cTOKEN_MANDATORY_LABEL)
         ret.Label.Sid = decodeSid(ret.Label.Sid)
         return ret
@@ -294,7 +297,7 @@ export function GetTokenIntegrityLevelInformation(tokenHandle: HTOKEN): TOKEN_MA
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenIsAppContainerInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenIsAppContainer)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenIsAppContainer, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -305,7 +308,7 @@ export function GetTokenIsAppContainerInformation(tokenHandle: HTOKEN): number |
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenLinkedTokenInformation(tokenHandle: HTOKEN): TOKEN_LINKED_TOKEN | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenLinkedToken)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenLinkedToken, pLength)
         ? koffi.decode(binaryBuffer, cTOKEN_LINKED_TOKEN)
         : null
 }
@@ -316,7 +319,7 @@ export function GetTokenLinkedTokenInformation(tokenHandle: HTOKEN): TOKEN_LINKE
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenLogonSidInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenLogonSid)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenLogonSid)) {
         const ret: TOKEN_GROUPS = koffi.decode(binaryBuffer, cTOKEN_GROUPS)
         ret.Groups = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
         ret.Groups.forEach(group => group.Sid = decodeSid(group.Sid))
@@ -331,7 +334,7 @@ export function GetTokenLogonSidInformation(tokenHandle: HTOKEN): TOKEN_GROUPS |
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenMandatoryPolicyInformation(tokenHandle: HTOKEN): TOKEN_MANDATORY_POLICY | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy)
         ? koffi.decode(binaryBuffer, cTOKEN_MANDATORY_POLICY)
         : null
 }
@@ -342,7 +345,7 @@ export function GetTokenMandatoryPolicyInformation(tokenHandle: HTOKEN): TOKEN_M
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenOriginInformation(tokenHandle: HTOKEN): TOKEN_ORIGIN | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenOrigin)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenOrigin)
         ? koffi.decode(binaryBuffer, cTOKEN_ORIGIN)
         : null
 }
@@ -353,7 +356,7 @@ export function GetTokenOriginInformation(tokenHandle: HTOKEN): TOKEN_ORIGIN | n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenOwnerInformation(tokenHandle: HTOKEN): TOKEN_OWNER | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenOwner)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenOwner)) {
         const ret: TOKEN_OWNER = koffi.decode(binaryBuffer, cTOKEN_OWNER)
         ret.Owner = decodeSid(ret.Owner)
         return ret
@@ -367,7 +370,7 @@ export function GetTokenOwnerInformation(tokenHandle: HTOKEN): TOKEN_OWNER | nul
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenPrimaryGroupInformation(tokenHandle: HTOKEN): TOKEN_PRIMARY_GROUP | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenPrimaryGroup)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenPrimaryGroup)) {
         const ret: TOKEN_PRIMARY_GROUP = koffi.decode(binaryBuffer, cTOKEN_PRIMARY_GROUP)
         ret.PrimaryGroup = decodeSid(ret.PrimaryGroup)
         return ret
@@ -381,7 +384,7 @@ export function GetTokenPrimaryGroupInformation(tokenHandle: HTOKEN): TOKEN_PRIM
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_PRIVILEGES | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenPrivileges)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenPrivileges)) {
         const ret: TOKEN_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
         ret.Privileges = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
         return ret
@@ -395,7 +398,7 @@ export function GetTokenPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_PRIVIL
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenRestrictedDeviceGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups)) {
         const ret: TOKEN_GROUPS = koffi.decode(binaryBuffer, cTOKEN_GROUPS)
         ret.Groups = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
         ret.Groups.forEach(group => group.Sid = decodeSid(group.Sid))
@@ -410,7 +413,7 @@ export function GetTokenRestrictedDeviceGroupsInformation(tokenHandle: HTOKEN): 
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenRestrictedSidsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenRestrictedSids)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenRestrictedSids)) {
         const ret: TOKEN_GROUPS = koffi.decode(binaryBuffer, cTOKEN_GROUPS)
         ret.Groups = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_GROUPS, 'Groups'), cSID_AND_ATTRIBUTES, ret.GroupCount)
         ret.Groups.forEach(group => group.Sid = decodeSid(group.Sid))
@@ -425,7 +428,7 @@ export function GetTokenRestrictedSidsInformation(tokenHandle: HTOKEN): TOKEN_GR
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenSandBoxInertInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSandBoxInert)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenSandBoxInert, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -436,7 +439,7 @@ export function GetTokenSandBoxInertInformation(tokenHandle: HTOKEN): number | n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSessionId)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenSessionId, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -447,7 +450,7 @@ export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenSourceInformation(tokenHandle: HTOKEN): TOKEN_SOURCE | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSource)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenSource)
         ? koffi.decode(binaryBuffer, cTOKEN_SOURCE)
         : null
 }
@@ -458,7 +461,7 @@ export function GetTokenSourceInformation(tokenHandle: HTOKEN): TOKEN_SOURCE | n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenStatisticsInformation(tokenHandle: HTOKEN): TOKEN_STATISTICS | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenStatistics)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenStatistics)
         ? koffi.decode(binaryBuffer, cTOKEN_STATISTICS)
         : null
 }
@@ -469,7 +472,7 @@ export function GetTokenStatisticsInformation(tokenHandle: HTOKEN): TOKEN_STATIS
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenTypeInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenType)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenType, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -480,7 +483,7 @@ export function GetTokenTypeInformation(tokenHandle: HTOKEN): number | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenUIAccessInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUIAccess)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenUIAccess, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -491,7 +494,7 @@ export function GetTokenUIAccessInformation(tokenHandle: HTOKEN): number | null 
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenUserClaimAttributesInformation(tokenHandle: HTOKEN): CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes)) {
         const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(binaryBuffer, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
         if (ret.Attribute.pAttributeV1 && ret.AttributeCount > 0) {
             ret.Attribute.pAttributeV1 = koffi.decode(binaryBuffer, koffi.offsetof(cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, 'pAttributeV1'), cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
@@ -508,7 +511,7 @@ export function GetTokenUserClaimAttributesInformation(tokenHandle: HTOKEN): CLA
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenUserInformation(tokenHandle: HTOKEN): TOKEN_USER | null {
-    if (getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUser)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenUser)) {
         const ret: TOKEN_USER = koffi.decode(binaryBuffer, cTOKEN_USER)
         ret.User.Sid = decodeSid(ret.User.Sid)
         return ret
@@ -522,7 +525,7 @@ export function GetTokenUserInformation(tokenHandle: HTOKEN): TOKEN_USER | null 
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenVirtualizationAllowedInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -533,7 +536,7 @@ export function GetTokenVirtualizationAllowedInformation(tokenHandle: HTOKEN): n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenVirtualizationEnabledInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled, dwLength)
         ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
         : null
 }
@@ -579,41 +582,41 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups): TOKEN_GROUPS | null
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS) {
 
-    switch (tokenInformationClass) {
-        case TOKEN_INFORMATION_CLASS.TokenUser:                   return GetTokenUserInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenGroups:                 return GetTokenGroupsInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenPrivileges:             return GetTokenPrivilegesInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenOwner:                  return GetTokenOwnerInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenPrimaryGroup:           return GetTokenPrimaryGroupInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenDefaultDacl:            return GetTokenDefaultDaclInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenSource:                 return GetTokenSourceInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenType:                   return GetTokenTypeInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenImpersonationLevel:     return GetTokenImpersonationLevelInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenStatistics:             return GetTokenStatisticsInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenRestrictedSids:         return GetTokenRestrictedSidsInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenSessionId:              return GetTokenSessionIdInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges:    return GetTokenGroupsAndPrivilegesInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenSandBoxInert:           return GetTokenSandBoxInertInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenOrigin:                 return GetTokenOriginInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenElevationType:          return GetTokenElevationTypeInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenLinkedToken:            return GetTokenLinkedTokenInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenElevation:              return GetTokenElevationInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenHasRestrictions:        return GetTokenHasRestrictionsInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenAccessInformation:      return GetTokenAccessInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed:  return GetTokenVirtualizationAllowedInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled:  return GetTokenVirtualizationEnabledInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenIntegrityLevel:         return GetTokenIntegrityLevelInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenUIAccess:               return GetTokenUIAccessInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy:        return GetTokenMandatoryPolicyInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenLogonSid:               return GetTokenLogonSidInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenIsAppContainer:         return GetTokenIsAppContainerInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenCapabilities:           return GetTokenCapabilitiesInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenAppContainerSid:        return GetTokenAppContainerSidInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenAppContainerNumber:     return GetTokenAppContainerNumberInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes:    return GetTokenUserClaimAttributesInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes:  return GetTokenDeviceClaimAttributesInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenDeviceGroups:           return GetTokenDeviceGroupsInformation(tokenHandle)
-        case TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups: return GetTokenRestrictedDeviceGroupsInformation(tokenHandle)
+    switch (tokenInformationClass as number) {
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenUser:                   return GetTokenUserInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenGroups:                 return GetTokenGroupsInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenPrivileges:             return GetTokenPrivilegesInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenOwner:                  return GetTokenOwnerInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenPrimaryGroup:           return GetTokenPrimaryGroupInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenDefaultDacl:            return GetTokenDefaultDaclInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenSource:                 return GetTokenSourceInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenType:                   return GetTokenTypeInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenImpersonationLevel:     return GetTokenImpersonationLevelInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenStatistics:             return GetTokenStatisticsInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenRestrictedSids:         return GetTokenRestrictedSidsInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenSessionId:              return GetTokenSessionIdInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges:    return GetTokenGroupsAndPrivilegesInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenSandBoxInert:           return GetTokenSandBoxInertInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenOrigin:                 return GetTokenOriginInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenElevationType:          return GetTokenElevationTypeInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenLinkedToken:            return GetTokenLinkedTokenInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenElevation:              return GetTokenElevationInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenHasRestrictions:        return GetTokenHasRestrictionsInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenAccessInformation:      return GetTokenAccessInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed:  return GetTokenVirtualizationAllowedInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled:  return GetTokenVirtualizationEnabledInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenIntegrityLevel:         return GetTokenIntegrityLevelInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenUIAccess:               return GetTokenUIAccessInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy:        return GetTokenMandatoryPolicyInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenLogonSid:               return GetTokenLogonSidInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenIsAppContainer:         return GetTokenIsAppContainerInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenCapabilities:           return GetTokenCapabilitiesInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenAppContainerSid:        return GetTokenAppContainerSidInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenAppContainerNumber:     return GetTokenAppContainerNumberInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes:    return GetTokenUserClaimAttributesInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes:  return GetTokenDeviceClaimAttributesInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenDeviceGroups:           return GetTokenDeviceGroupsInformation(tokenHandle)
+        case INTERNAL_TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups: return GetTokenRestrictedDeviceGroupsInformation(tokenHandle)
 
         // Dismiss all other cases
         default:
