@@ -7,7 +7,7 @@ import {
     cWPARAM, type WPARAM, cLPARAM, type LPARAM,
     cLRESULT, type LRESULT
 } from './ctypes.js'
-import {
+import type {
     CS_, NIF_, TOKEN_TYPE_,
     CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_,
     SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL_,
@@ -330,7 +330,7 @@ export class SHELLEXECUTEINFO {
     readonly hProcess: HANDLE | null = null     // [out]
     constructor(
         public lpVerb:       string    = null!,
-        public fMask:        SEE_MASK_ = SEE_MASK_.DEFAULT,
+        public fMask:        SEE_MASK_ = 0,
         public lpFile:       string    = null!,
         public lpParameters: string    = null!,
         public lpDirectory:  string    = null!,
