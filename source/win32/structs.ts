@@ -39,6 +39,9 @@ export const cACL = koffi.struct({
     Sbsz2:       cWORD
 })
 
+export const ACL_REVISION = Internals.ACL_REVISION
+export const ACL_REVISION_DS = Internals.ACL_REVISION_DS
+
 /**
  * The CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE structure specifies the fully qualified binary name.
  *
