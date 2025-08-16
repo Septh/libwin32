@@ -197,6 +197,7 @@ export enum ERROR_ {
     NO_MORE_FILES        = 18,
     NOT_SUPPORTED        = 50,
     CALL_NOT_IMPLEMENTED = 120,
+    INSUFFICIENT_BUFFER  = 122,
     INVALID_NAME         = 123,
     BAD_ARGUMENTS        = 160,
     BAD_PATHNAME         = 161,
