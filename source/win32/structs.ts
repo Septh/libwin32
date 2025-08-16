@@ -310,16 +310,6 @@ export const cLSA_OBJECT_ATTRIBUTES = koffi.struct({
 export const SIZEOF_LSA_OBJECT_ATTRIBUTES = koffi.sizeof(cLSA_OBJECT_ATTRIBUTES)
 
 /**
- * The SID_IDENTIFIER_AUTHORITY structure represents the top-level authority of a security identifier (SID).
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_identifier_authority
- */
-export type SID_IDENTIFIER_AUTHORITY = [ number, number, number, number, number, number ]
-
-/** @internal */
-export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
-
-/**
  * Contains information used by ShellExecuteEx().
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
@@ -364,6 +354,16 @@ export const cSHELLEXECUTEINFO = koffi.struct({
 })
 
 export const SIZEOF_SHELLEXECUTEINFO = koffi.sizeof(cSHELLEXECUTEINFO)
+
+/**
+ * The SID_IDENTIFIER_AUTHORITY structure represents the top-level authority of a security identifier (SID).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_identifier_authority
+ */
+export type SID_IDENTIFIER_AUTHORITY = [ number, number, number, number, number, number ]
+
+/** @internal */
+export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
 
 /**
  * The security identifier (SID) structure is a variable-length structure used to uniquely identify users or groups.
@@ -1025,6 +1025,8 @@ export const cTOKEN_ACCESS_INFORMATION = koffi.struct({
 
 /**
  * Privilege Set - This is defined for a privilege set of one.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-privilege_set
  */
 export interface PRIVILEGE_SET {
     PrivilegeCount: number
