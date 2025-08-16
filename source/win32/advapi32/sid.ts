@@ -109,7 +109,7 @@ export function CopySid(sourceSid: SID): SID | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-createwellknownsid
  */
 export function CreateWellKnownSid(wellKnownSidType: number, domainSid?: SID): SID | null {
-    CreateWellKnownSid.native ??= advapi32.func('CreateWellKnownSid', cBOOL, [ cDWORD, koffi.pointer(cSID), koffi.out(cPVOID), koffi.inout(koffi.pointer(cDWORD)) ])
+    CreateWellKnownSid.native ??= advapi32.func('CreateWellKnownSid', cBOOL, [ cINT, koffi.pointer(cSID), koffi.out(cPVOID), koffi.inout(koffi.pointer(cDWORD)) ])
 
     const cbSid: OUT<number> = [binaryBuffer.length]
     return CreateWellKnownSid.native(wellKnownSidType, domainSid, binaryBuffer, cbSid) !== 0
@@ -144,6 +144,19 @@ export function FreeSid(_sid: SID): void {}
 export function GetLengthSid(sid: SID): number {
     GetLengthSid.native ??= advapi32.func('GetLengthSid', cDWORD, [ koffi.pointer(cSID) ])
     return GetLengthSid.native(sid)
+}
+
+/**
+ * Compares a SID to a well-known SID and returns TRUE if they match.
+ *
+ * Note: libwin32 does not include the 100+ predefined types enumeration, see the complete list at
+ *       https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-well_known_sid_type
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-iswellknownsid
+ */
+export function IsWellKnownSid(sid: SID, wellKnownSidType: number): boolean {
+    IsWellKnownSid.native ??= advapi32.func('IsWellKnownSid', cBOOL, [ koffi.pointer(cSID), cINT ])
+    return IsWellKnownSid.native(sid, wellKnownSidType) !== 0
 }
 
 /**
