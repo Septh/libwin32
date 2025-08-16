@@ -1296,7 +1296,7 @@ export enum TOKEN_INFORMATION_CLASS {
     MaxTokenInfoClass
 }
 
-export enum TOKEN_TYPE_ {
+export enum TOKEN_TYPE {
     TokenPrimary = 1,
     TokenImpersonation
 }

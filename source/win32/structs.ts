@@ -8,7 +8,7 @@ import {
     cLRESULT, type LRESULT
 } from './ctypes.js'
 import type {
-    CS_, NIF_, TOKEN_TYPE_,
+    CS_, NIF_, TOKEN_TYPE,
     CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_,
     SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL_,
     REG_, SEE_MASK_, SW_,
@@ -948,7 +948,7 @@ export interface TOKEN_STATISTICS {
     TokenId:            LUID
     AuthenticationId:   LUID
     ExpirationTime:     BigInt
-    TokenType:          TOKEN_TYPE_
+    TokenType:          TOKEN_TYPE
     ImpersonationLevel: SECURITY_IMPERSONATION_LEVEL
     DynamicCharged:     number
     DynamicAvailable:   number
@@ -995,7 +995,7 @@ export interface TOKEN_ACCESS_INFORMATION {
     RestrictedSidHash:  SID_AND_ATTRIBUTES_HASH
     Privileges:         TOKEN_PRIVILEGES
     AuthenticationId:   LUID
-    TokenType:          TOKEN_TYPE_
+    TokenType:          TOKEN_TYPE
     ImpersonationLevel: SECURITY_IMPERSONATION_LEVEL
     MandatoryPolicy:    TOKEN_MANDATORY_POLICY
     Flags:              0       // Reserved, must be 0

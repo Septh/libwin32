@@ -23,7 +23,7 @@ import {
     cTOKEN_STATISTICS, type TOKEN_STATISTICS,
     cTOKEN_USER, type TOKEN_USER,
 } from '../structs.js'
-import { TOKEN_INFORMATION_CLASS, ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE_ } from '../consts.js'
+import { TOKEN_INFORMATION_CLASS, ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE } from '../consts.js'
 import { SetLastError } from '../kernel32.js'
 import {
     advapi32,
@@ -238,7 +238,7 @@ export function GetTokenGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | n
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_TYPE_ | null {
+export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_TYPE | null {
     return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenHasRestrictions, dwLength)
         ? binaryBuffer.readUInt32LE(0)
         : null
