@@ -1,5 +1,5 @@
 import koffi from 'koffi-cream'
-import { StringOutputBuffer, Internals, type OUT } from '../private.js'
+import { StringOutputBuffer, Internals, type OUT, binaryBuffer } from '../private.js'
 import { cBOOL, cINT, cBYTE, cDWORD, cPVOID, cSTR } from '../ctypes.js'
 import {
     cSID, type SID,
@@ -85,6 +85,19 @@ export function ConvertStringSidToSid(stringSid: string): SID | null {
         return sid
     }
     return null
+}
+
+/**
+ * Copies a security identifier (SID).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-copysid
+ */
+export function CopySid(sourceSid: SID): SID | null {
+    CopySid.native ??= advapi32.func('CopySid', cBOOL, [ cDWORD, koffi.out(cPVOID), koffi.pointer(cSID) ])
+
+    return CopySid.native(binaryBuffer.length, binaryBuffer, sourceSid) !== 0
+        ? decodeSid(binaryBuffer)
+        : null
 }
 
 /**
