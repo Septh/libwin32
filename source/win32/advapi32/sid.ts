@@ -107,6 +107,16 @@ export function EqualSid(sid1: SID, sid2: SID): boolean {
 export function FreeSid(_sid: SID): void {}
 
 /**
+ * Returns the length, in bytes, of a valid security identifier.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-getlengthsid
+ */
+export function GetLengthSid(sid: SID): number {
+    GetLengthSid.native ??= advapi32.func('GetLengthSid', cDWORD, [ koffi.pointer(cSID) ])
+    return GetLengthSid.native(sid)
+}
+
+/**
  * Retrieves the name of the account for a security identifier (SID) and the name of the domain where the account was found.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountsidw
