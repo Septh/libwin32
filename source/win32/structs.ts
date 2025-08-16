@@ -116,11 +116,11 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
     Flags:      cDWORD,
     ValueCount: cDWORD,
     Values:     koffi.union('CLAIM_SECURITY_ATTRIBUTE_V1_Values', {
-        pInt64:        koffi.pointer(koffi.array(cLONG64, 1)),
-        pUint64:       koffi.pointer(koffi.array(cDWORD64, 1)),
-        ppString:      koffi.pointer(koffi.array(cSTR, 1)),
-        pFqbn:         koffi.pointer(koffi.array(cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE, 1)),
-        pOctectString: koffi.pointer(koffi.array(cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE, 1))
+        pInt64:        koffi.pointer(cLONG64, Internals.ANYSIZE_ARRAY),
+        pUint64:       koffi.pointer(cDWORD64, Internals.ANYSIZE_ARRAY),
+        ppString:      koffi.pointer(cSTR, Internals.ANYSIZE_ARRAY),
+        pFqbn:         koffi.pointer(cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE, Internals.ANYSIZE_ARRAY),
+        pOctectString: koffi.pointer(cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE, Internals.ANYSIZE_ARRAY)
     })
 })
 
@@ -147,7 +147,7 @@ export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct({
     Reserved:       cWORD,
     AttributeCount: cDWORD,
     Attribute:      koffi.struct({  // Should be a union, but there is only one member...
-        pAttributeV1: koffi.pointer(koffi.array(cCLAIM_SECURITY_ATTRIBUTE_V1, 1))
+        pAttributeV1: koffi.pointer(cCLAIM_SECURITY_ATTRIBUTE_V1, Internals.ANYSIZE_ARRAY)
     })
 })
 
@@ -426,7 +426,7 @@ export interface SID_AND_ATTRIBUTES_HASH {
 /** @internal */
 export const cSID_AND_ATTRIBUTES_HASH = koffi.struct({
     SidCount: cDWORD,
-    SidAttr:  koffi.pointer(koffi.array(cSID_AND_ATTRIBUTES, 1)),
+    SidAttr:  koffi.pointer(cSID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY),
     Hash:     koffi.array(cULONG_PTR, Internals.SID_HASH_SIZE)
 })
 
@@ -789,7 +789,7 @@ export interface TOKEN_GROUPS {
 /** @internal */
 export const cTOKEN_GROUPS = koffi.struct({
     GroupCount: cDWORD,
-    Groups: koffi.array(cSID_AND_ATTRIBUTES, 1)
+    Groups: koffi.array(cSID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY)
 })
 
 /**
@@ -814,13 +814,13 @@ export interface TOKEN_GROUPS_AND_PRIVILEGES {
 export const cTOKEN_GROUPS_AND_PRIVILEGES = koffi.struct({
     SidCount:            cDWORD,
     SidLength:           cDWORD,
-    Sids:                koffi.pointer(koffi.array(cSID_AND_ATTRIBUTES, 1)),
+    Sids:                koffi.pointer(cSID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY),
     RestrictedSidCount:  cDWORD,
     RestrictedSidLength: cDWORD,
-    RestrictedSids:      koffi.pointer(koffi.array(cSID_AND_ATTRIBUTES, 1)),
+    RestrictedSids:      koffi.pointer(cSID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY),
     PrivilegeCount:      cDWORD,
     PrivilegeLength:     cDWORD,
-    Privileges:          koffi.pointer(koffi.array(cLUID_AND_ATTRIBUTES, 1)),
+    Privileges:          koffi.pointer(cLUID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY),
     AuthenticationId:    cLUID,
 })
 
@@ -921,7 +921,7 @@ export interface TOKEN_PRIVILEGES {
 /** @internal */
 export const cTOKEN_PRIVILEGES = koffi.struct({
     PrivilegeCount: cDWORD,
-    Privileges: koffi.array(cLUID_AND_ATTRIBUTES, 1)
+    Privileges: koffi.array(cLUID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY)
 })
 
 /**
@@ -1037,7 +1037,7 @@ export interface PRIVILEGE_SET {
 export const cPRIVILEGE_SET = koffi.struct({
     PrivilegeCount: cDWORD,
     Control:        cDWORD,
-    Privilege:      koffi.array(cLUID_AND_ATTRIBUTES, 1)
+    Privilege:      koffi.array(cLUID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY)
 })
 
 /**
