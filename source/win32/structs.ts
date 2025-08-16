@@ -146,6 +146,8 @@ export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct({
     })
 })
 
+export const CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1
+
 /**
  * Contains a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
  *
@@ -934,6 +936,8 @@ export const cTOKEN_SOURCE = koffi.struct({
     SourceName: koffi.array(cCHAR, Internals.TOKEN_SOURCE_LENGTH, 'String'),
     SourceIdentifier: cLUID
 })
+
+export const TOKEN_SOURCE_LENGTH = Internals.TOKEN_SOURCE_LENGTH
 
 /**
  * The TOKEN_STATISTICS structure contains information about an access token.
