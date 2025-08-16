@@ -129,16 +129,11 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-claim_security_attributes_information
  */
-export class CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
-    readonly Version = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1
-    readonly Reserved = 0
-    public Attribute: { pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[] | null }
-    constructor(
-        public AttributeCount = 0,
-               ...pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[]
-    ) {
-        this.Attribute = { pAttributeV1 }
-    }
+export interface CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
+    Version: number
+    Reserved: 0
+    AttributeCount: number
+    Attribute: { pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[] | null }
 }
 
 /** @internal */
