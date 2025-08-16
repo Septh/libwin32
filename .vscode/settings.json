@@ -19,10 +19,13 @@
     "secur32",
     "ole32",
     "psapi",
-    "ctypes",
     "libs",
+    "ctypes",
+    "structs",
+    "consts",
+    "internals",
     "demos",
-    "build"
+    "build",
   ],
   "cSpell.words": [
     "advapi",
