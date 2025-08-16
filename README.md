@@ -1,4 +1,4 @@
-# libwin32 (work in progress)
+# libwin32
 > Node bindings to native Win32 DLLs through [Koffi](https://koffi.dev).
 
 ````js
