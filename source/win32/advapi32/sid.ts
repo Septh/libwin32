@@ -101,6 +101,23 @@ export function CopySid(sourceSid: SID): SID | null {
 }
 
 /**
+ * Creates a SID for predefined aliases.
+ *
+ * Note: libwin32 does not include the 100+ predefined types enumeration, see the complete list at
+ *       https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-well_known_sid_type
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-createwellknownsid
+ */
+export function CreateWellKnownSid(wellKnownSidType: number, domainSid?: SID): SID | null {
+    CreateWellKnownSid.native ??= advapi32.func('CreateWellKnownSid', cBOOL, [ cDWORD, koffi.pointer(cSID), koffi.out(cPVOID), koffi.inout(koffi.pointer(cDWORD)) ])
+
+    const cbSid: OUT<number> = [binaryBuffer.length]
+    return CreateWellKnownSid.native(wellKnownSidType, domainSid, binaryBuffer, cbSid) !== 0
+        ? decodeSid(binaryBuffer)
+        : null
+}
+
+/**
  * Tests two security identifier (SID) values for equality.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-equalsid
