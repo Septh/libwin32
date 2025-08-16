@@ -737,7 +737,7 @@ export const SIZEOF_NOTIFYICONDATA = koffi.sizeof(cNOTIFYICONDATA)
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-token_appcontainer_information
  */
 export interface TOKEN_APPCONTAINER_INFORMATION {
-    TokenAppContainer: SID
+    TokenAppContainer: SID | null
 }
 
 /** @internal */
