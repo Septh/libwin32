@@ -1691,6 +1691,8 @@ export const SECURITY_PROCESS_TRUST_AUTHORITY    = [ 0, 0, 0, 0, 0, 19 ] as cons
 
 /**
  * The SECURITY_IMPERSONATION_LEVEL enumeration contains values that specify security impersonation levels.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-security_impersonation_level
  */
 export enum SECURITY_IMPERSONATION_LEVEL {
     SecurityAnonymous,
