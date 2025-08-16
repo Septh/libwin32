@@ -42,7 +42,7 @@ export class StringOutputBuffer {
     }
 
     decode(length: number = this.length): string {
-        return textDecoder.decode(this.buffer.subarray(0, length))
+        return textDecoder.decode(this.buffer.subarray(0, length * 2))
     }
 }
 
@@ -54,6 +54,7 @@ export const enum Internals {
     MAX_PATH = 260,
 
     ACL_REVISION = 2,
+    ACL_REVISION_DS = 4,
     CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1 = 1,
     SID_HASH_SIZE = 32,
     SID_MAX_SUB_AUTHORITIES = 15,
