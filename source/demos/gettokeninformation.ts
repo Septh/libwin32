@@ -32,7 +32,7 @@ function SearchTokenGroupsForSID() {
     }
 
     // Create a SID for the BUILTIN\Administrators group.
-    const adminsSid = AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, 2, SECURITY_.BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_.RID_ADMINS, 0, 0, 0, 0, 0, 0)
+    const adminsSid = AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, SECURITY_.BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_.RID_ADMINS)
     if (!adminsSid) {
         console.error("AllocateAndInitializeSid Error:", FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError(), 0))
         return
