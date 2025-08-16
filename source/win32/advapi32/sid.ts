@@ -5,8 +5,8 @@ import {
     cSID, type SID,
     cSID_IDENTIFIER_AUTHORITY, type SID_IDENTIFIER_AUTHORITY
 } from '../structs.js'
-import { LocalFree, cLocalAllocatedString } from '../kernel32.js'
-import type { SID_NAME_USE} from '../consts.js'
+import { ERROR_, type SID_NAME_USE} from '../consts.js'
+import { LocalFree, SetLastError, cLocalAllocatedString } from '../kernel32.js'
 import { advapi32, decodeSid } from './lib.js'
 
 export interface LookupAccountSidResult {
@@ -16,33 +16,43 @@ export interface LookupAccountSidResult {
 }
 
 /**
- * Allocates and initializes a security identifier (SID) with up to eight subauthorities.
+ * Allocates and initializes a security identifier (SID) with up to eight sub-authorities.
  *
- * Note: in libwin32, because the allocated SID is turned into a JS object, its memory is immediately returned to the system
- *       by this function. The net effect is that you don't need to call {@link FreeSid()} afterwards (which is a NOOP anyway).
+ * Notes:
+ * - in libwin32, there is no `nSubAuthorityCount` parameter, you simply pass 1 to 8 sub-authorities.
+ * - the allocated SID is immediately returned to the system by this function.
+ *   The net effect is that you don't need to call {@link FreeSid()} afterwards (which is a NOOP anyway).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-allocateandinitializesid
  */
-export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUTHORITY, subAuthorityCount: number, subAuthority0: number = 0, subAuthority1: number = 0, subAuthority2: number = 0, subAuthority3: number = 0, subAuthority4: number = 0, subAuthority5: number = 0, subAuthority6: number = 0, subAuthority7: number = 0): SID | null {
+export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUTHORITY, ...subAuthorities: number[]): SID | null {
+    AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [
+        koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE,
+        cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD,
+        koffi.out(koffi.pointer(cPVOID))
+    ])
 
-    // A note about the last parameter (pSid):
-    // `[out] PSID *pSid` should be declared as `koffi.out(koffi.pointer(koffi.pointer(cSID)))`,
-    // and we could even use a disposable type.
-    // We don't do that however because Koffi does not handle variable-length arrays:
-    // it would always decode 15 sub-authorities, possibly accessing random memory beyond the allocated SID.
-    // To avoid that, we have to manually decode the SID.
-    AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [ koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, koffi.out(koffi.pointer(cPVOID)) ])
+    const subAuthorityCount = subAuthorities.length
+    if (subAuthorityCount > 0 && subAuthorityCount <= 8) {
+        subAuthorities.length = 8
+        subAuthorities.fill(0, subAuthorityCount)
 
-    const pSID: OUT<unknown> = [null]
-    if (AllocateAndInitializeSid.native([ identifierAuthority ], subAuthorityCount, subAuthority0, subAuthority1, subAuthority2, subAuthority3, subAuthority4, subAuthority5, subAuthority6, subAuthority7, pSID) !== 0) {
-        const sid = decodeSid(pSID[0])
-        freeSid()
-        return sid
+        const pSID: OUT<unknown> = [null]
+        if (AllocateAndInitializeSid.native([ identifierAuthority ], subAuthorityCount,
+            subAuthorities[0], subAuthorities[1], subAuthorities[2], subAuthorities[3],
+            subAuthorities[4], subAuthorities[5], subAuthorities[6], subAuthorities[7],
+            pSID
+        ) !== 0) {
+            const sid = decodeSid(pSID[0])
+            freeSid(pSID[0])
+            return sid
+        }
     }
+    else SetLastError(ERROR_.BAD_ARGUMENTS)
     return null
 
-    function freeSid(): void {
-        (freeSid.native ??= advapi32.func('FreeSid', cPVOID, [ cPVOID ]))(pSID[0])
+    function freeSid(ptr: unknown): void {
+        (freeSid.native ??= advapi32.func('FreeSid', cPVOID, [ cPVOID ]))(ptr)
     }
 }
 
