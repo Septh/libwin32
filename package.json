@@ -89,7 +89,7 @@
     "prepublishOnly": "npm run build:release && npm run build:demos"
   },
   "dependencies": {
-    "koffi-cream": "^2.13.0"
+    "koffi-cream": "^2.14.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
