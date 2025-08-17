@@ -1,6 +1,6 @@
 import koffi from 'koffi-cream'
 import { Internals, binaryBuffer, type OUT } from '../private.js'
-import { cBOOL, cBYTE, cINT, cDWORD, cHANDLE, cPVOID, type HTOKEN } from '../ctypes.js'
+import { cBOOL, cBYTE, cINT, cDWORD, cHANDLE, cPVOID, cPDWORD, type HTOKEN } from '../ctypes.js'
 import {
     cLUID_AND_ATTRIBUTES,
     cSID, type SID,
@@ -130,7 +130,7 @@ export function decodeClaimSecurityAttributesInformation(ptr: unknown): CLAIM_SE
 
 // Called by GetTokenInformation() and the various GetToken<xxx>Information() stubs.
 export function getTokenInfo(hToken: HTOKEN, infoClass: INTERNAL_TOKEN_INFORMATION_CLASS, tokenInformationLength = binaryBuffer.byteLength): boolean {
-    getTokenInfo.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cPVOID, cDWORD, koffi.out(koffi.pointer(cDWORD)) ])
+    getTokenInfo.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cPVOID, cDWORD, koffi.out(cPDWORD) ])
 
     const pLength: OUT<number> = [0]
     return getTokenInfo.native(hToken, infoClass, binaryBuffer.buffer, tokenInformationLength, pLength) !== 0

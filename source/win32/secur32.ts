@@ -1,6 +1,6 @@
 import koffi from 'koffi-cream'
 import { StringOutputBuffer, Internals } from './private.js'
-import { cBOOL, cINT, cDWORD, cSTR } from './ctypes.js'
+import { cBOOL, cINT, cPDWORD, cSTR } from './ctypes.js'
 import type { EXTENDED_NAME_FORMAT } from './consts.js'
 
 /** @internal */
@@ -12,7 +12,7 @@ export const secur32 = koffi.load('secur32.dll')
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getusernameexw
  */
 export function GetUserNameEx(nameFormat: EXTENDED_NAME_FORMAT): string | null {
-    GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cSTR, koffi.inout(koffi.pointer(cDWORD)) ])
+    GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cSTR, koffi.inout(cPDWORD) ])
 
     const str = new StringOutputBuffer(Internals.UNLEN)
     return GetUserNameEx.native(nameFormat, str.buffer, str.pLength) !== 0

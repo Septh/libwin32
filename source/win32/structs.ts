@@ -389,7 +389,7 @@ export const cSID = koffi.struct({
     SubAuthorityCount:   cBYTE,
     IdentifierAuthority: cSID_IDENTIFIER_AUTHORITY,
     SubAuthority:        koffi.array(cDWORD, Internals.SID_MAX_SUB_AUTHORITIES, 'Array')   // DWORD SubAuthority[]
-})
+}), cPSID = koffi.pointer(cSID)
 
 export const SID_REVISION = Internals.SID_REVISION
 
@@ -405,7 +405,7 @@ export interface SID_AND_ATTRIBUTES {
 
 /** @internal */
 export const cSID_AND_ATTRIBUTES = koffi.struct({
-    Sid: koffi.pointer(cSID),
+    Sid: cPSID,
     Attributes: cDWORD
 })
 
@@ -742,7 +742,7 @@ export interface TOKEN_APPCONTAINER_INFORMATION {
 
 /** @internal */
 export const cTOKEN_APPCONTAINER_INFORMATION = koffi.struct({
-    TokenAppContainer: koffi.pointer(cSID)
+    TokenAppContainer: cPSID
 })
 
 /**
@@ -888,7 +888,7 @@ export interface TOKEN_OWNER {
 
 /** @internal */
 export const cTOKEN_OWNER = koffi.struct({
-    Owner: koffi.pointer(cSID)
+    Owner: cPSID
 })
 
 /**
@@ -902,7 +902,7 @@ export interface TOKEN_PRIMARY_GROUP {
 
 /** @internal */
 export const cTOKEN_PRIMARY_GROUP = koffi.struct({
-    PrimaryGroup: koffi.pointer(cSID)
+    PrimaryGroup: cPSID
 })
 
 /**
@@ -1017,9 +1017,9 @@ export const cTOKEN_ACCESS_INFORMATION = koffi.struct({
     MandatoryPolicy:    cTOKEN_MANDATORY_POLICY,
     Flags:              cDWORD,
     AppContainerNumber: cDWORD,
-    PackageSid:         koffi.pointer(cSID),
+    PackageSid:         cPSID,
     CapabilitiesHash:   koffi.pointer(cSID_AND_ATTRIBUTES_HASH),
-    TrustLevelSid:      koffi.pointer(cSID),
+    TrustLevelSid:      cPSID,
     SecurityAttributes: cPVOID,
 })
 
@@ -1103,8 +1103,8 @@ export const cSECURITY_DESCRIPTOR = koffi.struct({
     Revision: cBYTE,
     Sbsz1:    cBYTE,
     Control:  cWORD,
-    Owner:    koffi.pointer(cSID),
-    Group:    koffi.pointer(cSID),
+    Owner:    cPSID,
+    Group:    cPSID,
     Sacl:     koffi.pointer(cACL),
     Dacl:     koffi.pointer(cACL)
 })

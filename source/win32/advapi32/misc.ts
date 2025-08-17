@@ -1,11 +1,11 @@
 import koffi from 'koffi-cream'
 import { StringOutputBuffer, Internals, type OUT } from '../private.js'
 import {
-    cBOOL, cINT, cDWORD, cPVOID, cSTR,
+    cBOOL, cINT, cDWORD, cPVOID, cPDWORD, cSTR,
     cHANDLE, type HANDLE, type HTOKEN
 } from '../ctypes.js'
 import {
-    cSID, type SID,
+    cSID, cPSID, type SID,
     cLUID, type LUID,
     cPRIVILEGE_SET, type PRIVILEGE_SET
 } from '../structs.js'
@@ -18,7 +18,7 @@ import { advapi32 } from './lib.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getusernamew
  */
 export function GetUserName(): string | null {
-    GetUserName.native ??= advapi32.func('GetUserNameW', cBOOL, [ cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
+    GetUserName.native ??= advapi32.func('GetUserNameW', cBOOL, [ cPVOID, koffi.inout(cPDWORD) ])
 
     const name = new StringOutputBuffer(Internals.UNLEN + 1)
     if (GetUserName.native(name.buffer, name.pLength) !== 0)
@@ -32,7 +32,7 @@ export function GetUserName(): string | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountnamew
  */
 export function LookupAccountName(systemName: string | null, accountName: string): LookupAccountNameResult | null {
-    LookupAccountName.native ??= advapi32.func('LookupAccountNameW', cBOOL, [ cSTR, cSTR, koffi.out(koffi.pointer(cSID)), koffi.inout(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cINT)) ])
+    LookupAccountName.native ??= advapi32.func('LookupAccountNameW', cBOOL, [ cSTR, cSTR, koffi.out(cPSID), koffi.inout(cPDWORD), cPVOID, koffi.inout(cPDWORD), koffi.out(koffi.pointer(cINT)) ])
 
     const sid = {} as SID
     const pcbSid: OUT<number> = [koffi.sizeof(cSID)]
@@ -60,7 +60,7 @@ export interface LookupAccountNameResult {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupprivilegenamew
  */
 export function LookupPrivilegeName(systemName: string | null, luid: LUID): string | null {
-    LookupPrivilegeName.native ??= advapi32.func('LookupPrivilegeNameW', cBOOL, [ cSTR, koffi.pointer(cLUID), cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
+    LookupPrivilegeName.native ??= advapi32.func('LookupPrivilegeNameW', cBOOL, [ cSTR, koffi.pointer(cLUID), cPVOID, koffi.inout(cPDWORD) ])
 
     const name = new StringOutputBuffer(Internals.MAX_NAME)
     if (LookupPrivilegeName.native(systemName, luid, name.buffer, name.pLength) !== 0)

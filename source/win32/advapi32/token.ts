@@ -1,11 +1,11 @@
 import koffi from 'koffi-cream'
 import { binaryBuffer, type OUT } from '../private.js'
 import {
-    cBOOL, cDWORD, cPVOID,
+    cBOOL, cDWORD, cPVOID, cPDWORD,
     cHANDLE, type HTOKEN
 } from '../ctypes.js'
 import {
-    cACL, cSID, type SID,
+    cACL, cPSID, type SID,
     cLUID_AND_ATTRIBUTES, cSID_AND_ATTRIBUTES, type CLAIM_SECURITY_ATTRIBUTES_INFORMATION,
     cTOKEN_ACCESS_INFORMATION, type TOKEN_ACCESS_INFORMATION,
     cTOKEN_APPCONTAINER_INFORMATION, type TOKEN_APPCONTAINER_INFORMATION,
@@ -42,7 +42,7 @@ const dwLength = koffi.sizeof(cDWORD)
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-adjusttokenprivileges
  */
 export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges: boolean, newState?: TOKEN_PRIVILEGES | null): TOKEN_PRIVILEGES | null {
-    AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [ cHANDLE, cBOOL, cTOKEN_PRIVILEGES, cDWORD, cPVOID, koffi.out(koffi.pointer(cDWORD)) ])
+    AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [ cHANDLE, cBOOL, cTOKEN_PRIVILEGES, cDWORD, cPVOID, koffi.out(cPDWORD) ])
 
     const pReturnLength: OUT<number> = [0]
     if (AdjustTokenPrivileges.native(tokenHandle, Number(disableAllPrivileges), newState, binaryBuffer.byteLength, binaryBuffer, pReturnLength) !== 0) {
@@ -60,7 +60,7 @@ export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges:
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-checktokenmembership
  */
 export function CheckTokenMembership(tokenHandle: HTOKEN | null, sidToCheck: SID): boolean | null {
-    CheckTokenMembership.native ??= advapi32.func('CheckTokenMembership', cBOOL, [ cHANDLE, koffi.pointer(cSID), koffi.out(koffi.pointer(cBOOL)) ])
+    CheckTokenMembership.native ??= advapi32.func('CheckTokenMembership', cBOOL, [ cHANDLE, cPSID, koffi.out(koffi.pointer(cBOOL)) ])
 
     const pBool: OUT<number> = [0]
     return CheckTokenMembership.native(tokenHandle, sidToCheck, pBool) !== 0

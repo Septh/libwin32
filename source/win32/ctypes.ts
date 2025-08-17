@@ -43,6 +43,9 @@ export const {
 export const cPVOID = koffi.pointer(koffi.types.void)
 
 /** @internal */
+export const cPDWORD = koffi.pointer(cDWORD)
+
+/** @internal */
 export const cHANDLE = koffi.pointer(koffi.opaque())
 
 // Handles

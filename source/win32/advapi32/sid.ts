@@ -1,8 +1,8 @@
 import koffi from 'koffi-cream'
 import { StringOutputBuffer, Internals, type OUT, binaryBuffer } from '../private.js'
-import { cBOOL, cINT, cBYTE, cDWORD, cPVOID, cSTR } from '../ctypes.js'
+import { cBOOL, cINT, cBYTE, cDWORD, cPVOID, cPDWORD, cSTR } from '../ctypes.js'
 import {
-    cSID, type SID,
+    cPSID, type SID,
     cSID_IDENTIFIER_AUTHORITY, type SID_IDENTIFIER_AUTHORITY
 } from '../structs.js'
 import { ERROR_, type SID_NAME_USE} from '../consts.js'
@@ -62,7 +62,7 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
  * https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertsidtostringsidw
  */
 export function ConvertSidToStringSid(sid: SID): string | null {
-    ConvertSidToStringSid.native ??= advapi32.func('ConvertSidToStringSidW', cBOOL, [ koffi.pointer(cSID), koffi.out(koffi.pointer(cLocalAllocatedString)) ])
+    ConvertSidToStringSid.native ??= advapi32.func('ConvertSidToStringSidW', cBOOL, [ cPSID, koffi.out(koffi.pointer(cLocalAllocatedString)) ])
 
     const pStr: OUT<string> = [null!]
     return ConvertSidToStringSid.native(sid, pStr) !== 0
@@ -93,7 +93,7 @@ export function ConvertStringSidToSid(stringSid: string): SID | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-copysid
  */
 export function CopySid(sourceSid: SID): SID | null {
-    CopySid.native ??= advapi32.func('CopySid', cBOOL, [ cDWORD, koffi.out(cPVOID), koffi.pointer(cSID) ])
+    CopySid.native ??= advapi32.func('CopySid', cBOOL, [ cDWORD, koffi.out(cPVOID), cPSID ])
 
     return CopySid.native(binaryBuffer.length, binaryBuffer, sourceSid) !== 0
         ? decodeSid(binaryBuffer)
@@ -109,7 +109,7 @@ export function CopySid(sourceSid: SID): SID | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-createwellknownsid
  */
 export function CreateWellKnownSid(wellKnownSidType: number, domainSid?: SID): SID | null {
-    CreateWellKnownSid.native ??= advapi32.func('CreateWellKnownSid', cBOOL, [ cINT, koffi.pointer(cSID), koffi.out(cPVOID), koffi.inout(koffi.pointer(cDWORD)) ])
+    CreateWellKnownSid.native ??= advapi32.func('CreateWellKnownSid', cBOOL, [ cINT, cPSID, koffi.out(cPVOID), koffi.inout(cPDWORD) ])
 
     const cbSid: OUT<number> = [binaryBuffer.length]
     return CreateWellKnownSid.native(wellKnownSidType, domainSid, binaryBuffer, cbSid) !== 0
@@ -123,7 +123,7 @@ export function CreateWellKnownSid(wellKnownSidType: number, domainSid?: SID): S
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-equalsid
  */
 export function EqualSid(sid1: SID, sid2: SID): boolean {
-    EqualSid.native ??= advapi32.func('EqualSid', cBOOL, [ koffi.pointer(cSID), koffi.pointer(cSID) ])
+    EqualSid.native ??= advapi32.func('EqualSid', cBOOL, [ cPSID, cPSID ])
     return EqualSid.native(sid1, sid2) !== 0
 }
 
@@ -142,7 +142,7 @@ export function FreeSid(_sid: SID): void {}
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-getlengthsid
  */
 export function GetLengthSid(sid: SID): number {
-    GetLengthSid.native ??= advapi32.func('GetLengthSid', cDWORD, [ koffi.pointer(cSID) ])
+    GetLengthSid.native ??= advapi32.func('GetLengthSid', cDWORD, [ cPSID ])
     return GetLengthSid.native(sid)
 }
 
@@ -155,7 +155,7 @@ export function GetLengthSid(sid: SID): number {
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-iswellknownsid
  */
 export function IsWellKnownSid(sid: SID, wellKnownSidType: number): boolean {
-    IsWellKnownSid.native ??= advapi32.func('IsWellKnownSid', cBOOL, [ koffi.pointer(cSID), cINT ])
+    IsWellKnownSid.native ??= advapi32.func('IsWellKnownSid', cBOOL, [ cPSID, cINT ])
     return IsWellKnownSid.native(sid, wellKnownSidType) !== 0
 }
 
@@ -165,7 +165,7 @@ export function IsWellKnownSid(sid: SID, wellKnownSidType: number): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountsidw
  */
 export function LookupAccountSid(systemName: string | null, sid: SID): LookupAccountSidResult | null {
-    LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [ cSTR, koffi.pointer(cSID), cPVOID, koffi.inout(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cINT)) ])
+    LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [ cSTR, cPSID, cPVOID, koffi.inout(cPDWORD), cPVOID, koffi.inout(cPDWORD), koffi.out(koffi.pointer(cINT)) ])
 
     const name = new StringOutputBuffer(Internals.MAX_NAME)
     const domain = new StringOutputBuffer(Internals.MAX_NAME)

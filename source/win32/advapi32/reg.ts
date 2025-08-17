@@ -1,7 +1,7 @@
 import koffi from 'koffi-cream'
 import { binaryBuffer, textDecoder, StringOutputBuffer, Internals, type OUT } from '../private.js'
 import {
-    cDWORD, cPVOID, cSTR, cLSTATUS,
+    cDWORD, cPVOID, cPDWORD, cSTR, cLSTATUS,
     cHANDLE, type HKEY,
 } from '../ctypes.js'
 import {
@@ -88,7 +88,7 @@ export function RegCopyTree(hKeySrc: HKEY | HKEY_, subKey: string | null, hKeyDe
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcreatekeyexw
  */
 export function RegCreateKeyEx(hKey: HKEY | HKEY_, subKey: string, className: string | null, options: REG_OPTION_, samDesired: KEY_, securityAttributes: SECURITY_ATTRIBUTES | null): HKEY | LSTATUS {
-    RegCreateKeyEx.native ??= advapi32.func('RegCreateKeyExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cSTR, cDWORD, cDWORD, koffi.pointer(cSECURITY_ATTRIBUTES), koffi.out(koffi.pointer(cHANDLE)), koffi.out(koffi.pointer(cDWORD)) ])
+    RegCreateKeyEx.native ??= advapi32.func('RegCreateKeyExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cSTR, cDWORD, cDWORD, koffi.pointer(cSECURITY_ATTRIBUTES), koffi.out(koffi.pointer(cHANDLE)), koffi.out(cPDWORD) ])
 
     const pHandle: OUT<HKEY> = [null!]
     return RegCreateKeyEx.native(hKey, subKey, 0, className, options, samDesired, securityAttributes, pHandle, null) || pHandle[0]
@@ -150,7 +150,7 @@ export function RegDeleteValue(hKey: HKEY | HKEY_, valueName: string | null = nu
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumkeyexw
  */
 export function RegEnumKeyEx(hKey: HKEY | HKEY_, index: number): RegEnumKeyExResult | LSTATUS {
-    RegEnumKeyEx.native ??= advapi32.func('RegEnumKeyExW', cLSTATUS, [ cHANDLE, cDWORD, cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.pointer(cDWORD), cPVOID, koffi.inout(koffi.pointer(cDWORD)), koffi.pointer(cFILETIME) ])
+    RegEnumKeyEx.native ??= advapi32.func('RegEnumKeyExW', cLSTATUS, [ cHANDLE, cDWORD, cPVOID, koffi.inout(cPDWORD), cPDWORD, cPVOID, koffi.inout(cPDWORD), koffi.pointer(cFILETIME) ])
 
     const name = new StringOutputBuffer(Internals.MAX_KEY_LENGTH + 1)
     const className = new StringOutputBuffer(Internals.MAX_PATH + 1)
@@ -171,7 +171,7 @@ export function RegEnumKeyEx(hKey: HKEY | HKEY_, index: number): RegEnumKeyExRes
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumvaluew
  */
 export function RegEnumValue(hKey: HKEY | HKEY_, index: number): RegEnumValueResult | LSTATUS {
-    RegEnumValue.native ??= advapi32.func('RegEnumValueW', cLSTATUS, [ cHANDLE, cDWORD, cPVOID, koffi.inout(koffi.pointer(cDWORD)), cPVOID, koffi.out(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
+    RegEnumValue.native ??= advapi32.func('RegEnumValueW', cLSTATUS, [ cHANDLE, cDWORD, cPVOID, koffi.inout(cPDWORD), cPVOID, koffi.out(cPDWORD), cPVOID, koffi.inout(cPDWORD) ])
 
     const name = new StringOutputBuffer(Internals.MAX_KEY_LENGTH + 1)
     const pType: OUT<REG_> = [0]
@@ -205,7 +205,7 @@ export function RegFlushKey(hKey: HKEY | HKEY_): LSTATUS {
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
  */
 export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: string | null, flags: RRF_): RegGetValueResult | LSTATUS {
-    RegGetValue.native ??= advapi32.func('RegGetValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, koffi.out(koffi.pointer(cDWORD)), cPVOID, koffi.inout(koffi.pointer(cDWORD)) ])
+    RegGetValue.native ??= advapi32.func('RegGetValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, koffi.out(cPDWORD), cPVOID, koffi.inout(cPDWORD) ])
 
     const pType: OUT<REG_> = [0]
     const pCount: OUT<number> = [binaryBuffer.byteLength]
@@ -298,7 +298,7 @@ export function RegOpenKeyEx(hKey: HKEY | HKEY_, subKey: string | null, options:
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regqueryinfokeyw
  */
 export function RegQueryInfoKey(hKey: HKEY | HKEY_): RegQueryInfoKeyResult | LSTATUS {
-    RegQueryInfoKey.native ??= advapi32.func('RegQueryInfoKeyW', cLSTATUS, [ cHANDLE, cPVOID, koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cDWORD)), koffi.out(koffi.pointer(cFILETIME)) ])
+    RegQueryInfoKey.native ??= advapi32.func('RegQueryInfoKeyW', cLSTATUS, [ cHANDLE, cPVOID, koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(koffi.pointer(cFILETIME)) ])
 
     const className = new StringOutputBuffer(Internals.MAX_PATH + 1)
     const pSubKeys: OUT<number> = [0]

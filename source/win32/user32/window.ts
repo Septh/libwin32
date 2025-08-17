@@ -1,7 +1,7 @@
 import koffi from 'koffi-cream'
 import { StringOutputBuffer, type OUT } from '../private.js'
 import {
-    cBOOL, cINT, cUINT, cDWORD, cPVOID, cSTR,
+    cBOOL, cINT, cUINT, cDWORD, cPVOID, cPDWORD, cSTR,
     cHANDLE, type HINSTANCE, type HMENU, type HWND, type HDESK,
     cLRESULT, type LRESULT, cWPARAM, type WPARAM, cLPARAM, type LPARAM
 } from '../ctypes.js'
@@ -215,7 +215,7 @@ export function GetWindowText(hWnd: HWND): string {
  *
  */
 export function GetWindowThreadProcessId(hWnd: HWND): GetWindowThreadProcessIdResult {
-    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(koffi.pointer(cDWORD)) ])
+    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cPDWORD) ])
 
     const pProcessId: OUT<number> = [0]
     const threadId: number = GetWindowThreadProcessId.native(hWnd, pProcessId)
