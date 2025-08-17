@@ -21,9 +21,9 @@ export function GetUserName(): string | null {
     GetUserName.native ??= advapi32.func('GetUserNameW', cBOOL, [ cPVOID, koffi.inout(cPDWORD) ])
 
     const name = new StringOutputBuffer(Internals.UNLEN + 1)
-    if (GetUserName.native(name.buffer, name.pLength) !== 0)
-        return name.decode(name.length - 1)   // GetUserName() returned length includes the final \0
-    return null
+    return GetUserName.native(name.buffer, name.pLength) !== 0
+        ? name.decode(name.length - 1)   // GetUserName() returned length includes the final \0
+        : null
 }
 
 /**
@@ -35,14 +35,14 @@ export function LookupAccountName(systemName: string | null, accountName: string
     LookupAccountName.native ??= advapi32.func('LookupAccountNameW', cBOOL, [ cSTR, cSTR, koffi.out(cPSID), koffi.inout(cPDWORD), cPVOID, koffi.inout(cPDWORD), koffi.out(koffi.pointer(cINT)) ])
 
     const sid = {} as SID
-    const pcbSid: OUT<number> = [koffi.sizeof(cSID)]
+    const pCbSid: OUT<number> = [koffi.sizeof(cSID)]
     const domain = new StringOutputBuffer(Internals.MAX_NAME)
-    const peUse: OUT<number> = [0]
-    if (LookupAccountName.native(systemName, accountName, sid, pcbSid, domain.buffer, domain.pLength, peUse) !== 0) {
+    const pUse: OUT<number> = [0]
+    if (LookupAccountName.native(systemName, accountName, sid, pCbSid, domain.buffer, domain.pLength, pUse) !== 0) {
         return {
             sid,
             referencedDomainName: domain.decode(),
-            use: peUse[0]
+            use: pUse[0]
         }
     }
     return null
@@ -63,9 +63,9 @@ export function LookupPrivilegeName(systemName: string | null, luid: LUID): stri
     LookupPrivilegeName.native ??= advapi32.func('LookupPrivilegeNameW', cBOOL, [ cSTR, koffi.pointer(cLUID), cPVOID, koffi.inout(cPDWORD) ])
 
     const name = new StringOutputBuffer(Internals.MAX_NAME)
-    if (LookupPrivilegeName.native(systemName, luid, name.buffer, name.pLength) !== 0)
-        return name.decode()
-    return null
+    return LookupPrivilegeName.native(systemName, luid, name.buffer, name.pLength) !== 0
+        ? name.decode()
+        : null
 }
 
 /**
@@ -77,9 +77,9 @@ export function LookupPrivilegeValue(systemName: string | null, name: SE_NAME): 
     LookupPrivilegeValue.native ??= advapi32.func('LookupPrivilegeValueW', cBOOL, [ cSTR, cSTR, koffi.out(koffi.pointer(cLUID)) ])
 
     const LUID = {} as LUID
-    if (LookupPrivilegeValue.native(systemName, name, LUID) !== 0)
-        return LUID
-    return null
+    return LookupPrivilegeValue.native(systemName, name, LUID) !== 0
+        ? LUID
+        : null
 }
 
 /**
@@ -91,9 +91,9 @@ export function OpenProcessToken(processHandle: HANDLE, desiredAccess: TOKEN_): 
     OpenProcessToken.native ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const pHandle: OUT<HTOKEN> = [null!]
-    if (OpenProcessToken.native(processHandle, desiredAccess, pHandle) !== 0)
-        return pHandle[0]
-    return null
+    return OpenProcessToken.native(processHandle, desiredAccess, pHandle) !== 0
+        ? pHandle[0]
+        : null
 }
 
 /**
@@ -105,7 +105,7 @@ export function PrivilegeCheck(clientToken: HANDLE, requiredPrivileges: PRIVILEG
     PrivilegeCheck.native ??= advapi32.func('PrivilegeCheck', cBOOL, [ cHANDLE, koffi.inout(koffi.pointer(cPRIVILEGE_SET)), koffi.out(koffi.pointer(cBOOL)) ])
 
     const pfResult: OUT<number> = [0]
-    if (PrivilegeCheck.native(clientToken, requiredPrivileges, pfResult) !== 0)
-        return Boolean(pfResult[0])
-    return null
+    return PrivilegeCheck.native(clientToken, requiredPrivileges, pfResult) !== 0
+        ? Boolean(pfResult[0])
+        : null
 }
