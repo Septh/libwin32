@@ -44,7 +44,9 @@ export function AdjustWindowRectEx(rect: RECT, style: WS_, menu: boolean, exStyl
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-adjustwindowrectexfordpi
  */
 export function AdjustWindowRectExForDpi(rect: RECT, style: WS_, menu: boolean, exStyle: WS_EX_, dpi: number): boolean {
-    AdjustWindowRectExForDpi.native ??= user32.func('AdjustWindowRectExForDpi', cBOOL, [ koffi.inout(koffi.pointer(cRECT)), cDWORD, cBOOL, cDWORD, cUINT ])
+    AdjustWindowRectExForDpi.native ??= user32.func('AdjustWindowRectExForDpi', cBOOL, [
+        koffi.inout(koffi.pointer(cRECT)), cDWORD, cBOOL, cDWORD, cUINT
+    ])
     return AdjustWindowRectExForDpi.native(rect, style, Number(menu), exStyle, dpi) !== 0
 }
 
@@ -118,8 +120,12 @@ export function CreateWindowEx(
     hInstance:  HINSTANCE | null,
     lParam:     LPARAM | null,
 ): HWND | null {
-    CreateWindowEx.native ??= user32.func('CreateWindowExW', cHANDLE, [ cDWORD, cSTR, cSTR, cDWORD, cINT, cINT, cINT, cINT, cHANDLE, cHANDLE, cHANDLE, cLPARAM ])
-    return CreateWindowEx.native(exStyle, className, windowName, style, x, y, width, height, hWndParent, hMenu, hInstance, lParam)
+    CreateWindowEx.native ??= user32.func('CreateWindowExW', cHANDLE, [
+        cDWORD, cSTR, cSTR, cDWORD, cINT, cINT, cINT, cINT, cHANDLE, cHANDLE, cHANDLE, cLPARAM
+    ])
+    return CreateWindowEx.native(
+        exStyle, className, windowName, style, x, y, width, height, hWndParent, hMenu, hInstance, lParam
+    )
 }
 
 /**
@@ -167,7 +173,9 @@ export function FindWindow(className: string | null, windowName: string | null):
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowexw
  */
-export function FindWindowEx(hWndParent: HWND | HWND_ | null, hWndChildAfter: HWND | null, className: string | null, windowName: string | null): HWND | null {
+export function FindWindowEx(
+    hWndParent: HWND | HWND_ | null, hWndChildAfter: HWND | null, className: string | null, windowName: string | null
+): HWND | null {
     FindWindowEx.native ??= user32.func('FindWindowExW', cHANDLE, [ cHANDLE, cHANDLE, cSTR, cSTR ])
     return FindWindowEx.native(hWndParent, hWndChildAfter, className, windowName)
 }
@@ -209,7 +217,8 @@ export function GetWindowText(hWnd: HWND): string {
 
 /**
  *
- * Retrieves the identifier of the thread that created the specified window and, optionally, the identifier of the process that created the window.
+ * Retrieves the identifier of the thread that created the specified window and, optionally,
+ * the identifier of the process that created the window.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowthreadprocessid
  *
@@ -253,7 +262,8 @@ export function ShowWindowAsync(hWnd: HWND, cmdShow: SW_): boolean {
 }
 
 /**
- * Updates the client area of the specified window by sending a WM_PAINT message to the window if the window's update region is not empty.
+ * Updates the client area of the specified window by sending a WM_PAINT message to the window
+ * if the window's update region is not empty.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-updatewindow
  */

@@ -3,13 +3,8 @@ import {
     cBOOL, cINT, cUINT, cWORD, cSTR,
     cHANDLE, type HINSTANCE, type HCURSOR, type HICON, type HMENU, type HWND
 } from '../ctypes.js'
-import {
-    cPOINT, type POINT
-} from '../structs.js'
-import {
-    type IDC_, type IDI_, type OIC_, type OCR_, type OBM_, type IMAGE_,
-    type LR_, type MB_
-} from '../consts.js'
+import { cPOINT, type POINT } from '../structs.js'
+import type { IDC_, IDI_, OIC_, OCR_, OBM_, IMAGE_, LR_, MB_ } from '../consts.js'
 import { user32 } from './lib.js'
 
 /**
@@ -51,9 +46,7 @@ export function GetCursorPos(): POINT | null {
     GetCursorPos.native ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(koffi.pointer(cPOINT)) ])
 
     const point = {} as POINT
-    return GetCursorPos.native(point) !== 0
-        ? point
-        : null
+    return GetCursorPos.native(point) !== 0 ? point : null
 }
 
 /**
@@ -81,15 +74,18 @@ export function LoadIcon(hInstance: HINSTANCE | null, iconName: IDI_ | string): 
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadimagew
  */
-export function LoadImage(hInstance: HINSTANCE | null, name: IDC_ | IDI_ | OIC_ | OCR_ | OBM_ | string, type: IMAGE_, cx: number, cy: number, load: LR_): HICON | null {
+export function LoadImage(
+    hInstance: HINSTANCE | null, name: IDC_ | IDI_ | OIC_ | OCR_ | OBM_ | string, type: IMAGE_, cx: number, cy: number, load: LR_
+): HICON | null {
     LoadImage.native ??= user32.func('LoadImageW', cHANDLE, [cHANDLE, cSTR, cUINT, cINT, cINT, cUINT])
     return LoadImage.native(hInstance, name, type, cx, cy, load)
 }
 
 /**
- * Displays a modal dialog box that contains a system icon, a set of buttons, and a brief application-specific message, such as status or error information.
+ * Displays a modal dialog box that contains a system icon, a set of buttons, and a brief application-specific message,
+ * such as status or error information.
  *
- * Note: you may use the IDxxx constants from libwin32/consts to test the result.
+ * Note: you may use the IDxxx constants from libwin32/consts to test the returned value.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxw
  */
@@ -101,7 +97,7 @@ export function MessageBox(hWnd: HWND | null, text: string | null, caption: stri
 /**
  * Creates, displays, and operates a message box. Currently `MessageBoxEx` and `MessageBox` work the same way.
  *
- * Note: you may use the IDxxx constants from libwin32/consts to test the result.
+ * Note: you may use the IDxxx constants from libwin32/consts to test the returned value.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxexw
  */

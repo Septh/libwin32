@@ -42,13 +42,19 @@ const dwLength = koffi.sizeof(cDWORD)
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-adjusttokenprivileges
  */
 export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges: boolean, newState?: TOKEN_PRIVILEGES | null): TOKEN_PRIVILEGES | null {
-    AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [ cHANDLE, cBOOL, cTOKEN_PRIVILEGES, cDWORD, cPVOID, koffi.out(cPDWORD) ])
+    AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [
+        cHANDLE, cBOOL, cTOKEN_PRIVILEGES, cDWORD, cPVOID, koffi.out(cPDWORD)
+    ])
 
-    const pReturnLength: OUT<number> = [0]
-    if (AdjustTokenPrivileges.native(tokenHandle, Number(disableAllPrivileges), newState, binaryBuffer.byteLength, binaryBuffer, pReturnLength) !== 0) {
+    const pLength: OUT<number> = [0]
+    if (AdjustTokenPrivileges.native(
+        tokenHandle, Number(disableAllPrivileges), newState, binaryBuffer.byteLength, binaryBuffer, pLength
+    ) !== 0) {
         const previousState: TOKEN_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
         if (previousState.PrivilegeCount > 1)
-            previousState.Privileges = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, previousState.PrivilegeCount)
+            previousState.Privileges = koffi.decode(
+                binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, previousState.PrivilegeCount
+            )
         return previousState
     }
     return null

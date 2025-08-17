@@ -37,14 +37,14 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
         subAuthorities.length = 8
         subAuthorities.fill(0, subAuthorityCount)
 
-        const pSID: OUT<unknown> = [null]
+        const ppSID: OUT<unknown> = [null]
         if (AllocateAndInitializeSid.native([ identifierAuthority ], subAuthorityCount,
             subAuthorities[0], subAuthorities[1], subAuthorities[2], subAuthorities[3],
             subAuthorities[4], subAuthorities[5], subAuthorities[6], subAuthorities[7],
-            pSID
+            ppSID
         ) !== 0) {
-            const sid = decodeSid(pSID[0])
-            freeSid(pSID[0])
+            const sid = decodeSid(ppSID[0])
+            freeSid(ppSID[0])
             return sid
         }
     }
@@ -57,12 +57,15 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
 }
 
 /**
- * The ConvertSidToStringSid function converts a security identifier (SID) to a string format suitable for display, storage, or transmission.
+ * The ConvertSidToStringSid function converts a security identifier (SID) to a string format suitable for display,
+ * storage, or transmission.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertsidtostringsidw
  */
 export function ConvertSidToStringSid(sid: SID): string | null {
-    ConvertSidToStringSid.native ??= advapi32.func('ConvertSidToStringSidW', cBOOL, [ cPSID, koffi.out(koffi.pointer(cLocalAllocatedString)) ])
+    ConvertSidToStringSid.native ??= advapi32.func('ConvertSidToStringSidW', cBOOL, [
+        cPSID, koffi.out(koffi.pointer(cLocalAllocatedString))
+    ])
 
     const pStr: OUT<string> = [null!]
     return ConvertSidToStringSid.native(sid, pStr) !== 0
@@ -78,10 +81,10 @@ export function ConvertSidToStringSid(sid: SID): string | null {
 export function ConvertStringSidToSid(stringSid: string): SID | null {
     ConvertStringSidToSid.native ??= advapi32.func('ConvertStringSidToSidW', cBOOL, [ cSTR, koffi.out(koffi.pointer(cPVOID)) ])
 
-    const pSID: OUT<unknown> = [null]
-    if (ConvertStringSidToSid.native(stringSid, pSID) !== 0) {
-        const sid = decodeSid(pSID[0])
-        LocalFree(pSID[0])
+    const ppSID: OUT<unknown> = [null]
+    if (ConvertStringSidToSid.native(stringSid, ppSID) !== 0) {
+        const sid = decodeSid(ppSID[0])
+        LocalFree(ppSID[0])
         return sid
     }
     return null
@@ -111,8 +114,8 @@ export function CopySid(sourceSid: SID): SID | null {
 export function CreateWellKnownSid(wellKnownSidType: number, domainSid?: SID): SID | null {
     CreateWellKnownSid.native ??= advapi32.func('CreateWellKnownSid', cBOOL, [ cINT, cPSID, koffi.out(cPVOID), koffi.inout(cPDWORD) ])
 
-    const cbSid: OUT<number> = [binaryBuffer.length]
-    return CreateWellKnownSid.native(wellKnownSidType, domainSid, binaryBuffer, cbSid) !== 0
+    const pCbSid: OUT<number> = [binaryBuffer.length]
+    return CreateWellKnownSid.native(wellKnownSidType, domainSid, binaryBuffer, pCbSid) !== 0
         ? decodeSid(binaryBuffer)
         : null
 }
@@ -165,7 +168,9 @@ export function IsWellKnownSid(sid: SID, wellKnownSidType: number): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountsidw
  */
 export function LookupAccountSid(systemName: string | null, sid: SID): LookupAccountSidResult | null {
-    LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [ cSTR, cPSID, cPVOID, koffi.inout(cPDWORD), cPVOID, koffi.inout(cPDWORD), koffi.out(koffi.pointer(cINT)) ])
+    LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [
+        cSTR, cPSID, cPVOID, koffi.inout(cPDWORD), cPVOID, koffi.inout(cPDWORD), koffi.out(koffi.pointer(cINT))
+    ])
 
     const name = new StringOutputBuffer(Internals.MAX_NAME)
     const domain = new StringOutputBuffer(Internals.MAX_NAME)

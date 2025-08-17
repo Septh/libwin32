@@ -66,7 +66,6 @@ export const enum INTERNAL_TOKEN_INFORMATION_CLASS {
     MaxTokenInfoClass
 }
 
-// TODO: remove when Koffi's support for variable-length arrays is live.
 export function decodeSid(ptr: unknown): SID {
     const [ Revision, SubAuthorityCount, ...IdentifierAuthority ] = koffi.decode(ptr, 0, cBYTE, 8) as [ number, number, number, number, number, number, number, number ]
     const SubAuthority: number[] = Array.from(koffi.decode(ptr, koffi.offsetof(cSID, 'SubAuthority'), cDWORD, SubAuthorityCount))
@@ -80,7 +79,6 @@ export function decodeSid(ptr: unknown): SID {
     }
 }
 
-// TODO: remove when Koffi's support for variable-length arrays is live.
 export function decodeSidAndAttributesHash(ptr: unknown): SID_AND_ATTRIBUTES_HASH {
     const ret: SID_AND_ATTRIBUTES_HASH = koffi.decode(ptr, cSID_AND_ATTRIBUTES_HASH)
     if (ret.SidAttr) {
@@ -91,7 +89,6 @@ export function decodeSidAndAttributesHash(ptr: unknown): SID_AND_ATTRIBUTES_HAS
     return ret
 }
 
-// TODO: remove when Koffi's support for variable-length arrays is live.
 export function decodeTokenPrivileges(ptr: unknown): TOKEN_PRIVILEGES {
     const ret: TOKEN_PRIVILEGES = koffi.decode(ptr, cTOKEN_PRIVILEGES)
     if (ret.Privileges) {
@@ -101,7 +98,6 @@ export function decodeTokenPrivileges(ptr: unknown): TOKEN_PRIVILEGES {
     return ret
 }
 
-// TODO: remove when Koffi's support for variable-length arrays is live.
 export function decodeTokenGroups(ptr: unknown): TOKEN_GROUPS {
     const ret: TOKEN_GROUPS = koffi.decode(ptr, cTOKEN_GROUPS)
     if (ret.GroupCount > 0) {
@@ -112,7 +108,6 @@ export function decodeTokenGroups(ptr: unknown): TOKEN_GROUPS {
     return ret
 }
 
-// TODO: remove when Koffi's support for variable-length arrays is live.
 export function decodeClaimSecurityAttributesInformation(ptr: unknown): CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
     const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(ptr, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
     if (ret.Attribute?.pAttributeV1) {
@@ -127,7 +122,6 @@ export function decodeClaimSecurityAttributesInformation(ptr: unknown): CLAIM_SE
     return ret
 }
 
-// Called by GetTokenInformation() and the various GetToken<xxx>Information() stubs.
 export function getTokenInfo(hToken: HTOKEN, infoClass: INTERNAL_TOKEN_INFORMATION_CLASS, tokenInformationLength = binaryBuffer.byteLength): boolean {
     getTokenInfo.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cPVOID, cDWORD, koffi.out(cPDWORD) ])
 

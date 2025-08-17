@@ -15,7 +15,5 @@ export function GetUserNameEx(nameFormat: EXTENDED_NAME_FORMAT): string | null {
     GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cSTR, koffi.inout(cPDWORD) ])
 
     const str = new StringOutputBuffer(Internals.UNLEN)
-    return GetUserNameEx.native(nameFormat, str.buffer, str.pLength) !== 0
-        ? str.decode()
-        : null
+    return GetUserNameEx.native(nameFormat, str.buffer, str.pLength) !== 0 ? str.decode() : null
 }

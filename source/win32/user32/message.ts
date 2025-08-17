@@ -5,14 +5,8 @@ import {
     cHANDLE, type HWND,
     cLRESULT, type LRESULT, cWPARAM, type WPARAM, cLPARAM, type LPARAM
 } from '../ctypes.js'
-import {
-    cBSMINFO, BSMINFO,
-    cMSG, type MSG
-} from '../structs.js'
-import {
-    BSM_, type BSF_,
-    type PM_
-} from '../consts.js'
+import { cBSMINFO, BSMINFO, cMSG, type MSG } from '../structs.js'
+import { BSM_, type BSF_, type PM_ } from '../consts.js'
 import { user32 } from './lib.js'
 
 export interface BroadcastSystemMessageResult {
@@ -84,9 +78,7 @@ export function GetMessage(hWnd: HWND | null | -1, msgFilterMin: number = 0, msg
     GetMessage.native ??= user32.func('GetMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT ])
 
     const msg = {} as MSG
-    return GetMessage.native(msg, hWnd, msgFilterMin, msgFilterMax) !== 0
-        ? msg
-        : null
+    return GetMessage.native(msg, hWnd, msgFilterMin, msgFilterMax) !== 0 ? msg : null
 }
 
 /**
@@ -98,9 +90,7 @@ export function PeekMessage(hWnd: HWND | null | -1, msgFilterMin: number, msgFil
     PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT, cUINT ])
 
     const msg = {} as MSG
-    return PeekMessage.native(msg, hWnd, msgFilterMin, msgFilterMax, removeMsg) !== 0
-        ? msg
-        : null
+    return PeekMessage.native(msg, hWnd, msgFilterMin, msgFilterMax, removeMsg) !== 0 ? msg : null
 }
 
 /**
