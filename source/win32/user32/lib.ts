@@ -1,8 +1,7 @@
 import koffi from 'koffi-cream'
-import { Win32Dll } from '../private.js'
 import { cWNDPROC, type WNDPROC } from '../structs.js'
 
-export const user32 = /*#__PURE__*/new Win32Dll('user32.dll')
+export const user32 = koffi.load('user32.dll')
 
 const registeredWindows = /*#__PURE__*/new Map<string, koffi.IKoffiRegisteredCallback>()
 

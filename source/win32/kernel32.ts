@@ -1,5 +1,5 @@
 import koffi from 'koffi-cream'
-import { Win32Dll, StringOutputBuffer, Internals, type OUT } from './private.js'
+import { StringOutputBuffer, Internals, type OUT } from './private.js'
 import {
     cVOID, cBOOL, cDWORD, cPVOID, cSTR,
     cHANDLE, type HANDLE, type HMODULE, type HWND
@@ -13,7 +13,7 @@ import {
     cSYSTEMTIME, type SYSTEMTIME} from './structs.js'
 
 /** @internal */
-export const kernel32 = /*#__PURE__*/new Win32Dll('kernel32.dll')
+export const kernel32 = koffi.load('kernel32.dll')
 
 /**
  * Generates simple tones on the speaker.

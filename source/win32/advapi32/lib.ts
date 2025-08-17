@@ -1,5 +1,5 @@
 import koffi from 'koffi-cream'
-import { Win32Dll, Internals, binaryBuffer, type OUT } from '../private.js'
+import { Internals, binaryBuffer, type OUT } from '../private.js'
 import { cBOOL, cBYTE, cINT, cDWORD, cHANDLE, cPVOID, type HTOKEN } from '../ctypes.js'
 import {
     cLUID_AND_ATTRIBUTES,
@@ -12,7 +12,7 @@ import {
     cCLAIM_SECURITY_ATTRIBUTE_V1,
 } from '../structs.js'
 
-export const advapi32 = /*#__PURE__*/new Win32Dll('advapi32.dll')
+export const advapi32 = koffi.load('advapi32.dll')
 
 export const enum INTERNAL_TOKEN_INFORMATION_CLASS {
     TokenUser = 1,

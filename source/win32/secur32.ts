@@ -1,10 +1,10 @@
 import koffi from 'koffi-cream'
-import { Win32Dll, StringOutputBuffer, Internals } from './private.js'
+import { StringOutputBuffer, Internals } from './private.js'
 import { cBOOL, cINT, cDWORD, cSTR } from './ctypes.js'
 import type { EXTENDED_NAME_FORMAT } from './consts.js'
 
 /** @internal */
-export const secur32 = /*#__PURE__*/new Win32Dll('secur32.dll')
+export const secur32 = koffi.load('secur32.dll')
 
 /**
  * Retrieves the name of the user associated with the current thread.
