@@ -1,15 +1,15 @@
 import koffi from 'koffi-cream'
 import { StringOutputBuffer, Internals, type OUT } from '../private.js'
 import {
-    cBOOL, cINT, cDWORD, cPVOID, cPDWORD, cSTR,
-    cHANDLE, type HANDLE, type HTOKEN
+    cBOOL, cINT, cPVOID, cPDWORD, cSTR,
+    cHANDLE, type HANDLE
 } from '../ctypes.js'
 import {
     cSID, cPSID, type SID,
     cLUID, type LUID,
     cPRIVILEGE_SET, type PRIVILEGE_SET
 } from '../structs.js'
-import type { TOKEN_, SID_NAME_USE, SE_NAME } from '../consts.js'
+import type { SID_NAME_USE, SE_NAME } from '../consts.js'
 import { advapi32 } from './lib.js'
 
 /**
@@ -79,20 +79,6 @@ export function LookupPrivilegeValue(systemName: string | null, name: SE_NAME): 
     const LUID = {} as LUID
     return LookupPrivilegeValue.native(systemName, name, LUID) !== 0
         ? LUID
-        : null
-}
-
-/**
- * Opens the access token associated with a process.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken
- */
-export function OpenProcessToken(processHandle: HANDLE, desiredAccess: TOKEN_): HTOKEN | null {
-    OpenProcessToken.native ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
-
-    const pHandle: OUT<HTOKEN> = [null!]
-    return OpenProcessToken.native(processHandle, desiredAccess, pHandle) !== 0
-        ? pHandle[0]
         : null
 }
 

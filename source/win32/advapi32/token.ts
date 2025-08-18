@@ -2,7 +2,7 @@ import koffi from 'koffi-cream'
 import { binaryBuffer, Internals, type OUT } from '../private.js'
 import {
     cBOOL, cDWORD, cPVOID, cPDWORD,
-    cHANDLE, type HTOKEN
+    cHANDLE, type HANDLE, type HTOKEN
 } from '../ctypes.js'
 import {
     cACL, cPSID, type SID,
@@ -23,7 +23,7 @@ import {
     cTOKEN_STATISTICS, type TOKEN_STATISTICS,
     cTOKEN_USER, type TOKEN_USER,
 } from '../structs.js'
-import { TOKEN_INFORMATION_CLASS, ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE } from '../consts.js'
+import { TOKEN_INFORMATION_CLASS, ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE, type TOKEN_ } from '../consts.js'
 import { SetLastError } from '../kernel32.js'
 import {
     advapi32,
@@ -581,4 +581,18 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
             SetLastError(ERROR_.NOT_SUPPORTED)
             return null
     }
+}
+
+/**
+ * Opens the access token associated with a process.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken
+ */
+export function OpenProcessToken(processHandle: HANDLE, desiredAccess: TOKEN_): HTOKEN | null {
+    OpenProcessToken.native ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
+
+    const pHandle: OUT<HTOKEN> = [null!]
+    return OpenProcessToken.native(processHandle, desiredAccess, pHandle) !== 0
+        ? pHandle[0]
+        : null
 }
