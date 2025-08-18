@@ -42,6 +42,8 @@ export const enum Internals {
     MAX_NAME = 256,
     INVALID_HANDLE_VALUE = -1,
     INFINITE = 0xffffffff,  // Infinite timeout
+
+    DWORD_LENGTH = 4,
 }
 
 /** koffi.out() and koffi.inout() expect a table with a single entry. */

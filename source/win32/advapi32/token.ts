@@ -1,5 +1,5 @@
 import koffi from 'koffi-cream'
-import { binaryBuffer, type OUT } from '../private.js'
+import { binaryBuffer, Internals, type OUT } from '../private.js'
 import {
     cBOOL, cDWORD, cPVOID, cPDWORD,
     cHANDLE, type HTOKEN
@@ -31,8 +31,6 @@ import {
     decodeSid, decodeSidAndAttributesHash, decodeTokenPrivileges, decodeTokenGroups,
     decodeClaimSecurityAttributesInformation
 } from './lib.js'
-
-const dwLength = koffi.sizeof(cDWORD)
 
 /**
  * The AdjustTokenPrivileges function enables or disables privileges in the specified access token.
@@ -99,7 +97,7 @@ export function GetTokenAccessInformation(tokenHandle: HTOKEN): TOKEN_ACCESS_INF
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenAppContainerNumberInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenAppContainerNumber, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenAppContainerNumber, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -173,7 +171,7 @@ export function GetTokenDeviceGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROU
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenElevationInformation(tokenHandle: HTOKEN): TOKEN_ELEVATION | null {
-    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenElevation, dwLength)) {
+    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenElevation, Internals.DWORD_LENGTH)) {
         const ret: TOKEN_ELEVATION = koffi.decode(binaryBuffer, cTOKEN_ELEVATION)
         return ret
     }
@@ -186,7 +184,7 @@ export function GetTokenElevationInformation(tokenHandle: HTOKEN): TOKEN_ELEVATI
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenElevationTypeInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenElevationType, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenElevationType, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -239,7 +237,7 @@ export function GetTokenGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_TYPE | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenHasRestrictions, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenHasRestrictions, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -250,7 +248,7 @@ export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_T
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenImpersonationLevelInformation(tokenHandle: HTOKEN): SECURITY_IMPERSONATION_LEVEL | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenImpersonationLevel, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenImpersonationLevel, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -275,7 +273,7 @@ export function GetTokenIntegrityLevelInformation(tokenHandle: HTOKEN): TOKEN_MA
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenIsAppContainerInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenIsAppContainer, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenIsAppContainer, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -394,7 +392,7 @@ export function GetTokenRestrictedSidsInformation(tokenHandle: HTOKEN): TOKEN_GR
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenSandBoxInertInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenSandBoxInert, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenSandBoxInert, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -405,7 +403,7 @@ export function GetTokenSandBoxInertInformation(tokenHandle: HTOKEN): number | n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenSessionId, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenSessionId, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -438,7 +436,7 @@ export function GetTokenStatisticsInformation(tokenHandle: HTOKEN): TOKEN_STATIS
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenTypeInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenType, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenType, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -449,7 +447,7 @@ export function GetTokenTypeInformation(tokenHandle: HTOKEN): number | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenUIAccessInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenUIAccess, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenUIAccess, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -485,7 +483,7 @@ export function GetTokenUserInformation(tokenHandle: HTOKEN): TOKEN_USER | null 
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenVirtualizationAllowedInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenVirtualizationAllowed, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
@@ -496,7 +494,7 @@ export function GetTokenVirtualizationAllowedInformation(tokenHandle: HTOKEN): n
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenVirtualizationEnabledInformation(tokenHandle: HTOKEN): number | null {
-    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled, dwLength)
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenVirtualizationEnabled, Internals.DWORD_LENGTH)
         ? binaryBuffer.readUInt32LE(0)
         : null
 }
