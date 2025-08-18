@@ -45,9 +45,9 @@ export function ExpandEnvironmentStrings(src: string): string {
  * https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
  *
  */
-export function CloseHandle(hObject: HANDLE): number {
+export function CloseHandle(hObject: HANDLE): boolean {
     CloseHandle.native ??= kernel32.func('CloseHandle', cBOOL, [ cHANDLE ])
-    return CloseHandle.native(hObject)
+    return CloseHandle.native(hObject) !== 0
 }
 
 /**
