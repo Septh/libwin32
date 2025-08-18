@@ -24,7 +24,8 @@ function SearchTokenGroupsForSID() {
         return
     }
 
-    // Call GetTokenInformation to get the group information.
+    // Call GetTokenInformation() to get the group information.
+    // Note: GetTokenGroupsInformation(token) is a libwin32 stub for GetTokenInformation(token, TOKEN_INFORMATION_CLASS.TokenGroups).
     const groupInfo = GetTokenGroupsInformation(hToken)
     if (!groupInfo) {
         console.error("GetTokenInformation Error:", FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError(), 0))
@@ -59,6 +60,7 @@ function SearchTokenGroupsForSID() {
     }
 
     // Release the memory we allocated.
+    // Note: in libwin32, AllocateAndInitializeSid() already freed the allocated SID so FreeSid() is a NOOP.
     FreeSid(adminsSid)
 }
 
