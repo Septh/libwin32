@@ -406,7 +406,7 @@ export function GetTokenSandBoxInertInformation(tokenHandle: HTOKEN): number | n
  */
 export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null {
     return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenSessionId, dwLength)
-        ? new Uint32Array(binaryBuffer.buffer, 0, 1)[0]
+        ? binaryBuffer.readUInt32LE(0)
         : null
 }
 
