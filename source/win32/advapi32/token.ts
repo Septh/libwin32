@@ -43,21 +43,15 @@ const dwLength = koffi.sizeof(cDWORD)
  */
 export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges: boolean, newState?: TOKEN_PRIVILEGES | null): TOKEN_PRIVILEGES | null {
     AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [
-        cHANDLE, cBOOL, cTOKEN_PRIVILEGES, cDWORD, cPVOID, koffi.out(cPDWORD)
+        cHANDLE, cBOOL, koffi.pointer(cTOKEN_PRIVILEGES), cDWORD, cPVOID, koffi.out(cPDWORD)
     ])
 
     const pLength: OUT<number> = [0]
-    if (AdjustTokenPrivileges.native(
+    return AdjustTokenPrivileges.native(
         tokenHandle, Number(disableAllPrivileges), newState, binaryBuffer.byteLength, binaryBuffer, pLength
-    ) !== 0) {
-        const previousState: TOKEN_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
-        if (previousState.PrivilegeCount > 1)
-            previousState.Privileges = koffi.decode(
-                binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, previousState.PrivilegeCount
-            )
-        return previousState
-    }
-    return null
+    ) !== 0
+        ? decodeTokenPrivileges(binaryBuffer)
+        : null
 }
 
 /**
