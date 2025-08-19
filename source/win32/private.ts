@@ -41,7 +41,7 @@ export const enum Internals {
 
     NOERROR = 0,
     ERROR_SUCCESS  = 0, // LSTATUS
-    STATUS_SUCCESS = 0, // NTSTATUS
+    NTSTATUS_SUCCESS = 0, // NTSTATUS
     MAX_KEY_LENGTH = 255,
     MAX_VALUE_NAME = 16383,
     MAX_NAME = 256,
