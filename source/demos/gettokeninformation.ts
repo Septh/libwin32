@@ -1,67 +1,28 @@
-/*
- * This demo is adapted from MS's sample code "Searching for a SID in an Access Token"
- * https://learn.microsoft.com/en-us/windows/win32/secauthz/searching-for-a-sid-in-an-access-token-in-c--
- *
- */
 import {
-    GetCurrentProcess, OpenProcessToken,
-    GetTokenGroupsInformation,
-    AllocateAndInitializeSid, FreeSid, EqualSid, LookupAccountSid,
-    GetLastError, FormatMessage
+    GetCurrentProcess, OpenProcessToken, CloseHandle,
+    GetTokenInformation,
+    GetLastError, FormatMessage,
+    type TOKEN_LINKED_TOKEN
 } from 'libwin32'
-import {
-    TOKEN_,
-    SECURITY_, DOMAIN_ALIAS_, SECURITY_NT_AUTHORITY, SE_GROUP_,
-    FORMAT_MESSAGE_
-} from 'libwin32/consts'
+import { TOKEN_INFORMATION_CLASS, TOKEN_, FORMAT_MESSAGE_ } from 'libwin32/consts'
 
-function SearchTokenGroupsForSID() {
-
-    // Open a handle to the access token for the calling process.
-    const hToken = OpenProcessToken(GetCurrentProcess(), TOKEN_.QUERY)
-    if (!hToken) {
-        console.error("OpenProcessToken Error:", FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError(), 0))
-        return
-    }
-
-    // Call GetTokenInformation() to get the group information.
-    // Note: GetTokenGroupsInformation(token) is a libwin32 stub for GetTokenInformation(token, TOKEN_INFORMATION_CLASS.TokenGroups).
-    const groupInfo = GetTokenGroupsInformation(hToken)
-    if (!groupInfo) {
-        console.error("GetTokenInformation Error:", FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError(), 0))
-        return
-    }
-
-    // Create a SID for the BUILTIN\Administrators group.
-    const adminsSid = AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, SECURITY_.BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_.RID_ADMINS)
-    if (!adminsSid) {
-        console.error("AllocateAndInitializeSid Error:", FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError(), 0))
-        return
-    }
-
-    // Loop through the group SIDs looking for the administrator SID.
-    for (let i = 0; i < groupInfo.GroupCount; i++) {
-        if (EqualSid(adminsSid, groupInfo.Groups[i].Sid)) {
-            const names = LookupAccountSid(null, groupInfo.Groups[i].Sid)
-            if (!names) {
-                console.error("LookupAccountSid Error:", FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError(), 0))
-                continue
+const hToken = OpenProcessToken(GetCurrentProcess(), TOKEN_.ALL_ACCESS)
+if (hToken) {
+    for (let i: number = TOKEN_INFORMATION_CLASS.TokenUser; i <= TOKEN_INFORMATION_CLASS.TokenIntegrityLevel; i++) {
+        console.group('\n****', TOKEN_INFORMATION_CLASS[i])
+        const info = GetTokenInformation(hToken, i)
+        if (info === null)
+            console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
+        else {
+            console.dir(info, { depth: 5 })
+            if (i === TOKEN_INFORMATION_CLASS.TokenLinkedToken) {
+                // "When you have finished using the handle, close it by calling the CloseHandle function."
+                // https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-token_linked_token#members
+                CloseHandle((info as TOKEN_LINKED_TOKEN).LinkedToken)
             }
-            console.log(`Current user is a member of ${names.referencedDomainName}\\${names.name} group`)
-
-            // Find out whether the SID is enabled in the token.
-            if (groupInfo.Groups[i].Attributes & SE_GROUP_.ENABLED)
-                console.log("The group SID is enabled.")
-            else if (groupInfo.Groups[i].Attributes & SE_GROUP_.USE_FOR_DENY_ONLY)
-                console.log("The group SID is a deny-only SID.")
-            else
-                console.log("The group SID is not enabled.")
         }
+        console.groupEnd()
     }
-
-    // Release the memory we allocated.
-    // Note: in libwin32, AllocateAndInitializeSid() already freed the allocated SID so FreeSid() is a NOOP.
-    FreeSid(adminsSid)
+    CloseHandle(hToken)
 }
-
-SearchTokenGroupsForSID()
+else console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
