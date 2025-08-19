@@ -1250,6 +1250,8 @@ export enum TOKEN_ELEVATION_TYPE {
 
 /**
  * Token information class values for GetTokenInformation() and SetTokenInformation().
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-token_information_class
  */
 export enum TOKEN_INFORMATION_CLASS {
     TokenUser = 1,
