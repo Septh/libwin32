@@ -7,10 +7,17 @@ import {
 import {
     cLSA_OBJECT_ATTRIBUTES, LSA_OBJECT_ATTRIBUTES,
     cLSA_UNICODE_STRING, LSA_UNICODE_STRING,
-    cSID, type SID
+    cSID, type SID,
+    cLSA_TRANSLATED_SID2, type LSA_TRANSLATED_SID2,
+    cLSA_REFERENCED_DOMAIN_LIST, type LSA_REFERENCED_DOMAIN_LIST
 } from '../structs.js'
-import { NTSTATUS_, POLICY_ } from '../consts.js'
+import { NTSTATUS_, LSA_LOOKUP, POLICY_ } from '../consts.js'
 import { advapi32 } from './lib.js'
+
+export interface LsaLookupNames2Result {
+    sids: LSA_TRANSLATED_SID2[]
+    domains: LSA_REFERENCED_DOMAIN_LIST
+}
 
 /**
  * Closes a handle to a Policy or TrustedDomain object.
@@ -42,6 +49,68 @@ export function LsaEnumerateAccountRights(policyHandle: LSA_HANDLE, accountSid: 
         return ret
     }
     return status
+}
+
+/**
+ * Frees memory allocated for an output buffer by an LSA function call.
+ *
+ * Note: in libwin32, all LSA functions free the allocated memory, so this function is a NOOP.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsafreememory
+ */
+export function LsaFreeMemory(buffer: unknown): NTSTATUS_ {
+    return NTSTATUS_.SUCCESS
+}
+
+/**
+ * Retrieves the security identifiers (SIDs) for specified account names in any domain in a Windows forest.
+ *
+ * Notes:
+ * - in libwin32, you can pass a maximum of 8 names to this function.
+ * - the allocated memory is immediately returned to the system.  The net effect is that you don't need
+ *   to call {@link LsaFreeMemory()} afterwards (which is a NOOP anyway).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsalookupnames2
+ */
+export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...names: string[]): LsaLookupNames2Result | NTSTATUS_ {
+    LsaLookupNames2.native ??= advapi32.func('LsaLookupNames2', cNTSTATUS, [
+        cHANDLE, cULONG, cULONG, koffi.pointer(koffi.array(cLSA_UNICODE_STRING, Internals.LSALOOKUPNAMES2_MAX_NAMES)),
+        koffi.out(koffi.pointer(cPVOID)), koffi.out(koffi.pointer(cPVOID))
+    ])
+
+    const count = names.length
+    if (count > 0 && count <= Internals.LSALOOKUPNAMES2_MAX_NAMES) {
+        names.length = Internals.LSALOOKUPNAMES2_MAX_NAMES
+        names.fill('', count)
+    }
+    else return NTSTATUS_.INVALID_PARAMETER
+
+    const uNames = names.map(name => new LSA_UNICODE_STRING(name))
+    const pReferencedDomains: OUT<unknown> = [null]
+    const pSids: OUT<unknown> = [null]
+
+    const status = LsaLookupNames2.native(policyHandle, flags, count, [uNames], pReferencedDomains, pSids)
+    if (status === Internals.NTSTATUS_SUCCESS) {
+        const sids: LSA_TRANSLATED_SID2[] = koffi.decode(pSids[0], cLSA_TRANSLATED_SID2, count)
+        sids.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
+        free(pSids[0])
+
+        const domains: LSA_REFERENCED_DOMAIN_LIST = koffi.decode(pReferencedDomains[0], cLSA_REFERENCED_DOMAIN_LIST)
+        domains.Domains.forEach(domain => domain.Sid = koffi.decode(domain.Sid, cSID))
+        free(pReferencedDomains[0])
+
+        return { sids, domains }
+    }
+
+    if (status === NTSTATUS_.NONE_MAPPED || status === NTSTATUS_.SOME_NOT_MAPPED) {
+        free(pSids[0])
+        free(pReferencedDomains[0])
+    }
+    return status
+
+    function free(ptr: unknown) {
+        return (free.native ??= advapi32.func('LsaFreeMemory', cNTSTATUS, [ cPVOID ]))(ptr)
+    }
 }
 
 /**

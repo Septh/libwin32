@@ -1,9 +1,10 @@
+import assert from 'node:assert'
 import koffi from 'koffi-cream'
 import { Internals } from './private.js'
 import {
     cBOOL, cINT, cUINT, cCHAR, cBYTE, cSHORT, cUSHORT, cWORD,
     cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cULONG64, cDWORD64, cPVOID, cSTR, cSIZE_T,
-    cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN, type HKEY, type HMONITOR,
+    cHANDLE, type HANDLE, type HINSTANCE, type HTOKEN, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HKEY, type HMONITOR,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM,
     cLRESULT, type LRESULT
 } from './ctypes.js'
@@ -12,7 +13,8 @@ import type {
     CLAIM_SECURITY_ATTRIBUTE_, CLAIM_SECURITY_ATTRIBUTE_TYPE_,
     SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL_,
     REG_, SEE_MASK_, SW_,
-    SE_ERR_
+    SE_ERR_,
+    SID_NAME_USE
 } from './consts.js'
 
 /**
@@ -41,6 +43,78 @@ export const cACL = koffi.struct({
 
 export const ACL_REVISION = Internals.ACL_REVISION
 export const ACL_REVISION_DS = Internals.ACL_REVISION_DS
+
+/**
+ * The SID_IDENTIFIER_AUTHORITY structure represents the top-level authority of a security identifier (SID).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_identifier_authority
+ */
+export type SID_IDENTIFIER_AUTHORITY = [ number, number, number, number, number, number ]
+
+/** @internal */
+export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
+
+/**
+ * The security identifier (SID) structure is a variable-length structure used to uniquely identify users or groups.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid
+ */
+export class SID {
+    readonly Revision = Internals.SID_REVISION
+    public SubAuthorityCount: number
+    public SubAuthority: number[]
+    constructor(
+        public IdentifierAuthority: SID_IDENTIFIER_AUTHORITY,
+        ...SubAuthority:        number[]
+    ) {
+        this.SubAuthorityCount = SubAuthority.length
+        this.SubAuthority = SubAuthority.slice()
+    }
+}
+
+/** @internal */
+export const cSID = koffi.struct({
+    Revision:            cBYTE,
+    SubAuthorityCount:   cBYTE,
+    IdentifierAuthority: cSID_IDENTIFIER_AUTHORITY,
+    SubAuthority:        koffi.array(cDWORD, 'SubAuthorityCount', Internals.SID_MAX_SUB_AUTHORITIES, 'Array')
+}), cPSID = koffi.pointer(cSID)
+
+export const SID_REVISION = Internals.SID_REVISION
+
+/**
+ * The SID_AND_ATTRIBUTES structure represents a security identifier (SID) and its attributes.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_and_attributes
+ */
+export interface SID_AND_ATTRIBUTES {
+    Sid: SID
+    Attributes: number
+}
+
+/** @internal */
+export const cSID_AND_ATTRIBUTES = koffi.struct({
+    Sid: cPSID,
+    Attributes: cDWORD
+})
+
+/**
+ * The SID_AND_ATTRIBUTES_HASH structure specifies a hash values for the specified array of security identifiers (SIDs).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_and_attributes_hash
+ */
+export interface SID_AND_ATTRIBUTES_HASH {
+    SidCount: number
+    SidAttr:  SID_AND_ATTRIBUTES[]
+    Hash:     BigInt[]
+}
+
+/** @internal */
+export const cSID_AND_ATTRIBUTES_HASH = koffi.struct({
+    SidCount: cDWORD,
+    SidAttr:  koffi.pointer(null, cSID_AND_ATTRIBUTES, 'SidCount'),
+    Hash:     koffi.array(cULONG_PTR, Internals.SID_HASH_SIZE)
+})
 
 /**
  * The CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE structure specifies the fully qualified binary name.
@@ -258,19 +332,27 @@ export const cLUID_AND_ATTRIBUTES = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_unicode_string
  */
 export class LSA_UNICODE_STRING {
-    /** The length, in bytes, of the string pointed to by the Buffer member, not including the terminating null character, if any. */
-    readonly Length: number
-    /** The total size, in bytes, of the memory allocated for Buffer. Up to MaximumLength bytes can be written into the buffer without trampling memory. */
-    readonly MaximumLength: number
+    readonly Length: number         // in bytes
+    readonly MaximumLength: number  // in bytes
     readonly Buffer: Uint16Array
 
-    constructor(string: string)
-    constructor(length: number)
-    constructor(strOrLen: string | number) {
-        this.Buffer = typeof strOrLen === 'string'
-            ? Uint16Array.from(strOrLen, c => c.charCodeAt(0))
-            : new Uint16Array(strOrLen)
-        this.Length = this.MaximumLength = this.Buffer.byteLength
+    constructor(maxBytes: number)
+    constructor(string: string, maxBytes?: number)
+    constructor(strOrLen: string | number, maxBytes?: number) {
+
+        if (typeof strOrLen === 'string') {
+            this.Length = strOrLen.length * 2
+            this.MaximumLength = maxBytes ?? this.Length
+            assert(this.Length <= this.MaximumLength)
+
+            this.Buffer = new Uint16Array(this.MaximumLength / Uint16Array.BYTES_PER_ELEMENT)
+            for (let i = 0; i < strOrLen.length; i++)
+                this.Buffer[i] = strOrLen.charCodeAt(i)
+        }
+        else {
+            this.Length = this.MaximumLength = strOrLen
+            this.Buffer = new Uint16Array(this.MaximumLength / Uint16Array.BYTES_PER_ELEMENT)
+        }
     }
 }
 
@@ -279,6 +361,26 @@ export const cLSA_UNICODE_STRING = koffi.struct({
     Length:        cUSHORT,
     MaximumLength: cUSHORT,
     Buffer:        cSTR
+})
+
+/**
+ * Contains SIDs that are retrieved based on account names.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_translated_sid2
+ */
+export interface LSA_TRANSLATED_SID2 {
+    Use: SID_NAME_USE
+    Sid: SID,
+    DomainIndex: number
+    Flags: number
+}
+
+/** @internal */
+export const cLSA_TRANSLATED_SID2 = koffi.struct({
+    Use: cINT,
+    Sid: cPSID,
+    DomainIndex: cLONG,
+    Flags: cULONG
 })
 
 /**
@@ -308,6 +410,40 @@ export const cLSA_OBJECT_ATTRIBUTES = koffi.struct({
 })
 
 export const SIZEOF_LSA_OBJECT_ATTRIBUTES = koffi.sizeof(cLSA_OBJECT_ATTRIBUTES)
+
+/**
+ * Identifies a domain.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_trust_information
+ */
+export interface LSA_TRUST_INFORMATION {
+    Name: LSA_UNICODE_STRING
+    Sid: SID
+}
+
+export type TRUSTED_DOMAIN_INFORMATION_BASIC = LSA_TRUST_INFORMATION
+
+/** @internal */
+export const cLSA_TRUST_INFORMATION = koffi.struct({
+    Name: cLSA_UNICODE_STRING,
+    Sid: cPSID
+})
+
+/**
+ *  Contains information about the domains referenced in a lookup operation.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_referenced_domain_list
+ */
+export interface LSA_REFERENCED_DOMAIN_LIST {
+    Entries: number
+    Domains: LSA_TRUST_INFORMATION[]
+}
+
+/** @internal */
+export const cLSA_REFERENCED_DOMAIN_LIST = koffi.struct({
+    Entries: cULONG,
+    Domains: koffi.pointer(null, cLSA_TRUST_INFORMATION, 'Entries')
+})
 
 /**
  * Contains information used by ShellExecuteEx().
@@ -354,78 +490,6 @@ export const cSHELLEXECUTEINFO = koffi.struct({
 })
 
 export const SIZEOF_SHELLEXECUTEINFO = koffi.sizeof(cSHELLEXECUTEINFO)
-
-/**
- * The SID_IDENTIFIER_AUTHORITY structure represents the top-level authority of a security identifier (SID).
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_identifier_authority
- */
-export type SID_IDENTIFIER_AUTHORITY = [ number, number, number, number, number, number ]
-
-/** @internal */
-export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
-
-/**
- * The security identifier (SID) structure is a variable-length structure used to uniquely identify users or groups.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid
- */
-export class SID {
-    readonly Revision = Internals.SID_REVISION
-    public SubAuthorityCount: number
-    public SubAuthority: number[]
-    constructor(
-        public IdentifierAuthority: SID_IDENTIFIER_AUTHORITY,
-        ...SubAuthority:        number[]
-    ) {
-        this.SubAuthorityCount = SubAuthority.length
-        this.SubAuthority = SubAuthority.slice()
-    }
-}
-
-/** @internal */
-export const cSID = koffi.struct({
-    Revision:            cBYTE,
-    SubAuthorityCount:   cBYTE,
-    IdentifierAuthority: cSID_IDENTIFIER_AUTHORITY,
-    SubAuthority:        koffi.array(cDWORD, 'SubAuthorityCount', Internals.SID_MAX_SUB_AUTHORITIES, 'Array')
-}), cPSID = koffi.pointer(cSID)
-
-export const SID_REVISION = Internals.SID_REVISION
-
-/**
- * The SID_AND_ATTRIBUTES structure represents a security identifier (SID) and its attributes.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_and_attributes
- */
-export interface SID_AND_ATTRIBUTES {
-    Sid: SID
-    Attributes: number
-}
-
-/** @internal */
-export const cSID_AND_ATTRIBUTES = koffi.struct({
-    Sid: cPSID,
-    Attributes: cDWORD
-})
-
-/**
- * The SID_AND_ATTRIBUTES_HASH structure specifies a hash values for the specified array of security identifiers (SIDs).
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_and_attributes_hash
- */
-export interface SID_AND_ATTRIBUTES_HASH {
-    SidCount: number
-    SidAttr:  SID_AND_ATTRIBUTES[]
-    Hash:     BigInt[]
-}
-
-/** @internal */
-export const cSID_AND_ATTRIBUTES_HASH = koffi.struct({
-    SidCount: cDWORD,
-    SidAttr:  koffi.pointer(null, cSID_AND_ATTRIBUTES, 'SidCount'),
-    Hash:     koffi.array(cULONG_PTR, Internals.SID_HASH_SIZE)
-})
 
 /**
  * The POINT structure defines the x- and y-coordinates of a point.

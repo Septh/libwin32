@@ -537,6 +537,9 @@ export enum NTSTATUS_ {
     INVALID_PARAMETER      = 0xC000000D,
     NO_SUCH_PRIVILEGE      = 0xC0000060,
     OBJECT_NAME_NOT_FOUND  = 0xC0000034,
+    NONE_MAPPED            = 0xC0000073,
+    SOME_NOT_MAPPED        = 0x00000107,
+
     UNSUCCESSFUL           = 0xC0000001,
 }
 
@@ -699,6 +702,14 @@ export const REG_USE_CURRENT_SECURITY_CONTEXT = 0x00000002
 export const REG_STANDARD_FORMAT              = 1
 export const REG_LATEST_FORMAT                = 2
 export const REG_NO_COMPRESSION               = 4
+
+/**
+ * Flags for LsaLookupNames2()
+ */
+export enum LSA_LOOKUP {
+    None = 0,
+    ISOLATED_AS_LOCAL = 0x80000000
+}
 
 /**
  * PeekMessage flags.
