@@ -364,12 +364,9 @@ export function GetTokenPrimaryGroupInformation(tokenHandle: HTOKEN): TOKEN_PRIM
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_PRIVILEGES | null {
-    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenPrivileges)) {
-        const ret: TOKEN_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
-        // ret.Privileges = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
-        return ret
-    }
-    return null
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenPrivileges)
+        ? koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
+        : null
 }
 
 /**
@@ -378,9 +375,9 @@ export function GetTokenPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_PRIVIL
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenRestrictedDeviceGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups))
-        return decodeTokenGroups(binaryBuffer)
-    return null
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups)
+        ? decodeTokenGroups(binaryBuffer)
+        : null
 }
 
 /**
@@ -389,9 +386,9 @@ export function GetTokenRestrictedDeviceGroupsInformation(tokenHandle: HTOKEN): 
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenRestrictedSidsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenRestrictedSids))
-        return decodeTokenGroups(binaryBuffer)
-    return null
+    return getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenRestrictedSids)
+        ? decodeTokenGroups(binaryBuffer)
+        : null
 }
 
 /**
