@@ -134,7 +134,7 @@ export function EqualSid(sid1: SID, sid2: SID): boolean {
 /**
  * Frees a security identifier (SID) previously allocated by using the {@link AllocateAndInitializeSid} function.
  *
- * Note: in libwin32, `AllocateAndInitializeSid()` frees the allocated memory, so this functions is a NOOP.
+ * Note: in libwin32, `AllocateAndInitializeSid()` immediately frees the allocated memory, so this function is a NOOP.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-freesid
  */
