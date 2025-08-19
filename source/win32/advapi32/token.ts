@@ -1,17 +1,21 @@
 import koffi from 'koffi-cream'
+import { SetLastError } from '../kernel32.js'
 import { binaryBuffer, Internals, type OUT } from '../private.js'
 import {
     cBOOL, cDWORD, cPVOID, cPDWORD,
     cHANDLE, type HANDLE, type HTOKEN
 } from '../ctypes.js'
 import {
-    cACL, cPSID, type SID,
-    cLUID_AND_ATTRIBUTES, cSID_AND_ATTRIBUTES, type CLAIM_SECURITY_ATTRIBUTES_INFORMATION,
+    cACL, cSID, cPSID, type SID,
+    cSID_AND_ATTRIBUTES_HASH, type SID_AND_ATTRIBUTES_HASH,
+    cCLAIM_SECURITY_ATTRIBUTE_V1, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION, type CLAIM_SECURITY_ATTRIBUTES_INFORMATION,
+    cTOKEN_USER, type TOKEN_USER,
+    cTOKEN_GROUPS, type TOKEN_GROUPS,
     cTOKEN_ACCESS_INFORMATION, type TOKEN_ACCESS_INFORMATION,
     cTOKEN_APPCONTAINER_INFORMATION, type TOKEN_APPCONTAINER_INFORMATION,
     cTOKEN_DEFAULT_DACL, type TOKEN_DEFAULT_DACL,
     cTOKEN_ELEVATION, type TOKEN_ELEVATION,
-    cTOKEN_GROUPS_AND_PRIVILEGES, type TOKEN_GROUPS_AND_PRIVILEGES, type TOKEN_GROUPS,
+    cTOKEN_GROUPS_AND_PRIVILEGES, type TOKEN_GROUPS_AND_PRIVILEGES,
     cTOKEN_LINKED_TOKEN, type TOKEN_LINKED_TOKEN,
     cTOKEN_MANDATORY_LABEL, type TOKEN_MANDATORY_LABEL,
     cTOKEN_MANDATORY_POLICY, type TOKEN_MANDATORY_POLICY,
@@ -20,17 +24,36 @@ import {
     cTOKEN_PRIMARY_GROUP, type TOKEN_PRIMARY_GROUP,
     cTOKEN_PRIVILEGES, type TOKEN_PRIVILEGES,
     cTOKEN_SOURCE, type TOKEN_SOURCE,
-    cTOKEN_STATISTICS, type TOKEN_STATISTICS,
-    cTOKEN_USER, type TOKEN_USER,
+    cTOKEN_STATISTICS, type TOKEN_STATISTICS
 } from '../structs.js'
 import { TOKEN_INFORMATION_CLASS, ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE, type TOKEN_ } from '../consts.js'
-import { SetLastError } from '../kernel32.js'
-import {
-    advapi32,
-    getTokenInfo, INTERNAL_TOKEN_INFORMATION_CLASS,
-    decodeSid, decodeSidAndAttributesHash, decodeTokenPrivileges, decodeTokenGroups,
-    decodeClaimSecurityAttributesInformation
-} from './lib.js'
+import { advapi32, getTokenInfo, INTERNAL_TOKEN_INFORMATION_CLASS } from './lib.js'
+
+function decodeSidAndAttributesHash(ptr: unknown): SID_AND_ATTRIBUTES_HASH {
+    const ret: SID_AND_ATTRIBUTES_HASH = koffi.decode(ptr, cSID_AND_ATTRIBUTES_HASH)
+    ret.SidAttr.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
+    return ret
+}
+
+function decodeTokenGroups(ptr: unknown): TOKEN_GROUPS {
+    const ret: TOKEN_GROUPS = koffi.decode(ptr, cTOKEN_GROUPS)
+    ret.Groups.forEach(group => group.Sid = koffi.decode(group.Sid, cSID))
+    return ret
+}
+
+function decodeClaimSecurityAttributesInformation(ptr: unknown): CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
+    const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(ptr, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
+    if (ret.Attribute?.pAttributeV1) {
+        ret.Attribute = {
+            pAttributeV1: koffi.decode(ret.Attribute, cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
+        }
+    }
+    else {
+        ret.AttributeCount = 0
+        ret.Attribute = { pAttributeV1: [] }
+    }
+    return ret
+}
 
 /**
  * The AdjustTokenPrivileges function enables or disables privileges in the specified access token.
@@ -39,7 +62,7 @@ import {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-adjusttokenprivileges
  */
-export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges: boolean, newState?: TOKEN_PRIVILEGES | null): TOKEN_PRIVILEGES | null {
+export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges: boolean, newState: TOKEN_PRIVILEGES | null = null): TOKEN_PRIVILEGES | null {
     AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [
         cHANDLE, cBOOL, koffi.pointer(cTOKEN_PRIVILEGES), cDWORD, cPVOID, koffi.out(cPDWORD)
     ])
@@ -48,7 +71,7 @@ export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges:
     return AdjustTokenPrivileges.native(
         tokenHandle, Number(disableAllPrivileges), newState, binaryBuffer.byteLength, binaryBuffer, pLength
     ) !== 0
-        ? decodeTokenPrivileges(binaryBuffer)
+        ? koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
         : null
 }
 
@@ -79,13 +102,14 @@ export function GetTokenAccessInformation(tokenHandle: HTOKEN): TOKEN_ACCESS_INF
         if (ret.RestrictedSidHash)
             ret.RestrictedSidHash = decodeSidAndAttributesHash(ret.RestrictedSidHash)
         if (ret.Privileges)
-            ret.Privileges = decodeTokenPrivileges(ret.Privileges)
+            ret.Privileges = koffi.decode(ret.Privileges, cTOKEN_PRIVILEGES)
         if (ret.PackageSid)
-            ret.PackageSid = decodeSid(ret.PackageSid)
+            ret.PackageSid = koffi.decode(ret.PackageSid, cSID)
         if (ret.CapabilitiesHash)
             ret.CapabilitiesHash = decodeSidAndAttributesHash(ret.CapabilitiesHash)
         if (ret.TrustLevelSid)
-            ret.TrustLevelSid = decodeSid(ret.TrustLevelSid)
+            ret.TrustLevelSid = koffi.decode(ret.TrustLevelSid, cSID)
+        ret.SecurityAttributes = null   // Reserved. Must be set to NULL.
         return ret
     }
     return null
@@ -111,7 +135,7 @@ export function GetTokenAppContainerSidInformation(tokenHandle: HTOKEN): TOKEN_A
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenAppContainerSid)) {
         const ret: TOKEN_APPCONTAINER_INFORMATION = koffi.decode(binaryBuffer, cTOKEN_APPCONTAINER_INFORMATION)
         if (ret.TokenAppContainer)
-            ret.TokenAppContainer = decodeSid(ret.TokenAppContainer)
+            ret.TokenAppContainer = koffi.decode(ret.TokenAppContainer, cSID)
         return ret
     }
     return null
@@ -197,24 +221,8 @@ export function GetTokenElevationTypeInformation(tokenHandle: HTOKEN): number | 
 export function GetTokenGroupsAndPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_GROUPS_AND_PRIVILEGES | null {
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges)) {
         const ret: TOKEN_GROUPS_AND_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_GROUPS_AND_PRIVILEGES)
-
-        if (ret.Sids && ret.SidCount > 0) {
-            ret.Sids = koffi.decode(ret.Sids, cSID_AND_ATTRIBUTES, ret.SidCount)
-            ret.Sids.forEach(sid => sid.Sid = decodeSid(sid.Sid))
-        }
-        else ret.Sids = []
-
-        if (ret.RestrictedSids && ret.RestrictedSidCount > 0) {
-            ret.RestrictedSids = koffi.decode(ret.RestrictedSids, cSID_AND_ATTRIBUTES, ret.RestrictedSidCount)
-            ret.RestrictedSids.forEach(sid => sid.Sid = decodeSid(sid.Sid))
-        }
-        else ret.RestrictedSids = []
-
-        if (ret.Privileges && ret.PrivilegeCount > 0) {
-            ret.Privileges = koffi.decode(ret.Privileges, cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
-        }
-        else ret.Privileges = []
-
+        ret.Sids.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
+        ret.RestrictedSids.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
         return ret
     }
     return null
@@ -261,7 +269,7 @@ export function GetTokenImpersonationLevelInformation(tokenHandle: HTOKEN): SECU
 export function GetTokenIntegrityLevelInformation(tokenHandle: HTOKEN): TOKEN_MANDATORY_LABEL | null {
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenIntegrityLevel)) {
         const ret: TOKEN_MANDATORY_LABEL = koffi.decode(binaryBuffer, cTOKEN_MANDATORY_LABEL)
-        ret.Label.Sid = decodeSid(ret.Label.Sid)
+        ret.Label.Sid = koffi.decode(ret.Label.Sid, cSID)
         return ret
     }
     return null
@@ -330,7 +338,7 @@ export function GetTokenOriginInformation(tokenHandle: HTOKEN): TOKEN_ORIGIN | n
 export function GetTokenOwnerInformation(tokenHandle: HTOKEN): TOKEN_OWNER | null {
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenOwner)) {
         const ret: TOKEN_OWNER = koffi.decode(binaryBuffer, cTOKEN_OWNER)
-        ret.Owner = decodeSid(ret.Owner)
+        ret.Owner = koffi.decode(ret.Owner, cSID)
         return ret
     }
     return null
@@ -344,7 +352,7 @@ export function GetTokenOwnerInformation(tokenHandle: HTOKEN): TOKEN_OWNER | nul
 export function GetTokenPrimaryGroupInformation(tokenHandle: HTOKEN): TOKEN_PRIMARY_GROUP | null {
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenPrimaryGroup)) {
         const ret: TOKEN_PRIMARY_GROUP = koffi.decode(binaryBuffer, cTOKEN_PRIMARY_GROUP)
-        ret.PrimaryGroup = decodeSid(ret.PrimaryGroup)
+        ret.PrimaryGroup = koffi.decode(ret.PrimaryGroup, cSID)
         return ret
     }
     return null
@@ -358,7 +366,7 @@ export function GetTokenPrimaryGroupInformation(tokenHandle: HTOKEN): TOKEN_PRIM
 export function GetTokenPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_PRIVILEGES | null {
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenPrivileges)) {
         const ret: TOKEN_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
-        ret.Privileges = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
+        // ret.Privileges = koffi.decode(binaryBuffer, koffi.offsetof(cTOKEN_PRIVILEGES, 'Privileges'), cLUID_AND_ATTRIBUTES, ret.PrivilegeCount)
         return ret
     }
     return null
@@ -471,7 +479,7 @@ export function GetTokenUserClaimAttributesInformation(tokenHandle: HTOKEN): CLA
 export function GetTokenUserInformation(tokenHandle: HTOKEN): TOKEN_USER | null {
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenUser)) {
         const ret: TOKEN_USER = koffi.decode(binaryBuffer, cTOKEN_USER)
-        ret.User.Sid = decodeSid(ret.User.Sid)
+        ret.User.Sid = koffi.decode(ret.User.Sid, cSID)
         return ret
     }
     return null

@@ -19,6 +19,9 @@ export class StringOutputBuffer {
 
 /** Various Win32 constants. */
 export const enum Internals {
+    ANYSIZE_ARRAY = 1,
+    DWORD_LENGTH = 4,   // == koffi.sizeof(cDWORD)
+
     UNLEN = 256,
     GNLEN = UNLEN,
     PWLEN = 256,
@@ -32,8 +35,10 @@ export const enum Internals {
     SID_RECOMMENDED_SUB_AUTHORITIES = 1,
     SID_REVISION = 1,
     TOKEN_SOURCE_LENGTH = 8,
+    TOKEN_GROUPS_MAX_GROUPS = 32,   // No idea if this is enough, but Koffi needs an upper limit
+    TOKEN_PRIVILEGES_MAX_PRIVILEGES = 32,   // No idea if this is enough, but Koffi needs an upper limit
+    TOKEN_PRIVILEGES_SET_MAX_PRIVILEGES = 32,   // No idea if this is enough, but Koffi needs an upper limit
 
-    ANYSIZE_ARRAY = 1,
     NOERROR = 0,
     ERROR_SUCCESS  = 0, // LSTATUS
     STATUS_SUCCESS = 0, // NTSTATUS
@@ -42,8 +47,6 @@ export const enum Internals {
     MAX_NAME = 256,
     INVALID_HANDLE_VALUE = -1,
     INFINITE = 0xffffffff,  // Infinite timeout
-
-    DWORD_LENGTH = 4,
 }
 
 /** koffi.out() and koffi.inout() expect a table with a single entry. */

@@ -1,7 +1,7 @@
 import koffi from 'koffi-cream'
 import { Internals } from './private.js'
 import {
-    cBOOL, cINT, cUINT, cCHAR, cBYTE, cWCHAR, cSHORT, cUSHORT, cWORD,
+    cBOOL, cINT, cUINT, cCHAR, cBYTE, cSHORT, cUSHORT, cWORD,
     cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cULONG64, cDWORD64, cPVOID, cSTR, cSIZE_T,
     cHANDLE, type HANDLE, type HINSTANCE, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HTOKEN, type HKEY, type HMONITOR,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM,
@@ -388,7 +388,7 @@ export const cSID = koffi.struct({
     Revision:            cBYTE,
     SubAuthorityCount:   cBYTE,
     IdentifierAuthority: cSID_IDENTIFIER_AUTHORITY,
-    SubAuthority:        koffi.array(cDWORD, Internals.SID_MAX_SUB_AUTHORITIES, 'Array')   // DWORD SubAuthority[]
+    SubAuthority:        koffi.array(cDWORD, 'SubAuthorityCount', Internals.SID_MAX_SUB_AUTHORITIES, 'Array')
 }), cPSID = koffi.pointer(cSID)
 
 export const SID_REVISION = Internals.SID_REVISION
@@ -423,7 +423,7 @@ export interface SID_AND_ATTRIBUTES_HASH {
 /** @internal */
 export const cSID_AND_ATTRIBUTES_HASH = koffi.struct({
     SidCount: cDWORD,
-    SidAttr:  koffi.pointer(cSID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY),
+    SidAttr:  koffi.pointer(null, cSID_AND_ATTRIBUTES, 'SidCount'),
     Hash:     koffi.array(cULONG_PTR, Internals.SID_HASH_SIZE)
 })
 
@@ -786,7 +786,7 @@ export interface TOKEN_GROUPS {
 /** @internal */
 export const cTOKEN_GROUPS = koffi.struct({
     GroupCount: cDWORD,
-    Groups: koffi.array(cSID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY)
+    Groups: koffi.array(cSID_AND_ATTRIBUTES, 'GroupCount', Internals.TOKEN_GROUPS_MAX_GROUPS)
 })
 
 /**
@@ -811,13 +811,13 @@ export interface TOKEN_GROUPS_AND_PRIVILEGES {
 export const cTOKEN_GROUPS_AND_PRIVILEGES = koffi.struct({
     SidCount:            cDWORD,
     SidLength:           cDWORD,
-    Sids:                koffi.pointer(cSID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY),
+    Sids:                koffi.pointer(null, cSID_AND_ATTRIBUTES, 'SidCount'),
     RestrictedSidCount:  cDWORD,
     RestrictedSidLength: cDWORD,
-    RestrictedSids:      koffi.pointer(cSID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY),
+    RestrictedSids:      koffi.pointer(null, cSID_AND_ATTRIBUTES, 'RestrictedSidCount'),
     PrivilegeCount:      cDWORD,
     PrivilegeLength:     cDWORD,
-    Privileges:          koffi.pointer(cLUID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY),
+    Privileges:          koffi.pointer(null, cLUID_AND_ATTRIBUTES, 'PrivilegeCount'),
     AuthenticationId:    cLUID,
 })
 
@@ -918,7 +918,7 @@ export interface TOKEN_PRIVILEGES {
 /** @internal */
 export const cTOKEN_PRIVILEGES = koffi.struct({
     PrivilegeCount: cDWORD,
-    Privileges: koffi.array(cLUID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY)
+    Privileges: koffi.array(cLUID_AND_ATTRIBUTES, 'PrivilegeCount', Internals.TOKEN_PRIVILEGES_MAX_PRIVILEGES)
 })
 
 /**
@@ -1038,7 +1038,7 @@ export interface PRIVILEGE_SET {
 export const cPRIVILEGE_SET = koffi.struct({
     PrivilegeCount: cDWORD,
     Control:        cDWORD,
-    Privilege:      koffi.array(cLUID_AND_ATTRIBUTES, Internals.ANYSIZE_ARRAY)
+    Privilege:      koffi.array(cLUID_AND_ATTRIBUTES, 'PrivilegeCount', Internals.TOKEN_PRIVILEGES_SET_MAX_PRIVILEGES)
 })
 
 /**

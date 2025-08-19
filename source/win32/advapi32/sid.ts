@@ -2,12 +2,13 @@ import koffi from 'koffi-cream'
 import { StringOutputBuffer, Internals, type OUT, binaryBuffer } from '../private.js'
 import { cBOOL, cINT, cBYTE, cDWORD, cPVOID, cPDWORD, cSTR } from '../ctypes.js'
 import {
+    cSID,
     cPSID, type SID,
-    cSID_IDENTIFIER_AUTHORITY, type SID_IDENTIFIER_AUTHORITY
+    cSID_IDENTIFIER_AUTHORITY, type SID_IDENTIFIER_AUTHORITY,
 } from '../structs.js'
 import { ERROR_, type SID_NAME_USE} from '../consts.js'
 import { LocalFree, SetLastError, cLocalAllocatedString } from '../kernel32.js'
-import { advapi32, decodeSid } from './lib.js'
+import { advapi32 } from './lib.js'
 
 export interface LookupAccountSidResult {
     name: string
@@ -43,7 +44,7 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
             subAuthorities[4], subAuthorities[5], subAuthorities[6], subAuthorities[7],
             ppSID
         ) !== 0) {
-            const sid = decodeSid(ppSID[0])
+            const sid = koffi.decode(ppSID[0], cSID)
             freeSid(ppSID[0])
             return sid
         }
@@ -83,7 +84,7 @@ export function ConvertStringSidToSid(stringSid: string): SID | null {
 
     const ppSID: OUT<unknown> = [null]
     if (ConvertStringSidToSid.native(stringSid, ppSID) !== 0) {
-        const sid = decodeSid(ppSID[0])
+        const sid = koffi.decode(ppSID[0], cSID)
         LocalFree(ppSID[0])
         return sid
     }
@@ -99,7 +100,7 @@ export function CopySid(sourceSid: SID): SID | null {
     CopySid.native ??= advapi32.func('CopySid', cBOOL, [ cDWORD, koffi.out(cPVOID), cPSID ])
 
     return CopySid.native(binaryBuffer.length, binaryBuffer, sourceSid) !== 0
-        ? decodeSid(binaryBuffer)
+        ? koffi.decode(binaryBuffer, cSID)
         : null
 }
 
@@ -116,7 +117,7 @@ export function CreateWellKnownSid(wellKnownSidType: number, domainSid?: SID): S
 
     const pCbSid: OUT<number> = [binaryBuffer.length]
     return CreateWellKnownSid.native(wellKnownSidType, domainSid, binaryBuffer, pCbSid) !== 0
-        ? decodeSid(binaryBuffer)
+        ? koffi.decode(binaryBuffer, cSID)
         : null
 }
 
