@@ -66,8 +66,8 @@ export function LsaFreeMemory(buffer: unknown): NTSTATUS_ {
  * Retrieves the security identifiers (SIDs) for specified account names in any domain in a Windows forest.
  *
  * Notes:
- * - in libwin32, you can pass a maximum of 8 names to this function.
- * - the allocated memory is immediately returned to the system.  The net effect is that you don't need
+ * - in libwin32, LsaLookupNames2 accepts 1 to 8 names max.
+ * - any memory allocated by the system is immediately returned to the system. The net effect is that you don't need
  *   to call {@link LsaFreeMemory()} afterwards (which is a NOOP anyway).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsalookupnames2
@@ -106,6 +106,7 @@ export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...
         lsaFree(pSids[0])
         lsaFree(pReferencedDomains[0])
     }
+
     return status
 }
 
