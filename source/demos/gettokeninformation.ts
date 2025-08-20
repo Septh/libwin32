@@ -8,7 +8,7 @@ import { TOKEN_INFORMATION_CLASS, TOKEN_, FORMAT_MESSAGE_ } from 'libwin32/const
 
 const hToken = OpenProcessToken(GetCurrentProcess(), TOKEN_.ALL_ACCESS)
 if (hToken) {
-    for (let i: number = TOKEN_INFORMATION_CLASS.TokenUser; i <= TOKEN_INFORMATION_CLASS.TokenIntegrityLevel; i++) {
+    for (let i = TOKEN_INFORMATION_CLASS.TokenUser; i <= TOKEN_INFORMATION_CLASS.TokenIntegrityLevel; i++) {
         console.group('\n****', TOKEN_INFORMATION_CLASS[i])
         const info = GetTokenInformation(hToken, i)
         if (info === null)
