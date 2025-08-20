@@ -1,6 +1,7 @@
 import koffi from 'koffi-cream'
 import { binaryBuffer, type OUT } from '../private.js'
-import { cBOOL, cINT, cDWORD, cHANDLE, cPVOID, cPDWORD, type HTOKEN } from '../ctypes.js'
+import { cBOOL, cINT, cDWORD, cHANDLE, cPVOID, cPDWORD, type HTOKEN, type LSA_HANDLE, cNTSTATUS } from '../ctypes.js'
+import type { NTSTATUS_ } from '../consts.js'
 
 export const advapi32 = koffi.load('advapi32.dll')
 
@@ -62,4 +63,33 @@ export function getTokenInfo(hToken: HTOKEN, infoClass: INTERNAL_TOKEN_INFORMATI
 
     const pLength: OUT<number> = [0]
     return getTokenInfo.native(hToken, infoClass, binaryBuffer.buffer, tokenInformationLength, pLength) !== 0
+}
+
+export const enum INTERNAL_POLICY_INFORMATION_CLASS {
+    /** @deprecated */PolicyAuditLogInformation = 1,
+    PolicyAuditEventsInformation,
+    PolicyPrimaryDomainInformation,
+    /** @deprecated */PolicyPdAccountInformation,
+    PolicyAccountDomainInformation,
+    PolicyLsaServerRoleInformation,
+    /** @deprecated */PolicyReplicaSourceInformation,
+    /** @deprecated */PolicyDefaultQuotaInformation,
+    PolicyModificationInformation,
+    /** @deprecated */PolicyAuditFullSetInformation,
+    /** @deprecated */PolicyAuditFullQueryInformation,
+    PolicyDnsDomainInformation,
+    /** @deprecated */PolicyDnsDomainInformationInt,
+    /** @deprecated */PolicyLocalAccountDomainInformation,
+    /** @deprecated */PolicyMachineAccountInformation,
+}
+
+export function queryPolicyInfo(policyHandle: LSA_HANDLE, infoClass: INTERNAL_POLICY_INFORMATION_CLASS): NTSTATUS_ | unknown {
+    queryPolicyInfo.native ??= advapi32.func('LsaQueryInformationPolicy', cNTSTATUS, [ cHANDLE, cINT, koffi.out(koffi.pointer(cPVOID)) ])
+
+    const pBuffer: OUT<unknown> = [null!]
+    return queryPolicyInfo.native(policyHandle, infoClass, pBuffer) || pBuffer[0]
+}
+
+export function lsaFree(ptr: unknown) {
+    return (lsaFree.native ??= advapi32.func('LsaFreeMemory', cNTSTATUS, [ cPVOID ]))(ptr)
 }

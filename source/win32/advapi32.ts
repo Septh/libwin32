@@ -1,4 +1,5 @@
 export * from './advapi32/lsa.js'
+export * from './advapi32/lsa_query.js'
 export * from './advapi32/misc.js'
 export * from './advapi32/reg.js'
 export * from './advapi32/sid.js'

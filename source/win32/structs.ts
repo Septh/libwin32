@@ -14,7 +14,9 @@ import type {
     SECURITY_IMPERSONATION_LEVEL, SECURITY_DESCRIPTOR_CONTROL_,
     REG_, SEE_MASK_, SW_,
     SE_ERR_,
-    SID_NAME_USE
+    SID_NAME_USE,
+    POLICY_AUDIT_EVENT_,
+    POLICY_LSA_SERVER_ROLE
 } from './consts.js'
 
 /**
@@ -1085,6 +1087,107 @@ export const cTOKEN_ACCESS_INFORMATION = koffi.struct({
     CapabilitiesHash:   koffi.pointer(cSID_AND_ATTRIBUTES_HASH),
     TrustLevelSid:      cPSID,
     SecurityAttributes: cPVOID,
+})
+
+/**
+ * Used to set and query the name and SID of the system's account domain.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-policy_account_domain_info
+ */
+export interface POLICY_ACCOUNT_DOMAIN_INFO {
+    DomainName: LSA_UNICODE_STRING
+    DomainSid: SID
+}
+
+/** @internal */
+export const cPOLICY_ACCOUNT_DOMAIN_INFO = koffi.struct({
+    DomainName: cLSA_UNICODE_STRING,
+    DomainSid: cPSID
+})
+
+/**
+ * Used to set and query the system's auditing rules.
+ *
+ * learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ns-ntsecapi-policy_audit_events_info
+ */
+export interface POLICY_AUDIT_EVENTS_INFO {
+    AuditingMode: boolean
+    EventAuditingOptions: POLICY_AUDIT_EVENT_[]
+    MaximumAuditEventCount: number
+}
+
+/** @internal */
+export const cPOLICY_AUDIT_EVENTS_INFO = koffi.struct({
+    AuditingMode: cBOOL,
+    EventAuditingOptions: koffi.array(cULONG, 'MaximumAuditEventCount', Internals.POLICY_AUDIT_EVENTS_INFO_MAX_OPTIONS),
+    MaximumAuditEventCount: cULONG
+})
+
+/**
+ * Used to set and query the role of an LSA server.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ns-ntsecapi-policy_lsa_server_role_info
+ */
+export interface POLICY_LSA_SERVER_ROLE_INFO {
+    LsaServerRole: POLICY_LSA_SERVER_ROLE
+}
+
+/** @internal */
+export const cPOLICY_LSA_SERVER_ROLE_INFO = koffi.struct({
+    LsaServerRole: cINT
+})
+
+/**
+ * Used to query information about the creation time and last modification of the LSA database.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ns-ntsecapi-policy_modification_info
+ */
+export interface POLICY_MODIFICATION_INFO {
+    ModifiedId: number | BigInt
+    DatabaseCreationTime: number | BigInt
+}
+
+/** @internal */
+export const cPOLICY_MODIFICATION_INFO = koffi.struct({
+    ModifiedId: cLONGLONG,
+    DatabaseCreationTime: cLONGLONG
+})
+
+/**
+ * The `PolicyPrimaryDomainInformation` value and `POLICY_PRIMARY_DOMAIN_INFO` structure are obsolete,
+ * use `PolicyDnsDomainInformation` and the {@link POLICY_DNS_DOMAIN_INFO} structure instead.
+ */
+export interface POLICY_PRIMARY_DOMAIN_INFO {
+    Name: LSA_UNICODE_STRING
+    Sid: SID
+}
+
+/** @internal */
+export const cPOLICY_PRIMARY_DOMAIN_INFO = koffi.struct({
+    Name: cLSA_UNICODE_STRING,
+    Sid: cPSID
+})
+
+/**
+ * Used to set and query Domain Name System (DNS) information about the primary domain associated with a Policy object.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-policy_dns_domain_info
+ */
+export interface POLICY_DNS_DOMAIN_INFO {
+    Name: LSA_UNICODE_STRING
+    DnsDomainName: LSA_UNICODE_STRING
+    DnsForestName: LSA_UNICODE_STRING
+    DomainGuid: GUID
+    Sid: SID
+}
+
+/** @internal */
+export const cPOLICY_DNS_DOMAIN_INFO = koffi.struct({
+    Name: cLSA_UNICODE_STRING,
+    DnsDomainName: cLSA_UNICODE_STRING,
+    DnsForestName: cLSA_UNICODE_STRING,
+    DomainGuid: cGUID,
+    Sid: cPSID
 })
 
 /**

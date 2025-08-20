@@ -529,6 +529,7 @@ export enum NIM_ {
  */
 export enum NTSTATUS_ {
     SUCCESS                = 0x00000000,
+    UNSUCCESSFUL           = 0xC0000001,
     ACCESS_DENIED          = 0xC0000022,
     INSUFFICIENT_RESOURCES = 0xC000009A,
     INTERNAL_DB_ERROR      = 0xC0000158,
@@ -538,9 +539,8 @@ export enum NTSTATUS_ {
     NO_SUCH_PRIVILEGE      = 0xC0000060,
     OBJECT_NAME_NOT_FOUND  = 0xC0000034,
     NONE_MAPPED            = 0xC0000073,
+    NOT_SUPPORTED          = 0xC00000BB,
     SOME_NOT_MAPPED        = 0x00000107,
-
-    UNSUCCESSFUL           = 0xC0000001,
 }
 
 /**
@@ -788,6 +788,64 @@ export enum POLICY_ {
 }
 
 /**
+ * Defines values that indicate the types of events the system can audit.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ne-ntsecapi-policy_audit_event_type
+ */
+export enum POLICY_AUDIT_EVENT_TYPE {
+    AuditCategorySystem = 0,
+    AuditCategoryLogon,
+    AuditCategoryObjectAccess,
+    AuditCategoryPrivilegeUse,
+    AuditCategoryDetailedTracking,
+    AuditCategoryPolicyChange,
+    AuditCategoryAccountManagement,
+    AuditCategoryDirectoryServiceAccess,
+    AuditCategoryAccountLogon
+}
+
+/**
+ * Describes the auditing options for each event type.
+ */
+export enum POLICY_AUDIT_EVENT_ {
+    UNCHANGED       = 0x00000000,
+    SUCCESS         = 0x00000001,
+    FAILURE         = 0x00000002,
+    NONE            = 0x00000004,
+    MASK = (
+        SUCCESS |
+        FAILURE |
+        UNCHANGED |
+        NONE
+    )
+}
+
+/**
+ * Values for LsaQueryInformationPolicy() and LsaSetInformationPolicy().
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ne-ntsecapi-policy_information_class
+ */
+export enum POLICY_INFORMATION_CLASS {
+    /** @deprecated */PolicyAuditLogInformation = 1,
+    PolicyAuditEventsInformation,
+    PolicyPrimaryDomainInformation,
+    /** @deprecated */PolicyPdAccountInformation,
+    PolicyAccountDomainInformation,
+    PolicyLsaServerRoleInformation,
+    /** @deprecated */PolicyReplicaSourceInformation,
+    /** @deprecated */PolicyDefaultQuotaInformation,
+    PolicyModificationInformation,
+    /** @deprecated */PolicyAuditFullSetInformation,
+    /** @deprecated */PolicyAuditFullQueryInformation,
+    PolicyDnsDomainInformation,
+    /** @deprecated */PolicyDnsDomainInformationInt,
+    /** @deprecated */PolicyLocalAccountDomainInformation,
+    /** @deprecated */PolicyMachineAccountInformation,
+    // PolicyMachineAccountInformation2,
+    // PolicyLastEntry
+}
+
+/**
  * Process Security and Access Rights.
  *
  * https://learn.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights
@@ -998,6 +1056,16 @@ export enum SE_PRIVILEGE_ {
 }
 
 export const PRIVILEGE_SET_ALL_NECESSARY = 1
+
+/**
+ * Indicate the role of an LSA server.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ne-ntsecapi-policy_lsa_server_role
+ */
+export enum POLICY_LSA_SERVER_ROLE {
+    PolicyServerRoleBackup = 2,
+    PolicyServerRolePrimary
+}
 
 /**
  * (RID) The portion of a security identifier (SID) that identifies a user or group

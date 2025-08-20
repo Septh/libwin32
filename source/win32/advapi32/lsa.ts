@@ -12,7 +12,7 @@ import {
     cLSA_REFERENCED_DOMAIN_LIST, type LSA_REFERENCED_DOMAIN_LIST
 } from '../structs.js'
 import { NTSTATUS_, LSA_LOOKUP, POLICY_ } from '../consts.js'
-import { advapi32 } from './lib.js'
+import { advapi32, lsaFree } from './lib.js'
 
 export interface LsaLookupNames2Result {
     sids: LSA_TRANSLATED_SID2[]
@@ -93,24 +93,20 @@ export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...
     if (status === Internals.NTSTATUS_SUCCESS) {
         const sids: LSA_TRANSLATED_SID2[] = koffi.decode(pSids[0], cLSA_TRANSLATED_SID2, count)
         sids.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
-        free(pSids[0])
+        lsaFree(pSids[0])
 
         const domains: LSA_REFERENCED_DOMAIN_LIST = koffi.decode(pReferencedDomains[0], cLSA_REFERENCED_DOMAIN_LIST)
         domains.Domains.forEach(domain => domain.Sid = koffi.decode(domain.Sid, cSID))
-        free(pReferencedDomains[0])
+        lsaFree(pReferencedDomains[0])
 
         return { sids, domains }
     }
 
     if (status === NTSTATUS_.NONE_MAPPED || status === NTSTATUS_.SOME_NOT_MAPPED) {
-        free(pSids[0])
-        free(pReferencedDomains[0])
+        lsaFree(pSids[0])
+        lsaFree(pReferencedDomains[0])
     }
     return status
-
-    function free(ptr: unknown) {
-        return (free.native ??= advapi32.func('LsaFreeMemory', cNTSTATUS, [ cPVOID ]))(ptr)
-    }
 }
 
 /**

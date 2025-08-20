@@ -38,6 +38,7 @@ export const enum Internals {
     TOKEN_GROUPS_MAX_GROUPS = 32,   // No idea if this is enough, but Koffi needs an upper limit
     TOKEN_PRIVILEGES_MAX_PRIVILEGES = 32,   // No idea if this is enough, but Koffi needs an upper limit
     TOKEN_PRIVILEGES_SET_MAX_PRIVILEGES = 32,   // No idea if this is enough, but Koffi needs an upper limit
+    POLICY_AUDIT_EVENTS_INFO_MAX_OPTIONS = 16,   // No idea if this is enough, but Koffi needs an upper limit
     LSALOOKUPNAMES2_MAX_NAMES = 8,
 
     NOERROR = 0,
