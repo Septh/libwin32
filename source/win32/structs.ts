@@ -26,12 +26,8 @@ import type {
  */
 export class ACL {
     readonly AclRevision = Internals.ACL_REVISION
-    readonly Sbsz1 = 0  // Used for alignment
-    readonly Sbsz2 = 0  // Used for alignment
-    constructor(
-        public AceCount: number = 0,
-        public AclSize:  number = 0
-    ) {}
+    public AceCount!: number
+    public AclSize!:  number
 }
 
 /** @internal */
@@ -63,15 +59,9 @@ export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
  */
 export class SID {
     readonly Revision = Internals.SID_REVISION
-    public SubAuthorityCount: number
-    public SubAuthority: number[]
-    constructor(
-        public IdentifierAuthority: SID_IDENTIFIER_AUTHORITY,
-        ...SubAuthority:        number[]
-    ) {
-        this.SubAuthorityCount = SubAuthority.length
-        this.SubAuthority = SubAuthority.slice()
-    }
+    public SubAuthorityCount!: number
+    public SubAuthority!: number[]
+    public IdentifierAuthority!: SID_IDENTIFIER_AUTHORITY
 }
 
 /** @internal */
@@ -156,31 +146,16 @@ export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-claim_security_attribute_v1
  */
 export class CLAIM_SECURITY_ATTRIBUTE_V1 {
-    readonly Reserved = 0
-    public Values = new koffi.Union('CLAIM_SECURITY_ATTRIBUTE_V1_Values') as {
+    public Name!: string
+    public ValueType!: CLAIM_SECURITY_ATTRIBUTE_TYPE_
+    public Flags!: CLAIM_SECURITY_ATTRIBUTE_
+    public ValueCount!: number
+    public Values = new koffi.Union('CSA_V1_Values') as {
         pInt64?:       BigInt[]
         pUint64?:      BigInt[]
         ppString?:     string[]
         pFqbn?:        CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]
         pOctetString?: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[]
-    }
-    constructor(
-        public Name: string = null!,
-        public Flags: CLAIM_SECURITY_ATTRIBUTE_ = 0 as CLAIM_SECURITY_ATTRIBUTE_,
-        public ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_ = 0,
-        public ValueCount = 0,
-               { pInt64, pUint64, ppString, pFqbn, pOctetString }: CLAIM_SECURITY_ATTRIBUTE_V1['Values'] = {}
-    ) {
-        if (pInt64)
-            this.Values.pInt64 = pInt64
-        else if (pUint64)
-            this.Values.pInt64 = pUint64
-        else if (ppString)
-            this.Values.ppString = ppString
-        else if (pFqbn)
-            this.Values.pFqbn = pFqbn
-        else if (pOctetString)
-            this.Values.pOctetString = pOctetString
     }
 }
 
@@ -191,7 +166,7 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
     Reserved:   cWORD,
     Flags:      cDWORD,
     ValueCount: cDWORD,
-    Values:     koffi.union('CLAIM_SECURITY_ATTRIBUTE_V1_Values', {
+    Values:     koffi.union('CSA_V1_Values', {
         pInt64:        koffi.pointer(cLONG64, Internals.ANYSIZE_ARRAY),
         pUint64:       koffi.pointer(cDWORD64, Internals.ANYSIZE_ARRAY),
         ppString:      koffi.pointer(cSTR, Internals.ANYSIZE_ARRAY),
@@ -217,7 +192,7 @@ export const cCLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.struct({
     Version:        cWORD,
     Reserved:       cWORD,
     AttributeCount: cDWORD,
-    Attribute:      koffi.struct({  // Should be a union, but there is only one member...
+    Attribute:      koffi.struct({  // Should be a union, but since there is only one member...
         pAttributeV1: koffi.pointer(cCLAIM_SECURITY_ATTRIBUTE_V1, Internals.ANYSIZE_ARRAY)
     })
 })
@@ -645,19 +620,17 @@ export const cDLGPROC = koffi.pointer(koffi.proto('DLG', cLRESULT, [ cHANDLE, cU
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassw
  */
-export class WNDCLASS {
-    constructor(
-        public hInstance:     HINSTANCE | null = null,
-        public lpszClassName: string = '',
-        public style:         CS_ = 0,
-        public lpfnWndProc:   WNDPROC | null = null,
-        public hCursor:       HCURSOR | null = null,
-        public hIcon:         HICON   | null = null,
-        public hbrBackground: HBRUSH  | null = null,
-        public lpszMenuName:  string  | null = null,
-        public cbClsExtra:    number = 0,
-        public cwWndExtra:    number = 0
-    ) {}
+export interface WNDCLASS {
+    hInstance:     HINSTANCE | null
+    lpszClassName: string | null
+    style:         CS_
+    lpfnWndProc:   WNDPROC | null
+    hCursor:       HCURSOR | null
+    hIcon:         HICON   | null
+    hbrBackground: HBRUSH  | null
+    lpszMenuName:  string  | null
+    cbClsExtra:    number
+    cwWndExtra:    number
 }
 
 /** @internal */
@@ -683,16 +656,16 @@ export class WNDCLASSEX {
     readonly cbSize = SIZEOF_WNDCLASSEX
     constructor(
         public hInstance:     HINSTANCE | null = null,
-        public lpszClassName: string = '',
-        public style:         CS_ = 0,
-        public lpfnWndProc:   WNDPROC | null = null,
-        public hCursor:       HCURSOR | null = null,
-        public hIcon:         HICON   | null = null,
-        public hIconSm:       HICON   | null = null,
-        public hbrBackground: HBRUSH  | null = null,
-        public lpszMenuName:  string  | null = null,
-        public cbClsExtra:    number = 0,
-        public cwWndExtra:    number = 0
+        public lpszClassName: string  | null   = null,
+        public style:         CS_              = 0,
+        public lpfnWndProc:   WNDPROC | null   = null,
+        public hCursor:       HCURSOR | null   = null,
+        public hIcon:         HICON   | null   = null,
+        public hIconSm:       HICON   | null   = null,
+        public hbrBackground: HBRUSH  | null   = null,
+        public lpszMenuName:  string  | null   = null,
+        public cbClsExtra:    number           = 0,
+        public cwWndExtra:    number           = 0
     ) {}
 }
 
@@ -1108,7 +1081,7 @@ export const cPOLICY_ACCOUNT_DOMAIN_INFO = koffi.struct({
 /**
  * Used to set and query the system's auditing rules.
  *
- * learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ns-ntsecapi-policy_audit_events_info
+ * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ns-ntsecapi-policy_audit_events_info
  */
 export interface POLICY_AUDIT_EVENTS_INFO {
     AuditingMode: boolean
@@ -1119,7 +1092,7 @@ export interface POLICY_AUDIT_EVENTS_INFO {
 /** @internal */
 export const cPOLICY_AUDIT_EVENTS_INFO = koffi.struct({
     AuditingMode: cBOOL,
-    EventAuditingOptions: koffi.array(cULONG, 'MaximumAuditEventCount', Internals.POLICY_AUDIT_EVENTS_INFO_MAX_OPTIONS),
+    EventAuditingOptions: koffi.pointer(null, cULONG, 'MaximumAuditEventCount'),
     MaximumAuditEventCount: cULONG
 })
 

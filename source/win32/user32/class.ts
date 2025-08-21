@@ -5,56 +5,40 @@ import {
     cATOM, type ATOM, cHANDLE, type HINSTANCE, type HWND
 } from '../ctypes.js'
 import {
-    cWNDCLASS, WNDCLASS,
+    cWNDCLASS, type WNDCLASS,
     cWNDCLASSEX, WNDCLASSEX,
     cWNDPROC
 } from '../structs.js'
 import { user32 } from './lib.js'
 
-const wndProcs = new Map<string | ATOM, koffi.IKoffiRegisteredCallback>()
+const wndProcs = new Map<ATOM, koffi.IKoffiRegisteredCallback | undefined>()
 
 /**
  * Retrieves information about a window class.
  *
- * FIXME: at the moment, libwin32 does not support passing an ATOM for `className`.
+ * Note: libwin32 only supports querying by class name (string).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfow
  */
 export function GetClassInfo(hInstance: HINSTANCE | null, className: string): WNDCLASS | null {
-    const wndClass = new WNDCLASS()
-    return typeof className === 'number' ? info_by_atom() : info_by_string()
+    GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
 
-    function info_by_atom() {
-        info_by_atom.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cATOM, koffi.out(koffi.pointer(cWNDCLASS)) ])
-        return info_by_atom.native(hInstance, className, wndClass) !== 0 ? wndClass : null
-    }
-
-    function info_by_string() {
-        info_by_string.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
-        return info_by_string.native(hInstance, className, wndClass) !== 0 ? wndClass : null
-    }
+    const wndClass = {} as WNDCLASS
+    return GetClassInfo.native(hInstance, className, wndClass) !== 0 ? wndClass : null
 }
 
 /**
  * Retrieves information about a window class, including a handle to the small icon associated with the window class.
  *
- * FIXME: at the moment, libwin32 does not support passing an ATOM for `className`.
+ * Note: libwin32 only supports querying by class name (string).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfoexw
  */
 export function GetClassInfoEx(hInstance: HINSTANCE | null, className: string): WNDCLASSEX | null {
+    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cSTR, koffi.out(koffi.pointer(cWNDCLASSEX)) ])
+
     const wndClassEx = new WNDCLASSEX()
-    return typeof className === 'number' ? info_by_atom() : info_by_string()
-
-    function info_by_atom() {
-        info_by_atom.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cATOM, koffi.out(koffi.pointer(cWNDCLASSEX)) ])
-        return info_by_atom.native(hInstance, className, wndClassEx) !== 0 ? wndClassEx : null
-    }
-
-    function info_by_string() {
-        info_by_string.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cSTR, koffi.out(koffi.pointer(cWNDCLASSEX)) ])
-        return info_by_string.native(hInstance, className, wndClassEx) !== 0 ? wndClassEx : null
-    }
+    return GetClassInfoEx.native(hInstance, className, wndClassEx) !== 0 ? wndClassEx : null
 }
 
 /**
@@ -62,12 +46,12 @@ export function GetClassInfoEx(hInstance: HINSTANCE | null, className: string): 
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassnamew
  */
-export function GetClassName(hWnd: HWND): string {
+export function GetClassName(hWnd: HWND): string | null {
     GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cPVOID), cINT ])
 
     const className = new StringOutputBuffer(256)
     const len = GetClassName.native(hWnd, className.buffer, className.length)
-    return className.decode(len)
+    return len ? className.decode(len) : null
 }
 
 /**
@@ -75,10 +59,10 @@ export function GetClassName(hWnd: HWND): string {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassw
  */
-export function RegisterClass(wndClass: WNDCLASS): ATOM {
+export function RegisterClass(wndClass: WNDCLASS): ATOM | null {
     RegisterClass.native ??= user32.func('RegisterClassW', cATOM, [ koffi.pointer(cWNDCLASS) ])
 
-    let wndProc: koffi.IKoffiRegisteredCallback | undefined = undefined
+    let wndProc: koffi.IKoffiRegisteredCallback | undefined
     if (typeof wndClass.lpfnWndProc === 'function') {
         wndProc = koffi.register(wndClass.lpfnWndProc, cWNDPROC)
         wndClass = {
@@ -88,15 +72,9 @@ export function RegisterClass(wndClass: WNDCLASS): ATOM {
     }
 
     const atom = RegisterClass.native(wndClass)
-    if (atom && wndProc) {
-        wndProcs.set(atom, wndProc)
-        if (wndClass.lpszClassName)
-            wndProcs.set(wndClass.lpszClassName, wndProc)
-    }
-    else if (wndProc)
-        koffi.unregister(wndProc)
-
     return atom
+        ? (wndProcs.set(atom, wndProc), atom)
+        : (wndProc && koffi.unregister(wndProc), null)
 }
 
 /**
@@ -104,10 +82,10 @@ export function RegisterClass(wndClass: WNDCLASS): ATOM {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexw
  */
-export function RegisterClassEx(wndClassEx: WNDCLASSEX): ATOM {
+export function RegisterClassEx(wndClassEx: WNDCLASSEX): ATOM | null {
     RegisterClassEx.native ??= user32.func('RegisterClassExW', cATOM, [ koffi.pointer(cWNDCLASSEX) ])
 
-    let wndProc: koffi.IKoffiRegisteredCallback | undefined = undefined
+    let wndProc: koffi.IKoffiRegisteredCallback | undefined
     if (typeof wndClassEx.lpfnWndProc === 'function') {
         wndProc = koffi.register(wndClassEx.lpfnWndProc, cWNDPROC)
         wndClassEx = {
@@ -117,38 +95,30 @@ export function RegisterClassEx(wndClassEx: WNDCLASSEX): ATOM {
     }
 
     const atom = RegisterClassEx.native(wndClassEx)
-    if (atom && wndProc) {
-        wndProcs.set(atom, wndProc)
-        if (wndClassEx.lpszClassName)
-            wndProcs.set(wndClassEx.lpszClassName, wndProc)
-    }
-    else if (wndProc)
-        koffi.unregister(wndProc)
-
     return atom
+        ? (wndProcs.set(atom, wndProc), atom)
+        : (wndProc && koffi.unregister(wndProc), null)
 }
 
 /**
  * Unregisters a window class, freeing the memory required for the class.
  *
+ * Note: despite the parameter being named `className`, as in the native API,
+ *       libwin32 only supports unregistering by ATOM -- the one you received
+ *       from RegisterClass/RegisterClassEx.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unregisterclassw
  */
-export function UnregisterClass(className: ATOM | string, hInstance: HINSTANCE | null = null): boolean {
-    const wndProc = wndProcs.get(className)
-    const ret = typeof className === 'number' ? unregister_by_atom() : unregister_by_string()
-    if (wndProc) {
-        koffi.unregister(wndProc)
-        wndProcs.forEach((v, k) => v === wndProc && wndProcs.delete(k))
+export function UnregisterClass(className: ATOM, hInstance: HINSTANCE | null = null): boolean {
+    UnregisterClass.native ??= user32.func('UnregisterClassW', cBOOL, [ cATOM, cHANDLE ])
+
+    const ret = UnregisterClass.native(className, hInstance) !== 0
+    if (ret) {
+        const wndProc = wndProcs.get(className)
+        if (wndProc) {
+            koffi.unregister(wndProc)
+            wndProcs.delete(className)
+        }
     }
     return ret
-
-    function unregister_by_atom() {
-        unregister_by_atom.native ??= user32.func('UnregisterClassW', cBOOL, [ cATOM, cHANDLE ])
-        return unregister_by_atom.native(className, hInstance) !== 0
-    }
-
-    function unregister_by_string() {
-        unregister_by_string.native ??= user32.func('UnregisterClassW', cBOOL, [ cSTR, cHANDLE ])
-        return unregister_by_string.native(className, hInstance) !== 0
-    }
 }
