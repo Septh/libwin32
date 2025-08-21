@@ -46,7 +46,7 @@ export enum AW_ {
 export const BROADCAST_QUERY_DENY = 0x424D5144
 
 /**
- * Broadcast Special Message Flags.
+ * BroadcastSystemMessage() flags.
  */
 export enum BSF_ {
     QUERY              = 0x00000001,
@@ -63,7 +63,7 @@ export enum BSF_ {
 }
 
 /**
- * Broadcast Special Message Recipient list.
+ * BroadcastSystemMessage() recipient list.
  */
 export enum BSM_ {
     ALLCOMPONENTS      = 0x00000000,

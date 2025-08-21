@@ -694,11 +694,9 @@ export const SIZEOF_WNDCLASSEX = koffi.sizeof(cWNDCLASSEX)
  */
 export class BSMINFO {
     readonly cbSize = SIZEOF_BSMINFO
-    constructor(
-        public hDesk: HDESK | null = null,
-        public hWnd:  HWND | null = null,
-        public luid:  LUID | null = null
-    ) {}
+    public hDesk: HDESK | null = null
+    public hWnd:  HWND | null = null
+    public luid:  LUID | null = null
 }
 
 /** @internal */

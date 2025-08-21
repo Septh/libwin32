@@ -15,7 +15,7 @@ export interface BroadcastSystemMessageResult {
      * If the flags parameter is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY`,
      * `success` will be `true` and these flags tells you what components denied the query.
      */
-    denied?: BSM_
+    receivers?: BSM_
 }
 
 export interface BroadcastSystemMessageExResult extends BroadcastSystemMessageResult {
@@ -27,18 +27,16 @@ export interface BroadcastSystemMessageExResult extends BroadcastSystemMessageRe
 }
 
 /**
- * Sends a message to the specified recipients.
+ * Sends a message to the specified recipients. The recipients can be applications, installable drivers,
+ * network drivers, system-level device drivers, or any combination of these system components.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
-export function BroadcastSystemMessage(flags: BSF_, info: BSM_ | null, msg: number, wParam: WPARAM, lParam: LPARAM): BroadcastSystemMessageResult {
+export function BroadcastSystemMessage(flags: BSF_, info: BSM_, msg: number, wParam: WPARAM, lParam: LPARAM): boolean {
     BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM ])
 
-    const pBsm: OUT<BSM_> = [info ?? BSM_.ALLCOMPONENTS]
-    const ret = BroadcastSystemMessage.native(flags, pBsm, msg, wParam, lParam)
-    return ret === 0
-        ? { success: true,  denied: pBsm[0] }
-        : { success: ret > 0 }
+    const pInfo: OUT<number> = [info]
+    return BroadcastSystemMessage.native(flags, pInfo, msg, wParam, lParam) > 0
 }
 
 /**
@@ -48,15 +46,13 @@ export function BroadcastSystemMessage(flags: BSF_, info: BSM_ | null, msg: numb
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
  *
  */
-export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_ | null, msg: number, wParam: WPARAM, lParam: LPARAM): BroadcastSystemMessageExResult {
+export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_, msg: number, wParam: WPARAM, lParam: LPARAM): BSMINFO | boolean {
     BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
 
-    const pBsm: OUT<BSM_> = [info ?? BSM_.ALLCOMPONENTS]
+    const pInfo: OUT<number> = [info]
     const bsmInfo = new BSMINFO()
-    const ret = BroadcastSystemMessageEx.native(flags, pBsm, msg, wParam, lParam, bsmInfo)
-    return ret === 0
-        ? { success: true, denied: pBsm[0], denier: bsmInfo }
-        : { success: ret > 0 }
+    const ret: number = BroadcastSystemMessageEx.native(flags, pInfo, msg, wParam, lParam, bsmInfo)
+    return ret === 0 ? bsmInfo : ret > 0
 }
 
 /**
