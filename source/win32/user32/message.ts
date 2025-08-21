@@ -13,6 +13,9 @@ import { user32 } from './lib.js'
  * Sends a message to the specified recipients. The recipients can be applications, installable drivers,
  * network drivers, system-level device drivers, or any combination of these system components.
  *
+ * Returns `true` if the function succeeds or `false` if there was an error or the dwFlags parameter is `BSF_QUERY`
+ * and at least one recipient returned `BROADCAST_QUERY_DENY` to the corresponding message.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
 export function BroadcastSystemMessage(flags: BSF_, info: BSM_, msg: number, wParam: WPARAM, lParam: LPARAM): boolean {
@@ -25,6 +28,9 @@ export function BroadcastSystemMessage(flags: BSF_, info: BSM_, msg: number, wPa
 /**
  * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
  * except that this function can return more information from the recipients.
+ *
+ * Returns `true` if the function succeeds, `false` if there was an error, or a BSMINFO structure if the dwFlags parameter
+ * is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY` to the corresponding message.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
  *
