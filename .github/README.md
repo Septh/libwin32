@@ -155,8 +155,11 @@ See [releases](https://github.com/Septh/libwin32/releases) on Github.
 | LookupPrivilegeName       | advapi32  | 0.8.1  |
 | LookupPrivilegeValue      | advapi32  | 0.8.1  |
 | LsaClose                  | advapi32  | 0.6.0  |
+| LsaEnumerateAccountRights | advapi32  | 0.11.0 |
+| LsaLookupNames2           | advapi32  | 0.11.0 |
 | LsaNtStatusToWinError     | advapi32  | 0.6.0  |
 | LsaOpenPolicy             | advapi32  | 0.6.0  |
+| LsaQueryInformation       | advapi32  | 0.11.0 |
 | MessageBox                | user32    | 0.1.0  |
 | MessageBoxEx              | user32    | 0.7.0  |
 | OpenProcess               | kernel32  | 0.5.0  |
