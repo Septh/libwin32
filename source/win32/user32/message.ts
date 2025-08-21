@@ -9,23 +9,6 @@ import { cBSMINFO, BSMINFO, cMSG, type MSG } from '../structs.js'
 import type { BSM_, BSF_, PM_ } from '../consts.js'
 import { user32 } from './lib.js'
 
-export interface BroadcastSystemMessageResult {
-    success: boolean
-    /**
-     * If the flags parameter is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY`,
-     * `success` will be `true` and these flags tells you what components denied the query.
-     */
-    receivers?: BSM_
-}
-
-export interface BroadcastSystemMessageExResult extends BroadcastSystemMessageResult {
-    /**
-     * If the flags parameter is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY`,
-     * `success` will be `true` and this structure tells you what recipient denied the query.
-     */
-    denier?: BSMINFO
-}
-
 /**
  * Sends a message to the specified recipients. The recipients can be applications, installable drivers,
  * network drivers, system-level device drivers, or any combination of these system components.
