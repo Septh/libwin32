@@ -6,7 +6,7 @@ import {
     cLRESULT, type LRESULT, cWPARAM, type WPARAM, cLPARAM, type LPARAM
 } from '../ctypes.js'
 import { cBSMINFO, BSMINFO, cMSG, type MSG } from '../structs.js'
-import { BSM_, type BSF_, type PM_ } from '../consts.js'
+import type { BSM_, BSF_, PM_ } from '../consts.js'
 import { user32 } from './lib.js'
 
 export interface BroadcastSystemMessageResult {
