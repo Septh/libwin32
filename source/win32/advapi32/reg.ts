@@ -38,7 +38,6 @@ export type RegGetValueResult =
     | { type: REG_.DWORD,            value: number     }
     | { type: REG_.DWORD_BIG_ENDIAN, value: number     }
     | { type: REG_.QWORD,            value: BigInt     }
-    | { type: REG_,                  value: unknown    }
 
 export interface RegQueryInfoKeyResult {
     className: string
@@ -48,7 +47,7 @@ export interface RegQueryInfoKeyResult {
 }
 
 /** Anything that has a `buffer: ArrayBuffer` property: `Buffer`, `TypedArrays`, `DataView`. */
-type BufferSource = { buffer: ArrayBuffer, byteLength: number }
+export type BufferSource = { buffer: ArrayBuffer, byteLength: number }
 
 /**
  * Closes a handle to the specified registry key.
@@ -226,48 +225,32 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
     if (status === Internals.ERROR_SUCCESS) {
         const type = pType[0]
         const count = pCount[0]
-        let value: any
         switch (type) {
             case REG_.NONE:
-                value = null
-                break
+                return { type, value: null }
 
             case REG_.SZ:
             case REG_.EXPAND_SZ:
-                value = new Uint16Array(binaryBuffer.buffer, binaryBuffer.byteOffset, (count / Uint16Array.BYTES_PER_ELEMENT) - 1)
-                value = textDecoder.decode(value)
-                break
+                return { type, value: textDecoder.decode(binaryBuffer.subarray(0, count - 2)) }
 
             case REG_.MULTI_SZ:
-                value = new Uint16Array(binaryBuffer.buffer, binaryBuffer.byteOffset, (count / Uint16Array.BYTES_PER_ELEMENT) - 2)
-                value = textDecoder.decode(value).split('\0')
-                break
+                return { type, value: textDecoder.decode(binaryBuffer.subarray(0, count - 4)).split('\0') }
 
             case REG_.BINARY:
-                value = new Uint8Array(binaryBuffer.buffer, binaryBuffer.byteOffset, count)
-                value = value.slice()   // Return a copy of the buffer
-                break
+                return { type, value: new Uint8Array(binaryBuffer.subarray(0, count)) }
 
             case REG_.DWORD:
-                value = new Uint32Array(binaryBuffer.buffer, binaryBuffer.byteOffset, 1)
-                value = value[0]
-                break
+                return { type, value: binaryBuffer.readUInt32LE(0) }
 
             case REG_.DWORD_BIG_ENDIAN:
-                value = new DataView(binaryBuffer.buffer, binaryBuffer.byteOffset, Uint32Array.BYTES_PER_ELEMENT)
-                value = value.getUint32(0, false)
-                break
+                return { type, value: binaryBuffer.readUInt32BE(0) }
 
             case REG_.QWORD:
-                value = new BigUint64Array(binaryBuffer.buffer, binaryBuffer.byteOffset, 1)
-                value = value[0]
-                break
+                return { type, value: binaryBuffer.readBigUInt64LE(0) }
 
             default:
                 return ERROR_.NOT_SUPPORTED
         }
-
-        return { type, value }
     }
     return status
 }
@@ -363,11 +346,11 @@ export function RegSaveKeyEx(hKey: HKEY | HKEY_, file: string, securityAttribute
 /**
  * Sets the data for the specified value in the specified registry key and subkey.
  *
- * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`,
- *       `REG_BINARY`, `REG_DWORD`, `REG_DWORD_BIG_ENDIAN` and `REG_QWORD`
- *       are supported. All other types return `ERROR_UNSUPPORTED`.
- *
- * If the `data` parameter if not of the expected type, then `ERROR_BAD_ARGUMENTS` is returned.
+ * Notes:
+ * - In libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`, `REG_BINARY`, `REG_DWORD`,
+ *   `REG_DWORD_BIG_ENDIAN` and `REG_QWORD` are supported. All other types return `ERROR_UNSUPPORTED`.
+ * - For `REG_BINARY`, `data` is expected bo b a `UInt8Array` or a `Buffer`.
+ * - If `data` if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetkeyvaluew
  */
@@ -383,19 +366,17 @@ export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueN
     RegSetKeyValue.native ??= advapi32.func('RegSetKeyValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, cPVOID, cDWORD ])
 
     const buffer = regKeyDataToBuffer(type, data)
-    return buffer instanceof ArrayBuffer
-        ? RegSetKeyValue.native(hKey, subKey, valueName, type, buffer, buffer.byteLength)
-        : buffer
+    return typeof buffer === 'number' ? buffer : RegSetKeyValue.native(hKey, valueName, 0, type, buffer, buffer.byteLength)
 }
 
 /**
  * Sets the data and type of a specified value under a registry key.
  *
- * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`,
- *       `REG_BINARY`, `REG_DWORD`, `REG_DWORD_BIG_ENDIAN` and `REG_QWORD`
- *       are supported. All other types return `ERROR_UNSUPPORTED`.
- *
- * If the `data` parameter if not of the expected type, then `ERROR_BAD_ARGUMENTS` is returned.
+ * Notes:
+ * - In libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`, `REG_BINARY`, `REG_DWORD`,
+ *   `REG_DWORD_BIG_ENDIAN` and `REG_QWORD` are supported. All other types return `ERROR_UNSUPPORTED`.
+ * - For `REG_BINARY`, `data` is expected bo b a `UInt8Array` or a `Buffer`.
+ * - If `data` if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetvalueexw
  */
@@ -411,42 +392,44 @@ export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type
     RegSetValueEx.native ??= advapi32.func('RegSetValueExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cDWORD, cPVOID, cDWORD ])
 
     const buffer = regKeyDataToBuffer(type, data)
-    return buffer instanceof ArrayBuffer
-        ? RegSetValueEx.native(hKey, valueName, 0, type, buffer, buffer.byteLength)
-        : buffer
+    return typeof buffer === 'number' ? buffer : RegSetValueEx.native(hKey, valueName, 0, type, buffer, buffer.byteLength)
 }
 
-function regKeyDataToBuffer(type: REG_, data: any): ArrayBuffer | ERROR_ {
+function regKeyDataToBuffer(type: REG_, data: any): BufferSource | ERROR_ {
 
     switch (type) {
         case REG_.NONE:
-            return new Uint8Array().buffer
+            return new Uint8Array()
 
         case REG_.SZ:
         case REG_.EXPAND_SZ:
             return typeof data === 'string'
-                ? Uint16Array.from(data + '\0', c => c.charCodeAt(0)).buffer
-                : ERROR_.BAD_ARGUMENTS
-
-        case REG_.BINARY:
-            return data && typeof data === 'object' && data.buffer instanceof ArrayBuffer
-                ? data.buffer
+                ? Uint16Array.from(data + '\0', c => c.charCodeAt(0))
                 : ERROR_.BAD_ARGUMENTS
 
         case REG_.MULTI_SZ:
-            return Array.isArray(data)
-                ? Uint16Array.from(data.join('\0') + '\0\0', c => c.charCodeAt(0)).buffer
+            return Array.isArray(data) && data.every(s => typeof s === 'string')
+                ? Uint16Array.from(data.join('\0') + '\0\0', c => c.charCodeAt(0))
+                : ERROR_.BAD_ARGUMENTS
+
+        case REG_.BINARY:
+            return data instanceof Uint8Array
+                ? data as Uint8Array<ArrayBuffer>
                 : ERROR_.BAD_ARGUMENTS
 
         case REG_.DWORD:
+            return Number.isFinite(data)
+                ? binaryBuffer.subarray(0, binaryBuffer.writeUInt32LE(data, 0))
+                : ERROR_.BAD_ARGUMENTS
+
         case REG_.DWORD_BIG_ENDIAN:
-            return typeof data === 'number'
-                ? new Uint32Array([data]).buffer
+            return Number.isFinite(data)
+                ? binaryBuffer.subarray(0, binaryBuffer.writeUInt32LE(data, 0))
                 : ERROR_.BAD_ARGUMENTS
 
         case REG_.QWORD:
-            return typeof data === 'number' || typeof data === 'bigint'
-                ? new BigUint64Array([BigInt(data)]).buffer
+            return Number.isFinite(data) || typeof data === 'bigint'
+                ? binaryBuffer.subarray(0, binaryBuffer.writeBigUInt64LE(BigInt(data), 0))
                 : ERROR_.BAD_ARGUMENTS
 
         default:
