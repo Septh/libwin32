@@ -240,10 +240,8 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
                 return { type, value: new Uint8Array(binaryBuffer.subarray(0, count)) }
 
             case REG_.DWORD:
-                return { type, value: binaryBuffer.readUInt32LE(0) }
-
             case REG_.DWORD_BIG_ENDIAN:
-                return { type, value: binaryBuffer.readUInt32BE(0) }
+                return { type, value: binaryBuffer.readUInt32LE(0) }
 
             case REG_.QWORD:
                 return { type, value: binaryBuffer.readBigUInt64LE(0) }
@@ -418,10 +416,6 @@ function regKeyDataToBuffer(type: REG_, data: any): BufferSource | ERROR_ {
                 : ERROR_.BAD_ARGUMENTS
 
         case REG_.DWORD:
-            return Number.isFinite(data)
-                ? binaryBuffer.subarray(0, binaryBuffer.writeUInt32LE(data, 0))
-                : ERROR_.BAD_ARGUMENTS
-
         case REG_.DWORD_BIG_ENDIAN:
             return Number.isFinite(data)
                 ? binaryBuffer.subarray(0, binaryBuffer.writeUInt32LE(data, 0))
