@@ -4,10 +4,13 @@
   "compilerOptions": {
     "outDir": "../../lib/demos",
     "composite": true,
-    "noEmit": false
+    "noEmit": false,
+    "paths": {
+      "libwin32": [ "../win32/index.ts" ],
+      "libwin32/consts": [ "../win32/consts.ts" ]
+    }
   },
   "references": [
-    { "path": "../win32"},
-    { "path": "../rollup"},
+    { "path": "../win32"}
   ]
 }
