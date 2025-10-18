@@ -58,8 +58,7 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
 }
 
 /**
- * The ConvertSidToStringSid function converts a security identifier (SID) to a string format suitable for display,
- * storage, or transmission.
+ * Converts a security identifier (SID) to a string format suitable for display, storage, or transmission.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertsidtostringsidw
  */
@@ -75,7 +74,7 @@ export function ConvertSidToStringSid(sid: SID): string | null {
 }
 
 /**
- * The ConvertStringSidToSid function converts a string-format security identifier (SID) into a valid, functional SID.
+ * Converts a string-format security identifier (SID) into a valid, functional SID.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertstringsidtosidw
  */
@@ -132,7 +131,7 @@ export function EqualSid(sid1: SID, sid2: SID): boolean {
 }
 
 /**
- * Frees a security identifier (SID) previously allocated by using the {@link AllocateAndInitializeSid} function.
+ * Frees a security identifier (SID) previously allocated by using the {@link AllocateAndInitializeSid()} function.
  *
  * Note: in libwin32, `AllocateAndInitializeSid()` immediately frees the allocated memory, so this function is a NOOP.
  *

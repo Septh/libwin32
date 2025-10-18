@@ -12,7 +12,7 @@ import type { TOKEN_ } from '../consts.js'
 import { advapi32 } from './lib.js'
 
 /**
- * The AdjustTokenPrivileges function enables or disables privileges in the specified access token.
+ * Enables or disables privileges in the specified access token.
  *
  * Note: in libwin32, the function returns the previous state of any privileges that the function modifies.
  *

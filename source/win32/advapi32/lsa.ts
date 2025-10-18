@@ -66,7 +66,7 @@ export function LsaFreeMemory(buffer: unknown): NTSTATUS_ {
  * Retrieves the security identifiers (SIDs) for specified account names in any domain in a Windows forest.
  *
  * Notes:
- * - in libwin32, LsaLookupNames2 accepts 1 to 8 names max.
+ * - in libwin32, LsaLookupNames2() accepts 1 to 8 names max.
  * - any memory allocated by the system is immediately returned to the system. The net effect is that you don't need
  *   to call {@link LsaFreeMemory()} afterwards (which is a NOOP anyway).
  *
@@ -79,12 +79,11 @@ export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...
     ])
 
     const count = names.length
-    if (count > 0 && count <= Internals.LSALOOKUPNAMES2_MAX_NAMES) {
-        names.length = Internals.LSALOOKUPNAMES2_MAX_NAMES
-        names.fill('', count)
-    }
-    else return NTSTATUS_.INVALID_PARAMETER
+    if (count < 0 || count > Internals.LSALOOKUPNAMES2_MAX_NAMES)
+        return NTSTATUS_.INVALID_PARAMETER
 
+    names.length = Internals.LSALOOKUPNAMES2_MAX_NAMES
+    names.fill('', count)
     const uNames = names.map(name => new LSA_UNICODE_STRING(name))
     const pReferencedDomains: OUT<unknown> = [null]
     const pSids: OUT<unknown> = [null]

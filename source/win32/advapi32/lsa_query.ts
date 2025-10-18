@@ -102,9 +102,11 @@ export function LsaQueryDnsDomainInformationPolicy(policyHandle: LSA_HANDLE): PO
 /**
  * Retrieves information about a Policy object.
  *
- * Note: in libwin32, the function only supports the values of the `POLICY_INFORMATION_CLASS` enumeration
- *       that are listed on the function's doc (link below). All other POLICY_INFORMATION_CLASS values
- *       return `STATUS_NOT_SUPPORTED`, and values outside the enumeration return STATUS_INVALID_PARAMETER.
+ * Note:
+ * - In libwin32, the function only supports the values of the `POLICY_INFORMATION_CLASS` enumeration
+ *   that are listed on the function's doc (link below).
+ * - All other POLICY_INFORMATION_CLASS values return `STATUS_NOT_SUPPORTED`
+ * - Values outside the enumeration return STATUS_INVALID_PARAMETER.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */

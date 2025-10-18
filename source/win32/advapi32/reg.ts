@@ -206,11 +206,11 @@ export function RegFlushKey(hKey: HKEY | HKEY_): LSTATUS {
 /**
  * Retrieves the type and data for the specified registry value.
  *
- * Note: in libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`,
- *       `REG_BINARY`, `REG_DWORD`, `REG_DWORD_BIG_ENDIAN` and `REG_QWORD`
- *       are supported. All other types return `ERROR_UNSUPPORTED`.
- *
- * `REG_BINARY` values are always returned as a `Uint8Array`.
+ * Notes:
+ * - In libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`,
+ *   `REG_BINARY`, `REG_DWORD`, `REG_DWORD_BIG_ENDIAN` and `REG_QWORD`
+ *   are supported. All other types return `ERROR_UNSUPPORTED`.
+ * - `REG_BINARY` values are always returned as a `Uint8Array`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
  */
@@ -347,7 +347,7 @@ export function RegSaveKeyEx(hKey: HKEY | HKEY_, file: string, securityAttribute
  * Notes:
  * - In libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`, `REG_BINARY`, `REG_DWORD`,
  *   `REG_DWORD_BIG_ENDIAN` and `REG_QWORD` are supported. All other types return `ERROR_UNSUPPORTED`.
- * - For `REG_BINARY`, `data` is expected bo b a `UInt8Array` or a `Buffer`.
+ * - For `REG_BINARY`, `data` is expected bo be a `UInt8Array` or a `Buffer`.
  * - If `data` if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetkeyvaluew
@@ -373,7 +373,7 @@ export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueN
  * Notes:
  * - In libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`, `REG_BINARY`, `REG_DWORD`,
  *   `REG_DWORD_BIG_ENDIAN` and `REG_QWORD` are supported. All other types return `ERROR_UNSUPPORTED`.
- * - For `REG_BINARY`, `data` is expected bo b a `UInt8Array` or a `Buffer`.
+ * - For `REG_BINARY`, `data` is expected bo be a `UInt8Array` or a `Buffer`.
  * - If `data` if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetvalueexw

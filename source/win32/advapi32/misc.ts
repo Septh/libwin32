@@ -83,7 +83,7 @@ export function LookupPrivilegeValue(systemName: string | null, name: SE_NAME): 
 }
 
 /**
- * The PrivilegeCheck function determines whether a specified set of privileges are enabled in an access token.
+ * Determines whether a specified set of privileges are enabled in an access token.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-privilegecheck
  */
