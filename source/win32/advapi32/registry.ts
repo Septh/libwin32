@@ -13,7 +13,7 @@ import {
     REG_, type REG_OPTION_,
     type HKEY_, type KEY_, type RRF_
 } from '../consts.js'
-import { advapi32 } from './lib.js'
+import { advapi32 } from './_lib.js'
 
 type LSTATUS = ERROR_
 

@@ -11,7 +11,7 @@ import {
     cWNDENUMPROC, type WNDENUMPROC
 } from '../structs.js'
 import type { WS_, WS_EX_, WM_, HWND_, AW_, GA_, SW_ } from '../consts.js'
-import { user32 } from './lib.js'
+import { user32 } from './_lib.js'
 
 export interface GetWindowThreadProcessIdResult {
     threadId: number

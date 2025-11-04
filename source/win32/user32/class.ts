@@ -9,7 +9,7 @@ import {
     cWNDCLASSEX, WNDCLASSEX,
     cWNDPROC
 } from '../structs.js'
-import { user32 } from './lib.js'
+import { user32 } from './_lib.js'
 
 const wndProcs = new Map<ATOM, koffi.IKoffiRegisteredCallback | undefined>()
 

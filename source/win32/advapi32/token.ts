@@ -9,7 +9,7 @@ import {
     cTOKEN_PRIVILEGES, type TOKEN_PRIVILEGES
 } from '../structs.js'
 import type { TOKEN_ } from '../consts.js'
-import { advapi32 } from './lib.js'
+import { advapi32 } from './_lib.js'
 
 /**
  * Enables or disables privileges in the specified access token.

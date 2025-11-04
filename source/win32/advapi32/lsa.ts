@@ -12,7 +12,7 @@ import {
     cLSA_REFERENCED_DOMAIN_LIST, type LSA_REFERENCED_DOMAIN_LIST
 } from '../structs.js'
 import { NTSTATUS_, LSA_LOOKUP, POLICY_ } from '../consts.js'
-import { advapi32, lsaFree } from './lib.js'
+import { advapi32, lsaFree } from './_lib.js'
 
 export interface LsaLookupNames2Result {
     sids: LSA_TRANSLATED_SID2[]

@@ -4,7 +4,7 @@ import {
 } from '../ctypes.js'
 import { cRECT, type RECT } from '../structs.js'
 import type { MF_, TPM_ } from '../consts.js'
-import { user32 } from './lib.js'
+import { user32 } from './_lib.js'
 
 /**
  * Appends a new item to the end of the specified menu bar, drop-down menu, submenu, or shortcut menu.

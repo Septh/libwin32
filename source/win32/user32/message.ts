@@ -7,7 +7,7 @@ import {
 } from '../ctypes.js'
 import { cBSMINFO, BSMINFO, cMSG, type MSG } from '../structs.js'
 import type { BSM_, BSF_, PM_ } from '../consts.js'
-import { user32 } from './lib.js'
+import { user32 } from './_lib.js'
 
 /**
  * Sends a message to the specified recipients. The recipients can be applications, installable drivers,

@@ -5,7 +5,7 @@ import {
 } from '../ctypes.js'
 import { cPOINT, type POINT } from '../structs.js'
 import type { IDC_, IDI_, OIC_, OCR_, OBM_, IMAGE_, LR_, MB_ } from '../consts.js'
-import { user32 } from './lib.js'
+import { user32 } from './_lib.js'
 
 /**
  * Destroys a cursor and frees any memory the cursor occupied.

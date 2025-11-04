@@ -10,7 +10,7 @@ import {
     cPRIVILEGE_SET, type PRIVILEGE_SET
 } from '../structs.js'
 import type { SID_NAME_USE, SE_NAME } from '../consts.js'
-import { advapi32 } from './lib.js'
+import { advapi32 } from './_lib.js'
 
 /**
  * Retrieves the name of the user associated with the current thread.

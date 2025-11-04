@@ -10,7 +10,7 @@ import {
     cSID
 } from '../structs.js'
 import { NTSTATUS_, POLICY_INFORMATION_CLASS } from '../consts.js'
-import { INTERNAL_POLICY_INFORMATION_CLASS, queryPolicyInfo, lsaFree } from './lib.js'
+import { INTERNAL_POLICY_INFORMATION_CLASS, queryPolicyInfo, lsaFree } from './_lib.js'
 
 /**
  * Retrieves the system's auditing rules.

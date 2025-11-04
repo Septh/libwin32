@@ -8,7 +8,7 @@ import {
 } from '../structs.js'
 import { ERROR_, type SID_NAME_USE} from '../consts.js'
 import { LocalFree, SetLastError, cLocalAllocatedString } from '../kernel32.js'
-import { advapi32 } from './lib.js'
+import { advapi32 } from './_lib.js'
 
 export interface LookupAccountSidResult {
     name: string

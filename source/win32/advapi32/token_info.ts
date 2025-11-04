@@ -24,7 +24,7 @@ import {
     cTOKEN_STATISTICS, type TOKEN_STATISTICS
 } from '../structs.js'
 import { TOKEN_INFORMATION_CLASS, ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE } from '../consts.js'
-import { getTokenInfo, INTERNAL_TOKEN_INFORMATION_CLASS } from './lib.js'
+import { getTokenInfo, INTERNAL_TOKEN_INFORMATION_CLASS } from './_lib.js'
 
 function decodeSidAndAttributesHash(ptr: unknown): SID_AND_ATTRIBUTES_HASH {
     const ret: SID_AND_ATTRIBUTES_HASH = koffi.decode(ptr, cSID_AND_ATTRIBUTES_HASH)
