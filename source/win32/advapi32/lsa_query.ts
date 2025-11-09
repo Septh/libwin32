@@ -15,6 +15,8 @@ import { INTERNAL_POLICY_INFORMATION_CLASS, queryPolicyInfo, lsaFree } from './_
 /**
  * Retrieves the system's auditing rules.
  *
+ * Note: this function is a libwin32 stub for `LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyAuditEventsInformation)`
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryAuditEventsInformationPolicy(policyHandle: LSA_HANDLE): POLICY_AUDIT_EVENTS_INFO | NTSTATUS_ {
@@ -28,6 +30,8 @@ export function LsaQueryAuditEventsInformationPolicy(policyHandle: LSA_HANDLE): 
 
 /**
  * Retrieves the name and SID of the system's primary domain.
+ *
+ * Note: this function is a libwin32 stub for `LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyPrimaryDomainInformation)`
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
@@ -44,6 +48,8 @@ export function LsaQueryPrimaryDomainInformationPolicy(policyHandle: LSA_HANDLE)
 /**
  * Retrieves the name and SID of the system's account domain.
  *
+ * Note: this function is a libwin32 stub for `LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyAccountDomainInformation)`
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryAccountDomainInformationPolicy(policyHandle: LSA_HANDLE): POLICY_ACCOUNT_DOMAIN_INFO | NTSTATUS_ {
@@ -59,6 +65,8 @@ export function LsaQueryAccountDomainInformationPolicy(policyHandle: LSA_HANDLE)
 /**
  * Query the role of an LSA server.
  *
+ * Note: this function is a libwin32 stub for `LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyLsaServerRoleInformation)`
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryLsaServerRoleInformationPolicy(policyHandle: LSA_HANDLE): POLICY_LSA_SERVER_ROLE_INFO | NTSTATUS_ {
@@ -73,6 +81,8 @@ export function LsaQueryLsaServerRoleInformationPolicy(policyHandle: LSA_HANDLE)
 /**
  * Retrieves information about the creation time and last modification of the LSA database.
  *
+ * Note: this function is a libwin32 stub for `LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyModificationInformation)`
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryModificationInformationPolicy(policyHandle: LSA_HANDLE): POLICY_MODIFICATION_INFO | NTSTATUS_ {
@@ -86,6 +96,8 @@ export function LsaQueryModificationInformationPolicy(policyHandle: LSA_HANDLE):
 
 /**
  * Query Domain Name System (DNS) information about the account domain associated with a Policy object.
+ *
+ * Note: this function is a libwin32 stub for `LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyDnsDomainInformation)`
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
