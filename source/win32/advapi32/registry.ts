@@ -17,35 +17,6 @@ import { advapi32 } from './_lib.js'
 
 type LSTATUS = ERROR_
 
-export interface RegEnumKeyExResult {
-    name: string
-    className: string
-    lastWriteTime: FILETIME
-}
-
-export interface RegEnumValueResult {
-    name: string
-    type: REG_
-    size: number
-}
-
-export type RegGetValueResult =
-    | { type: REG_.NONE,             value: null       }
-    | { type: REG_.SZ,               value: string     }
-    | { type: REG_.EXPAND_SZ,        value: string     }
-    | { type: REG_.MULTI_SZ,         value: string[]   }
-    | { type: REG_.BINARY,           value: Uint8Array }
-    | { type: REG_.DWORD,            value: number     }
-    | { type: REG_.DWORD_BIG_ENDIAN, value: number     }
-    | { type: REG_.QWORD,            value: BigInt     }
-
-export interface RegQueryInfoKeyResult {
-    className: string
-    subKeys: number
-    values: number
-    lastWriteTime: FILETIME
-}
-
 /** Anything that has a `buffer: ArrayBuffer` property: `Buffer`, `TypedArrays`, `DataView`. */
 export type BufferSource = { buffer: ArrayBuffer, byteLength: number }
 
@@ -170,6 +141,12 @@ export function RegEnumKeyEx(hKey: HKEY | HKEY_, index: number): RegEnumKeyExRes
     }
 }
 
+export interface RegEnumKeyExResult {
+    name: string
+    className: string
+    lastWriteTime: FILETIME
+}
+
 /**
  * Enumerates the values for the specified open registry key.
  *
@@ -191,6 +168,12 @@ export function RegEnumValue(hKey: HKEY | HKEY_, index: number): RegEnumValueRes
         type: pType[0],
         size: pSize[0]
     }
+}
+
+export interface RegEnumValueResult {
+    name: string
+    type: REG_
+    size: number
 }
 
 /**
@@ -252,6 +235,16 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
     }
     return status
 }
+
+export type RegGetValueResult =
+    | { type: REG_.NONE,             value: null       }
+    | { type: REG_.SZ,               value: string     }
+    | { type: REG_.EXPAND_SZ,        value: string     }
+    | { type: REG_.MULTI_SZ,         value: string[]   }
+    | { type: REG_.BINARY,           value: Uint8Array }
+    | { type: REG_.DWORD,            value: number     }
+    | { type: REG_.DWORD_BIG_ENDIAN, value: number     }
+    | { type: REG_.QWORD,            value: BigInt     }
 
 /**
  * Loads the specified registry hive as an application hive.
@@ -319,6 +312,13 @@ export function RegQueryInfoKey(hKey: HKEY | HKEY_): RegQueryInfoKeyResult | LST
         values: pValues[0],
         lastWriteTime
     }
+}
+
+export interface RegQueryInfoKeyResult {
+    className: string
+    subKeys: number
+    values: number
+    lastWriteTime: FILETIME
 }
 
 /**

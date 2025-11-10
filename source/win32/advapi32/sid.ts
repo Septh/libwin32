@@ -10,12 +10,6 @@ import { ERROR_, type SID_NAME_USE} from '../consts.js'
 import { LocalFree, SetLastError, cLocalAllocatedString } from '../kernel32.js'
 import { advapi32 } from './_lib.js'
 
-export interface LookupAccountSidResult {
-    name: string
-    referencedDomainName: string
-    use: SID_NAME_USE
-}
-
 /**
  * Allocates and initializes a security identifier (SID) with up to eight sub-authorities.
  *
@@ -183,6 +177,12 @@ export function LookupAccountSid(systemName: string | null, sid: SID): LookupAcc
         }
     }
     return null
+}
+
+export interface LookupAccountSidResult {
+    name: string
+    referencedDomainName: string
+    use: SID_NAME_USE
 }
 
 /**

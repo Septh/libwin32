@@ -14,11 +14,6 @@ import {
 import { NTSTATUS_, LSA_LOOKUP, POLICY_ } from '../consts.js'
 import { advapi32, lsaFree } from './_lib.js'
 
-export interface LsaLookupNames2Result {
-    sids: LSA_TRANSLATED_SID2[]
-    domains: LSA_REFERENCED_DOMAIN_LIST
-}
-
 /**
  * Closes a handle to a Policy or TrustedDomain object.
  *
@@ -107,6 +102,11 @@ export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...
     }
 
     return status
+}
+
+export interface LsaLookupNames2Result {
+    sids: LSA_TRANSLATED_SID2[]
+    domains: LSA_REFERENCED_DOMAIN_LIST
 }
 
 /**

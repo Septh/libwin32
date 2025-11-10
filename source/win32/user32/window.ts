@@ -13,11 +13,6 @@ import {
 import type { WS_, WS_EX_, WM_, HWND_, AW_, GA_, SW_ } from '../consts.js'
 import { user32 } from './_lib.js'
 
-export interface GetWindowThreadProcessIdResult {
-    threadId: number
-    processId: number
-}
-
 /**
  * Calculates the required size of the window rectangle, based on the desired client-rectangle size.
  *
@@ -229,6 +224,11 @@ export function GetWindowThreadProcessId(hWnd: HWND): GetWindowThreadProcessIdRe
     const pProcessId: OUT<number> = [0]
     const threadId: number = GetWindowThreadProcessId.native(hWnd, pProcessId)
     return { threadId, processId: pProcessId[0] }
+}
+
+export interface GetWindowThreadProcessIdResult {
+    threadId: number
+    processId: number
 }
 
 /**
