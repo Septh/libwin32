@@ -74,11 +74,12 @@ export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...
     ])
 
     const count = names.length
-    if (count < 0 || count > Internals.LSALOOKUPNAMES2_MAX_NAMES)
+    if (count < 1 || count > Internals.LSALOOKUPNAMES2_MAX_NAMES)
         return NTSTATUS_.INVALID_PARAMETER
 
     names.length = Internals.LSALOOKUPNAMES2_MAX_NAMES
     names.fill('', count)
+
     const uNames = names.map(name => new LSA_UNICODE_STRING(name))
     const pReferencedDomains: OUT<unknown> = [null]
     const pSids: OUT<unknown> = [null]
