@@ -1,6 +1,6 @@
 import assert from 'node:assert'
 import koffi from 'koffi-cream'
-import { Internals } from './private.js'
+import { Internals, textDecoder } from './private.js'
 import {
     cBOOL, cINT, cUINT, cCHAR, cBYTE, cSHORT, cUSHORT, cWORD,
     cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cULONG64, cDWORD64, cPVOID, cSTR, cSIZE_T,
@@ -318,7 +318,7 @@ export class LSA_UNICODE_STRING {
     constructor(strOrLen: string | number, maxBytes?: number) {
 
         if (typeof strOrLen === 'string') {
-            this.Length = strOrLen.length * 2
+            this.Length = strOrLen.length * Uint16Array.BYTES_PER_ELEMENT
             this.MaximumLength = maxBytes ?? this.Length
             assert(this.Length <= this.MaximumLength)
 
@@ -330,6 +330,10 @@ export class LSA_UNICODE_STRING {
             this.Length = this.MaximumLength = strOrLen
             this.Buffer = new Uint16Array(this.MaximumLength / Uint16Array.BYTES_PER_ELEMENT)
         }
+    }
+
+    toString() {
+        return textDecoder.decode(this.Buffer.subarray(0, this.Length / Uint16Array.BYTES_PER_ELEMENT))
     }
 }
 
