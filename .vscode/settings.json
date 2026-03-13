@@ -1,5 +1,5 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
   "vsicons.associations.files": [
     {
       "icon": "rollup",
@@ -41,5 +41,5 @@
       "**/node_modules/**"
     ]
   },
-  "todo-tree.regex.regex": "($TAGS):",
+  "todo-tree.regex.regex": "($TAGS):"
 }
