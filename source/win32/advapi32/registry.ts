@@ -192,8 +192,8 @@ export function RegFlushKey(hKey: HKEY | HKEY_): LSTATUS {
  * Notes:
  * - In libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`,
  *   `REG_BINARY`, `REG_DWORD`, `REG_DWORD_BIG_ENDIAN` and `REG_QWORD`
- *   are supported. All other types return `ERROR_UNSUPPORTED`.
- * - `REG_BINARY` values are always returned as a `Uint8Array`.
+ *   are supported. All other types return `ERROR_NOT_SUPPORTED`.
+ * - `REG_BINARY` values are returned as a `Buffer`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
  */
@@ -220,7 +220,7 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
                 return { type, value: textDecoder.decode(binaryBuffer.subarray(0, count - 4)).split('\0') }
 
             case REG_.BINARY:
-                return { type, value: new Uint8Array(binaryBuffer.subarray(0, count)) }
+                return { type, value: Buffer.from(binaryBuffer.subarray(0, count)) }
 
             case REG_.DWORD:
             case REG_.DWORD_BIG_ENDIAN:
@@ -237,14 +237,14 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
 }
 
 export type RegGetValueResult =
-    | { type: REG_.NONE,             value: null       }
-    | { type: REG_.SZ,               value: string     }
-    | { type: REG_.EXPAND_SZ,        value: string     }
-    | { type: REG_.MULTI_SZ,         value: string[]   }
-    | { type: REG_.BINARY,           value: Uint8Array }
-    | { type: REG_.DWORD,            value: number     }
-    | { type: REG_.DWORD_BIG_ENDIAN, value: number     }
-    | { type: REG_.QWORD,            value: BigInt     }
+    | { type: REG_.NONE,             value: null     }
+    | { type: REG_.SZ,               value: string   }
+    | { type: REG_.EXPAND_SZ,        value: string   }
+    | { type: REG_.MULTI_SZ,         value: string[] }
+    | { type: REG_.BINARY,           value: Buffer   }
+    | { type: REG_.DWORD,            value: number   }
+    | { type: REG_.DWORD_BIG_ENDIAN, value: number   }
+    | { type: REG_.QWORD,            value: BigInt   }
 
 /**
  * Loads the specified registry hive as an application hive.
