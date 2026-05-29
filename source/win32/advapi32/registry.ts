@@ -244,7 +244,7 @@ export type RegGetValueResult =
     | { type: REG_.BINARY,           value: Buffer   }
     | { type: REG_.DWORD,            value: number   }
     | { type: REG_.DWORD_BIG_ENDIAN, value: number   }
-    | { type: REG_.QWORD,            value: BigInt   }
+    | { type: REG_.QWORD,            value: bigint   }
 
 /**
  * Loads the specified registry hive as an application hive.

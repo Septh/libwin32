@@ -69,8 +69,8 @@ export type HTOKEN      = __HANDLE__<'ACCESS_TOKEN'>
 export type LSA_HANDLE  = __HANDLE__<'LSA_HANDLE'>
 
 // Parameters and return types.
-export type WPARAM      = number | BigInt | HANDLE
-export type LPARAM      = number | BigInt | HANDLE
+export type WPARAM      = number | bigint | HANDLE
+export type LPARAM      = number | bigint | HANDLE
 export type HRESULT     = number | HANDLE
-export type LRESULT     = number | BigInt | HANDLE
+export type LRESULT     = number | bigint | HANDLE
 export type ATOM        = number
