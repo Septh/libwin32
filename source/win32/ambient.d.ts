@@ -1,7 +1,7 @@
-import { KoffiFunction } from 'koffi-cream'
+import { KoffiFunc } from 'koffi'
 
 declare global {
     interface Function {
-        native?: KoffiFunction
+        native?: KoffiFunc<(...args: any) => any>
     }
 }

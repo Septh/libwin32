@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import { StringOutputBuffer, Internals } from './private.js'
 import { cBOOL, cINT, cPDWORD, cSTR } from './ctypes.js'
 import type { EXTENDED_NAME_FORMAT } from './consts.js'

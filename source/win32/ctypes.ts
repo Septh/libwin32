@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 
 /*
  * C typedefs used in the Windows API.
@@ -49,7 +49,7 @@ export const cPDWORD = koffi.pointer(cDWORD)
 export const cHANDLE = koffi.pointer(koffi.opaque())
 
 // Handles
-export type __HANDLE__<Kind extends string> = koffi.IKoffiCType & { __kind: Kind }
+export type __HANDLE__<Kind extends string> = bigint & { __kind: Kind }
 export type HANDLE      = __HANDLE__<string>        // Any kind of handle
 export type HINSTANCE   = __HANDLE__<'INSTANCE'>
 export type HMODULE     = HINSTANCE                 // HMODULE can be used in place of HINSTANCE

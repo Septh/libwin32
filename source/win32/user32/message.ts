@@ -1,5 +1,5 @@
-import koffi from 'koffi-cream'
-import { type OUT } from '../private.js'
+import koffi from 'koffi'
+import type { OUT } from '../private.js'
 import {
     cVOID, cBOOL, cINT, cUINT, cLONG, cDWORD, cPDWORD,
     cHANDLE, type HWND,

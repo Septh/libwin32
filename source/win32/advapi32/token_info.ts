@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import { SetLastError } from '../kernel32.js'
 import { binaryBuffer, Internals } from '../private.js'
 import type { HTOKEN } from '../ctypes.js'

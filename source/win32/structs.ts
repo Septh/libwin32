@@ -1,5 +1,5 @@
 import assert from 'node:assert'
-import koffi from 'koffi-cream'
+import koffi, { Union } from 'koffi'
 import { Internals, textDecoder } from './private.js'
 import {
     cBOOL, cINT, cUINT, cCHAR, cBYTE, cSHORT, cUSHORT, cWORD,
@@ -150,7 +150,7 @@ export class CLAIM_SECURITY_ATTRIBUTE_V1 {
     public ValueType!: CLAIM_SECURITY_ATTRIBUTE_TYPE_
     public Flags!: CLAIM_SECURITY_ATTRIBUTE_
     public ValueCount!: number
-    public Values = new koffi.Union('CSA_V1_Values') as {
+    public Values = new Union('CSA_V1_Values') as {
         pInt64?:       BigInt[]
         pUint64?:      BigInt[]
         ppString?:     string[]
@@ -720,7 +720,7 @@ export const SIZEOF_BSMINFO = koffi.sizeof(cBSMINFO)
  */
 export class NOTIFYICONDATA {
     readonly cbSize = SIZEOF_NOTIFYICONDATA
-    readonly DUMMYUNIONNAME = new koffi.Union('NOTIFYICONDATA_DUMMYUNIONNAME') as {
+    readonly DUMMYUNIONNAME = new Union('NOTIFYICONDATA_DUMMYUNIONNAME') as {
         uTimeout?: number
         uVersion?: number
     }
