@@ -1,5 +1,5 @@
 import koffi from 'koffi'
-import { Internals, type OUT } from '../private.js'
+import { Internals, type OUT, type Pointer } from '../private.js'
 import {
     cDWORD, cULONG, cPDWORD, cPVOID, cNTSTATUS,
     cHANDLE, type LSA_HANDLE,
@@ -36,7 +36,7 @@ export function LsaEnumerateAccountRights(policyHandle: LSA_HANDLE, accountSid: 
         cHANDLE, koffi.pointer(cSID), koffi.out(koffi.pointer(cPVOID)), koffi.out(cPDWORD)
     ])
 
-    const pUserRights: OUT<unknown> = [null]
+    const pUserRights: OUT<Pointer> = [null!]
     const pCountOfRights: OUT<number> = [0]
     const status = LsaEnumerateAccountRights.native(policyHandle, accountSid, pUserRights, pCountOfRights)
     if (status === Internals.NTSTATUS_SUCCESS) {
