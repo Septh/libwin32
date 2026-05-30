@@ -29,7 +29,7 @@ import { getTokenInfo, INTERNAL_TOKEN_INFORMATION_CLASS } from './_lib.js'
 function decodeSidAndAttributesHash(ptr: Pointer | Buffer<ArrayBuffer>): SID_AND_ATTRIBUTES_HASH {
     const ret: SID_AND_ATTRIBUTES_HASH = koffi.decode(ptr, cSID_AND_ATTRIBUTES_HASH)
     ret.SidAttr.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
-    // ret.Hash = koffi.decode()
+    // Don't decode the Hash array
     return ret
 }
 

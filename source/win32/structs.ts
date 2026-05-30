@@ -98,7 +98,7 @@ export const cSID_AND_ATTRIBUTES = koffi.struct({
 export interface SID_AND_ATTRIBUTES_HASH {
     SidCount: number
     SidAttr:  SID_AND_ATTRIBUTES[]
-    Hash:     unknown[]
+    Hash:     readonly unknown[]
 }
 
 /** @internal */

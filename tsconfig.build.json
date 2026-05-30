@@ -1,8 +1,8 @@
 {
   "files": [],
   "references": [
-    { "path": "./source/win32"},
-    { "path": "./source/rollup"},
-    { "path": "./source/demos"},
+    { "path": "./source/win32" },
+    { "path": "./source/rollup" },
+    { "path": "./source/demos" },
   ]
 }
