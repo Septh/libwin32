@@ -1,5 +1,5 @@
 # libwin32
-> Node bindings to native Win32 DLLs through [Koffi](https://koffi.dev).
+> Node bindings to native Win32 DLLs through [Koffi 3](https://koffi.dev).
 
 ````js
 import { MessageBox } from 'libwin32'
@@ -19,7 +19,7 @@ const result = MessageBox(
 ### In a nutshell:
 * Very simple and intuitive API (see [demos](../source/demos/)), with TypeScript definitions included.
 * Opinionated:
-    * Only targets **64-bit** platforms (*Intel/AMD for now, ARM may be added later, no warranty though*).
+    * Only targets **64-bit** platforms.
     * Only exposes **Unicode** functions and data structures (those whose name ends in `W` in the Win32 API).
 * Bundler friendly, designed with tree-shakeability in mind.
 * Very easy to extend with additional functions, data structures and constants. I will add some myself time permitting; any help would be *mucho* appreciated. **If you can't or won't submit a PR yourself, just head to [#8](https://github.com/Septh/libwin32/issues/8) and kindly ask :)**.
@@ -32,20 +32,20 @@ const result = MessageBox(
 1. Import the functions and types you need. You may import from either `libwin32` or `libwin32/<dllname>` (without the `.dll` extension) if you know which dll a function belongs to. For example, `import { MessageBox } from 'libwin32'` and `import { MessageBox } from 'libwin32/user32'` would both work.
 1. (optional) Import some complementary constants: they greatly simplify calls to the Win32 API.
     * All constants are available via the `libwin32/consts` import.
-    * Logically grouped constants are exported as `enum`s, where the prefix is the name of the enum. For instance, `WM_DESTROY` and `WM_KEYDOWN` are members of the `WM_` enum and can be accessed as `WM_.DESTROY` and `WM_.KEYDOWN`, respectively.
+    * Logically grouped constants are exported as `enum`s, where the prefix is the name of the enum. For instance, `MB_ICONINFORMATION` and `MB_YESNO` are members of the `MB_` enum and can be accessed as `MB_.ICONINFORMATION` and `MB_.YESNO`, respectively.
 1. Call the functions as instructed by the [Win32 API documentation](https://learn.microsoft.com/en-us/windows/win32/api/).
     * All functions, constants and types are named accordingly and the lib is fully typed so you may rely on code hints from your editor.
-        * Often times though, it made sense to adapt the C prototype to something more JS-friendly. For instance, in C, `GetUserNameEx()` fills in a buffer whose address is passed as the second parameter to the function; in JS/TS, the function takes only one parameter and returns a string.
-    * Many Win32 C structures have a size member (often named `cbSize`) that must be set before they are used as a parameter. For these, the lib provide a JS class that automatically sets that field when instantiated. See `WNDCLASSEX` for an example.
-1. Look at the various examples in the [`source/demos` directory](../source/demos/) for inspiration!
+    * Often times, it made sense to adapt the C prototype to something more JS-friendly. For instance, in C, `GetUserName()` fills in a buffer whose address is passed as the second parameter to the function; in libwin32, the function takes only one parameter and returns a string.
+    * Many Win32 C structures have a "size" member that must be set before they are used as a parameter. For these, the lib provide a JavaScript class that automatically sets that field when instantiated (in your editor, just hover the type name to find out if it's a class or an interface).
+1. Look at the various examples in the [`./source/demos` directory](../source/demos/) for inspiration!
 
 
 #### > Bundle the lib with your code
 The Win32 API has thousands of functions, structures and constants. While providing bindings for all of them is *not* a goal, the lib may eventually grow to something very, very big.
 
-To accommodate this, `libwin32` is "tree-shakeable by design": when bundled, only the functions, constants and structures you use end up in the bundle. This feature relies on both [Rollup's awesome tree-shaking capabilities](https://rollupjs.org/introduction/#tree-shaking) and a special Rollup plugin that makes TypeScript enums tree-shakeable (see its source code in the [`source/rollup` directory](../source/rollup/)).
+To accommodate this, `libwin32` is "tree-shakeable by design": when bundled, only the functions, constants and structures you use end up in the bundle.
 
-See [rollup.demos.js](../rollup.demos.js) to see how it's done, and build the demos (see below) to see the resulting code in the `/demos` directory.
+This feature relies on both [Rollup's awesome tree-shaking capabilities](https://rollupjs.org/introduction/#tree-shaking) and [a couple of dedicated Rollup plugins](../source/rollup/). See [rollup.demos.js](../rollup.demos.js) to see how to use them, and build the demos (see below) to see the resulting code in the `./demos` directory.
 
 
 #### > Build the lib
@@ -57,21 +57,22 @@ $ npm install
 $ npm run build
 ````
 
-The output goes to `/lib`.
+The output goes to `./lib`.
 
 
 #### > Run the demos
+
 Build the lib, then:
 
 * Without bundling:
 ````shell
-$ node lib/demos/<demoname>.js
+$ node ./lib/demos/<demoname>.js
 ````
 
 * With bundling:
 ````shell
 $ npm run build:demos
-$ node demos/<demoname>.js
+$ node ./demos/<demoname>.js
 ````
 
 
@@ -213,10 +214,6 @@ Many thanks to [@shrirajh](https://github.com/shrirajh) for the impressive work 
     * Some usage examples.
 * `./source/rollup`:
     * [Rollup](https://rollup.org) plugins to ease the process of bundling this library with your own code and to boost its tree-shakeability. See [rollup.demos.js](../rollup.demos.js) to see how to use.
-
-
-### Related
-* [koffi-cream](https://github.com/Septh/koffi-cream), a lighter repackaging of Koffi.
 
 
 ### License
