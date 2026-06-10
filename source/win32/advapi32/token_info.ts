@@ -28,14 +28,16 @@ import { getTokenInfo, INTERNAL_TOKEN_INFORMATION_CLASS } from './_lib.js'
 
 function decodeSidAndAttributesHash(ptr: Pointer | Buffer<ArrayBuffer>): SID_AND_ATTRIBUTES_HASH {
     const ret: SID_AND_ATTRIBUTES_HASH = koffi.decode(ptr, cSID_AND_ATTRIBUTES_HASH)
-    ret.SidAttr.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
+    for (let i = 0; i < ret.SidCount; i++)
+        ret.SidAttr[i].Sid = koffi.decode(ret.SidAttr[i].Sid, cSID)
     // Don't decode the Hash array
     return ret
 }
 
 function decodeTokenGroups(ptr: Pointer | Buffer<ArrayBuffer>): TOKEN_GROUPS {
     const ret: TOKEN_GROUPS = koffi.decode(ptr, cTOKEN_GROUPS)
-    ret.Groups.forEach(group => group.Sid = koffi.decode(group.Sid, cSID))
+    for (let i = 0; i < ret.GroupCount; i++)
+        ret.Groups[i].Sid = koffi.decode(ret.Groups[i].Sid, cSID)
     return ret
 }
 
@@ -227,8 +229,10 @@ export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null
 export function GetTokenGroupsAndPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_GROUPS_AND_PRIVILEGES | null {
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges)) {
         const ret: TOKEN_GROUPS_AND_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_GROUPS_AND_PRIVILEGES)
-        ret.Sids.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
-        ret.RestrictedSids.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
+        for (let i = 0; i< ret.SidCount; i++)
+            ret.Sids[i].Sid = koffi.decode(ret.Sids[i].Sid, cSID)
+        for (let i = 0; i < ret.RestrictedSidCount; i++)
+            ret.RestrictedSids[i].Sid = koffi.decode(ret.RestrictedSids[i].Sid, cSID)
         return ret
     }
     return null
