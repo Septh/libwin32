@@ -4,7 +4,7 @@ import type { Plugin } from 'rollup'
 
 /**
  * A plugin that rewrites TypeScript's emitted enums into a tree-shakeable
- * form -- the same as esbuid.
+ * form -- the same as esbuild.
  *
  * For example, consider this TypeScript code:
  * ````ts
@@ -47,7 +47,7 @@ export function enums(): Plugin {
     let match: RegExpMatchArray | null
 
     return {
-        name: 'libwin32-tree-shakeable-enums',
+        name: 'libwin32-enums',
 
         transform(code, id) {
             const ms = new MagicString(code)

@@ -1,6 +1,6 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import { SetLastError } from '../kernel32.js'
-import { binaryBuffer, Internals } from '../private.js'
+import { binaryBuffer, Internals, isPointer, type Pointer } from '../private.js'
 import type { HTOKEN } from '../ctypes.js'
 import {
     cACL, cSID,
@@ -26,19 +26,22 @@ import {
 import { TOKEN_INFORMATION_CLASS, ERROR_, type SECURITY_IMPERSONATION_LEVEL, type TOKEN_TYPE } from '../consts.js'
 import { getTokenInfo, INTERNAL_TOKEN_INFORMATION_CLASS } from './_lib.js'
 
-function decodeSidAndAttributesHash(ptr: unknown): SID_AND_ATTRIBUTES_HASH {
+function decodeSidAndAttributesHash(ptr: Pointer | Buffer<ArrayBuffer>): SID_AND_ATTRIBUTES_HASH {
     const ret: SID_AND_ATTRIBUTES_HASH = koffi.decode(ptr, cSID_AND_ATTRIBUTES_HASH)
-    ret.SidAttr.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
+    for (let i = 0; i < ret.SidCount; i++)
+        ret.SidAttr[i].Sid = koffi.decode(ret.SidAttr[i].Sid, cSID)
+    // Don't decode the Hash array
     return ret
 }
 
-function decodeTokenGroups(ptr: unknown): TOKEN_GROUPS {
+function decodeTokenGroups(ptr: Pointer | Buffer<ArrayBuffer>): TOKEN_GROUPS {
     const ret: TOKEN_GROUPS = koffi.decode(ptr, cTOKEN_GROUPS)
-    ret.Groups.forEach(group => group.Sid = koffi.decode(group.Sid, cSID))
+    for (let i = 0; i < ret.GroupCount; i++)
+        ret.Groups[i].Sid = koffi.decode(ret.Groups[i].Sid, cSID)
     return ret
 }
 
-function decodeClaimSecurityAttributesInformation(ptr: unknown): CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
+function decodeClaimSecurityAttributesInformation(ptr: Pointer | Buffer<ArrayBuffer>): CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
     const ret: CLAIM_SECURITY_ATTRIBUTES_INFORMATION = koffi.decode(ptr, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION)
     if (ret.Attribute?.pAttributeV1)
         ret.Attribute.pAttributeV1 = koffi.decode(ret.Attribute, cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
@@ -226,8 +229,10 @@ export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null
 export function GetTokenGroupsAndPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_GROUPS_AND_PRIVILEGES | null {
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges)) {
         const ret: TOKEN_GROUPS_AND_PRIVILEGES = koffi.decode(binaryBuffer, cTOKEN_GROUPS_AND_PRIVILEGES)
-        ret.Sids.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
-        ret.RestrictedSids.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
+        for (let i = 0; i< ret.SidCount; i++)
+            ret.Sids[i].Sid = koffi.decode(ret.Sids[i].Sid, cSID)
+        for (let i = 0; i < ret.RestrictedSidCount; i++)
+            ret.RestrictedSids[i].Sid = koffi.decode(ret.RestrictedSids[i].Sid, cSID)
         return ret
     }
     return null
@@ -323,17 +328,17 @@ export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_T
 export function GetTokenAccessInformation(tokenHandle: HTOKEN): TOKEN_ACCESS_INFORMATION | null {
     if (getTokenInfo(tokenHandle, INTERNAL_TOKEN_INFORMATION_CLASS.TokenAccessInformation)) {
         const ret: TOKEN_ACCESS_INFORMATION = koffi.decode(binaryBuffer, cTOKEN_ACCESS_INFORMATION)
-        if (ret.SidHash)
+        if (isPointer(ret.SidHash))
             ret.SidHash = decodeSidAndAttributesHash(ret.SidHash)
-        if (ret.RestrictedSidHash)
+        if (isPointer(ret.RestrictedSidHash))
             ret.RestrictedSidHash = decodeSidAndAttributesHash(ret.RestrictedSidHash)
-        if (ret.Privileges)
+        if (isPointer(ret.Privileges))
             ret.Privileges = koffi.decode(ret.Privileges, cTOKEN_PRIVILEGES)
-        if (ret.PackageSid)
+        if (isPointer(ret.PackageSid))
             ret.PackageSid = koffi.decode(ret.PackageSid, cSID)
-        if (ret.CapabilitiesHash)
+        if (isPointer(ret.CapabilitiesHash))
             ret.CapabilitiesHash = decodeSidAndAttributesHash(ret.CapabilitiesHash)
-        if (ret.TrustLevelSid)
+        if (isPointer(ret.TrustLevelSid))
             ret.TrustLevelSid = koffi.decode(ret.TrustLevelSid, cSID)
         ret.SecurityAttributes = null   // Reserved. Must be set to NULL.
         return ret

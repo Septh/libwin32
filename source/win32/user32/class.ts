@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import { StringOutputBuffer } from '../private.js'
 import {
     cBOOL, cINT, cPVOID, cSTR,
@@ -11,7 +11,7 @@ import {
 } from '../structs.js'
 import { user32 } from './_lib.js'
 
-const wndProcs = new Map<ATOM, koffi.IKoffiRegisteredCallback | undefined>()
+const wndProcs = new Map<ATOM, bigint | undefined>()
 
 /**
  * Retrieves information about a window class.
@@ -62,7 +62,7 @@ export function GetClassName(hWnd: HWND): string | null {
 export function RegisterClass(wndClass: WNDCLASS): ATOM | null {
     RegisterClass.native ??= user32.func('RegisterClassW', cATOM, [ koffi.pointer(cWNDCLASS) ])
 
-    let wndProc: koffi.IKoffiRegisteredCallback | undefined
+    let wndProc: bigint | undefined
     if (typeof wndClass.lpfnWndProc === 'function') {
         wndProc = koffi.register(wndClass.lpfnWndProc, cWNDPROC)
         wndClass = {
@@ -85,7 +85,7 @@ export function RegisterClass(wndClass: WNDCLASS): ATOM | null {
 export function RegisterClassEx(wndClassEx: WNDCLASSEX): ATOM | null {
     RegisterClassEx.native ??= user32.func('RegisterClassExW', cATOM, [ koffi.pointer(cWNDCLASSEX) ])
 
-    let wndProc: koffi.IKoffiRegisteredCallback | undefined
+    let wndProc: bigint | undefined
     if (typeof wndClassEx.lpfnWndProc === 'function') {
         wndProc = koffi.register(wndClassEx.lpfnWndProc, cWNDPROC)
         wndClassEx = {

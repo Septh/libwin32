@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import {
     cBOOL, cDWORD,
     cHANDLE, type HANDLE} from './ctypes.js'

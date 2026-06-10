@@ -53,3 +53,8 @@ export const enum Internals {
 
 /** koffi.out() and koffi.inout() expect a table with a single entry. */
 export type OUT<T> = [T]
+
+export type Pointer = bigint
+export function isPointer(value: unknown): value is Pointer {
+    return typeof value === "bigint"
+}

@@ -217,7 +217,7 @@ export enum ERROR_ {
 }
 
 /**
- * Extended Name APIs for ADS.
+ * Specifies a format for a directory service object name.
  */
 export enum EXTENDED_NAME_FORMAT {
     NameUnknown          = 0,

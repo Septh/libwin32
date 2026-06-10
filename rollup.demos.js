@@ -36,19 +36,13 @@ function makeSingleConfig(demo) {
             format: 'esm',
             sourcemap: false
         },
-        treeshake: {
-            // Declare everything Koffi as pure for maximum tree-shakeability.
-            manualPureFunctions: [
-                'koffi'
-            ]
-        },
         plugins: [
             // Standard Rollup plugins for Node.
             nodeExternals(),
             nodeResolve(),
             commonJS(),
 
-            // Use the dedicated plugin this repo provides.
+            // Use the dedicated plugins this repo provides.
             // See `source/rollup` for info.
             libwin32(),
 
@@ -63,6 +57,6 @@ function makeSingleConfig(demo) {
 }
 
 // Use distinct configs (one per demo) to prevent Rollup from code-splitting the library.
-export default fs.readdir('./source/demos')
-    .then(demos => demos.filter(demo => demo !== 'tsconfig.json'))
+export default fs.readdir('./lib/demos')
+    .then(demos => demos.filter(demo => demo.endsWith('.js')))
     .then(demos => demos.map(makeSingleConfig))

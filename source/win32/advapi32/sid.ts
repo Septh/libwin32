@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import { StringOutputBuffer, Internals, type OUT, binaryBuffer } from '../private.js'
 import { cBOOL, cINT, cBYTE, cDWORD, cPVOID, cPDWORD, cSTR } from '../ctypes.js'
 import {

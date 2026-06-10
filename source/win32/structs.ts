@@ -1,9 +1,9 @@
 import assert from 'node:assert'
-import koffi from 'koffi-cream'
+import koffi, { Union } from 'koffi'
 import { Internals, textDecoder } from './private.js'
 import {
     cBOOL, cINT, cUINT, cCHAR, cBYTE, cSHORT, cUSHORT, cWORD,
-    cLONG, cULONG, cDWORD, cLONGLONG, cULONG_PTR, cLONG64, cULONG64, cDWORD64, cPVOID, cSTR, cSIZE_T,
+    cLONG, cULONG, cDWORD, cLONGLONG, cLONG64, cULONG64, cDWORD64, cPVOID, cSTR, cSIZE_T,
     cHANDLE, type HANDLE, type HINSTANCE, type HTOKEN, type HICON, type HCURSOR, type HBRUSH, type HDESK, type HWND, type HKEY, type HMONITOR,
     cWPARAM, type WPARAM, cLPARAM, type LPARAM,
     cLRESULT, type LRESULT
@@ -98,14 +98,14 @@ export const cSID_AND_ATTRIBUTES = koffi.struct({
 export interface SID_AND_ATTRIBUTES_HASH {
     SidCount: number
     SidAttr:  SID_AND_ATTRIBUTES[]
-    Hash:     BigInt[]
+    Hash:     readonly unknown[]
 }
 
 /** @internal */
 export const cSID_AND_ATTRIBUTES_HASH = koffi.struct({
     SidCount: cDWORD,
     SidAttr:  koffi.pointer(null, cSID_AND_ATTRIBUTES, 'SidCount'),
-    Hash:     koffi.array(cULONG_PTR, Internals.SID_HASH_SIZE)
+    Hash:     koffi.array(cPVOID, Internals.SID_HASH_SIZE)
 })
 
 /**
@@ -114,7 +114,7 @@ export const cSID_AND_ATTRIBUTES_HASH = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-claim_security_attribute_fqbn_value
  */
 export interface CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE {
-    Version: BigInt
+    Version: bigint
     Name:    String
 }
 
@@ -130,7 +130,7 @@ export const cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-claim_security_attribute_octet_string_value
  */
 export interface CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE {
-    pValue:      BigInt
+    pValue:      bigint
     ValueLength: number
 }
 
@@ -150,9 +150,9 @@ export class CLAIM_SECURITY_ATTRIBUTE_V1 {
     public ValueType!: CLAIM_SECURITY_ATTRIBUTE_TYPE_
     public Flags!: CLAIM_SECURITY_ATTRIBUTE_
     public ValueCount!: number
-    public Values = new koffi.Union('CSA_V1_Values') as {
-        pInt64?:       BigInt[]
-        pUint64?:      BigInt[]
+    public Values = new Union('CSA_V1_Values') as {
+        pInt64?:       bigint[]
+        pUint64?:      bigint[]
         ppString?:     string[]
         pFqbn?:        CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]
         pOctetString?: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[]
@@ -613,7 +613,7 @@ export const cWNDENUMPROC = koffi.pointer(koffi.proto('WNDENUM', cBOOL, [ cHANDL
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-dlgproc
  */
-export type DLGPROC = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | BigInt
+export type DLGPROC = (hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM) => number | bigint
 
 /** @internal */
 export const cDLGPROC = koffi.pointer(koffi.proto('DLG', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
@@ -720,7 +720,7 @@ export const SIZEOF_BSMINFO = koffi.sizeof(cBSMINFO)
  */
 export class NOTIFYICONDATA {
     readonly cbSize = SIZEOF_NOTIFYICONDATA
-    readonly DUMMYUNIONNAME = new koffi.Union('NOTIFYICONDATA_DUMMYUNIONNAME') as {
+    readonly DUMMYUNIONNAME = new Union('NOTIFYICONDATA_DUMMYUNIONNAME') as {
         uTimeout?: number
         uVersion?: number
     }
@@ -988,7 +988,7 @@ export const TOKEN_SOURCE_LENGTH = Internals.TOKEN_SOURCE_LENGTH
 export interface TOKEN_STATISTICS {
     TokenId:            LUID
     AuthenticationId:   LUID
-    ExpirationTime:     BigInt
+    ExpirationTime:     bigint
     TokenType:          TOKEN_TYPE
     ImpersonationLevel: SECURITY_IMPERSONATION_LEVEL
     DynamicCharged:     number
@@ -1118,8 +1118,8 @@ export const cPOLICY_LSA_SERVER_ROLE_INFO = koffi.struct({
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ns-ntsecapi-policy_modification_info
  */
 export interface POLICY_MODIFICATION_INFO {
-    ModifiedId: number | BigInt
-    DatabaseCreationTime: number | BigInt
+    ModifiedId: number | bigint
+    DatabaseCreationTime: number | bigint
 }
 
 /** @internal */
@@ -1192,17 +1192,17 @@ export class PROCESS_MEMORY_COUNTERS_EX2 {
     readonly cb = SIZEOF_PROCESS_MEMORY_COUNTERS_EX2
     constructor(
         public PageFaultCount:             number          = 0,
-        public PeakWorkingSetSize:         number | BigInt = 0,
-        public WorkingSetSize:             number | BigInt = 0,
-        public QuotaPeakPagedPoolUsage:    number | BigInt = 0,
-        public QuotaPagedPoolUsage:        number | BigInt = 0,
-        public QuotaPeakNonPagedPoolUsage: number | BigInt = 0,
-        public QuotaNonPagedPoolUsage:     number | BigInt = 0,
-        public PagefileUsage:              number | BigInt = 0,
-        public PeakPagefileUsage:          number | BigInt = 0,
-        public PrivateUsage:               number | BigInt = 0,
-        public PrivateWorkingSetSize:      number | BigInt = 0,
-        public SharedCommitUsage:          number | BigInt = 0
+        public PeakWorkingSetSize:         number | bigint = 0,
+        public WorkingSetSize:             number | bigint = 0,
+        public QuotaPeakPagedPoolUsage:    number | bigint = 0,
+        public QuotaPagedPoolUsage:        number | bigint = 0,
+        public QuotaPeakNonPagedPoolUsage: number | bigint = 0,
+        public QuotaNonPagedPoolUsage:     number | bigint = 0,
+        public PagefileUsage:              number | bigint = 0,
+        public PeakPagefileUsage:          number | bigint = 0,
+        public PrivateUsage:               number | bigint = 0,
+        public PrivateWorkingSetSize:      number | bigint = 0,
+        public SharedCommitUsage:          number | bigint = 0
     ) {}
 }
 

@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import { cDWORD, cHRESULT, cPVOID, type HRESULT } from './ctypes.js'
 import type { COINIT_ } from './consts.js'
 

@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import type { LSA_HANDLE } from '../ctypes.js'
 import {
     cPOLICY_AUDIT_EVENTS_INFO, type POLICY_AUDIT_EVENTS_INFO,

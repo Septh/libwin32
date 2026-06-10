@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import { binaryBuffer, textDecoder, StringOutputBuffer, Internals, type OUT } from '../private.js'
 import {
     cDWORD, cPVOID, cPDWORD, cSTR, cLSTATUS,
@@ -17,8 +17,8 @@ import { advapi32 } from './_lib.js'
 
 type LSTATUS = ERROR_
 
-/** Anything that has a `buffer: ArrayBuffer` property: `Buffer`, `TypedArrays`, `DataView`. */
-export type BufferSource = { buffer: ArrayBuffer, byteLength: number }
+/** Anything that has a `buffer: ArrayBufferLike` property: `Buffer`, `TypedArrays`, `DataView`. */
+export type BufferSource = ArrayBufferView<ArrayBufferLike>
 
 /**
  * Closes a handle to the specified registry key.
@@ -192,8 +192,8 @@ export function RegFlushKey(hKey: HKEY | HKEY_): LSTATUS {
  * Notes:
  * - In libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`,
  *   `REG_BINARY`, `REG_DWORD`, `REG_DWORD_BIG_ENDIAN` and `REG_QWORD`
- *   are supported. All other types return `ERROR_UNSUPPORTED`.
- * - `REG_BINARY` values are always returned as a `Uint8Array`.
+ *   are supported. All other types return `ERROR_NOT_SUPPORTED`.
+ * - `REG_BINARY` values are returned as a `Buffer`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
  */
@@ -220,7 +220,7 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
                 return { type, value: textDecoder.decode(binaryBuffer.subarray(0, count - 4)).split('\0') }
 
             case REG_.BINARY:
-                return { type, value: new Uint8Array(binaryBuffer.subarray(0, count)) }
+                return { type, value: Buffer.from(binaryBuffer.subarray(0, count)) }
 
             case REG_.DWORD:
             case REG_.DWORD_BIG_ENDIAN:
@@ -237,14 +237,14 @@ export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: st
 }
 
 export type RegGetValueResult =
-    | { type: REG_.NONE,             value: null       }
-    | { type: REG_.SZ,               value: string     }
-    | { type: REG_.EXPAND_SZ,        value: string     }
-    | { type: REG_.MULTI_SZ,         value: string[]   }
-    | { type: REG_.BINARY,           value: Uint8Array }
-    | { type: REG_.DWORD,            value: number     }
-    | { type: REG_.DWORD_BIG_ENDIAN, value: number     }
-    | { type: REG_.QWORD,            value: BigInt     }
+    | { type: REG_.NONE,             value: null     }
+    | { type: REG_.SZ,               value: string   }
+    | { type: REG_.EXPAND_SZ,        value: string   }
+    | { type: REG_.MULTI_SZ,         value: string[] }
+    | { type: REG_.BINARY,           value: Buffer   }
+    | { type: REG_.DWORD,            value: number   }
+    | { type: REG_.DWORD_BIG_ENDIAN, value: number   }
+    | { type: REG_.QWORD,            value: bigint   }
 
 /**
  * Loads the specified registry hive as an application hive.
@@ -346,7 +346,7 @@ export function RegSaveKeyEx(hKey: HKEY | HKEY_, file: string, securityAttribute
  *
  * Notes:
  * - In libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`, `REG_BINARY`, `REG_DWORD`,
- *   `REG_DWORD_BIG_ENDIAN` and `REG_QWORD` are supported. All other types return `ERROR_UNSUPPORTED`.
+ *   `REG_DWORD_BIG_ENDIAN` and `REG_QWORD` are supported. All other types return `ERROR_NOT_SUPPORTED`.
  * - For `REG_BINARY`, `data` is expected bo be a `UInt8Array` or a `Buffer`.
  * - If `data` if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
  *
@@ -363,8 +363,8 @@ export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueN
 export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_, data: any): LSTATUS {
     RegSetKeyValue.native ??= advapi32.func('RegSetKeyValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, cPVOID, cDWORD ])
 
-    const buffer = regKeyDataToBuffer(type, data)
-    return typeof buffer === 'number' ? buffer : RegSetKeyValue.native(hKey, valueName, 0, type, buffer, buffer.byteLength)
+    const source = regKeyDataToBuffer(type, data)
+    return typeof source === 'number' ? source : RegSetKeyValue.native(hKey, valueName, 0, type, source, source.byteLength)
 }
 
 /**
@@ -372,7 +372,7 @@ export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueN
  *
  * Notes:
  * - In libwin32, only `REG_NONE`, `REG_SZ`, `REG_EXPAND_SZ`, `REG_MULTI_SZ`, `REG_BINARY`, `REG_DWORD`,
- *   `REG_DWORD_BIG_ENDIAN` and `REG_QWORD` are supported. All other types return `ERROR_UNSUPPORTED`.
+ *   `REG_DWORD_BIG_ENDIAN` and `REG_QWORD` are supported. All other types return `ERROR_NOT_SUPPORTED`.
  * - For `REG_BINARY`, `data` is expected bo be a `UInt8Array` or a `Buffer`.
  * - If `data` if not of the expected type, `ERROR_BAD_ARGUMENTS` is returned.
  *
@@ -389,8 +389,8 @@ export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type
 export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_, data: any): LSTATUS {
     RegSetValueEx.native ??= advapi32.func('RegSetValueExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cDWORD, cPVOID, cDWORD ])
 
-    const buffer = regKeyDataToBuffer(type, data)
-    return typeof buffer === 'number' ? buffer : RegSetValueEx.native(hKey, valueName, 0, type, buffer, buffer.byteLength)
+    const source = regKeyDataToBuffer(type, data)
+    return typeof source === 'number' ? source : RegSetValueEx.native(hKey, valueName, 0, type, source, source.byteLength)
 }
 
 function regKeyDataToBuffer(type: REG_, data: any): BufferSource | ERROR_ {
@@ -411,8 +411,8 @@ function regKeyDataToBuffer(type: REG_, data: any): BufferSource | ERROR_ {
                 : ERROR_.BAD_ARGUMENTS
 
         case REG_.BINARY:
-            return data instanceof Uint8Array
-                ? data as Uint8Array<ArrayBuffer>
+            return ArrayBuffer.isView(data)
+                ? data
                 : ERROR_.BAD_ARGUMENTS
 
         case REG_.DWORD:

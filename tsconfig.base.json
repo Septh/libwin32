@@ -1,32 +1,35 @@
 {
   "compilerOptions": {
 
-    // Input
-    "resolveJsonModule": true,
-
-    // Output
-    "module": "Node18",
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-    "stripInternal": true,
-
-    // Libs
+    // Environment
+    "module": "node20",
     "target": "ES2024",
     "lib": [ "ES2024" ],
-    "skipLibCheck": false,
-    "skipDefaultLibCheck": true,
+    "types": [ "node" ],
+
+    // Input
+    "resolveJsonModule": true,
+    "checkJs": true,
+
+    // Output
+    "rewriteRelativeImportExtensions": true,
+    "stripInternal": true,
+    "noEmit": true,
 
     // Type checking
     "strict": true,
-    "exactOptionalPropertyTypes": false,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": false,
-    "noUncheckedIndexedAccess": false,
+    "skipLibCheck": false,
+    "skipDefaultLibCheck": true,
+    // "exactOptionalPropertyTypes": true,
+    // "noUncheckedIndexedAccess": true,
+    // "noPropertyAccessFromIndexSignature": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": false,
-    "forceConsistentCasingInFileNames": true
+    "noUncheckedSideEffectImports": true,
+    "forceConsistentCasingInFileNames": true,
+    // "isolatedModules": true
   }
 }

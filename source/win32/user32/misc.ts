@@ -1,4 +1,4 @@
-import koffi from 'koffi-cream'
+import koffi from 'koffi'
 import {
     cBOOL, cINT, cUINT, cWORD, cSTR,
     cHANDLE, type HINSTANCE, type HCURSOR, type HICON, type HMENU, type HWND

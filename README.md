@@ -1,5 +1,5 @@
 # libwin32
-> Node bindings to native Win32 DLLs through [Koffi](https://koffi.dev).
+> Node bindings to native Win32 DLLs through [Koffi 3](https://koffi.dev).
 
 ````js
 import { MessageBox } from 'libwin32'
@@ -20,7 +20,7 @@ const result = MessageBox(
 * Very simple and intuitive API (see [demos](./source/demos/)), with TypeScript definitions included.
 * Bundler friendly, designed with tree-shakeability in mind.
 * Opinionated:
-    * Only targets **64-bit** platforms (*Intel/AMD for now, ARM may be added later, no warranty though*).
+    * Only targets **64-bit** platforms.
     * Only exposes **Unicode** functions and data structures (those whose name ends in `W` in the Win32 API).
 * Very easy to extend with additional functions, data structures and constants. I will add some myself time permitting; any help would be *mucho* appreciated.
 

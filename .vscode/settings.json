@@ -1,5 +1,5 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
   "vsicons.associations.files": [
     {
       "icon": "rollup",
@@ -29,17 +29,42 @@
   ],
   "cSpell.words": [
     "advapi",
-    "psapi",
+    "BSMINFO",
     "bundable",
+    "Dacl",
+    "DLGFRAME",
+    "FQBN",
+    "HACCEL",
+    "HACCESS",
+    "HBITMAP",
+    "HBRUSH",
+    "HCURSOR",
+    "HDESK",
+    "HICON",
+    "HKEY",
+    "HLSA",
+    "HMENU",
+    "HMODULE",
+    "HMONITOR",
+    "HRGN",
+    "HWND",
+    "koffi",
     "Koffi",
     "libwin",
-    "shakeability"
+    "LSTATUS",
+    "LUID",
+    "NOEXPAND",
+    "ntstatus",
+    "psapi",
+    "shakeability",
+    "Undock",
+    "WNDCLASSEX",
+    "WNDENUM"
   ],
   "debug.javascript.terminalOptions": {
     "skipFiles": [
       "<node_internals>/**",
       "**/node_modules/**"
     ]
-  },
-  "todo-tree.regex.regex": "($TAGS):",
+  }
 }

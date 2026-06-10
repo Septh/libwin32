@@ -1,5 +1,5 @@
-import koffi from 'koffi-cream'
-import { Internals, type OUT } from '../private.js'
+import koffi from 'koffi'
+import { Internals, type OUT, type Pointer } from '../private.js'
 import {
     cDWORD, cULONG, cPDWORD, cPVOID, cNTSTATUS,
     cHANDLE, type LSA_HANDLE,
@@ -36,7 +36,7 @@ export function LsaEnumerateAccountRights(policyHandle: LSA_HANDLE, accountSid: 
         cHANDLE, koffi.pointer(cSID), koffi.out(koffi.pointer(cPVOID)), koffi.out(cPDWORD)
     ])
 
-    const pUserRights: OUT<unknown> = [null]
+    const pUserRights: OUT<Pointer> = [null!]
     const pCountOfRights: OUT<number> = [0]
     const status = LsaEnumerateAccountRights.native(policyHandle, accountSid, pUserRights, pCountOfRights)
     if (status === Internals.NTSTATUS_SUCCESS) {
@@ -87,11 +87,13 @@ export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...
     const status = LsaLookupNames2.native(policyHandle, flags, count, [uNames], pReferencedDomains, pSids)
     if (status === Internals.NTSTATUS_SUCCESS) {
         const sids: LSA_TRANSLATED_SID2[] = koffi.decode(pSids[0], cLSA_TRANSLATED_SID2, count)
-        sids.forEach(sid => sid.Sid = koffi.decode(sid.Sid, cSID))
+        for (let i = 0; i < count; i++)
+            sids[i].Sid = koffi.decode(sids[i].Sid, cSID)
         lsaFree(pSids[0])
 
         const domains: LSA_REFERENCED_DOMAIN_LIST = koffi.decode(pReferencedDomains[0], cLSA_REFERENCED_DOMAIN_LIST)
-        domains.Domains.forEach(domain => domain.Sid = koffi.decode(domain.Sid, cSID))
+        for (let i = 0; i < domains.Domains.length; i++)
+            domains.Domains[i].Sid = koffi.decode(domains.Domains[i].Sid, cSID)
         lsaFree(pReferencedDomains[0])
 
         return { sids, domains }

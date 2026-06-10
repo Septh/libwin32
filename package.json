@@ -85,24 +85,24 @@
     "build:release": "rimraf lib && tsc --build tsconfig.build.json",
     "build:demos": "rimraf demos && tsc --build tsconfig.build.json && rollup -c rollup.demos.js",
     "clean": "rimraf lib demos",
-    "test": "echo No test yet",
+    "test": "echo \"No test yet\"",
     "prepublishOnly": "npm run build:release && npm run build:demos"
   },
   "dependencies": {
-    "koffi-cream": "2.15.2"
+    "koffi": "^3.0.2"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.4",
     "@types/node": "^22.17.0",
     "magic-string": "^0.30.17",
     "regex": "^6.0.1",
     "rimraf": "^6.0.1",
-    "rollup": "^4.46.2",
-    "rollup-plugin-code-raker": "^1.0.1",
-    "rollup-plugin-node-externals": "^8.0.1",
+    "rollup": "4.59",
+    "rollup-plugin-code-raker": "^2.1.0",
+    "rollup-plugin-node-externals": "^9.0.1",
     "tslib": "^2.8.1",
-    "typescript": "^5.9.2"
+    "typescript": "^6.0.3"
   }
 }
