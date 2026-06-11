@@ -43,11 +43,12 @@ function SearchTokenGroupsForSID() {
     for (let i = 0; i < groupInfo.GroupCount; i++) {
         if (EqualSid(adminsSid, groupInfo.Groups[i].Sid)) {
             const names = LookupAccountSid(null, groupInfo.Groups[i].Sid)
-            if (!names) {
+            if (names)
+                console.log(`Current user is a member of ${names.referencedDomainName}\\${names.name} group`)
+            else {
                 console.error("LookupAccountSid Error:", FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError(), 0))
                 continue
             }
-            console.log(`Current user is a member of ${names.referencedDomainName}\\${names.name} group`)
 
             // Find out whether the SID is enabled in the token.
             if (groupInfo.Groups[i].Attributes & SE_GROUP_.ENABLED)

@@ -5,26 +5,29 @@
  */
 import {
     RegOpenKeyEx, RegQueryInfoKey, RegEnumKeyEx, RegEnumValue, RegCloseKey,
-    isHandle,
+    isHandle, isErrorStatus, FormatMessage, GetLastError,
     type HKEY,
-    isErrorStatus,
 } from 'libwin32'
-import { HKEY_, KEY_ } from 'libwin32/consts'
+import { FORMAT_MESSAGE_, HKEY_, KEY_ } from 'libwin32/consts'
 
 function QueryKey(hKey: HKEY) {
 
     // Get the class name and the value count.
     const info = RegQueryInfoKey(hKey)
-    if (isErrorStatus(info))
+    if (isErrorStatus(info)) {
+        console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
         return
+    }
 
-    // Enumerate the subkeys, until RegEnumKeyEx fails.
+    // Enumerate the subkeys.
     console.log('Number of subkeys: %d', info.subKeys)
     for (let i = 0; i < info.subKeys; i++) {
         const key = RegEnumKeyEx(hKey, i)
-        if (typeof key === 'object') {
-            console.log('(%d) %s', i + 1, key.name)
+        if (isErrorStatus(key)) {
+            console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
+            break
         }
+        console.log('(%d) %s', i + 1, key.name)
     }
 
     // Enumerate the key values.
@@ -32,10 +35,10 @@ function QueryKey(hKey: HKEY) {
     for (let i = 0; i < info.values; i++) {
         const value = RegEnumValue(hKey, i)
         if (isErrorStatus(value)) {
+            console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
+            break
         }
-        else {
-            console.log('(%d) %s', i + 1, value.name)
-        }
+        console.log('(%d) %s', i + 1, value.name)
     }
 }
 

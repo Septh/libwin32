@@ -4,8 +4,7 @@ import {
     CreateWindowEx, ShowWindow, UpdateWindow, DefWindowProc,
     GetMessage, TranslateMessage, DispatchMessage, PostQuitMessage,
     FormatMessage, MessageBox,
-    type HINSTANCE, type WPARAM, type LPARAM, type HWND, type MSG,
-    type HBRUSH
+    type HINSTANCE, type MSG, type WPARAM, type LPARAM, type HWND, type HBRUSH
 } from 'libwin32'
 import { CS_, CW_USEDEFAULT, FORMAT_MESSAGE_, IDC_, IDI_, MB_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
 
