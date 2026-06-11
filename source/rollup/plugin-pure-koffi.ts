@@ -14,15 +14,17 @@ export const pureKoffi: Plugin = {
         order: 'post',
         handler(options) {
             let { treeshake = {} } = options
-            if (!treeshake)
+            if (treeshake === false)
                 return
             if (treeshake === true)
                 treeshake = {}
             else if (typeof treeshake === 'string')
                 treeshake = { preset: treeshake }
 
-            treeshake.manualPureFunctions ??= []
-            ;(treeshake.manualPureFunctions as string[]).push('koffi')
+            const manualPureFunctions = [ 'koffi' ]
+            if (treeshake.manualPureFunctions)
+                manualPureFunctions.push(...treeshake.manualPureFunctions)
+            treeshake.manualPureFunctions = manualPureFunctions
 
             options.treeshake = treeshake
             return options

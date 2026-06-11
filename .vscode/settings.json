@@ -24,6 +24,7 @@
     "structs",
     "consts",
     "internals",
+    "rollup",
     "demos",
     "build",
   ],
