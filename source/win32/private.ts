@@ -1,24 +1,10 @@
 
-export const binaryBuffer = /*#__PURE__*/Buffer.alloc(32768)
-export const textDecoder  = /*#__PURE__*/new TextDecoder('utf-16')
-
-export class StringOutputBuffer {
-    readonly buffer: Buffer<ArrayBuffer>
-    readonly pLength: OUT<number>
-    get length() { return this.pLength[0] }
-
-    constructor(length: number) {
-        this.buffer  = Buffer.allocUnsafe(length * Uint16Array.BYTES_PER_ELEMENT)
-        this.pLength = [length]
-    }
-
-    decode(length: number = this.length): string {
-        return textDecoder.decode(this.buffer.subarray(0, length * 2))
-    }
-}
-
-/** Various Win32 constants. */
+/** Various Win32 constants used internally. */
 export const enum Internals {
+    // This is the size (in bytes) of pre-allocated internal Buffer instances used for pooling.
+    // (Note: Buffer.poolSize was raised from 8192 to 65536 in Node.js 26.3.0)
+    BUFFER_POOLSIZE = 0x8000,
+
     ANYSIZE_ARRAY = 1,
     DWORD_LENGTH = 4,   // == koffi.sizeof(cDWORD)
 
@@ -42,13 +28,37 @@ export const enum Internals {
     LSALOOKUPNAMES2_MAX_NAMES = 8,
 
     NOERROR = 0,
-    ERROR_SUCCESS  = 0, // LSTATUS
+    ERROR_SUCCESS = 0, // LSTATUS
     NTSTATUS_SUCCESS = 0, // NTSTATUS
     MAX_KEY_LENGTH = 255,
     MAX_VALUE_NAME = 16383,
     MAX_NAME = 256,
     INVALID_HANDLE_VALUE = -1,
+
     INFINITE = 0xffffffff,  // Infinite timeout
+}
+
+export const binaryBuffer = /*#__PURE__*/ Buffer.alloc(32768)
+export const textDecoder  = /*#__PURE__*/ new TextDecoder('utf-16')
+
+export class StringOutputBuffer {
+    readonly buffer: Buffer<ArrayBuffer>
+    readonly pLength: OUT<number>
+    get length() { return this.pLength[0] }
+
+    constructor(length: number) {
+        this.buffer  = Buffer.allocUnsafe(length * Uint16Array.BYTES_PER_ELEMENT)
+        this.pLength = [length]
+    }
+
+    decode(length: number = this.length): string {
+        return textDecoder.decode(this.buffer.subarray(0, length * 2))
+    }
+
+    static {
+        if (Buffer.poolSize < Internals.BUFFER_POOLSIZE)
+            Buffer.poolSize = Internals.BUFFER_POOLSIZE
+    }
 }
 
 /** koffi.out() and koffi.inout() expect a table with a single entry. */
