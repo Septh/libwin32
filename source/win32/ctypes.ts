@@ -1,52 +1,43 @@
 import koffi from 'koffi'
 
 /*
- * C typedefs used in the Windows API.
+ * (Some) C typedefs used throughout the Windows API.
  * https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
  */
 
-/** @internal */
-export const {
-    void:   cVOID,
-    int:    cBOOL,
-    int:    cINT,
-    uint:   cUINT,
-    char:   cCHAR,
-    uchar:  cUCHAR,
-    wchar:  cWCHAR,
-    uint8:  cBYTE,
-    short:  cSHORT,
-    ushort: cUSHORT,
-    ushort: cWORD,
-    long:   cLONG,
-    ulong:  cULONG,
-    ulong:  cDWORD,
-    uint64: cDWORD64,
-    int64:  cLONG64,
-    uint64: cULONG64,
-    int64:  cLONGLONG,
-    int64:  cLONG_PTR,
-    uint64: cULONG_PTR,
-    float:  cFLOAT,
-    str16:  cSTR,           // Koffi converts JS strings to/from str16
-    int64:  cLPARAM,        // == LONG_PTR
-    uint64: cWPARAM,        // == UINT_PTR
-    long:   cHRESULT,       // == LONG
-    int64:  cLRESULT,       // == LONG_PTR
-    uint16: cATOM,          // == WORD
-    int32:  cLSTATUS,       // == LONG
-    int32:  cNTSTATUS,      // == LONG
-    uint64: cSIZE_T,        // == ULONG_PTR
-} = koffi.types
-
-/** @internal */
-export const cPVOID = koffi.pointer(koffi.types.void)
-
-/** @internal */
-export const cPDWORD = koffi.pointer(cDWORD)
-
-/** @internal */
-export const cHANDLE = koffi.pointer(koffi.opaque())
+/** @internal */ export const cVOID      = koffi.types.void
+/** @internal */ export const cBOOL      = koffi.types.int
+/** @internal */ export const cINT       = koffi.types.int
+/** @internal */ export const cUINT      = koffi.types.uint
+/** @internal */ export const cCHAR      = koffi.types.char
+/** @internal */ export const cUCHAR     = koffi.types.uchar
+/** @internal */ export const cWCHAR     = koffi.types.wchar
+/** @internal */ export const cBYTE      = koffi.types.uint8
+/** @internal */ export const cSHORT     = koffi.types.short
+/** @internal */ export const cUSHORT    = koffi.types.ushort
+/** @internal */ export const cWORD      = koffi.types.ushort
+/** @internal */ export const cLONG      = koffi.types.long
+/** @internal */ export const cULONG     = koffi.types.ulong
+/** @internal */ export const cDWORD     = koffi.types.ulong
+/** @internal */ export const cDWORD64   = koffi.types.uint64
+/** @internal */ export const cLONG64    = koffi.types.int64
+/** @internal */ export const cULONG64   = koffi.types.uint64
+/** @internal */ export const cLONGLONG  = koffi.types.int64
+/** @internal */ export const cLONG_PTR  = koffi.types.int64
+/** @internal */ export const cULONG_PTR = koffi.types.uint64
+/** @internal */ export const cFLOAT     = koffi.types.float
+/** @internal */ export const cSTR       = koffi.types.str16    // Koffi converts JS strings to/from str16
+/** @internal */ export const cLPARAM    = koffi.types.int64    // == LONG_PTR
+/** @internal */ export const cWPARAM    = koffi.types.uint64   // == UINT_PTR
+/** @internal */ export const cHRESULT   = koffi.types.long     // == LONG
+/** @internal */ export const cLRESULT   = koffi.types.int64    // == LONG_PTR
+/** @internal */ export const cATOM      = koffi.types.uint16   // == WORD
+/** @internal */ export const cLSTATUS   = koffi.types.int32
+/** @internal */ export const cNTSTATUS  = koffi.types.int32
+/** @internal */ export const cSIZE_T    = koffi.types.uint64
+/** @internal */ export const cPVOID     = koffi.pointer(koffi.types.void)
+/** @internal */ export const cPDWORD    = koffi.pointer(cDWORD)
+/** @internal */ export const cHANDLE    = koffi.pointer(koffi.opaque())
 
 // Handles
 export type __HANDLE__<Kind extends string> = { __kind: Kind }
