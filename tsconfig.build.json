@@ -1,8 +1,13 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./source/win32" },
-    { "path": "./source/rollup" },
-    { "path": "./source/demos" },
-  ]
+  "extends": "./tsconfig.base.json",
+  "include": [ "./source" ],
+  "exclude": [ "**/zz*" ],
+  "compilerOptions": {
+    "rootDir": "./source",
+    "outDir": "./lib",
+    "sourceMap": true,
+    "declarationMap": true,
+    "declaration": true,
+    "noEmit": false
+  }
 }

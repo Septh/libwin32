@@ -1,5 +1,2 @@
-export * from './user32/class.js'
-export * from './user32/menu.js'
-export * from './user32/message.js'
-export * from './user32/misc.js'
-export * from './user32/window.js'
+export * from './user32/lib.js'
+export * from './user32/types.js'

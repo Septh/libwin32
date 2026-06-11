@@ -8,8 +8,7 @@
     "win32",
     "api",
     "bindings",
-    "koffi",
-    "x64"
+    "koffi"
   ],
   "homepage": "https://github.com/Septh/libwin32#readme",
   "repository": {
@@ -61,10 +60,6 @@
     "./consts": {
       "types": "./lib/win32/consts.d.ts",
       "default": "./lib/win32/consts.js"
-    },
-    "./structs": {
-      "types": "./lib/win32/structs.d.ts",
-      "default": "./lib/win32/structs.js"
     },
     "./rollup": {
       "types": "./lib/rollup/index.d.ts",
