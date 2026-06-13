@@ -29,7 +29,7 @@ export const cLONGLONG  = koffi.types.int64
 export const cLONG_PTR  = koffi.types.int64
 export const cULONG_PTR = koffi.types.uint64
 export const cFLOAT     = koffi.types.float
-export const cSTR       = koffi.types.str16     // We let Koffi convert JS string parameters
+export const cWSTR      = koffi.types.str16     // We let Koffi convert JS string parameters
 export const cSIZE_T    = koffi.types.uint64
 
 export const cPVOID     = koffi.pointer(koffi.types.void)
@@ -51,7 +51,7 @@ export class StringOutputBuffer {
     }
 
     decode(length: number = this.length): string {
-        return textDecoder.decode(this.buffer.subarray(0, length * 2))
+        return textDecoder.decode(this.buffer.subarray(0, length * Uint16Array.BYTES_PER_ELEMENT))
     }
 
     static {
@@ -64,7 +64,9 @@ export class StringOutputBuffer {
 
 /** The base type to define new HANDLEs. */
 export type __HANDLE__<Kind extends string> = bigint & { __kind: Kind }
-export type HANDLE = __HANDLE__<string>          // Any kind of handle
+
+/** Any kind of handle */
+export type HANDLE = __HANDLE__<string>
 
 /** `koffi.out()` and `koffi.inout()` expect a table with a single entry. */
 export type OUT<T> = [T]

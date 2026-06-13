@@ -1,11 +1,10 @@
 import koffi from 'koffi'
 import {
     StringOutputBuffer, Internals,
-    cBOOL, cINT, cPDWORD, cSTR,
+    cBOOL, cINT, cPDWORD, cWSTR,
 } from '../internals.js'
 import type { EXTENDED_NAME_FORMAT } from '../advapi32/consts.js'
 
-/** cSpell:disable-next-line */
 const secur32 = koffi.load('secur32.dll')
 
 /**
@@ -14,7 +13,7 @@ const secur32 = koffi.load('secur32.dll')
  * https://learn.microsoft.com/en-us/windows/win32/api/secext/nf-secext-getusernameexw
  */
 export function GetUserNameEx(nameFormat: EXTENDED_NAME_FORMAT): string | null {
-    GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cSTR, koffi.inout(cPDWORD) ])
+    GetUserNameEx.native ??= secur32.func('GetUserNameExW', cBOOL, [ cINT, cWSTR, koffi.inout(cPDWORD) ])
 
     const str = new StringOutputBuffer(Internals.UNLEN)
     return GetUserNameEx.native(nameFormat, str.buffer, str.pLength) !== 0 ? str.decode() : null

@@ -1,2 +1,2 @@
-export * from './misc/lib.js'
+export * from './misc/functions.js'
 export * from './misc/types.js'

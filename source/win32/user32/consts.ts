@@ -866,7 +866,7 @@ export enum SM_ {
     CXDRAG                      = 68,
     CYDRAG                      = 69,
     SHOWSOUNDS                  = 70,
-    CXMENUCHECK                 = 71,             /* Use instead of GetMenuCheckMarkDimensions()! */
+    CXMENUCHECK                 = 71,
     CYMENUCHECK                 = 72,
     SLOWMACHINE                 = 73,
     MIDEASTENABLED              = 74,
@@ -895,10 +895,10 @@ export enum SM_ {
     CARETBLINKINGENABLED        = 0x2002,
     CONVERTIBLESLATEMODE        = 0x2003,
     SYSTEMDOCKED                = 0x2004,
-    CXFIXEDFRAME                = CXDLGFRAME,     /* ;win40 name change */
-    CYFIXEDFRAME                = CYDLGFRAME,     /* ;win40 name change */
-    CXSIZEFRAME                 = CXFRAME,        /* ;win40 name change */
-    CYSIZEFRAME                 = CYFRAME,        /* ;win40 name change */
+    CXFIXEDFRAME                = CXDLGFRAME,
+    CYFIXEDFRAME                = CYDLGFRAME,
+    CXSIZEFRAME                 = CXFRAME,
+    CYSIZEFRAME                 = CYFRAME,
 }
 
 /**

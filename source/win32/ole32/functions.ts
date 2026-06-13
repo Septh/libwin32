@@ -4,7 +4,7 @@ import { cHRESULT } from '../misc/ctypes.js'
 import type { HRESULT } from '../misc.js'
 import type { COINIT_ } from './types.js'
 
-export const olel32 = koffi.load('ole32.dll')
+const olel32 = koffi.load('ole32.dll')
 
 /**
  * Initializes the COM library for use by the calling thread, sets the thread's concurrency model,

@@ -1,7 +1,6 @@
 import koffi from 'koffi'
-import { cUINT, cDWORD, cBOOL, cINT, cSTR, cHANDLE } from '../internals.js'
-import { cWPARAM, cLPARAM, cLRESULT, cPOINT } from '../misc/ctypes.js'
-import { cLUID } from '../advapi32/ctypes.js'
+import { cUINT, cDWORD, cBOOL, cINT, cWSTR, cHANDLE } from '../internals.js'
+import { cWPARAM, cLPARAM, cLRESULT, cPOINT, cLUID } from '../misc/ctypes.js'
 
 export const cMINMAXINFO = koffi.struct({
     ptReserved:     cPOINT,
@@ -34,8 +33,8 @@ export const cWNDCLASS = koffi.struct({
     hIcon:         cHANDLE,
     hCursor:       cHANDLE,
     hbrBackground: cHANDLE,
-    lpszMenuName:  cSTR,
-    lpszClassName: cSTR
+    lpszMenuName:  cWSTR,
+    lpszClassName: cWSTR
 })
 
 export const cWNDCLASSEX = koffi.struct({
@@ -48,8 +47,8 @@ export const cWNDCLASSEX = koffi.struct({
     hIcon:         cHANDLE,
     hCursor:       cHANDLE,
     hbrBackground: cHANDLE,
-    lpszMenuName:  cSTR,
-    lpszClassName: cSTR,
+    lpszMenuName:  cWSTR,
+    lpszClassName: cWSTR,
     hIconSm:       cHANDLE
 })
 

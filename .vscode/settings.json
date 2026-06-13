@@ -39,6 +39,7 @@
     "Koffi",
     "libwin",
     "ntstatus",
+    "psapi",
     "mucho",
     "secur"
   ],

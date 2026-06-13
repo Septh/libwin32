@@ -36,16 +36,6 @@ export interface LUID {
 }
 
 /**
- * The LUID_AND_ATTRIBUTES structure represents a locally unique identifier (LUID) and its attributes.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-luid_and_attributes
- */
-export interface LUID_AND_ATTRIBUTES {
-    Luid: LUID
-    Attributes: number
-}
-
-/**
  * The POINT structure defines the x- and y-coordinates of a point.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/windef/ns-windef-point

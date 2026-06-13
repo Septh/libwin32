@@ -1,5 +1,5 @@
 import koffi from 'koffi'
-import { cLONG, cSHORT } from '../internals.js'
+import { cLONG, cSHORT, cDWORD } from '../internals.js'
 
 export const cLPARAM  = koffi.types.int64   // == LONG_PTR
 export const cWPARAM  = koffi.types.uint64  // == UINT_PTR
@@ -15,6 +15,11 @@ export const cGUID = koffi.struct({
 })
 
 export const cUUID = koffi.alias('UUID', cGUID)
+
+export const cLUID = koffi.struct({
+    LowPart: cDWORD,
+    HighPart: cLONG
+})
 
 export const cPOINT = koffi.struct({
     x: cLONG,

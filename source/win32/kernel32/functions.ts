@@ -1,19 +1,20 @@
 import koffi from 'koffi'
 import {
     StringOutputBuffer, Internals,
-    cVOID, cBOOL, cDWORD, cPVOID, cPDWORD, cSTR, cHANDLE,
+    cVOID, cBOOL, cDWORD, cPVOID, cPDWORD, cWSTR, cHANDLE,
     type OUT, type HANDLE
 } from '../internals.js'
 import type { HMODULE } from '../misc.js'
 import type { HWND } from '../user32/types.js'
+
+import type { FILETIME, SYSTEMTIME } from './types.js'
 import {
     FORMAT_MESSAGE_,
     type GET_MODULE_HANDLE_EX_FLAG_, type HANDLE_FLAG_, type PSAR_
 } from './consts.js'
-import type { FILETIME, SYSTEMTIME } from './types.js'
 import { cFILETIME, cSYSTEMTIME } from './ctypes.js'
 
-export const kernel32 = koffi.load('kernel32.dll')
+const kernel32 = koffi.load('kernel32.dll')
 
 /**
  * Generates simple tones on the speaker.
@@ -31,7 +32,7 @@ export function Beep(freq: number, duration: number): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-expandenvironmentstringsw
  */
 export function ExpandEnvironmentStrings(src: string): string {
-    ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cSTR, cPVOID, cDWORD ])
+    ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cWSTR, cPVOID, cDWORD ])
 
     const str = new StringOutputBuffer(4096)
     const len = ExpandEnvironmentStrings.native(src, str.buffer, str.length)
@@ -57,8 +58,8 @@ export function CloseHandle(hObject: HANDLE): boolean {
 export function FileTimeToSystemTime(fileTime: FILETIME): SYSTEMTIME | null {
     FileTimeToSystemTime.native ??= kernel32.func('FileTimeToSystemTime', cBOOL, [ cFILETIME, koffi.out(koffi.pointer(cSYSTEMTIME)) ])
 
-    const systemTime = {} as SYSTEMTIME
-    return FileTimeToSystemTime.native(fileTime, systemTime) !== 0 ? systemTime : null
+    const pSystemTime: OUT<SYSTEMTIME> = [{} as SYSTEMTIME]
+    return FileTimeToSystemTime.native(fileTime, pSystemTime) !== 0 ? pSystemTime[0] : null
 }
 
 /**
@@ -181,7 +182,7 @@ export function GetModuleFileName(hModule: HMODULE | null): string | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandlew
  */
 export function GetModuleHandle(moduleName: string | null): HMODULE | null {
-    GetModuleHandle.native ??= kernel32.func('GetModuleHandleW', cHANDLE, [ cSTR ])
+    GetModuleHandle.native ??= kernel32.func('GetModuleHandleW', cHANDLE, [ cWSTR ])
     return GetModuleHandle.native(moduleName)
 }
 
@@ -194,7 +195,7 @@ export function GetModuleHandle(moduleName: string | null): HMODULE | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandleexw
  */
 export function GetModuleHandleEx(flags: GET_MODULE_HANDLE_EX_FLAG_, moduleName: string | null): HMODULE | null {
-    GetModuleHandleEx.native ??= kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cSTR, koffi.out(koffi.pointer(cHANDLE)) ])
+    GetModuleHandleEx.native ??= kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cWSTR, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const pHandle: OUT<HMODULE | null> = [null]
     return GetModuleHandleEx.native(flags, moduleName, pHandle) !== 0 ? pHandle[0] : null
@@ -264,4 +265,4 @@ export function LocalFree(ptr: unknown) {
 }
 
 /** @internal only used by some functions in some libs and not intended to be exposed to the user. */
-export const cLocalAllocatedString = koffi.disposable(cSTR, LocalFree)
+export const cLocalAllocatedString = koffi.disposable(cWSTR, LocalFree)

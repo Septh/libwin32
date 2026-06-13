@@ -90,19 +90,17 @@ export interface WNDCLASS {
  */
 export class WNDCLASSEX {
     readonly cbSize = SIZEOF_WNDCLASSEX
-    constructor(
-        public hInstance:     HINSTANCE | null = null,
-        public lpszClassName: string  | null   = null,
-        public style:         CS_              = 0,
-        public lpfnWndProc:   WNDPROC | null   = null,
-        public hCursor:       HCURSOR | null   = null,
-        public hIcon:         HICON   | null   = null,
-        public hIconSm:       HICON   | null   = null,
-        public hbrBackground: HBRUSH  | null   = null,
-        public lpszMenuName:  string  | null   = null,
-        public cbClsExtra:    number           = 0,
-        public cwWndExtra:    number           = 0
-    ) {}
+    hInstance?:     HINSTANCE | null
+    lpszClassName?: string  | null
+    style?:         CS_
+    lpfnWndProc?:   WNDPROC | null
+    hCursor?:       HCURSOR | null
+    hIcon?:         HICON   | null
+    hIconSm?:       HICON   | null
+    hbrBackground?: HBRUSH  | null
+    lpszMenuName?:  string  | null
+    cbClsExtra?:    number
+    cwWndExtra?:    number
 }
 
 /**
@@ -112,7 +110,7 @@ export class WNDCLASSEX {
  */
 export class BSMINFO {
     readonly cbSize = SIZEOF_BSMINFO
-    public hDesk: HDESK | null = null
-    public hWnd:  HWND | null = null
-    public luid:  LUID | null = null
+    hDesk?: HDESK | null
+    hWnd?:  HWND | null
+    luid?:  LUID | null
 }

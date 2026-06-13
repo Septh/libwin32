@@ -22,7 +22,7 @@ function wndProc(hWnd: HWND, uMmsg: WM_, wParam: WPARAM, lParam: LPARAM) {
             break
 
         default:
-            // console.log(uMmsg)
+            // console.log(uMsg)
             ret = DefWindowProc(hWnd, uMmsg, wParam, lParam) as number
             break
     }
@@ -32,15 +32,15 @@ function wndProc(hWnd: HWND, uMmsg: WM_, wParam: WPARAM, lParam: LPARAM) {
 function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
 
     // Note: cbSize is set by the WNDCLASSEX constructor
-    const wcex = new WNDCLASSEX(
-        hInstance,
-        windowClass, CS_.HREDRAW | CS_.VREDRAW,
-        wndProc,
-        LoadCursor(null, IDC_.ARROW),
-        LoadIcon(hInstance, IDI_.APPLICATION),
-        LoadIcon(hInstance, IDI_.APPLICATION),
-        13 as unknown as HBRUSH     // Note: brushes are not yet implemented. 13 is the standard background.
-    )
+    const wcex = new WNDCLASSEX()
+    wcex.hInstance     = hInstance
+    wcex.lpszClassName = windowClass
+    wcex.style         = CS_.HREDRAW | CS_.VREDRAW
+    wcex.lpfnWndProc   = wndProc,
+    wcex.hCursor       = LoadCursor(null, IDC_.ARROW)
+    wcex.hIcon         = LoadIcon(hInstance, IDI_.APPLICATION)
+    wcex.hIconSm       = LoadIcon(hInstance, IDI_.APPLICATION)
+    wcex.hbrBackground = 13 as unknown as HBRUSH                  // Note: brushes are not yet implemented. 13 is the standard background.
 
     const atom = RegisterClassEx(wcex)
     if (!atom) {

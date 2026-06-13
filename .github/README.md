@@ -36,7 +36,7 @@ const result = MessageBox(
 1. Call the functions as instructed by the [Win32 API documentation](https://learn.microsoft.com/en-us/windows/win32/api/).
     * All functions, constants and types are named accordingly and the lib is fully typed so you may rely on code hints from your editor.
     * Often times, it made sense to adapt the C prototype to something more JS-friendly. For instance, in C, `GetUserName()` fills in a buffer whose address is passed as the second parameter to the function; in libwin32, the function takes only one parameter and returns a string.
-    * Many Win32 C structures have a "size" member that must be set before they are used as a parameter. For these, the lib provide a JavaScript class that automatically sets that field when instantiated (in your editor, just hover the type name to find out if it's a class or an interface).
+    * Many Win32 C structures have a "size" member that must be set before they are used as a parameter. For these, the lib provide a JavaScript class that automatically sets that field when instantiated (in your editor, just hover the type name to find out if it's a class or an interface). See the `createwindow` demo for an example.
 1. Look at the various examples in the [`./source/demos` directory](../source/demos/) for inspiration!
 
 
