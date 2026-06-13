@@ -7,12 +7,9 @@
     "lib": [ "ES2024" ],
     "types": [ "node" ],
 
-    // Input
+    // Input/Output
     "resolveJsonModule": true,
     "checkJs": true,
-
-    // Output
-    "rewriteRelativeImportExtensions": true,
     "stripInternal": true,
     "noEmit": true,
 

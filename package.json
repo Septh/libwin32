@@ -74,12 +74,10 @@
     "!*.tsbuildinfo"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
-    "build:release": "rimraf lib && tsc --build tsconfig.build.json",
-    "build:demos": "rimraf demos && tsc --build tsconfig.build.json && rollup -c rollup.demos.js",
+    "build": "rimraf lib && tsc -p tsconfig.build.json",
+    "build:demos": "rimraf demos && rollup -c rollup.demos.js",
     "clean": "rimraf lib demos",
-    "test": "echo \"No test yet\"",
-    "prepublishOnly": "npm run build:release && npm run build:demos"
+    "test": "echo \"No test yet\""
   },
   "dependencies": {
     "koffi": "^3.0.2"
