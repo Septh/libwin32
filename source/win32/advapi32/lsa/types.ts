@@ -1,4 +1,3 @@
-import assert from 'node:assert'
 import { textDecoder, type __HANDLE__, type HANDLE } from '../../internals.js'
 import type { GUID } from '../../chore/types.js'
 import type { SECURITY_DESCRIPTOR } from '../security/types.js'
@@ -61,6 +60,10 @@ export type TRUSTED_DOMAIN_INFORMATION_BASIC = LSA_TRUST_INFORMATION
 /**
  * Used by various Local Security Authority (LSA) functions to specify a Unicode string.
  *
+ * Notes:
+ * - on input to a Lsa function, you can construct a LSA_UNICODE_STRING from a regular JavaScript string.
+ * - on output from a Lsa function, you get a plain object, not an instance of this class.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_unicode_string
  */
 export class LSA_UNICODE_STRING {
@@ -68,22 +71,25 @@ export class LSA_UNICODE_STRING {
     readonly MaximumLength: number  // in bytes
     readonly Buffer: Uint16Array
 
-    constructor(maxBytes: number)
-    constructor(string: string, maxBytes?: number)
-    constructor(strOrLen: string | number, maxBytes?: number) {
+    /** @param capacity - The maximum length **in characters**. */
+    constructor(capacity: number)
+    /** @param capacity - The maximum length **in characters**. Defaults to `from.length`. */
+    constructor(from: string, capacity?: number)
+    constructor(strOrLen: string | number, capacity?: number) {
 
         if (typeof strOrLen === 'string') {
-            this.Length = strOrLen.length * Uint16Array.BYTES_PER_ELEMENT
-            this.MaximumLength = maxBytes ?? this.Length
-            assert(this.Length <= this.MaximumLength)
+            capacity = Math.max(strOrLen.length, capacity ?? 0)
 
-            this.Buffer = new Uint16Array(this.MaximumLength / Uint16Array.BYTES_PER_ELEMENT)
+            this.Length = strOrLen.length * Uint16Array.BYTES_PER_ELEMENT
+            this.MaximumLength = capacity * Uint16Array.BYTES_PER_ELEMENT
+
+            this.Buffer = new Uint16Array(capacity)
             for (let i = 0; i < strOrLen.length; i++)
                 this.Buffer[i] = strOrLen.charCodeAt(i)
         }
         else {
-            this.Length = this.MaximumLength = strOrLen
-            this.Buffer = new Uint16Array(this.MaximumLength / Uint16Array.BYTES_PER_ELEMENT)
+            this.Length = this.MaximumLength = strOrLen * Uint16Array.BYTES_PER_ELEMENT
+            this.Buffer = new Uint16Array(strOrLen)
         }
     }
 
