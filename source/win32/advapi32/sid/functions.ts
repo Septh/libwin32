@@ -1,0 +1,199 @@
+import koffi from 'koffi'
+import {
+    Internals, StringOutputBuffer, binaryBuffer,
+    cBOOL, cBYTE, cDWORD, cINT, cPDWORD, cPVOID, cSTR,
+    type OUT
+} from '../../internals.js'
+import { ERROR_ } from '../../chore/consts.js'
+import { LocalFree, SetLastError } from '../../kernel32/functions.js'
+import type { SID, SID_IDENTIFIER_AUTHORITY } from '../sid/types.js'
+import type { SID_NAME_USE } from '../sid/consts.js'
+import { cPSID, cSID, cSID_IDENTIFIER_AUTHORITY } from '../sid/ctypes.js'
+import { advapi32 } from '../_dll.js'
+
+const cLocalAllocatedString = koffi.disposable(cSTR, LocalFree)
+
+/**
+ * Allocates and initializes a security identifier (SID) with up to eight sub-authorities.
+ *
+ * Notes:
+ * - in libwin32, there is no `nSubAuthorityCount` parameter, you simply pass 1 to 8 sub-authorities.
+ * - the allocated SID is immediately returned to the system by this function.
+ *   The net effect is that you don't need to call {@link FreeSid()} afterwards (which is a NOOP anyway).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-allocateandinitializesid
+ */
+export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUTHORITY, ...subAuthorities: number[]): SID | null {
+    AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [
+        koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE,
+        cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD,
+        koffi.out(koffi.pointer(cPVOID))
+    ])
+
+    const subAuthorityCount = subAuthorities.length
+    if (subAuthorityCount > 0 && subAuthorityCount <= 8) {
+        subAuthorities.length = 8
+        subAuthorities.fill(0, subAuthorityCount)
+
+        const ppSID: OUT<unknown> = [null]
+        if (AllocateAndInitializeSid.native([ identifierAuthority ], subAuthorityCount,
+            subAuthorities[0], subAuthorities[1], subAuthorities[2], subAuthorities[3],
+            subAuthorities[4], subAuthorities[5], subAuthorities[6], subAuthorities[7],
+            ppSID
+        ) !== 0) {
+            const sid = koffi.decode(ppSID[0], cSID)
+            freeSid(ppSID[0])
+            return sid
+        }
+    }
+    else SetLastError(ERROR_.BAD_ARGUMENTS)
+    return null
+
+    function freeSid(ptr: unknown): void {
+        (freeSid.native ??= advapi32.func('FreeSid', cPVOID, [ cPVOID ]))(ptr)
+    }
+}
+
+/**
+ * Converts a security identifier (SID) to a string format suitable for display, storage, or transmission.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertsidtostringsidw
+ */
+export function ConvertSidToStringSid(sid: SID): string | null {
+    ConvertSidToStringSid.native ??= advapi32.func('ConvertSidToStringSidW', cBOOL, [
+        cPSID, koffi.out(koffi.pointer(cLocalAllocatedString))
+    ])
+
+    const pStr: OUT<string> = [null!]
+    return ConvertSidToStringSid.native(sid, pStr) !== 0
+        ? pStr[0]
+        : null
+}
+
+/**
+ * Converts a string-format security identifier (SID) into a valid, functional SID.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertstringsidtosidw
+ */
+export function ConvertStringSidToSid(stringSid: string): SID | null {
+    ConvertStringSidToSid.native ??= advapi32.func('ConvertStringSidToSidW', cBOOL, [ cSTR, koffi.out(koffi.pointer(cPVOID)) ])
+
+    const ppSID: OUT<unknown> = [null]
+    if (ConvertStringSidToSid.native(stringSid, ppSID) !== 0) {
+        const sid = koffi.decode(ppSID[0], cSID)
+        LocalFree(ppSID[0])
+        return sid
+    }
+    return null
+}
+
+/**
+ * Copies a security identifier (SID).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-copysid
+ */
+export function CopySid(sourceSid: SID): SID | null {
+    CopySid.native ??= advapi32.func('CopySid', cBOOL, [ cDWORD, koffi.out(cPVOID), cPSID ])
+
+    return CopySid.native(binaryBuffer.length, binaryBuffer, sourceSid) !== 0
+        ? koffi.decode(binaryBuffer, cSID)
+        : null
+}
+
+/**
+ * Creates a SID for predefined aliases.
+ *
+ * Note: libwin32 does not include the 100+ predefined types enumeration, see the complete list at
+ *       https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-well_known_sid_type
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-createwellknownsid
+ */
+export function CreateWellKnownSid(wellKnownSidType: number, domainSid?: SID): SID | null {
+    CreateWellKnownSid.native ??= advapi32.func('CreateWellKnownSid', cBOOL, [ cINT, cPSID, koffi.out(cPVOID), koffi.inout(cPDWORD) ])
+
+    const pCbSid: OUT<number> = [binaryBuffer.length]
+    return CreateWellKnownSid.native(wellKnownSidType, domainSid, binaryBuffer, pCbSid) !== 0
+        ? koffi.decode(binaryBuffer, cSID)
+        : null
+}
+
+/**
+ * Tests two security identifier (SID) values for equality.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-equalsid
+ */
+export function EqualSid(sid1: SID, sid2: SID): boolean {
+    EqualSid.native ??= advapi32.func('EqualSid', cBOOL, [ cPSID, cPSID ])
+    return EqualSid.native(sid1, sid2) !== 0
+}
+
+/**
+ * Frees a security identifier (SID) previously allocated by using the {@link AllocateAndInitializeSid()} function.
+ *
+ * Note: in libwin32, `AllocateAndInitializeSid()` immediately frees the allocated memory, so this function is a NOOP.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-freesid
+ */
+export function FreeSid(_sid: SID): void {}
+
+/**
+ * Returns the length, in bytes, of a valid security identifier.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-getlengthsid
+ */
+export function GetLengthSid(sid: SID): number {
+    GetLengthSid.native ??= advapi32.func('GetLengthSid', cDWORD, [ cPSID ])
+    return GetLengthSid.native(sid)
+}
+
+/**
+ * Compares a SID to a well-known SID and returns TRUE if they match.
+ *
+ * Note: libwin32 does not include the 100+ predefined types enumeration, see the complete list at
+ *       https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-well_known_sid_type
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-iswellknownsid
+ */
+export function IsWellKnownSid(sid: SID, wellKnownSidType: number): boolean {
+    IsWellKnownSid.native ??= advapi32.func('IsWellKnownSid', cBOOL, [ cPSID, cINT ])
+    return IsWellKnownSid.native(sid, wellKnownSidType) !== 0
+}
+
+/**
+ * Retrieves the name of the account for a security identifier (SID) and the name of the domain where the account was found.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountsidw
+ */
+export function LookupAccountSid(systemName: string | null, sid: SID): LookupAccountSidResult | null {
+    LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [
+        cSTR, cPSID, cPVOID, koffi.inout(cPDWORD), cPVOID, koffi.inout(cPDWORD), koffi.out(koffi.pointer(cINT))
+    ])
+
+    const name = new StringOutputBuffer(Internals.MAX_NAME)
+    const domain = new StringOutputBuffer(Internals.MAX_NAME)
+    const pUse: OUT<SID_NAME_USE> = [0 as SID_NAME_USE]
+    if (LookupAccountSid.native(systemName, sid, name.buffer, name.pLength, domain.buffer, domain.pLength, pUse) !== 0) {
+        return {
+            name: name.decode(),
+            referencedDomainName: domain.decode(),
+            use: pUse[0]
+        }
+    }
+    return null
+}
+
+export interface LookupAccountSidResult {
+    name: string
+    referencedDomainName: string
+    use: SID_NAME_USE
+}
+
+/**
+ * Retrieves the name of the account for the specified SID on the local machine.
+ * LookupAccountSidLocal is defined as a function that calls LookupAccountSid with null as the first parameter.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountsidlocalw
+ */
+export function LookupAccountSidLocal(sid: SID): LookupAccountSidResult | null {
+    return LookupAccountSid(null, sid)
+}

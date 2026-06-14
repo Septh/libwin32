@@ -1,5 +1,4 @@
-export * from './ctypes.js'
-export * from './structs.js'
+export * from './chore.js'
 export * from './advapi32.js'
 export * from './kernel32.js'
 export * from './ole32.js'
