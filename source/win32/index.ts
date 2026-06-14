@@ -1,3 +1,4 @@
+export * from './chore.js'
 export * from './advapi32.js'
 export * from './kernel32.js'
 export * from './misc.js'

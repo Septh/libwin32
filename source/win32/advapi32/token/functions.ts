@@ -1,39 +1,32 @@
 import koffi from 'koffi'
 import {
     binaryBuffer, isPointer,
-    cBOOL, cINT, cDWORD, cPVOID, cPDWORD, cHANDLE,
+    cBOOL, cDWORD, cHANDLE, cINT, cP_DWORD, cP_VOID,
     type HANDLE, type OUT, type Pointer
 } from '../../internals.js'
-import { ERROR_ } from '../../misc/consts.js'
-import { SetLastError } from '../../kernel32/functions.js'
-
-import { advapi32 } from '../dll.js'
-import type { SID, SID_AND_ATTRIBUTES_HASH } from '../sid/types.js'
-import { cSID, cPSID, cSID_AND_ATTRIBUTES_HASH } from '../sid/ctypes.js'
-import type { PRIVILEGE_SET, CLAIM_SECURITY_ATTRIBUTES_INFORMATION } from '../security/types.js'
+import type { CLAIM_SECURITY_ATTRIBUTES_INFORMATION } from '../security/types.js'
 import type { SECURITY_IMPERSONATION_LEVEL } from '../security/consts.js'
-import {
-    cPRIVILEGE_SET,
-    cACL, cCLAIM_SECURITY_ATTRIBUTE_V1, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION,
-} from '../security/ctypes.js'
-
+import { cACL, cCLAIM_SECURITY_ATTRIBUTE_V1, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION } from '../security/ctypes.js'
+import type { SID, SID_AND_ATTRIBUTES_HASH } from '../sid/types.js'
+import { cPSID, cSID, cSID_AND_ATTRIBUTES_HASH } from '../sid/ctypes.js'
+import { SetLastError } from '../../kernel32/functions.js'
+import { advapi32 } from '../_dll.js'
 import type {
-    HTOKEN,
-    TOKEN_PRIVILEGES,
-    TOKEN_ACCESS_INFORMATION,
-    TOKEN_APPCONTAINER_INFORMATION, TOKEN_DEFAULT_DACL, TOKEN_ELEVATION, TOKEN_GROUPS, TOKEN_GROUPS_AND_PRIVILEGES,
-    TOKEN_LINKED_TOKEN, TOKEN_MANDATORY_LABEL, TOKEN_MANDATORY_POLICY, TOKEN_ORIGIN, TOKEN_OWNER, TOKEN_PRIMARY_GROUP,
+    HTOKEN, TOKEN_ACCESS_INFORMATION, TOKEN_APPCONTAINER_INFORMATION,
+    TOKEN_DEFAULT_DACL, TOKEN_ELEVATION,
+    TOKEN_GROUPS, TOKEN_GROUPS_AND_PRIVILEGES, TOKEN_LINKED_TOKEN,
+    TOKEN_MANDATORY_LABEL, TOKEN_MANDATORY_POLICY,
+    TOKEN_ORIGIN, TOKEN_OWNER, TOKEN_PRIMARY_GROUP, TOKEN_PRIVILEGES,
     TOKEN_SOURCE, TOKEN_STATISTICS, TOKEN_USER
 } from './types.js'
+import { TOKEN_INFORMATION_CLASS, type TOKEN_, type TOKEN_TYPE } from './consts.js'
 import {
-    TOKEN_INFORMATION_CLASS,
-    type TOKEN_, type TOKEN_TYPE
-} from './consts.js'
-import {
-    cTOKEN_PRIVILEGES,
-    cTOKEN_ACCESS_INFORMATION, cTOKEN_APPCONTAINER_INFORMATION, cTOKEN_DEFAULT_DACL, cTOKEN_ELEVATION, cTOKEN_GROUPS,
-    cTOKEN_GROUPS_AND_PRIVILEGES, cTOKEN_LINKED_TOKEN, cTOKEN_MANDATORY_LABEL, cTOKEN_MANDATORY_POLICY, cTOKEN_ORIGIN, cTOKEN_OWNER, cTOKEN_PRIMARY_GROUP,
-    cTOKEN_SOURCE, cTOKEN_STATISTICS, cTOKEN_USER
+    cTOKEN_ACCESS_INFORMATION, cTOKEN_APPCONTAINER_INFORMATION,
+    cTOKEN_DEFAULT_DACL, cTOKEN_ELEVATION,
+    cTOKEN_GROUPS, cTOKEN_GROUPS_AND_PRIVILEGES, cTOKEN_LINKED_TOKEN,
+    cTOKEN_MANDATORY_LABEL, cTOKEN_MANDATORY_POLICY,
+    cTOKEN_ORIGIN, cTOKEN_OWNER, cTOKEN_PRIMARY_GROUP, cTOKEN_PRIVILEGES,
+    cTOKEN_SOURCE, cTOKEN_STATISTICS, cTOKEN_USER,
 } from './ctypes.js'
 
 /**
@@ -45,12 +38,15 @@ import {
  */
 export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges: boolean, newState: TOKEN_PRIVILEGES | null = null): TOKEN_PRIVILEGES | null {
     AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [
-        cHANDLE, cBOOL, koffi.pointer(cTOKEN_PRIVILEGES), cDWORD, cPVOID, koffi.out(cPDWORD)
+        cHANDLE, cBOOL, koffi.pointer(cTOKEN_PRIVILEGES), cDWORD, cP_VOID, koffi.out(cP_DWORD)
     ])
 
     const pLength: OUT<number> = [0]
-    const ret = AdjustTokenPrivileges.native(tokenHandle, Number(disableAllPrivileges), newState, binaryBuffer.byteLength, binaryBuffer, pLength)
-    return ret ? koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES) : null
+    return AdjustTokenPrivileges.native(
+        tokenHandle, Number(disableAllPrivileges), newState, binaryBuffer.byteLength, binaryBuffer, pLength
+    ) !== 0
+        ? koffi.decode(binaryBuffer, cTOKEN_PRIVILEGES)
+        : null
 }
 
 /**
@@ -62,117 +58,18 @@ export function CheckTokenMembership(tokenHandle: HTOKEN | null, sidToCheck: SID
     CheckTokenMembership.native ??= advapi32.func('CheckTokenMembership', cBOOL, [ cHANDLE, cPSID, koffi.out(koffi.pointer(cBOOL)) ])
 
     const pBool: OUT<number> = [0]
-    return CheckTokenMembership.native(tokenHandle, sidToCheck, pBool) ? Boolean(pBool[0]) : null
+    return CheckTokenMembership.native(tokenHandle, sidToCheck, pBool) !== 0
+        ? Boolean(pBool[0])
+        : null
 }
 
 /**
- * Retrieves a `TokenAccessInformation` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ * Determines whether a specified security identifier (SID) is enabled in an access token.
  *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenAccessInformation)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-checktokenmembership
  */
-export function GetTokenAccessInformation(tokenHandle: HTOKEN): TOKEN_ACCESS_INFORMATION | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAccessInformation)
-}
-
-/**
- * Retrieves a `TokenAppContainerNumber` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenAppContainerNumber)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenAppContainerNumberInformation(tokenHandle: HTOKEN): number | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAppContainerNumber)
-}
-
-/**
- * Retrieves a `TokenAppContainerSid` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenAppContainerSid)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenAppContainerSidInformation(tokenHandle: HTOKEN): TOKEN_APPCONTAINER_INFORMATION | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAppContainerSid)
-}
-
-/**
- * Retrieves a `TokenCapabilities` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenCapabilities)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenCapabilitiesInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenCapabilities)
-}
-
-/**
- * Retrieves a `TokenDefaultDacl` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenDefaultDacl)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenDefaultDaclInformation(tokenHandle: HTOKEN): TOKEN_DEFAULT_DACL | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenDefaultDacl)
-}
-
-/**
- * Retrieves a `TokenDeviceClaimAttributes` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenDeviceClaimAttributes)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenDeviceClaimAttributesInformation(tokenHandle: HTOKEN): CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes)
-}
-
-/**
- * Retrieves a `TokenDeviceGroups` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenDeviceGroups)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenDeviceGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenDeviceGroups)
-}
-
-/**
- * Retrieves a `TokenElevation` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenElevation)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenElevationInformation(tokenHandle: HTOKEN): TOKEN_ELEVATION | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevation)
-}
-
-/**
- * Retrieves a `TokenElevationType` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenElevationType)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenElevationTypeInformation(tokenHandle: HTOKEN): number | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevationType)
-}
-
-/**
- * Retrieves a `TokenGroupsAndPrivileges` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenGroupsAndPrivileges)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenGroupsAndPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_GROUPS_AND_PRIVILEGES | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges)
+export function GetTokenUserInformation(tokenHandle: HTOKEN): TOKEN_USER | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUser)
 }
 
 /**
@@ -187,91 +84,14 @@ export function GetTokenGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | n
 }
 
 /**
- * Retrieves a `TokenHasRestrictions` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ * Retrieves a `TokenPrivileges` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenHasRestrictions)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_TYPE | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenHasRestrictions)
-}
-
-/**
- * Retrieves a `TokenImpersonationLevel` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenImpersonationLevel)`.
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenPrivileges)`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenImpersonationLevelInformation(tokenHandle: HTOKEN): SECURITY_IMPERSONATION_LEVEL | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenImpersonationLevel)
-}
-
-/**
- * Retrieves a `TokenIntegrityLevel` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenIntegrityLevel)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenIntegrityLevelInformation(tokenHandle: HTOKEN): TOKEN_MANDATORY_LABEL | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenIntegrityLevel)
-}
-
-/**
- * Retrieves a `TokenIsAppContainer` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenIsAppContainer)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenIsAppContainerInformation(tokenHandle: HTOKEN): number | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenIsAppContainer)
-}
-
-/**
- * Retrieves a `TokenLinkedToken` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenLinkedToken)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenLinkedTokenInformation(tokenHandle: HTOKEN): TOKEN_LINKED_TOKEN | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenLinkedToken)
-}
-
-/**
- * Retrieves a `TokenLogonSid` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenLogonSid)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenLogonSidInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenLogonSid)
-}
-
-/**
- * Retrieves a `TokenMandatoryPolicy` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenMandatoryPolicy)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenMandatoryPolicyInformation(tokenHandle: HTOKEN): TOKEN_MANDATORY_POLICY | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy)
-}
-
-/**
- * Retrieves a `TokenOrigin` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenOrigin)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenOriginInformation(tokenHandle: HTOKEN): TOKEN_ORIGIN | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenOrigin)
+export function GetTokenPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_PRIVILEGES | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenPrivileges)
 }
 
 /**
@@ -297,58 +117,14 @@ export function GetTokenPrimaryGroupInformation(tokenHandle: HTOKEN): TOKEN_PRIM
 }
 
 /**
- * Retrieves a `TokenPrivileges` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ * Retrieves a `TokenDefaultDacl` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenPrivileges)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_PRIVILEGES | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenPrivileges)
-}
-
-/**
- * Retrieves a `TokenRestrictedDeviceGroups` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenRestrictedDeviceGroups)`.
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenDefaultDacl)`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenRestrictedDeviceGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups)
-}
-
-/**
- * Retrieves a `TokenRestrictedSids` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenRestrictedSids)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenRestrictedSidsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenRestrictedSids)
-}
-
-/**
- * Retrieves a `TokenSandBoxInert` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenSandBoxInert)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenSandBoxInertInformation(tokenHandle: HTOKEN): number | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSandBoxInert)
-}
-
-/**
- * Retrieves a `TokenSessionId` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenSessionId)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSessionId)
+export function GetTokenDefaultDaclInformation(tokenHandle: HTOKEN): TOKEN_DEFAULT_DACL | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenDefaultDacl)
 }
 
 /**
@@ -363,17 +139,6 @@ export function GetTokenSourceInformation(tokenHandle: HTOKEN): TOKEN_SOURCE | n
 }
 
 /**
- * Retrieves a `TokenStatistics` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
- *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenStatistics)`.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
- */
-export function GetTokenStatisticsInformation(tokenHandle: HTOKEN): TOKEN_STATISTICS | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenStatistics)
-}
-
-/**
  * Retrieves `TokenType` specified class of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
  * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenType)`.
@@ -385,36 +150,135 @@ export function GetTokenTypeInformation(tokenHandle: HTOKEN): number | null {
 }
 
 /**
- * Retrieves a `TokenUIAccess` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ * Retrieves a `TokenImpersonationLevel` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenUIAccess)`.
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenImpersonationLevel)`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenUIAccessInformation(tokenHandle: HTOKEN): number | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUIAccess)
+export function GetTokenImpersonationLevelInformation(tokenHandle: HTOKEN): SECURITY_IMPERSONATION_LEVEL | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenImpersonationLevel)
 }
 
 /**
- * Retrieves a `TokenUserClaimAttributes` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ * Retrieves a `TokenStatistics` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenUserClaimAttributes)`.
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenStatistics)`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenUserClaimAttributesInformation(tokenHandle: HTOKEN): CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes)
+export function GetTokenStatisticsInformation(tokenHandle: HTOKEN): TOKEN_STATISTICS | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenStatistics)
 }
 
 /**
- * Retrieves `TokenUser` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ * Retrieves a `TokenRestrictedSids` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
- * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenUser)`.
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenRestrictedSids)`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
-export function GetTokenUserInformation(tokenHandle: HTOKEN): TOKEN_USER | null {
-    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUser)
+export function GetTokenRestrictedSidsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenRestrictedSids)
+}
+
+/**
+ * Retrieves a `TokenSessionId` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenSessionId)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenSessionIdInformation(tokenHandle: HTOKEN): number | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSessionId)
+}
+
+/**
+ * Retrieves a `TokenGroupsAndPrivileges` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenGroupsAndPrivileges)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenGroupsAndPrivilegesInformation(tokenHandle: HTOKEN): TOKEN_GROUPS_AND_PRIVILEGES | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenGroupsAndPrivileges)
+}
+
+/**
+ * Retrieves a `TokenSandBoxInert` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenSandBoxInert)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenSandBoxInertInformation(tokenHandle: HTOKEN): number | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenSandBoxInert)
+}
+
+/**
+ * Retrieves a `TokenOrigin` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenOrigin)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenOriginInformation(tokenHandle: HTOKEN): TOKEN_ORIGIN | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenOrigin)
+}
+
+/**
+ * Retrieves a `TokenElevationType` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenElevationType)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenElevationTypeInformation(tokenHandle: HTOKEN): number | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevationType)
+}
+
+/**
+ * Retrieves a `TokenLinkedToken` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenLinkedToken)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenLinkedTokenInformation(tokenHandle: HTOKEN): TOKEN_LINKED_TOKEN | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenLinkedToken)
+}
+
+/**
+ * Retrieves a `TokenElevation` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenElevation)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenElevationInformation(tokenHandle: HTOKEN): TOKEN_ELEVATION | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevation)
+}
+
+/**
+ * Retrieves a `TokenHasRestrictions` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenHasRestrictions)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenHasRestrictionsInformation(tokenHandle: HTOKEN): TOKEN_TYPE | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenHasRestrictions)
+}
+
+/**
+ * Retrieves a `TokenAccessInformation` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenAccessInformation)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenAccessInformation(tokenHandle: HTOKEN): TOKEN_ACCESS_INFORMATION | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAccessInformation)
 }
 
 /**
@@ -440,7 +304,143 @@ export function GetTokenVirtualizationEnabledInformation(tokenHandle: HTOKEN): n
 }
 
 /**
+ * Retrieves a `TokenIntegrityLevel` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenIntegrityLevel)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenIntegrityLevelInformation(tokenHandle: HTOKEN): TOKEN_MANDATORY_LABEL | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenIntegrityLevel)
+}
+
+/**
+ * Retrieves a `TokenUIAccess` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenUIAccess)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenUIAccessInformation(tokenHandle: HTOKEN): number | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUIAccess)
+}
+
+/**
+ * Retrieves a `TokenMandatoryPolicy` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenMandatoryPolicy)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenMandatoryPolicyInformation(tokenHandle: HTOKEN): TOKEN_MANDATORY_POLICY | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenMandatoryPolicy)
+}
+
+/**
+ * Retrieves a `TokenLogonSid` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenLogonSid)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenLogonSidInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenLogonSid)
+}
+
+/**
+ * Retrieves a `TokenIsAppContainer` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenIsAppContainer)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenIsAppContainerInformation(tokenHandle: HTOKEN): number | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenIsAppContainer)
+}
+
+/**
+ * Retrieves a `TokenCapabilities` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenCapabilities)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenCapabilitiesInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenCapabilities)
+}
+
+/**
+ * Retrieves a `TokenAppContainerSid` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenAppContainerSid)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenAppContainerSidInformation(tokenHandle: HTOKEN): TOKEN_APPCONTAINER_INFORMATION | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAppContainerSid)
+}
+
+/**
+ * Retrieves a `TokenAppContainerNumber` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenAppContainerNumber)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenAppContainerNumberInformation(tokenHandle: HTOKEN): number | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenAppContainerNumber)
+}
+
+/**
+ * Retrieves a `TokenAppContainerSid` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenAppContainerSid)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenUserClaimAttributesInformation(tokenHandle: HTOKEN): CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes)
+}
+
+/**
+ * Retrieves a `TokenDeviceClaimAttributes` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenDeviceClaimAttributes)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenDeviceClaimAttributesInformation(tokenHandle: HTOKEN): CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes)
+}
+
+/**
+ * Retrieves a `TokenDeviceGroups` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenDeviceGroups)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenDeviceGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenDeviceGroups)
+}
+
+/**
+ * Retrieves a `TokenRestrictedDeviceGroups` class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: this function is a libwin32 stub for `GetTokenInformation(tokenHandle, TOKEN_ACCESS_INFORMATION.TokenRestrictedDeviceGroups)`.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
+ */
+export function GetTokenRestrictedDeviceGroupsInformation(tokenHandle: HTOKEN): TOKEN_GROUPS | null {
+    return GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups)
+}
+
+/**
  * Retrieves a specified class of information about an access token. The calling process must have appropriate access rights to obtain the information.
+ *
+ * Note: in libwin32, the function only supports the values of the `TOKEN_INFORMATION_CLASS` enumeration
+ *       that are listed on [the enum's doc](https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-token_information_class#constants)
+ *       and whose description starts with *"The buffer receives..."*. All other values return `STATUS_NOT_SUPPORTED`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
@@ -478,12 +478,15 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes):  CLAIM_SECURITY_ATTRIBUTES_INFORMATION | null
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenDeviceGroups):           TOKEN_GROUPS | null
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenRestrictedDeviceGroups): TOKEN_GROUPS | null
-export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS): any
-export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS) {
-    GetTokenInformation.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cPVOID, cDWORD, koffi.out(cPDWORD) ])
+export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: number): TOKEN_INFORMATION | null
+export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: number): any {
+    GetTokenInformation.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cP_VOID, cDWORD, koffi.out(cP_DWORD) ])
 
     const pLength: OUT<number> = [0]
-    if (!GetTokenInformation.native(tokenHandle, tokenInformationClass, binaryBuffer, binaryBuffer.byteLength, pLength))
+    GetTokenInformation.native(tokenHandle, tokenInformationClass, null, 0, pLength)
+    if (pLength[0] === 0)
+        return null
+    if (!GetTokenInformation.native(tokenHandle, tokenInformationClass, binaryBuffer, pLength[0], pLength))
         return null
 
     switch (tokenInformationClass as number) {
@@ -611,29 +614,38 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         case TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes:
         case TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes: {
             const ret = koffi.decode(binaryBuffer, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION) as CLAIM_SECURITY_ATTRIBUTES_INFORMATION
-            if (ret.Attribute?.pAttributeV1)
-                ret.Attribute.pAttributeV1 = koffi.decode(ret.Attribute, cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
-            else
-                ret.Attribute = { pAttributeV1: [] }
+            if (isPointer(ret.Attribute.pAttributeV1))
+                ret.Attribute.pAttributeV1 = koffi.decode(ret.Attribute.pAttributeV1, cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
+            else {
+                // If there is no attribute, don't bother with the union.
+                ret.Attribute = { pAttributeV1: null }
+            }
             return ret
         }
 
         // Dismiss all other cases
         default:
-            SetLastError(ERROR_.NOT_SUPPORTED)
+            SetLastError(50 /* ERROR_.NOT_SUPPORTED */)
             return null
     }
 
     function decodeSidAndAttributesHash(ptr: Pointer | Buffer<ArrayBuffer>): SID_AND_ATTRIBUTES_HASH {
         const ret = koffi.decode(ptr, cSID_AND_ATTRIBUTES_HASH) as SID_AND_ATTRIBUTES_HASH
         for (let i = 0; i < ret.SidCount; i++) {
-            if (isPointer(ret.SidAttr[i]))
+            if (isPointer(ret.SidAttr[i].Sid))
                 ret.SidAttr[i].Sid = koffi.decode(ret.SidAttr[i].Sid, cSID)
         }
         // Don't decode the Hash array
         return ret
     }
 }
+
+type TOKEN_INFORMATION =
+    | TOKEN_USER | TOKEN_OWNER | TOKEN_GROUPS | TOKEN_PRIVILEGES | TOKEN_GROUPS_AND_PRIVILEGES
+    | TOKEN_PRIMARY_GROUP | TOKEN_DEFAULT_DACL | TOKEN_SOURCE | TOKEN_ORIGIN | TOKEN_STATISTICS
+    | TOKEN_LINKED_TOKEN | TOKEN_ELEVATION | TOKEN_ACCESS_INFORMATION | TOKEN_MANDATORY_LABEL | TOKEN_MANDATORY_POLICY
+    | TOKEN_APPCONTAINER_INFORMATION | CLAIM_SECURITY_ATTRIBUTES_INFORMATION
+    | number
 
 /**
  * Opens the access token associated with a process.
@@ -644,17 +656,7 @@ export function OpenProcessToken(processHandle: HANDLE, desiredAccess: TOKEN_): 
     OpenProcessToken.native ??= advapi32.func('OpenProcessToken', cBOOL, [ cHANDLE, cDWORD, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const pHandle: OUT<HTOKEN> = [null!]
-    return OpenProcessToken.native(processHandle, desiredAccess, pHandle) ? pHandle[0] : null
-}
-
-/**
- * Determines whether a specified set of privileges are enabled in an access token.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-privilegecheck
- */
-export function PrivilegeCheck(clientToken: HANDLE, requiredPrivileges: PRIVILEGE_SET): boolean | null {
-    PrivilegeCheck.native ??= advapi32.func('PrivilegeCheck', cBOOL, [ cHANDLE, koffi.inout(koffi.pointer(cPRIVILEGE_SET)), koffi.out(koffi.pointer(cBOOL)) ])
-
-    const pfResult: OUT<number> = [0]
-    return PrivilegeCheck.native(clientToken, requiredPrivileges, pfResult) ? Boolean(pfResult[0]) : null
+    return OpenProcessToken.native(processHandle, desiredAccess, pHandle) !== 0
+        ? pHandle[0]
+        : null
 }

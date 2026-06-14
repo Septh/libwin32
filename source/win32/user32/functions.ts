@@ -1,380 +1,19 @@
 import koffi from 'koffi'
 import {
     StringOutputBuffer,
-    cBOOL, cDWORD, cINT, cLONG, cPDWORD, cPVOID, cWSTR, cUINT, cVOID, cWORD, cHANDLE,
+    cBOOL, cDWORD, cHANDLE, cINT, cLONG, cP_DWORD, cP_VOID,
+    cWSTR, cUINT, cVOID, cWORD,
     type OUT
 } from '../internals.js'
-import type { ATOM, HINSTANCE, LPARAM, LRESULT, WPARAM, RECT, POINT } from '../misc/types.js'
-import { cATOM, cLPARAM, cLRESULT, cWPARAM, cRECT, cPOINT } from '../misc/ctypes.js'
-import {
-    WNDCLASS, WNDCLASSEX, BSMINFO,
-    type HCURSOR, type HDESK, type HICON, type HMENU, type HWND,
-    type MSG, type WNDPROC, type WNDENUMPROC
-} from './types.js'
-import { cWNDCLASS, cWNDCLASSEX, cWNDPROC, cBSMINFO, cMSG, cWNDENUMPROC } from './ctypes.js'
-import type { BSF_, BSM_, PM_, MF_, TPM_, IDC_, IDI_, OIC_, OCR_, OBM_, IMAGE_, LR_, MB_, WS_, WS_EX_, AW_, WM_, HWND_, GA_, SW_ } from './consts.js'
+import type { ATOM, HINSTANCE, LPARAM, LRESULT, WPARAM } from '../chore/types.js'
+import { cATOM, cLPARAM, cLRESULT, cWPARAM } from '../chore/ctypes.js'
+import { BSMINFO, HCURSOR, HDESK, HICON, HMENU, HWND, POINT, RECT, WNDCLASSEX, WNDENUMPROC, WNDPROC, type MSG, type WNDCLASS } from './types.js'
+import type { AW_, BSF_, BSM_, GA_, HWND_, IDC_, IDI_, IMAGE_, LR_, MB_, MF_, OBM_, OCR_, OIC_, PM_, SW_, TPM_, WM_, WS_, WS_EX_ } from './consts.js'
+import { cBSMINFO, cMSG, cPOINT, cRECT, cWNDCLASS, cWNDCLASSEX, cWNDENUMPROC, cWNDPROC } from './ctypes.js'
 
 const user32 = koffi.load('user32.dll')
 
 const wndProcs = new Map<ATOM, bigint | undefined>()
-
-/**
- * Retrieves information about a window class.
- *
- * Note: libwin32 only supports querying by class name (string).
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfow
- */
-export function GetClassInfo(hInstance: HINSTANCE | null, className: string): WNDCLASS | null {
-    GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cWSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
-
-    const pWndClass: OUT<WNDCLASS> = [{} as WNDCLASS]
-    return GetClassInfo.native(hInstance, className, pWndClass) !== 0 ? pWndClass[0] : null
-}
-
-/**
- * Retrieves information about a window class, including a handle to the small icon associated with the window class.
- *
- * Note: libwin32 only supports querying by class name (string).
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfoexw
- */
-export function GetClassInfoEx(hInstance: HINSTANCE | null, className: string): WNDCLASSEX | null {
-    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cWSTR, koffi.out(koffi.pointer(cWNDCLASSEX)) ])
-
-    const pWndClassEx: OUT<WNDCLASSEX> = [new WNDCLASSEX()]
-    return GetClassInfoEx.native(hInstance, className, pWndClassEx) !== 0 ? pWndClassEx[0] : null
-}
-
-/**
- * Retrieves the name of the class to which the specified window belongs.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassnamew
- */
-export function GetClassName(hWnd: HWND): string | null {
-    GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cPVOID), cINT ])
-
-    const className = new StringOutputBuffer(256)
-    const len = GetClassName.native(hWnd, className.buffer, className.length)
-    return len ? className.decode(len) : null
-}
-
-/**
- * Registers a window class for subsequent use in calls to the CreateWindow function.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassw
- */
-export function RegisterClass(wndClass: WNDCLASS): ATOM | null {
-    RegisterClass.native ??= user32.func('RegisterClassW', cATOM, [ koffi.pointer(cWNDCLASS) ])
-
-    let wndProc: bigint | undefined
-    if (typeof wndClass.lpfnWndProc === 'function') {
-        wndProc = koffi.register(wndClass.lpfnWndProc, cWNDPROC)
-        wndClass = {
-            ...wndClass,
-            lpfnWndProc: wndProc as any
-        }
-    }
-
-    const atom = RegisterClass.native(wndClass)
-    return atom
-        ? (wndProcs.set(atom, wndProc), atom)
-        : (wndProc && koffi.unregister(wndProc), null)
-}
-
-/**
- * Registers a window class for subsequent use in calls to the CreateWindowEx function.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexw
- */
-export function RegisterClassEx(wndClassEx: WNDCLASSEX): ATOM | null {
-    RegisterClassEx.native ??= user32.func('RegisterClassExW', cATOM, [ koffi.pointer(cWNDCLASSEX) ])
-
-    let wndProc: bigint | undefined
-    if (typeof wndClassEx.lpfnWndProc === 'function') {
-        wndProc = koffi.register(wndClassEx.lpfnWndProc, cWNDPROC)
-        wndClassEx = {
-            ...wndClassEx,
-            lpfnWndProc: wndProc as any
-        }
-    }
-
-    const atom = RegisterClassEx.native(wndClassEx)
-    return atom
-        ? (wndProcs.set(atom, wndProc), atom)
-        : (wndProc && koffi.unregister(wndProc), null)
-}
-
-/**
- * Unregisters a window class, freeing the memory required for the class.
- *
- * Note: despite the parameter being named `className`, as in the native API,
- *       libwin32 only supports unregistering by ATOM -- the one you received
- *       from RegisterClass/RegisterClassEx.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unregisterclassw
- */
-export function UnregisterClass(className: ATOM, hInstance: HINSTANCE | null = null): boolean {
-    UnregisterClass.native ??= user32.func('UnregisterClassW', cBOOL, [ cATOM, cHANDLE ])
-
-    const ret = UnregisterClass.native(className, hInstance) !== 0
-    if (ret) {
-        const wndProc = wndProcs.get(className)
-        if (wndProc) {
-            koffi.unregister(wndProc)
-            wndProcs.delete(className)
-        }
-    }
-    return ret
-}
-
-/**
- * Sends a message to the specified recipients. The recipients can be applications, installable drivers,
- * network drivers, system-level device drivers, or any combination of these system components.
- *
- * Returns `true` if the function succeeds or `false` if there was an error or the dwFlags parameter is `BSF_QUERY`
- * and at least one recipient returned `BROADCAST_QUERY_DENY` to the corresponding message.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
- */
-export function BroadcastSystemMessage(flags: BSF_, info: BSM_, msg: number, wParam: WPARAM, lParam: LPARAM): boolean {
-    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM ])
-
-    const pInfo: OUT<number> = [info]
-    return BroadcastSystemMessage.native(flags, pInfo, msg, wParam, lParam) > 0
-}
-
-/**
- * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
- * except that this function can return more information from the recipients.
- *
- * Returns `true` if the function succeeds, `false` if there was an error, or a BSMINFO structure if the dwFlags parameter
- * is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY` to the corresponding message.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
- *
- */
-export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_, msg: number, wParam: WPARAM, lParam: LPARAM): BSMINFO | boolean {
-    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
-
-    const pInfo: OUT<number> = [info]
-    const pBsmInfo: OUT<BSMINFO> = [new BSMINFO()]
-    const ret: number = BroadcastSystemMessageEx.native(flags, pInfo, msg, wParam, lParam, pBsmInfo)
-    return ret === 0 ? pBsmInfo[0] : ret > 0
-}
-
-/**
- * Dispatches a message to a window procedure.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessagew
- */
-export function DispatchMessage(msg: MSG): LRESULT {
-    DispatchMessage.native ??= user32.func('DispatchMessageW', cLRESULT, [koffi.pointer(cMSG)])
-    return DispatchMessage.native(msg)
-}
-
-/**
- * Retrieves a message from the calling thread's message queue.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagew
- */
-export function GetMessage(hWnd: HWND | null | -1, msgFilterMin: number = 0, msgFilterMax: number = 0): MSG | null {
-    GetMessage.native ??= user32.func('GetMessageW', cBOOL, [ koffi.out(cMSG), cHANDLE, cUINT, cUINT ])
-
-    const pMsg: OUT<MSG> = [{} as MSG]
-    return GetMessage.native(pMsg[0], hWnd, msgFilterMin, msgFilterMax) !== 0 ? pMsg[0] : null
-}
-
-/**
- * Checks the thread message queue for a posted message.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
- */
-export function PeekMessage(hWnd: HWND | null | -1, msgFilterMin: number, msgFilterMax: number, removeMsg: PM_): MSG | null {
-    PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT, cUINT ])
-
-    const pMsg: OUT<MSG> = [{} as MSG]
-    return PeekMessage.native(pMsg, hWnd, msgFilterMin, msgFilterMax, removeMsg) !== 0 ? pMsg[0] : null
-}
-
-/**
- * Indicates to the system that a thread has made a request to terminate (quit).
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postquitmessage
- */
-export function PostQuitMessage(exitCode: number): void {
-    PostQuitMessage.native ??= user32.func('PostQuitMessage', cVOID, [ cINT ])
-    PostQuitMessage.native(exitCode)
-}
-
-/**
- * Sends a message to the specified window.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
- */
-export function SendMessage(hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM): LRESULT {
-    SendMessage.native ??= user32.func('SendMessageW', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ])
-    return SendMessage.native(hWnd, msg, wParam, lParam)
-}
-
-/**
- * Translates virtual-key messages into character messages.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
- */
-export function TranslateMessage(msg: MSG): boolean {
-    TranslateMessage.native ??= user32.func('TranslateMessage', cBOOL, [ koffi.pointer(cMSG) ])
-    return TranslateMessage.native(msg) !== 0
-}
-
-/**
- * Translates virtual-key messages into character messages.
- *
- * https://learn.microsoft.com/en-us/windows/win32/winmsg/translatemessageex
- */
-export function TranslateMessageEx(msg: MSG, flags: number): boolean {
-    TranslateMessageEx.native ??= user32.func('TranslateMessageEx', cBOOL, [ koffi.pointer(cMSG), cUINT ])
-    return TranslateMessageEx.native(msg, flags) !== 0
-}
-
-/**
- * Appends a new item to the end of the specified menu bar, drop-down menu, submenu, or shortcut menu.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
- */
-export function AppendMenu(hMenu: HMENU, flags: MF_, idNewItem: number | HMENU, newItem: string | null): boolean {
-    AppendMenu.native ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cWSTR ]);
-    return AppendMenu.native(hMenu, flags, idNewItem, newItem) !== 0
-}
-
-/**
- * Sets the checked state of a menu item.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-checkmenuitem
- */
-export function CheckMenuItem(hMenu: HMENU, idCheckItem: number, check: MF_): MF_ | -1 {
-    CheckMenuItem.native ??= user32.func('CheckMenuItem', cUINT, [ cHANDLE, cUINT, cUINT ])
-    return CheckMenuItem.native(hMenu, idCheckItem, check)
-}
-
-/**
- * Creates a drop-down menu, submenu, or shortcut menu.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createpopupmenu
- */
-export function CreatePopupMenu(): HMENU | null {
-    CreatePopupMenu.native ??= user32.func('CreatePopupMenu', cHANDLE, [])
-    return CreatePopupMenu.native()
-}
-
-/**
- * Displays a shortcut menu at the specified location and tracks the selection of items on the menu.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-trackpopupmenu
- */
-export function TrackPopupMenu(hMenu: HMENU, flags: TPM_, x: number, y: number, hWnd: HWND, rect: RECT | null = null): boolean {
-    TrackPopupMenu.native ??= user32.func('TrackPopupMenu', cBOOL, [ cHANDLE, cUINT, cUINT, cUINT, cUINT, cHANDLE, cRECT ])
-    return TrackPopupMenu.native(hMenu, flags, x, y, 0, hWnd, rect) !== 0
-}
-
-/**
- * Destroys a cursor and frees any memory the cursor occupied.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroycursor
- */
-export function DestroyCursor(hCursor: HCURSOR): boolean {
-    DestroyCursor.native ??= user32.func('DestroyCursor', cBOOL, [ cHANDLE ])
-    return DestroyCursor.native(hCursor) !== 0
-}
-
-/**
- * Destroys an icon and frees any memory the cursor occupied.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroyicon
- */
-export function DestroyIcon(hIcon: HICON): boolean {
-    DestroyIcon.native ??= user32.func('DestroyIcon', cBOOL, [ cHANDLE ])
-    return DestroyIcon.native(hIcon) !== 0
-}
-
-/**
- * Destroys the specified menu and frees any memory that the menu occupies.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroymenu
- */
-export function DestroyMenu(hMenu: HMENU): boolean {
-    DestroyMenu.native ??= user32.func('DestroyMenu', cBOOL, [ cHANDLE ])
-    return DestroyMenu.native(hMenu) !== 0
-}
-
-/**
- * Retrieves the cursor's position, in screen coordinates.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
- */
-export function GetCursorPos(): POINT | null {
-    GetCursorPos.native ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(koffi.pointer(cPOINT)) ])
-
-    const pPoint: OUT<POINT> = [{} as POINT]
-    return GetCursorPos.native(pPoint) !== 0 ? pPoint[0] : null
-}
-
-/**
- * Loads the specified cursor resource from the executable (.exe) file associated with an application instance.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursorw
- */
-export function LoadCursor(hInstance:  HINSTANCE | null, cursorName: IDC_ | string): HCURSOR | null {
-    LoadCursor.native ??= user32.func('LoadCursorW', cHANDLE, [ cHANDLE, cWSTR ])
-    return LoadCursor.native(hInstance, cursorName)
-}
-
-/**
- * Loads the specified icon resource from the executable (.exe) file associated with an application instance.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadiconw
- */
-export function LoadIcon(hInstance: HINSTANCE | null, iconName: IDI_ | string): HICON | null {
-    LoadIcon.native ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cWSTR ])
-    return LoadIcon.native(hInstance, iconName)
-}
-
-/**
- * Loads an icon, cursor, animated cursor, or bitmap.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadimagew
- */
-export function LoadImage(
-    hInstance: HINSTANCE | null, name: IDC_ | IDI_ | OIC_ | OCR_ | OBM_ | string, type: IMAGE_, cx: number, cy: number, load: LR_
-): HICON | null {
-    LoadImage.native ??= user32.func('LoadImageW', cHANDLE, [cHANDLE, cWSTR, cUINT, cINT, cINT, cUINT])
-    return LoadImage.native(hInstance, name, type, cx, cy, load)
-}
-
-/**
- * Displays a modal dialog box that contains a system icon, a set of buttons, and a brief application-specific message,
- * such as status or error information.
- *
- * Note: you may use the IDxxx constants from libwin32/consts to test the returned value.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxw
- */
-export function MessageBox(hWnd: HWND | null, text: string | null, caption: string | null, type: MB_): number {
-    MessageBox.native ??= user32.func('MessageBoxW', cINT, [ cHANDLE, cWSTR, cWSTR, cUINT ])
-    return MessageBox.native(hWnd, text, caption, type)
-}
-
-/**
- * Creates, displays, and operates a message box. Currently `MessageBoxEx` and `MessageBox` work the same way.
- *
- * Note: you may use the IDxxx constants from libwin32/consts to test the returned value.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxexw
- */
-export function MessageBoxEx(hWnd: HWND | null, text: string | null, caption: string | null, type: MB_, languageId: number): number {
-    MessageBoxEx.native ??= user32.func('MessageBoxExW', cINT, [ cHANDLE, cWSTR, cWSTR, cUINT, cWORD ])
-    return MessageBoxEx.native(hWnd, text, caption, type, languageId)
-}
 
 /**
  * Calculates the required size of the window rectangle, based on the desired client-rectangle size.
@@ -419,6 +58,16 @@ export function AnimateWindow(hWnd: HWND, time: number, flags: AW_): boolean {
 }
 
 /**
+ * Appends a new item to the end of the specified menu bar, drop-down menu, submenu, or shortcut menu.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-appendmenuw
+ */
+export function AppendMenu(hMenu: HMENU, flags: MF_, idNewItem: number | HMENU, newItem: string | null): boolean {
+    AppendMenu.native ??= user32.func('AppendMenuW', cBOOL, [ cHANDLE, cUINT, cUINT, cWSTR ]);
+    return AppendMenu.native(hMenu, flags, idNewItem, newItem) !== 0
+}
+
+/**
  * Brings the specified window to the top of the Z order.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-bringwindowtotop
@@ -429,6 +78,41 @@ export function BringWindowToTop(hWnd: HWND): boolean {
 }
 
 /**
+ * Sends a message to the specified recipients. The recipients can be applications, installable drivers,
+ * network drivers, system-level device drivers, or any combination of these system components.
+ *
+ * Returns `true` if the function succeeds or `false` if there was an error or the dwFlags parameter is `BSF_QUERY`
+ * and at least one recipient returned `BROADCAST_QUERY_DENY` to the corresponding message.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
+ */
+export function BroadcastSystemMessage(flags: BSF_, info: BSM_, msg: number, wParam: WPARAM, lParam: LPARAM): boolean {
+    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cP_DWORD), cUINT, cWPARAM, cLPARAM ])
+
+    const pInfo: OUT<number> = [info]
+    return BroadcastSystemMessage.native(flags, pInfo, msg, wParam, lParam) > 0
+}
+
+/**
+ * Sends a message to the specified recipients. This function is similar to BroadcastSystemMessage
+ * except that this function can return more information from the recipients.
+ *
+ * Returns `true` if the function succeeds, `false` if there was an error, or a BSMINFO structure if the dwFlags parameter
+ * is `BSF_QUERY` and at least one recipient returned `BROADCAST_QUERY_DENY` to the corresponding message.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessageexw
+ *
+ */
+export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_, msg: number, wParam: WPARAM, lParam: LPARAM): BSMINFO | boolean {
+    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cP_DWORD), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
+
+    const pInfo: OUT<number> = [info]
+    const bsmInfo = new BSMINFO()
+    const ret: number = BroadcastSystemMessageEx.native(flags, pInfo, msg, wParam, lParam, bsmInfo)
+    return ret === 0 ? bsmInfo : ret > 0
+}
+
+/**
  * Passes message information to the specified window procedure.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-callwindowprocw
@@ -436,6 +120,26 @@ export function BringWindowToTop(hWnd: HWND): boolean {
 export function CallWindowProc(lpPrevWndFunc: WNDPROC, hWnd: HWND, msg: WM_, wParam: WPARAM, lParam: LPARAM): LRESULT {
     CallWindowProc.native ??= user32.func('CallWindowProcW', cLRESULT, [ cWNDPROC, cHANDLE, cUINT, cWPARAM, cLPARAM ])
     return CallWindowProc.native(lpPrevWndFunc, hWnd, msg, wParam, lParam)
+}
+
+/**
+ * Sets the checked state of a menu item.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-checkmenuitem
+ */
+export function CheckMenuItem(hMenu: HMENU, idCheckItem: number, check: MF_): MF_ | -1 {
+    CheckMenuItem.native ??= user32.func('CheckMenuItem', cUINT, [ cHANDLE, cUINT, cUINT ])
+    return CheckMenuItem.native(hMenu, idCheckItem, check)
+}
+
+/**
+ * Creates a drop-down menu, submenu, or shortcut menu.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createpopupmenu
+ */
+export function CreatePopupMenu(): HMENU | null {
+    CreatePopupMenu.native ??= user32.func('CreatePopupMenu', cHANDLE, [])
+    return CreatePopupMenu.native()
 }
 
 /**
@@ -497,13 +201,43 @@ export function DefWindowProc(hWnd: HWND, msg: number, wParam: WPARAM, lParam: L
 }
 
 /**
- * Enumerates all top-level windows on the screen.
+ * Destroys a cursor and frees any memory the cursor occupied.
  *
- * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumwindows
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroycursor
  */
-export function EnumWindows(lpEnumFunc: WNDENUMPROC, lParam: LPARAM): boolean {
-    EnumWindows.native ??= user32.func('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
-    return EnumWindows.native(lpEnumFunc, lParam) !== 0
+export function DestroyCursor(hCursor: HCURSOR): boolean {
+    DestroyCursor.native ??= user32.func('DestroyCursor', cBOOL, [ cHANDLE ])
+    return DestroyCursor.native(hCursor) !== 0
+}
+
+/**
+ * Destroys an icon and frees any memory the cursor occupied.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroyicon
+ */
+export function DestroyIcon(hIcon: HICON): boolean {
+    DestroyIcon.native ??= user32.func('DestroyIcon', cBOOL, [ cHANDLE ])
+    return DestroyIcon.native(hIcon) !== 0
+}
+
+/**
+ * Destroys the specified menu and frees any memory that the menu occupies.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroymenu
+ */
+export function DestroyMenu(hMenu: HMENU): boolean {
+    DestroyMenu.native ??= user32.func('DestroyMenu', cBOOL, [ cHANDLE ])
+    return DestroyMenu.native(hMenu) !== 0
+}
+
+/**
+ * Dispatches a message to a window procedure.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessagew
+ */
+export function DispatchMessage(msg: MSG): LRESULT {
+    DispatchMessage.native ??= user32.func('DispatchMessageW', cLRESULT, [koffi.pointer(cMSG)])
+    return DispatchMessage.native(msg)
 }
 
 /**
@@ -514,6 +248,16 @@ export function EnumWindows(lpEnumFunc: WNDENUMPROC, lParam: LPARAM): boolean {
 export function EnumDesktopWindows(hDesktop: HDESK | null, lpEnumFunc: WNDENUMPROC, lParam: LPARAM): boolean {
     EnumDesktopWindows.native ??= user32.func('EnumDesktopWindows', cBOOL, [ cHANDLE, cWNDENUMPROC, cLPARAM ])
     return EnumDesktopWindows.native(hDesktop, lpEnumFunc, lParam) !== 0
+}
+
+/**
+ * Enumerates all top-level windows on the screen.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumwindows
+ */
+export function EnumWindows(lpEnumFunc: WNDENUMPROC, lParam: LPARAM): boolean {
+    EnumWindows.native ??= user32.func('EnumWindows', cBOOL, [ cWNDENUMPROC, cLPARAM ])
+    return EnumWindows.native(lpEnumFunc, lParam) !== 0
 }
 
 /**
@@ -549,6 +293,59 @@ export function GetAncestor(hWnd: HWND, flags: GA_): HWND | null {
 }
 
 /**
+ * Retrieves information about a window class.
+ *
+ * Note: libwin32 only supports querying by class name (string).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfow
+ */
+export function GetClassInfo(hInstance: HINSTANCE | null, className: string): WNDCLASS | null {
+    GetClassInfo.native ??= user32.func('GetClassInfoW', cBOOL, [ cHANDLE, cWSTR, koffi.out(koffi.pointer(cWNDCLASS)) ])
+
+    const wndClass = {} as WNDCLASS
+    return GetClassInfo.native(hInstance, className, wndClass) !== 0 ? wndClass : null
+}
+
+/**
+ * Retrieves information about a window class, including a handle to the small icon associated with the window class.
+ *
+ * Note: libwin32 only supports querying by class name (string).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassinfoexw
+ */
+export function GetClassInfoEx(hInstance: HINSTANCE | null, className: string): WNDCLASSEX | null {
+    GetClassInfoEx.native ??= user32.func('GetClassInfoExW', cBOOL, [ cHANDLE, cWSTR, koffi.out(koffi.pointer(cWNDCLASSEX)) ])
+
+    const wndClassEx = new WNDCLASSEX()
+    return GetClassInfoEx.native(hInstance, className, wndClassEx) !== 0 ? wndClassEx : null
+}
+
+/**
+ * Retrieves the name of the class to which the specified window belongs.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassnamew
+ */
+export function GetClassName(hWnd: HWND): string | null {
+    GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cP_VOID), cINT ])
+
+    const className = new StringOutputBuffer(256)
+    const len = GetClassName.native(hWnd, className.buffer, className.length)
+    return len ? className.decode(len) : null
+}
+
+/**
+ * Retrieves the cursor's position, in screen coordinates.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getcursorpos
+ */
+export function GetCursorPos(): POINT | null {
+    GetCursorPos.native ??= user32.func('GetCursorPos', cBOOL, [ koffi.out(koffi.pointer(cPOINT)) ])
+
+    const point = {} as POINT
+    return GetCursorPos.native(point) !== 0 ? point : null
+}
+
+/**
  *
  * Retrieves a handle to the foreground window (the window with which the user is currently working).
  *
@@ -561,12 +358,24 @@ export function GetForegroundWindow(): HWND {
 }
 
 /**
+ * Retrieves a message from the calling thread's message queue.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessagew
+ */
+export function GetMessage(hWnd: HWND | null | -1, msgFilterMin: number = 0, msgFilterMax: number = 0): MSG | null {
+    GetMessage.native ??= user32.func('GetMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT ])
+
+    const msg = {} as MSG
+    return GetMessage.native(msg, hWnd, msgFilterMin, msgFilterMax) !== 0 ? msg : null
+}
+
+/**
  * Returns the text of the specified window's title bar (if it has one).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
  */
 export function GetWindowText(hWnd: HWND): string {
-    GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cPVOID), cINT ])
+    GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cP_VOID), cINT ])
 
     const text = new StringOutputBuffer(1024)
     const len = GetWindowText.native(hWnd, text.buffer, text.length)
@@ -582,7 +391,7 @@ export function GetWindowText(hWnd: HWND): string {
  *
  */
 export function GetWindowThreadProcessId(hWnd: HWND): GetWindowThreadProcessIdResult {
-    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cPDWORD) ])
+    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cP_DWORD) ])
 
     const pProcessId: OUT<number> = [0]
     const threadId: number = GetWindowThreadProcessId.native(hWnd, pProcessId)
@@ -592,6 +401,141 @@ export function GetWindowThreadProcessId(hWnd: HWND): GetWindowThreadProcessIdRe
 export interface GetWindowThreadProcessIdResult {
     threadId: number
     processId: number
+}
+
+/**
+ * Loads the specified cursor resource from the executable (.exe) file associated with an application instance.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursorw
+ */
+export function LoadCursor(hInstance:  HINSTANCE | null, cursorName: IDC_ | string): HCURSOR | null {
+    LoadCursor.native ??= user32.func('LoadCursorW', cHANDLE, [ cHANDLE, cWSTR ])
+    return LoadCursor.native(hInstance, cursorName)
+}
+
+/**
+ * Loads the specified icon resource from the executable (.exe) file associated with an application instance.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadiconw
+ */
+export function LoadIcon(hInstance: HINSTANCE | null, iconName: IDI_ | string): HICON | null {
+    LoadIcon.native ??= user32.func('LoadIconW', cHANDLE, [ cHANDLE, cWSTR ])
+    return LoadIcon.native(hInstance, iconName)
+}
+
+/**
+ * Loads an icon, cursor, animated cursor, or bitmap.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadimagew
+ */
+export function LoadImage(
+    hInstance: HINSTANCE | null, name: IDC_ | IDI_ | OIC_ | OCR_ | OBM_ | string, type: IMAGE_, cx: number, cy: number, load: LR_
+): HICON | null {
+    LoadImage.native ??= user32.func('LoadImageW', cHANDLE, [cHANDLE, cWSTR, cUINT, cINT, cINT, cUINT])
+    return LoadImage.native(hInstance, name, type, cx, cy, load)
+}
+
+/**
+ * Displays a modal dialog box that contains a system icon, a set of buttons, and a brief application-specific message,
+ * such as status or error information.
+ *
+ * Note: you may use the IDxxx constants from libwin32/consts to test the returned value.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxw
+ */
+export function MessageBox(hWnd: HWND | null, text: string | null, caption: string | null, type: MB_): number {
+    MessageBox.native ??= user32.func('MessageBoxW', cINT, [ cHANDLE, cWSTR, cWSTR, cUINT ])
+    return MessageBox.native(hWnd, text, caption, type)
+}
+
+/**
+ * Creates, displays, and operates a message box. Currently `MessageBoxEx` and `MessageBox` work the same way.
+ *
+ * Note: you may use the IDxxx constants from libwin32/consts to test the returned value.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messageboxexw
+ */
+export function MessageBoxEx(hWnd: HWND | null, text: string | null, caption: string | null, type: MB_, languageId: number): number {
+    MessageBoxEx.native ??= user32.func('MessageBoxExW', cINT, [ cHANDLE, cWSTR, cWSTR, cUINT, cWORD ])
+    return MessageBoxEx.native(hWnd, text, caption, type, languageId)
+}
+
+/**
+ * Checks the thread message queue for a posted message.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
+ */
+export function PeekMessage(hWnd: HWND | null | -1, msgFilterMin: number, msgFilterMax: number, removeMsg: PM_): MSG | null {
+    PeekMessage.native ??= user32.func('PeekMessageW', cBOOL, [ koffi.out(koffi.pointer(cMSG)), cHANDLE, cUINT, cUINT, cUINT ])
+
+    const msg = {} as MSG
+    return PeekMessage.native(msg, hWnd, msgFilterMin, msgFilterMax, removeMsg) !== 0 ? msg : null
+}
+
+/**
+ * Indicates to the system that a thread has made a request to terminate (quit).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postquitmessage
+ */
+export function PostQuitMessage(exitCode: number): void {
+    PostQuitMessage.native ??= user32.func('PostQuitMessage', cVOID, [ cINT ])
+    PostQuitMessage.native(exitCode)
+}
+
+/**
+ * Registers a window class for subsequent use in calls to the CreateWindow function.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassw
+ */
+export function RegisterClass(wndClass: WNDCLASS): ATOM | null {
+    RegisterClass.native ??= user32.func('RegisterClassW', cATOM, [ koffi.pointer(cWNDCLASS) ])
+
+    let wndProc: bigint | undefined
+    if (typeof wndClass.lpfnWndProc === 'function') {
+        wndProc = koffi.register(wndClass.lpfnWndProc, cWNDPROC)
+        wndClass = {
+            ...wndClass,
+            lpfnWndProc: wndProc as any
+        }
+    }
+
+    const atom = RegisterClass.native(wndClass)
+    return atom
+        ? (wndProcs.set(atom, wndProc), atom)
+        : (wndProc && koffi.unregister(wndProc), null)
+}
+
+/**
+ * Registers a window class for subsequent use in calls to the CreateWindowEx function.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexw
+ */
+export function RegisterClassEx(wndClassEx: WNDCLASSEX): ATOM | null {
+    RegisterClassEx.native ??= user32.func('RegisterClassExW', cATOM, [ koffi.pointer(cWNDCLASSEX) ])
+
+    let wndProc: bigint | undefined
+    if (typeof wndClassEx.lpfnWndProc === 'function') {
+        wndProc = koffi.register(wndClassEx.lpfnWndProc, cWNDPROC)
+        wndClassEx = {
+            ...wndClassEx,
+            lpfnWndProc: wndProc as any
+        }
+    }
+
+    const atom = RegisterClassEx.native(wndClassEx)
+    return atom
+        ? (wndProcs.set(atom, wndProc), atom)
+        : (wndProc && koffi.unregister(wndProc), null)
+}
+
+/**
+ * Sends a message to the specified window.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
+ */
+export function SendMessage(hWnd: HWND, msg: number, wParam: WPARAM, lParam: LPARAM): LRESULT {
+    SendMessage.native ??= user32.func('SendMessageW', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ])
+    return SendMessage.native(hWnd, msg, wParam, lParam)
 }
 
 /**
@@ -622,6 +566,59 @@ export function ShowWindow(hWnd: HWND, cmdShow: SW_): boolean {
 export function ShowWindowAsync(hWnd: HWND, cmdShow: SW_): boolean {
     ShowWindowAsync.native ??= user32.func('ShowWindowAsync', cBOOL, [ cHANDLE, cINT ])
     return ShowWindowAsync.native(hWnd, cmdShow) !== 0
+}
+
+/**
+ * Displays a shortcut menu at the specified location and tracks the selection of items on the menu.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-trackpopupmenu
+ */
+export function TrackPopupMenu(hMenu: HMENU, flags: TPM_, x: number, y: number, hWnd: HWND, rect: RECT | null = null): boolean {
+    TrackPopupMenu.native ??= user32.func('TrackPopupMenu', cBOOL, [ cHANDLE, cUINT, cUINT, cUINT, cUINT, cHANDLE, cRECT ])
+    return TrackPopupMenu.native(hMenu, flags, x, y, 0, hWnd, rect) !== 0
+}
+
+/**
+ * Translates virtual-key messages into character messages.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
+ */
+export function TranslateMessage(msg: MSG): boolean {
+    TranslateMessage.native ??= user32.func('TranslateMessage', cBOOL, [ koffi.pointer(cMSG) ])
+    return TranslateMessage.native(msg) !== 0
+}
+
+/**
+ * Translates virtual-key messages into character messages.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/winmsg/translatemessageex
+ */
+export function TranslateMessageEx(msg: MSG, flags: number): boolean {
+    TranslateMessageEx.native ??= user32.func('TranslateMessageEx', cBOOL, [ koffi.pointer(cMSG), cUINT ])
+    return TranslateMessageEx.native(msg, flags) !== 0
+}
+
+/**
+ * Unregisters a window class, freeing the memory required for the class.
+ *
+ * Note: despite the parameter being named `className`, as in the native API,
+ *       libwin32 only supports unregistering by ATOM -- the one you received
+ *       from RegisterClass/RegisterClassEx.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unregisterclassw
+ */
+export function UnregisterClass(className: ATOM, hInstance: HINSTANCE | null = null): boolean {
+    UnregisterClass.native ??= user32.func('UnregisterClassW', cBOOL, [ cATOM, cHANDLE ])
+
+    const ret = UnregisterClass.native(className, hInstance) !== 0
+    if (ret) {
+        const wndProc = wndProcs.get(className)
+        if (wndProc) {
+            koffi.unregister(wndProc)
+            wndProcs.delete(className)
+        }
+    }
+    return ret
 }
 
 /**

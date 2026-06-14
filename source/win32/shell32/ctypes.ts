@@ -1,11 +1,6 @@
 import koffi from 'koffi'
-import { cDWORD, cINT, cPVOID, cWSTR, cUINT, cULONG, cHANDLE } from '../internals.js'
-import { cGUID } from '../misc/ctypes.js'
-
-export const cNOTIFYICONDATA_DUMMYUNIONNAME = koffi.union({
-    uTimeout: cUINT,
-    uVersion: cUINT
-})
+import { cDWORD, cHANDLE, cINT, cP_VOID, cWSTR, cUINT, cULONG } from '../internals.js'
+import { cGUID } from '../chore/ctypes.js'
 
 export const cNOTIFYICONDATA = koffi.struct({
     cbSize:           cDWORD,
@@ -18,7 +13,10 @@ export const cNOTIFYICONDATA = koffi.struct({
     dwState:          cDWORD,
     dwStateMask:      cDWORD,
     szInfo:           koffi.array(koffi.types.char16, 256, 'String'),
-    DUMMYUNIONNAME:   cNOTIFYICONDATA_DUMMYUNIONNAME,
+    DUMMYUNIONNAME:   koffi.union('NOTIFYICONDATA_DUMMYUNIONNAME', {
+        uTimeout: cUINT,
+        uVersion: cUINT
+    }),
     szInfoTitle:      koffi.array(koffi.types.char16, 64, 'String'),
     dwInfoFlags:      cDWORD,
     guidItem:         cGUID,
@@ -35,10 +33,10 @@ export const cSHELLEXECUTEINFO = koffi.struct({
     lpDirectory:  cWSTR,
     nShow:        cINT,
     hInstApp:     cINT,
-    lpIDList:     cPVOID,
+    lpIDList:     cP_VOID,
     lpClass:      cWSTR,
     hkeyClass:    cHANDLE,
     dwHotKey:     cDWORD,
-    hMonitor:     cHANDLE,
+    hMonitor:     cHANDLE,  // Should be a union, but the other member hIcon is unused since Windows Vista.
     hProcess:     cHANDLE
 })

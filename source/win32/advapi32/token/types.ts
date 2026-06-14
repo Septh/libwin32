@@ -1,12 +1,32 @@
 import type { __HANDLE__ } from '../../internals.js'
-import type { LUID } from '../../misc/types.js'
-import type { LUID_AND_ATTRIBUTES } from '../security/types.js'
+import type { LUID } from '../../chore/types.js'
+import type { ACL, LUID_AND_ATTRIBUTES } from '../security/types.js'
 import type { SECURITY_IMPERSONATION_LEVEL } from '../security/consts.js'
-import type { ACL } from '../security/types.js'
 import type { SID, SID_AND_ATTRIBUTES, SID_AND_ATTRIBUTES_HASH } from '../sid/types.js'
 import type { TOKEN_TYPE } from './consts.js'
 
 export type HTOKEN = __HANDLE__<'ACCESS_TOKEN'>
+
+/**
+ * The TOKEN_ACCESS_INFORMATION structure specifies all the information in a token that is necessary to perform an access check.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-token_access_information
+ */
+export interface TOKEN_ACCESS_INFORMATION {
+    SidHash:            SID_AND_ATTRIBUTES_HASH
+    RestrictedSidHash:  SID_AND_ATTRIBUTES_HASH
+    Privileges:         TOKEN_PRIVILEGES
+    AuthenticationId:   LUID
+    TokenType:          TOKEN_TYPE
+    ImpersonationLevel: SECURITY_IMPERSONATION_LEVEL
+    MandatoryPolicy:    TOKEN_MANDATORY_POLICY
+    Flags:              0       // Reserved, must be 0
+    AppContainerNumber: number
+    PackageSid:         SID | null
+    CapabilitiesHash:   SID_AND_ATTRIBUTES_HASH
+    TrustLevelSid:      SID | null
+    SecurityAttributes: null    // Reserved, must be null
+}
 
 /**
  * The TOKEN_APPCONTAINER_INFORMATION structure specifies all the information in a token that is necessary for an app container.
@@ -162,25 +182,4 @@ export interface TOKEN_STATISTICS {
  */
 export interface TOKEN_USER {
     User: SID_AND_ATTRIBUTES
-}
-
-/**
- * The TOKEN_ACCESS_INFORMATION structure specifies all the information in a token that is necessary to perform an access check.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-token_access_information
- */
-export interface TOKEN_ACCESS_INFORMATION {
-    SidHash:            SID_AND_ATTRIBUTES_HASH
-    RestrictedSidHash:  SID_AND_ATTRIBUTES_HASH
-    Privileges:         TOKEN_PRIVILEGES
-    AuthenticationId:   LUID
-    TokenType:          TOKEN_TYPE
-    ImpersonationLevel: SECURITY_IMPERSONATION_LEVEL
-    MandatoryPolicy:    TOKEN_MANDATORY_POLICY
-    Flags:              0       // Reserved, must be 0
-    AppContainerNumber: number
-    PackageSid:         SID | null
-    CapabilitiesHash:   SID_AND_ATTRIBUTES_HASH
-    TrustLevelSid:      SID | null
-    SecurityAttributes: null    // Reserved, must be null
 }

@@ -1,6 +1,6 @@
+export * from './chore/consts.js'
 export * from './advapi32/consts.js'
 export * from './kernel32/consts.js'
-export * from './misc/consts.js'
 export * from './ole32/consts.js'
 export * from './psapi/consts.js'
 export * from './secur32/consts.js'

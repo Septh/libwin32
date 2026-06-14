@@ -1,15 +1,20 @@
 import koffi from 'koffi'
 import {
-    Internals, binaryBuffer, textDecoder, StringOutputBuffer,
-    cDWORD, cPVOID, cPDWORD, cWSTR,
-    cHANDLE, cLSTATUS,
+    Internals, StringOutputBuffer, binaryBuffer, textDecoder,
+    cDWORD, cHANDLE, cLSTATUS, cP_DWORD, cP_VOID, cWSTR,
     type OUT
 } from '../../internals.js'
-import { ERROR_ } from '../../misc/consts.js'
+import { ERROR_ } from '../../chore/consts.js'
 import type { FILETIME } from '../../kernel32/types.js'
 import { cFILETIME } from '../../kernel32/ctypes.js'
 import type { SECURITY_ATTRIBUTES } from '../security/types.js'
 import { cSECURITY_ATTRIBUTES } from '../security/ctypes.js'
+import { advapi32 } from '../_dll.js'
+import type { HKEY } from './types.js'
+import {
+    REG_,
+    type HKEY_, type KEY_, type REG_OPTION_, type RRF_
+} from './consts.js'
 
 import { advapi32 } from '../dll.js'
 import type { HKEY } from './types.js'
@@ -18,46 +23,8 @@ import {
     type HKEY_, type KEY_, type REG_OPTION_, type RRF_
 } from './consts.js'
 
-export type LSTATUS = ERROR_
-
+/** Anything that has a `buffer: ArrayBufferLike` property: `Buffer`, `TypedArrays`, `DataView`. */
 type BufferSource = ArrayBufferView<ArrayBufferLike>
-function regKeyDataToBuffer(type: REG_, data: any): BufferSource | ERROR_ {
-
-    switch (type) {
-        case REG_.NONE:
-            return new Uint8Array()
-
-        case REG_.SZ:
-        case REG_.EXPAND_SZ:
-            return typeof data === 'string'
-                ? Uint16Array.from(data + '\0', c => c.charCodeAt(0))
-                : ERROR_.BAD_ARGUMENTS
-
-        case REG_.MULTI_SZ:
-            return Array.isArray(data) && data.every(s => typeof s === 'string')
-                ? Uint16Array.from(data.join('\0') + '\0\0', c => c.charCodeAt(0))
-                : ERROR_.BAD_ARGUMENTS
-
-        case REG_.BINARY:
-            return ArrayBuffer.isView(data)
-                ? data
-                : ERROR_.BAD_ARGUMENTS
-
-        case REG_.DWORD:
-        case REG_.DWORD_BIG_ENDIAN:
-            return Number.isFinite(data)
-                ? binaryBuffer.subarray(0, binaryBuffer.writeUInt32LE(data, 0))
-                : ERROR_.BAD_ARGUMENTS
-
-        case REG_.QWORD:
-            return Number.isFinite(data) || typeof data === 'bigint'
-                ? binaryBuffer.subarray(0, binaryBuffer.writeBigUInt64LE(BigInt(data), 0))
-                : ERROR_.BAD_ARGUMENTS
-
-        default:
-            return ERROR_.NOT_SUPPORTED
-    }
-}
 
 /**
  * Closes a handle to the specified registry key.
@@ -102,7 +69,7 @@ export function RegCreateKeyEx(
 ): HKEY | LSTATUS {
     RegCreateKeyEx.native ??= advapi32.func('RegCreateKeyExW', cLSTATUS, [
         cHANDLE, cWSTR, cDWORD, cWSTR, cDWORD, cDWORD,
-        koffi.pointer(cSECURITY_ATTRIBUTES), koffi.out(koffi.pointer(cHANDLE)), koffi.out(cPDWORD)
+        koffi.pointer(cSECURITY_ATTRIBUTES), koffi.out(koffi.pointer(cHANDLE)), koffi.out(cP_DWORD)
     ])
 
     const pHandle: OUT<HKEY> = [null!]
@@ -167,7 +134,7 @@ export function RegDeleteValue(hKey: HKEY | HKEY_, valueName: string | null = nu
  */
 export function RegEnumKeyEx(hKey: HKEY | HKEY_, index: number): RegEnumKeyExResult | LSTATUS {
     RegEnumKeyEx.native ??= advapi32.func('RegEnumKeyExW', cLSTATUS, [
-        cHANDLE, cDWORD, cPVOID, koffi.inout(cPDWORD), cPDWORD, cPVOID, koffi.inout(cPDWORD), koffi.pointer(cFILETIME)
+        cHANDLE, cDWORD, cP_VOID, koffi.inout(cP_DWORD), cP_DWORD, cP_VOID, koffi.inout(cP_DWORD), koffi.pointer(cFILETIME)
     ])
 
     const name = new StringOutputBuffer(Internals.MAX_KEY_LENGTH + 1)
@@ -196,7 +163,7 @@ export interface RegEnumKeyExResult {
  */
 export function RegEnumValue(hKey: HKEY | HKEY_, index: number): RegEnumValueResult | LSTATUS {
     RegEnumValue.native ??= advapi32.func('RegEnumValueW', cLSTATUS, [
-        cHANDLE, cDWORD, cPVOID, koffi.inout(cPDWORD), cPVOID, koffi.out(cPDWORD), cPVOID, koffi.inout(cPDWORD)
+        cHANDLE, cDWORD, cP_VOID, koffi.inout(cP_DWORD), cP_VOID, koffi.out(cP_DWORD), cP_VOID, koffi.inout(cP_DWORD)
     ])
 
     const name = new StringOutputBuffer(Internals.MAX_KEY_LENGTH + 1)
@@ -238,7 +205,7 @@ export function RegFlushKey(hKey: HKEY | HKEY_): LSTATUS {
  */
 export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: string | null, flags: RRF_): RegGetValueResult | LSTATUS {
     RegGetValue.native ??= advapi32.func('RegGetValueW', cLSTATUS, [
-        cHANDLE, cWSTR, cWSTR, cDWORD, koffi.out(cPDWORD), cPVOID, koffi.inout(cPDWORD)
+        cHANDLE, cWSTR, cWSTR, cDWORD, koffi.out(cP_DWORD), cP_VOID, koffi.inout(cP_DWORD)
     ])
 
     const pType: OUT<REG_> = [0]
@@ -329,10 +296,10 @@ export function RegOpenKeyEx(hKey: HKEY | HKEY_, subKey: string | null, options:
  */
 export function RegQueryInfoKey(hKey: HKEY | HKEY_): RegQueryInfoKeyResult | LSTATUS {
     RegQueryInfoKey.native ??= advapi32.func('RegQueryInfoKeyW', cLSTATUS, [
-        cHANDLE, cPVOID, koffi.inout(cPDWORD), cPDWORD,
-        koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(cPDWORD),
-        koffi.out(cPDWORD), koffi.out(cPDWORD), koffi.out(cPDWORD),
-        koffi.out(cPDWORD),
+        cHANDLE, cP_VOID, koffi.inout(cP_DWORD), cP_DWORD,
+        koffi.out(cP_DWORD), koffi.out(cP_DWORD), koffi.out(cP_DWORD),
+        koffi.out(cP_DWORD), koffi.out(cP_DWORD), koffi.out(cP_DWORD),
+        koffi.out(cP_DWORD),
         koffi.out(koffi.pointer(cFILETIME))
     ])
 
@@ -400,7 +367,7 @@ export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueN
 export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.MULTI_SZ,         data: string[]):        LSTATUS
 export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.QWORD,            data: number | bigint): LSTATUS
 export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_, data: any): LSTATUS {
-    RegSetKeyValue.native ??= advapi32.func('RegSetKeyValueW', cLSTATUS, [ cHANDLE, cWSTR, cWSTR, cDWORD, cPVOID, cDWORD ])
+    RegSetKeyValue.native ??= advapi32.func('RegSetKeyValueW', cLSTATUS, [ cHANDLE, cWSTR, cWSTR, cDWORD, cP_VOID, cDWORD ])
 
     const source = regKeyDataToBuffer(type, data)
     return typeof source === 'number' ? source : RegSetKeyValue.native(hKey, valueName, 0, type, source, source.byteLength)
@@ -426,7 +393,7 @@ export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type
 export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.MULTI_SZ,         data: string[]):        LSTATUS
 export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.QWORD,            data: number | bigint): LSTATUS
 export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_, data: any): LSTATUS {
-    RegSetValueEx.native ??= advapi32.func('RegSetValueExW', cLSTATUS, [ cHANDLE, cWSTR, cDWORD, cDWORD, cPVOID, cDWORD ])
+    RegSetValueEx.native ??= advapi32.func('RegSetValueExW', cLSTATUS, [ cHANDLE, cWSTR, cDWORD, cDWORD, cP_VOID, cDWORD ])
 
     const source = regKeyDataToBuffer(type, data)
     return typeof source === 'number' ? source : RegSetValueEx.native(hKey, valueName, 0, type, source, source.byteLength)

@@ -2,6 +2,47 @@ import koffi from 'koffi'
 import { Internals } from '../../internals.js'
 import { cSECURITY_ATTRIBUTES } from './ctypes.js'
 
+export const ACL_REVISION    = Internals.ACL_REVISION
+export const ACL_REVISION_DS = Internals.ACL_REVISION_DS
+
+/**
+ * Claim Security attributes flags.
+ */
+export enum CLAIM_SECURITY_ATTRIBUTE_ {
+    NON_INHERITABLE      = 0x0001,
+    VALUE_CASE_SENSITIVE = 0x0002,
+    USE_FOR_DENY_ONLY    = 0x0004,
+    DISABLED_BY_DEFAULT  = 0x0008,
+    DISABLED             = 0x0010,
+    MANDATORY            = 0x0020,
+    CUSTOM_FLAGS         = 0xFFFF0000,
+
+    VALID_FLAGS = (
+        NON_INHERITABLE
+        | VALUE_CASE_SENSITIVE
+        | USE_FOR_DENY_ONLY
+        | DISABLED_BY_DEFAULT
+        | DISABLED
+        | MANDATORY
+    )
+}
+
+/**
+ * Claim Security attributes.
+ */
+export enum CLAIM_SECURITY_ATTRIBUTE_TYPE_ {
+    INVALID      = 0x00,
+    INT64        = 0x01,
+    UINT64       = 0x02,
+    STRING       = 0x03,
+    FQBN         = 0x04,
+    SID          = 0x05,
+    BOOLEAN      = 0x06,
+    OCTET_STRING = 0x10
+}
+
+export const CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1
+
 /**
  * well-known aliases...
  */
@@ -45,45 +86,7 @@ export enum DOMAIN_ALIAS_ {
 }
 
 /**
- * CLAIM_SECURITY_ATTRIBUTE_V1 flags.
- */
-export enum CLAIM_SECURITY_ATTRIBUTE_ {
-    NON_INHERITABLE      = 0x0001,
-    VALUE_CASE_SENSITIVE = 0x0002,
-    USE_FOR_DENY_ONLY    = 0x0004,
-    DISABLED_BY_DEFAULT  = 0x0008,
-    DISABLED             = 0x0010,
-    MANDATORY            = 0x0020,
-    CUSTOM_FLAGS         = 0xFFFF0000,
-
-    VALID_FLAGS = (
-        NON_INHERITABLE
-        | VALUE_CASE_SENSITIVE
-        | USE_FOR_DENY_ONLY
-        | DISABLED_BY_DEFAULT
-        | DISABLED
-        | MANDATORY
-    )
-}
-
-/**
- * CLAIM_SECURITY_ATTRIBUTE_V1 attributes.
- */
-export enum CLAIM_SECURITY_ATTRIBUTE_TYPE_ {
-    INVALID      = 0x00,
-    INT64        = 0x01,
-    UINT64       = 0x02,
-    STRING       = 0x03,
-    FQBN         = 0x04,
-    SID          = 0x05,
-    BOOLEAN      = 0x06,
-    OCTET_STRING = 0x10
-}
-
-/**
  * Specifies a format for a directory service object name.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/secext/ne-secext-extended_name_format
  */
 export enum EXTENDED_NAME_FORMAT {
     NameUnknown          = 0,
@@ -99,6 +102,8 @@ export enum EXTENDED_NAME_FORMAT {
     NameGivenName        = 13,
     NameSurname          = 14
 }
+
+export const PRIVILEGE_SET_ALL_NECESSARY = 1
 
 /**
  * Group attributes
@@ -260,18 +265,29 @@ export enum SECURITY_ {
     EDGE_CLOUD_INFRASTRUCTURE_SERVICE_ID_BASE_RID = 0x00000062,
     RESTRICTED_SERVICES_BASE_RID                  = 0x00000063,
     RESTRICTED_SERVICES_RID_COUNT                 = 6,
-
+    //
+    // Virtual account logon is not limited to inbox callers.  Reserve base RID 0x6F for application usage.
+    //
     MAX_BASE_RID                                  = 0x0000006F,
     MAX_ALWAYS_FILTERED                           = 0x000003E7,
     MIN_NEVER_FILTERED                            = 0x000003E8,
     OTHER_ORGANIZATION_RID                        = 0x000003E8,
-
+    //
+    //Service SID type RIDs are in the range 0x50- 0x6F.  Therefore, we are giving  the next available RID to Windows Mobile team.
+    //
     WINDOWSMOBILE_ID_BASE_RID                     = 0x00000070,
-
+    //
+    // Installer Capability Group Sid related. Currently Base RID is same as LOCAL DOMAIN.
+    //
     INSTALLER_GROUP_CAPABILITY_BASE               = 0x20,
     INSTALLER_GROUP_CAPABILITY_RID_COUNT          = 9,
+    // Note: This is because the App Capability Rid is S-1-15-3-1024-...
+    //       whereas the service group rid is          S-1-5-32-...
+    //	The number of RIDs from hash (8) are the same for both
     INSTALLER_CAPABILITY_RID_COUNT                = 10,
-
+    //
+    //Well-known group for local accounts
+    //
     LOCAL_ACCOUNT_RID                             = 0x00000071,
     LOCAL_ACCOUNT_AND_ADMIN_RID                   = 0x00000072,
 }
@@ -310,10 +326,4 @@ export enum SECURITY_IMPERSONATION_LEVEL {
     SecurityDelegation
 }
 
-export const ACL_REVISION    = Internals.ACL_REVISION
-export const ACL_REVISION_DS = Internals.ACL_REVISION_DS
-
 export const SIZEOF_SECURITY_ATTRIBUTES = koffi.sizeof(cSECURITY_ATTRIBUTES)
-export const PRIVILEGE_SET_ALL_NECESSARY = 1
-
-export const CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION = Internals.CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION_V1

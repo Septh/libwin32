@@ -1,12 +1,11 @@
 import koffi from 'koffi'
 import {
-    StringOutputBuffer, Internals,
-    cVOID, cBOOL, cDWORD, cPVOID, cPDWORD, cWSTR, cHANDLE,
-    type OUT, type HANDLE
+    Internals, StringOutputBuffer,
+    cBOOL, cDWORD, cHANDLE, cP_DWORD, cP_VOID, cWSTR, cVOID,
+    type HANDLE, type OUT
 } from '../internals.js'
-import type { HMODULE } from '../misc.js'
+import type { HMODULE } from '../chore/types.js'
 import type { HWND } from '../user32/types.js'
-
 import type { FILETIME, SYSTEMTIME } from './types.js'
 import {
     FORMAT_MESSAGE_,
@@ -27,19 +26,6 @@ export function Beep(freq: number, duration: number): boolean {
 }
 
 /**
- * Expands environment-variable strings and replaces them with the values defined for the current user.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-expandenvironmentstringsw
- */
-export function ExpandEnvironmentStrings(src: string): string {
-    ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cWSTR, cPVOID, cDWORD ])
-
-    const str = new StringOutputBuffer(4096)
-    const len = ExpandEnvironmentStrings.native(src, str.buffer, str.length)
-    return str.decode(len - 1)
-}
-
-/**
  * Closes an open object handle.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
@@ -51,6 +37,19 @@ export function CloseHandle(hObject: HANDLE): boolean {
 }
 
 /**
+ * Expands environment-variable strings and replaces them with the values defined for the current user.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-expandenvironmentstringsw
+ */
+export function ExpandEnvironmentStrings(src: string): string {
+    ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cWSTR, cP_VOID, cDWORD ])
+
+    const str = new StringOutputBuffer(4096)
+    const len = ExpandEnvironmentStrings.native(src, str.buffer, str.length)
+    return str.decode(len - 1)
+}
+
+/**
  * Converts a file time to system time format. System time is based on Coordinated Universal Time (UTC).
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-filetimetosystemtime
@@ -58,8 +57,8 @@ export function CloseHandle(hObject: HANDLE): boolean {
 export function FileTimeToSystemTime(fileTime: FILETIME): SYSTEMTIME | null {
     FileTimeToSystemTime.native ??= kernel32.func('FileTimeToSystemTime', cBOOL, [ cFILETIME, koffi.out(koffi.pointer(cSYSTEMTIME)) ])
 
-    const pSystemTime: OUT<SYSTEMTIME> = [{} as SYSTEMTIME]
-    return FileTimeToSystemTime.native(fileTime, pSystemTime) !== 0 ? pSystemTime[0] : null
+    const systemTime = {} as SYSTEMTIME
+    return FileTimeToSystemTime.native(fileTime, systemTime) !== 0 ? systemTime : null
 }
 
 /**
@@ -72,7 +71,7 @@ export function FileTimeToSystemTime(fileTime: FILETIME): SYSTEMTIME | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
  */
 export function FormatMessage(flags: FORMAT_MESSAGE_, source: HMODULE | string | null, messageId: number, languageId: number = 0): string {
-    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cPVOID, cDWORD, cDWORD, cPVOID, cDWORD, '...' as any ])
+    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cP_VOID, cDWORD, cDWORD, cP_VOID, cDWORD, '...' as any ])
 
     const pSource = typeof source === 'string' ? Uint16Array.from(source, c => c.charCodeAt(0)) : source
     const buffer = new StringOutputBuffer(1024)
@@ -89,7 +88,7 @@ export function FormatMessage(flags: FORMAT_MESSAGE_, source: HMODULE | string |
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getcomputernamew
  */
 export function GetComputerName(): string | null {
-    GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cPVOID, koffi.inout(cPDWORD) ])
+    GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cP_VOID, koffi.inout(cP_DWORD) ])
 
     const name = new StringOutputBuffer(Internals.UNLEN)
     return GetComputerName.native(name.buffer, name.pLength) !== 0 ? name.decode() : null
@@ -131,7 +130,7 @@ export function GetCurrentProcessId(): number {
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getexitcodeprocess
  */
 export function GetExitCodeProcess(hProcess: HANDLE): number | null {
-    GetExitCodeProcess.native ??= kernel32.func('GetExitCodeProcess', cBOOL, [ cHANDLE, koffi.out(cPDWORD) ])
+    GetExitCodeProcess.native ??= kernel32.func('GetExitCodeProcess', cBOOL, [ cHANDLE, koffi.out(cP_DWORD) ])
 
     const pExitCode: OUT<number> = [0]
     return GetExitCodeProcess.native(hProcess, pExitCode) !== 0 ? pExitCode[0] : null
@@ -143,7 +142,7 @@ export function GetExitCodeProcess(hProcess: HANDLE): number | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-gethandleinformation
  */
 export function GetHandleInformation(hObject: HANDLE): HANDLE_FLAG_ | null {
-    GetHandleInformation.native ??= kernel32.func('GetHandleInformation', cBOOL, [ cHANDLE, koffi.out(cPDWORD) ])
+    GetHandleInformation.native ??= kernel32.func('GetHandleInformation', cBOOL, [ cHANDLE, koffi.out(cP_DWORD) ])
 
     const pFlags: OUT<HANDLE_FLAG_> = [0 as HANDLE_FLAG_]
     return GetHandleInformation.native(hObject, pFlags) !== 0 ? pFlags[0] : null
@@ -167,7 +166,7 @@ export function GetLastError(): number {
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamew
  */
 export function GetModuleFileName(hModule: HMODULE | null): string | null {
-    GetModuleFileName.native ??= kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, cPVOID, cDWORD ])
+    GetModuleFileName.native ??= kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, cP_VOID, cDWORD ])
 
     const name = new StringOutputBuffer(Internals.MAX_PATH)
     const len = GetModuleFileName.native(hModule, name.buffer, name.length)
@@ -207,11 +206,17 @@ export function GetModuleHandleEx(flags: GET_MODULE_HANDLE_EX_FLAG_, moduleName:
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystemregistryquota
  */
 export function GetSystemRegistryQuota(): { allowed: number, used: number } | null {
-    GetSystemRegistryQuota.native ??= kernel32.func('GetSystemRegistryQuota', cBOOL, [ koffi.out(cPDWORD), koffi.out(cPDWORD) ])
+    GetSystemRegistryQuota.native ??= kernel32.func('GetSystemRegistryQuota', cBOOL, [ koffi.out(cP_DWORD), koffi.out(cP_DWORD) ])
 
     const pAllowed: OUT<number> = [0]
     const pUsed: OUT<number> = [0]
     return GetSystemRegistryQuota.native(pAllowed, pUsed) !== 0 ? { allowed: pAllowed[0], used: pUsed[0] } : null
+}
+
+/** @internal only used by some functions in some libs and not intended to be exposed to the user. */
+export function LocalFree(ptr: unknown) {
+    LocalFree.native ??= kernel32.func('LocalFree', cP_VOID, [ cP_VOID ])
+    return LocalFree.native(ptr)
 }
 
 /**
@@ -231,7 +236,7 @@ export function OpenProcess(desiredAccess: PSAR_, inheritHandle: boolean, proces
  */
 export function QueryFullProcessImageName(hProcess: HANDLE, flags: number): string | null {
     QueryFullProcessImageName.native ??= kernel32.func('QueryFullProcessImageNameW', cBOOL, [
-        cHANDLE, cDWORD, cPVOID, koffi.inout(cPDWORD)
+        cHANDLE, cDWORD, cP_VOID, koffi.inout(cP_DWORD)
     ])
 
     const name = new StringOutputBuffer(Internals.MAX_PATH)
@@ -257,12 +262,3 @@ export function WaitForSingleObject(hHandle: HANDLE, milliseconds: number): numb
     WaitForSingleObject.native ??= kernel32.func('WaitForSingleObject', cDWORD, [ cHANDLE, cDWORD ])
     return WaitForSingleObject.native(hHandle, Number.isFinite(milliseconds) ? milliseconds : Internals.INFINITE)
 }
-
-/** @internal only used by some functions in some libs and not intended to be exposed to the user. */
-export function LocalFree(ptr: unknown) {
-    LocalFree.native ??= kernel32.func('LocalFree', cPVOID, [ cPVOID ])
-    return LocalFree.native(ptr)
-}
-
-/** @internal only used by some functions in some libs and not intended to be exposed to the user. */
-export const cLocalAllocatedString = koffi.disposable(cWSTR, LocalFree)

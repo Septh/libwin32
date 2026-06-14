@@ -1,6 +1,28 @@
 import koffi from 'koffi'
-import { cUINT, cDWORD, cBOOL, cINT, cWSTR, cHANDLE } from '../internals.js'
-import { cWPARAM, cLPARAM, cLRESULT, cPOINT, cLUID } from '../misc/ctypes.js'
+import { cBOOL, cDWORD, cHANDLE, cINT, cLONG, cSHORT, cWSTR, cUINT } from '../internals.js'
+import { cLPARAM, cLRESULT, cLUID, cWPARAM } from '../chore/ctypes.js'
+
+export const cPOINT = koffi.struct({
+    x: cLONG,
+    y: cLONG
+})
+
+export const cPOINTS = koffi.struct({
+    x: cSHORT,
+    y: cSHORT
+})
+
+export const cRECT = koffi.struct({
+    left:   cLONG,
+    top:    cLONG,
+    right:  cLONG,
+    bottom: cLONG
+})
+
+export const cSIZE = koffi.struct({
+    cx: cLONG,
+    yy: cLONG
+})
 
 export const cMINMAXINFO = koffi.struct({
     ptReserved:     cPOINT,
@@ -8,6 +30,13 @@ export const cMINMAXINFO = koffi.struct({
     ptMaxPosition:  cPOINT,
     ptMinTrackSize: cPOINT,
     ptMaxTrackSize: cPOINT
+})
+
+export const cBSMINFO = koffi.struct({
+    cbSize: cUINT,
+    hdesk:  cHANDLE,
+    hwnd:   cHANDLE,
+    luid:   cLUID
 })
 
 export const cMSG = koffi.struct({
@@ -20,9 +49,9 @@ export const cMSG = koffi.struct({
     lPrivate: cDWORD
 })
 
-export const cWNDPROC = koffi.pointer(koffi.proto(null, cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
-export const cWNDENUMPROC = koffi.pointer(koffi.proto(null, cBOOL, [ cHANDLE, cLPARAM ]))
-export const cDLGPROC = koffi.pointer(koffi.proto(null, cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+export const cWNDPROC     = koffi.pointer(koffi.proto('WND', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
+export const cWNDENUMPROC = koffi.pointer(koffi.proto('WNDENUM', cBOOL, [ cHANDLE, cLPARAM ]))
+export const cDLGPROC     = koffi.pointer(koffi.proto('DLG', cLRESULT, [ cHANDLE, cUINT, cWPARAM, cLPARAM ]))
 
 export const cWNDCLASS = koffi.struct({
     style:         cUINT,
@@ -50,11 +79,4 @@ export const cWNDCLASSEX = koffi.struct({
     lpszMenuName:  cWSTR,
     lpszClassName: cWSTR,
     hIconSm:       cHANDLE
-})
-
-export const cBSMINFO = koffi.struct({
-    cbSize: cUINT,
-    hdesk:  cHANDLE,
-    hwnd:   cHANDLE,
-    luid:   cLUID
 })

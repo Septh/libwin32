@@ -1,7 +1,6 @@
 import koffi from 'koffi'
 import { cDWORD, cSIZE_T, cULONG64 } from '../internals.js'
 
-/** @internal */
 export const cPROCESS_MEMORY_COUNTERS_EX2 = koffi.struct({
     cb:                         cDWORD,
     PageFaultCount:             cDWORD,

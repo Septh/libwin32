@@ -1,4 +1,4 @@
-import { SID_REVISION } from './consts.js'
+import { Internals } from '../../internals.js'
 
 /**
  * The security identifier (SID) structure is a variable-length structure used to uniquely identify users or groups.
@@ -6,18 +6,11 @@ import { SID_REVISION } from './consts.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid
  */
 export class SID {
-    readonly Revision = SID_REVISION
-    public SubAuthorityCount = 0
-    public SubAuthority: number[] = null!
-    public IdentifierAuthority: SID_IDENTIFIER_AUTHORITY  = null!
+    readonly Revision = Internals.SID_REVISION
+    public SubAuthorityCount!: number
+    public SubAuthority!: number[]
+    public IdentifierAuthority!: SID_IDENTIFIER_AUTHORITY
 }
-
-/**
- * The SID_IDENTIFIER_AUTHORITY structure represents the top-level authority of a security identifier (SID).
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_identifier_authority
- */
-export type SID_IDENTIFIER_AUTHORITY = [ number, number, number, number, number, number ]
 
 /**
  * The SID_AND_ATTRIBUTES structure represents a security identifier (SID) and its attributes.
@@ -39,3 +32,10 @@ export interface SID_AND_ATTRIBUTES_HASH {
     SidAttr:  SID_AND_ATTRIBUTES[]
     Hash:     readonly unknown[]
 }
+
+/**
+ * The SID_IDENTIFIER_AUTHORITY structure represents the top-level authority of a security identifier (SID).
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-sid_identifier_authority
+ */
+export type SID_IDENTIFIER_AUTHORITY = [ number, number, number, number, number, number ]

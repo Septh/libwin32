@@ -1,27 +1,23 @@
 import koffi from 'koffi'
 
-export const binaryBuffer = /*#__PURE__*/ Buffer.alloc(32768)
-export const textDecoder  = /*#__PURE__*/ new TextDecoder('utf-16')
-
 /*
  * (Some) C typedefs used throughout the Windows API.
  * https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
  */
 export const cVOID      = koffi.types.void
-export const cBOOL      = koffi.types.int32
-export const cBOOLEAN   = koffi.types.uint8
-export const cINT       = koffi.types.int32
-export const cUINT      = koffi.types.uint32
+export const cBOOL      = koffi.types.int
+export const cINT       = koffi.types.int
+export const cUINT      = koffi.types.uint
 export const cCHAR      = koffi.types.char
 export const cUCHAR     = koffi.types.uchar
 export const cWCHAR     = koffi.types.wchar
 export const cBYTE      = koffi.types.uint8
-export const cSHORT     = koffi.types.int16
-export const cUSHORT    = koffi.types.uint16
-export const cWORD      = koffi.types.uint16
-export const cLONG      = koffi.types.int32
-export const cULONG     = koffi.types.uint32
-export const cDWORD     = koffi.types.uint32
+export const cSHORT     = koffi.types.short
+export const cUSHORT    = koffi.types.ushort
+export const cWORD      = koffi.types.ushort
+export const cLONG      = koffi.types.long
+export const cULONG     = koffi.types.ulong
+export const cDWORD     = koffi.types.ulong
 export const cDWORD64   = koffi.types.uint64
 export const cLONG64    = koffi.types.int64
 export const cULONG64   = koffi.types.uint64
@@ -29,16 +25,19 @@ export const cLONGLONG  = koffi.types.int64
 export const cLONG_PTR  = koffi.types.int64
 export const cULONG_PTR = koffi.types.uint64
 export const cFLOAT     = koffi.types.float
-export const cWSTR      = koffi.types.str16     // We let Koffi convert JS string parameters
+export const cWSTR      = koffi.types.str16    // We let Koffi convert JS string parameters
 export const cSIZE_T    = koffi.types.uint64
 
-export const cPVOID     = koffi.pointer(koffi.types.void)
-export const cPPVOID    = koffi.pointer(cPVOID)
-export const cPDWORD    = koffi.pointer(cDWORD)
-
 export const cHANDLE    = koffi.pointer(koffi.opaque())
-export const cLSTATUS   = koffi.types.int32     // == LONG
+export const cLSTATUS   = koffi.types.int32
 export const cNTSTATUS  = koffi.types.uint32    // Defined as LONG in ntstatus.h but more useful as unsigned
+
+export const cP_VOID    = koffi.pointer(koffi.types.void)
+export const cP_DWORD   = koffi.pointer(cDWORD)
+
+/** A general purpose output buffer. */
+export const binaryBuffer = /*#__PURE__*/ Buffer.alloc(32768)
+export const textDecoder  = /*#__PURE__*/ new TextDecoder('utf-16')
 
 export class StringOutputBuffer {
     readonly buffer: Buffer<ArrayBuffer>
@@ -51,7 +50,7 @@ export class StringOutputBuffer {
     }
 
     decode(length: number = this.length): string {
-        return textDecoder.decode(this.buffer.subarray(0, length * Uint16Array.BYTES_PER_ELEMENT))
+        return textDecoder.decode(this.buffer.subarray(0, length * 2))
     }
 
     static {
@@ -68,7 +67,7 @@ export type __HANDLE__<Kind extends string> = bigint & { __kind: Kind }
 /** Any kind of handle */
 export type HANDLE = __HANDLE__<string>
 
-/** `koffi.out()` and `koffi.inout()` expect a table with a single entry. */
+/** koffi.out() and koffi.inout() expect a table with a single entry. */
 export type OUT<T> = [T]
 
 export type Pointer = bigint
@@ -79,6 +78,11 @@ export function isPointer(value: unknown): value is Pointer {
 /** Various Win32 constants used internally. */
 export const enum Internals {
     ANYSIZE_ARRAY = 1,
+    INVALID_HANDLE_VALUE = -1,
+    ERROR_SUCCESS = 0, // LSTATUS
+    NTSTATUS_SUCCESS = 0, // NTSTATUS
+
+    DWORD_LENGTH = 4,   // == koffi.sizeof(cDWORD)
 
     UNLEN = 256,
     GNLEN = UNLEN,
@@ -86,6 +90,7 @@ export const enum Internals {
     MAX_PATH = 260,
     MAX_NAME = 256,
     MAX_KEY_LENGTH = 255,
+    MAX_VALUE_NAME = 16383,
 
     ACL_REVISION = 2,
     ACL_REVISION_DS = 4,
@@ -101,13 +106,9 @@ export const enum Internals {
     TOKEN_GROUPS_MAX_GROUPS = 32,   // No idea if this is enough, but Koffi needs an upper limit
     TOKEN_PRIVILEGES_MAX_PRIVILEGES = 32,   // No idea if this is enough, but Koffi needs an upper limit
     TOKEN_PRIVILEGES_SET_MAX_PRIVILEGES = 32,   // No idea if this is enough, but Koffi needs an upper limit
-
     POLICY_AUDIT_EVENTS_INFO_MAX_OPTIONS = 16,   // No idea if this is enough, but Koffi needs an upper limit
 
     LSALOOKUPNAMES2_MAX_NAMES = 8,
-
-    ERROR_SUCCESS = 0, // LSTATUS
-    NTSTATUS_SUCCESS = 0, // NTSTATUS
 
     INFINITE = 0xffffffff,  // Infinite timeout
 }

@@ -3,6 +3,7 @@ import {
 } from 'libwin32/user32'
 
 const filters = [
+    // cSpell:disable-next-line
     'MSCTFIME UI', 'Default IME'
 ]
 

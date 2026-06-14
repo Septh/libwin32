@@ -1,21 +1,17 @@
 import koffi from 'koffi'
 import {
-    Internals, binaryBuffer, StringOutputBuffer,
-    cBOOL, cINT, cDWORD, cPVOID, cPPVOID, cPDWORD, cWSTR, cBYTE,
+    Internals, StringOutputBuffer, binaryBuffer,
+    cBOOL, cBYTE, cDWORD, cINT, cP_DWORD, cP_VOID, cWSTR,
     type OUT
 } from '../../internals.js'
-import { ERROR_ } from '../../misc/consts.js'
-import { SetLastError, cLocalAllocatedString, LocalFree } from '../../kernel32/functions.js'
+import { ERROR_ } from '../../chore/consts.js'
+import { LocalFree, SetLastError } from '../../kernel32/functions.js'
+import type { SID, SID_IDENTIFIER_AUTHORITY } from '../sid/types.js'
+import type { SID_NAME_USE } from '../sid/consts.js'
+import { cPSID, cSID, cSID_IDENTIFIER_AUTHORITY } from '../sid/ctypes.js'
+import { advapi32 } from '../_dll.js'
 
-import { advapi32 } from '../dll.js'
-import type { SID, SID_IDENTIFIER_AUTHORITY } from './types.js'
-import type { SID_NAME_USE } from './consts.js'
-import { cSID, cPSID, cSID_IDENTIFIER_AUTHORITY } from './ctypes.js'
-
-function _FreeSid(ptr: unknown): void {
-    _FreeSid.native ??= advapi32.func('FreeSid', cPVOID, [ cPVOID ])
-    return _FreeSid.native(ptr)
-}
+const cLocalAllocatedString = koffi.disposable(cWSTR, LocalFree)
 
 /**
  * Allocates and initializes a security identifier (SID) with up to eight sub-authorities.
@@ -31,7 +27,7 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
     AllocateAndInitializeSid.native ??= advapi32.func('AllocateAndInitializeSid', cBOOL, [
         koffi.pointer(cSID_IDENTIFIER_AUTHORITY), cBYTE,
         cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD, cDWORD,
-        koffi.out(cPPVOID)
+        koffi.out(koffi.pointer(cP_VOID))
     ])
 
     const subAuthorityCount = subAuthorities.length
@@ -52,6 +48,10 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
     }
     else SetLastError(ERROR_.BAD_ARGUMENTS)
     return null
+
+    function freeSid(ptr: unknown): void {
+        (freeSid.native ??= advapi32.func('FreeSid', cP_VOID, [ cP_VOID ]))(ptr)
+    }
 }
 
 /**
@@ -74,7 +74,7 @@ export function ConvertSidToStringSid(sid: SID): string | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertstringsidtosidw
  */
 export function ConvertStringSidToSid(stringSid: string): SID | null {
-    ConvertStringSidToSid.native ??= advapi32.func('ConvertStringSidToSidW', cBOOL, [ cWSTR, koffi.out(cPPVOID) ])
+    ConvertStringSidToSid.native ??= advapi32.func('ConvertStringSidToSidW', cBOOL, [ cWSTR, koffi.out(koffi.pointer(cP_VOID)) ])
 
     const ppSID: OUT<unknown> = [null]
     if (ConvertStringSidToSid.native(stringSid, ppSID)) {
@@ -91,8 +91,11 @@ export function ConvertStringSidToSid(stringSid: string): SID | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-copysid
  */
 export function CopySid(sourceSid: SID): SID | null {
-    CopySid.native ??= advapi32.func('CopySid', cBOOL, [ cDWORD, koffi.out(cPVOID), cPSID ])
-    return CopySid.native(binaryBuffer.length, binaryBuffer, sourceSid) ? koffi.decode(binaryBuffer, cSID) : null
+    CopySid.native ??= advapi32.func('CopySid', cBOOL, [ cDWORD, koffi.out(cP_VOID), cPSID ])
+
+    return CopySid.native(binaryBuffer.length, binaryBuffer, sourceSid) !== 0
+        ? koffi.decode(binaryBuffer, cSID)
+        : null
 }
 
 /**
@@ -104,7 +107,7 @@ export function CopySid(sourceSid: SID): SID | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-createwellknownsid
  */
 export function CreateWellKnownSid(wellKnownSidType: number, domainSid?: SID): SID | null {
-    CreateWellKnownSid.native ??= advapi32.func('CreateWellKnownSid', cBOOL, [ cINT, cPSID, koffi.out(cPVOID), koffi.inout(cPDWORD) ])
+    CreateWellKnownSid.native ??= advapi32.func('CreateWellKnownSid', cBOOL, [ cINT, cPSID, koffi.out(cP_VOID), koffi.inout(cP_DWORD) ])
 
     const pCbSid: OUT<number> = [binaryBuffer.length]
     return CreateWellKnownSid.native(wellKnownSidType, domainSid, binaryBuffer, pCbSid) ? koffi.decode(binaryBuffer, cSID) : null
@@ -161,7 +164,7 @@ export function IsWellKnownSid(sid: SID, wellKnownSidType: number): boolean {
  */
 export function LookupAccountSid(systemName: string | null, sid: SID): LookupAccountSidResult | null {
     LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [
-        cWSTR, cPSID, cPVOID, koffi.inout(cPDWORD), cPVOID, koffi.inout(cPDWORD), koffi.out(koffi.pointer(cINT))
+        cWSTR, cPSID, cP_VOID, koffi.inout(cP_DWORD), cP_VOID, koffi.inout(cP_DWORD), koffi.out(koffi.pointer(cINT))
     ])
 
     const name = new StringOutputBuffer(Internals.MAX_NAME)

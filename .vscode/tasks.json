@@ -11,7 +11,7 @@
       }
     },
     {
-      "label": "tsc watch",
+      "label": "tsc: watch - tsconfig.build.json",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -19,19 +19,14 @@
       "type": "typescript",
       "tsconfig": "tsconfig.build.json",
       "option": "watch",
-      "problemMatcher": [
-        "$tsc-watch"
-      ],
+      "problemMatcher": "$tsc-watch",
       "presentation": {
         "echo": true,
         "reveal": "silent",
         "clear": false
       },
-      "dependsOn": [ "clean" ],
-      "dependsOrder": "sequence",
-      "runOptions": {
-        "runOn": "folderOpen"
-      }
+      "dependsOn": "clean",
+      "dependsOrder": "sequence"
     }
   ]
 }

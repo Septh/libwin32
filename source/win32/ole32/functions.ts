@@ -1,8 +1,8 @@
 import koffi from 'koffi'
-import { cDWORD, cPVOID } from '../internals.js'
-import { cHRESULT } from '../misc/ctypes.js'
-import type { HRESULT } from '../misc.js'
-import type { COINIT_ } from './types.js'
+import { cDWORD, cP_VOID } from '../internals.js'
+import type { HRESULT } from '../chore/types.js'
+import { cHRESULT } from '../chore/ctypes.js'
+import type { COINIT_ } from '../consts.js'
 
 const olel32 = koffi.load('ole32.dll')
 
@@ -13,6 +13,6 @@ const olel32 = koffi.load('ole32.dll')
  * https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex
  */
 export function CoInitializeEx(coInit: COINIT_): HRESULT {
-    CoInitializeEx.native ??= olel32.func('CoInitializeEx', cHRESULT, [ cPVOID, cDWORD ])
+    CoInitializeEx.native ??= olel32.func('CoInitializeEx', cHRESULT, [ cP_VOID, cDWORD ])
     return CoInitializeEx.native(null, coInit)
 }

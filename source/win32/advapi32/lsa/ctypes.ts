@@ -1,6 +1,6 @@
 import koffi from 'koffi'
-import { cBOOL, cHANDLE, cINT, cLONG, cLONGLONG, cPVOID, cULONG, cUSHORT, cWSTR } from '../../internals.js'
-import { cGUID } from '../../misc/ctypes.js'
+import { cBOOL, cHANDLE, cINT, cLONG, cLONGLONG, cP_VOID, cWSTR, cULONG, cUSHORT } from '../../internals.js'
+import { cGUID } from '../../chore/ctypes.js'
 import { cPSID } from '../sid/ctypes.js'
 
 export const cLSA_UNICODE_STRING = koffi.struct({
@@ -14,8 +14,8 @@ export const cLSA_OBJECT_ATTRIBUTES = koffi.struct({
     RootDirectory:            cHANDLE,
     ObjectName:               koffi.pointer(cLSA_UNICODE_STRING),
     Attributes:               cULONG,
-    SecurityDescriptor:       cPVOID,
-    SecurityQualityOfService: cPVOID
+    SecurityDescriptor:       cP_VOID,
+    SecurityQualityOfService: cP_VOID
 })
 
 export const cLSA_TRANSLATED_SID2 = koffi.struct({
@@ -46,6 +46,14 @@ export const cPOLICY_AUDIT_EVENTS_INFO = koffi.struct({
     MaximumAuditEventCount: cULONG
 })
 
+export const cPOLICY_DNS_DOMAIN_INFO = koffi.struct({
+    Name: cLSA_UNICODE_STRING,
+    DnsDomainName: cLSA_UNICODE_STRING,
+    DnsForestName: cLSA_UNICODE_STRING,
+    DomainGuid: cGUID,
+    Sid: cPSID
+})
+
 export const cPOLICY_LSA_SERVER_ROLE_INFO = koffi.struct({
     LsaServerRole: cINT
 })
@@ -57,13 +65,5 @@ export const cPOLICY_MODIFICATION_INFO = koffi.struct({
 
 export const cPOLICY_PRIMARY_DOMAIN_INFO = koffi.struct({
     Name: cLSA_UNICODE_STRING,
-    Sid: cPSID
-})
-
-export const cPOLICY_DNS_DOMAIN_INFO = koffi.struct({
-    Name: cLSA_UNICODE_STRING,
-    DnsDomainName: cLSA_UNICODE_STRING,
-    DnsForestName: cLSA_UNICODE_STRING,
-    DomainGuid: cGUID,
     Sid: cPSID
 })

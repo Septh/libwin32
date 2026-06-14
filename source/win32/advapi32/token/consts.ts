@@ -1,4 +1,5 @@
-import { ACCESS_MASK } from '../../misc/consts.js'
+import { Internals } from '../../internals.js'
+import { ACCESS_MASK } from '../../chore/consts.js'
 
 /**
  * Token Specific Access Rights.
@@ -48,9 +49,9 @@ export enum TOKEN_INFORMATION_CLASS {
     TokenRestrictedSids,
     TokenSessionId,
     TokenGroupsAndPrivileges,
-    /** @deprecated */TokenSessionReference,
+    /** @deprecated */ TokenSessionReference,
     TokenSandBoxInert,
-    /** @deprecated */TokenAuditPolicy,
+    /** @deprecated */ TokenAuditPolicy,
     TokenOrigin,
     TokenElevationType,
     TokenLinkedToken,
@@ -69,28 +70,27 @@ export enum TOKEN_INFORMATION_CLASS {
     TokenAppContainerNumber,
     TokenUserClaimAttributes,
     TokenDeviceClaimAttributes,
-    /** @deprecated */TokenRestrictedUserClaimAttributes,
-    /** @deprecated */TokenRestrictedDeviceClaimAttributes,
+    /** @deprecated */ TokenRestrictedUserClaimAttributes,
+    /** @deprecated */ TokenRestrictedDeviceClaimAttributes,
     TokenDeviceGroups,
     TokenRestrictedDeviceGroups,
-    /** @deprecated */TokenSecurityAttributes,
-    /** @deprecated */TokenIsRestricted,
-    /** @deprecated */TokenProcessTrustLevel,
-    /** @deprecated */TokenPrivateNameSpace,
-    /** @deprecated */TokenSingletonAttributes,
-    /** @deprecated */TokenBnoIsolation,
-    /** @deprecated */TokenChildProcessFlags,
-    /** @deprecated */TokenIsLessPrivilegedAppContainer,
-    /** @deprecated */TokenIsSandboxed,
-    /** @deprecated */TokenIsAppSilo,
-    /** @deprecated */TokenLastEnforce = TokenIsAppSilo
+    /** @deprecated */ TokenSecurityAttributes,
+    /** @deprecated */ TokenIsRestricted,
+    /** @deprecated */ TokenProcessTrustLevel,
+    /** @deprecated */ TokenPrivateNameSpace,
+    /** @deprecated */ TokenSingletonAttributes,
+    /** @deprecated */ TokenBnoIsolation,
+    /** @deprecated */ TokenChildProcessFlags,
+    /** @deprecated */ TokenIsLessPrivilegedAppContainer,
+    /** @deprecated */ TokenIsSandboxed,
+    /** @deprecated */ TokenIsAppSilo,
+    /** @deprecated */ TokenLoggingInformation,
+    /** @deprecated */ TokenLearningMode,
+    MaxTokenInfoClass
 }
 
-/**
- * The TOKEN_TYPE enumeration contains values that differentiate between a primary token and an impersonation token.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-token_type
- */
+export const TOKEN_SOURCE_LENGTH = Internals.TOKEN_SOURCE_LENGTH
+
 export enum TOKEN_TYPE {
     TokenPrimary = 1,
     TokenImpersonation

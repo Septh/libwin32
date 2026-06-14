@@ -1,68 +1,11 @@
-import {
-    textDecoder,
-    type HANDLE, type __HANDLE__
-} from '../../internals.js'
-import type { GUID } from '../../misc.js'
-
+import { textDecoder, type __HANDLE__, type HANDLE } from '../../internals.js'
+import type { GUID } from '../../chore/types.js'
 import type { SECURITY_DESCRIPTOR } from '../security/types.js'
 import type { SID } from '../sid/types.js'
 import type { SID_NAME_USE } from '../sid/consts.js'
-
-import {
-    SIZEOF_LSA_OBJECT_ATTRIBUTES,
-    type POLICY_AUDIT_EVENT_, type POLICY_LSA_SERVER_ROLE
-} from './consts.js'
+import { SIZEOF_LSA_OBJECT_ATTRIBUTES, type POLICY_AUDIT_EVENT_, type POLICY_LSA_SERVER_ROLE } from './consts.js'
 
 export type LSA_HANDLE = __HANDLE__<'LSA_HANDLE'>
-
-/**
- * Used by various Local Security Authority (LSA) functions to specify a Unicode string.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_unicode_string
- */
-export class LSA_UNICODE_STRING {
-    /** Specifies the length, in bytes, of the string pointed to by the Buffer member, not including the terminating null character, if any. */
-    readonly Length: number
-    /** Specifies the total size, in bytes, of the memory allocated for Buffer. Up to MaximumLength bytes can be written into the buffer without trampling memory. */
-    readonly MaximumLength: number
-    /** Memory for a wide character string. Note that the strings returned by the various LSA functions might not be null-terminated. */
-    readonly Buffer: Uint16Array
-
-    constructor(MaximumLength: number)
-    constructor(string: string, MaximumLength?: number)
-    constructor(strOrLen: string | number, maxBytes?: number) {
-        if (typeof strOrLen === 'string') {
-            this.Length = strOrLen.length * Uint16Array.BYTES_PER_ELEMENT
-            this.MaximumLength = maxBytes ?? this.Length
-            if (this.MaximumLength < this.Length)
-                throw new TypeError('LSA_UNICODE_STRING(): MaximumLength must be greater than or equal to the string length.')
-
-            this.Buffer = new Uint16Array(this.MaximumLength / Uint16Array.BYTES_PER_ELEMENT)
-            for (let i = 0; i < strOrLen.length; i++)
-                this.Buffer[i] = strOrLen.charCodeAt(i)
-        }
-        else {
-            this.Length = this.MaximumLength = strOrLen
-            this.Buffer = new Uint16Array(this.MaximumLength / Uint16Array.BYTES_PER_ELEMENT)
-        }
-    }
-
-    toString() {
-        return textDecoder.decode(this.Buffer.subarray(0, this.Length / Uint16Array.BYTES_PER_ELEMENT))
-    }
-}
-
-/**
- * Contains SIDs that are retrieved based on account names.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_translated_sid2
- */
-export interface LSA_TRANSLATED_SID2 {
-    Use: SID_NAME_USE
-    Sid: SID,
-    DomainIndex: number
-    Flags: number
-}
 
 /**
  * Used with the LsaOpenPolicy function to specify the attributes of the connection to the Policy object.
@@ -79,6 +22,28 @@ export class LSA_OBJECT_ATTRIBUTES {
 }
 
 /**
+ *  Contains information about the domains referenced in a lookup operation.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_referenced_domain_list
+ */
+export interface LSA_REFERENCED_DOMAIN_LIST {
+    Entries: number
+    Domains: LSA_TRUST_INFORMATION[]
+}
+
+/**
+ * Contains SIDs that are retrieved based on account names.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_translated_sid2
+ */
+export interface LSA_TRANSLATED_SID2 {
+    Use: SID_NAME_USE
+    Sid: SID,
+    DomainIndex: number
+    Flags: number
+}
+
+/**
  * Identifies a domain.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_trust_information
@@ -91,13 +56,44 @@ export interface LSA_TRUST_INFORMATION {
 export type TRUSTED_DOMAIN_INFORMATION_BASIC = LSA_TRUST_INFORMATION
 
 /**
- *  Contains information about the domains referenced in a lookup operation.
+ * Used by various Local Security Authority (LSA) functions to specify a Unicode string.
  *
- * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_referenced_domain_list
+ * Notes:
+ * - on input to a Lsa function, you can construct a LSA_UNICODE_STRING from a regular JavaScript string.
+ * - on output from a Lsa function, you get a plain object, not an instance of this class.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_unicode_string
  */
-export interface LSA_REFERENCED_DOMAIN_LIST {
-    Entries: number
-    Domains: LSA_TRUST_INFORMATION[]
+export class LSA_UNICODE_STRING {
+    readonly Length: number         // in bytes
+    readonly MaximumLength: number  // in bytes
+    readonly Buffer: Uint16Array
+
+    /** @param capacity - The maximum length **in characters**. */
+    constructor(capacity: number)
+    /** @param capacity - The maximum length **in characters**. Defaults to `from.length`. */
+    constructor(from: string, capacity?: number)
+    constructor(strOrLen: string | number, capacity?: number) {
+
+        if (typeof strOrLen === 'string') {
+            capacity = Math.max(strOrLen.length, capacity ?? 0)
+
+            this.Length = strOrLen.length * Uint16Array.BYTES_PER_ELEMENT
+            this.MaximumLength = capacity * Uint16Array.BYTES_PER_ELEMENT
+
+            this.Buffer = new Uint16Array(capacity)
+            for (let i = 0; i < strOrLen.length; i++)
+                this.Buffer[i] = strOrLen.charCodeAt(i)
+        }
+        else {
+            this.Length = this.MaximumLength = strOrLen * Uint16Array.BYTES_PER_ELEMENT
+            this.Buffer = new Uint16Array(strOrLen)
+        }
+    }
+
+    toString() {
+        return textDecoder.decode(this.Buffer.subarray(0, this.Length / Uint16Array.BYTES_PER_ELEMENT))
+    }
 }
 
 /**
@@ -119,6 +115,21 @@ export interface POLICY_AUDIT_EVENTS_INFO {
     AuditingMode: boolean
     EventAuditingOptions: POLICY_AUDIT_EVENT_[]
     MaximumAuditEventCount: number
+}
+
+export type POLICY_AUDIT_EVENT_OPTIONS = number
+
+/**
+ * Used to set and query Domain Name System (DNS) information about the primary domain associated with a Policy object.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-policy_dns_domain_info
+ */
+export interface POLICY_DNS_DOMAIN_INFO {
+    Name: LSA_UNICODE_STRING
+    DnsDomainName: LSA_UNICODE_STRING
+    DnsForestName: LSA_UNICODE_STRING
+    DomainGuid: GUID
+    Sid: SID
 }
 
 /**
@@ -146,18 +157,5 @@ export interface POLICY_MODIFICATION_INFO {
  */
 export interface POLICY_PRIMARY_DOMAIN_INFO {
     Name: LSA_UNICODE_STRING
-    Sid: SID
-}
-
-/**
- * Used to set and query Domain Name System (DNS) information about the primary domain associated with a Policy object.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-policy_dns_domain_info
- */
-export interface POLICY_DNS_DOMAIN_INFO {
-    Name: LSA_UNICODE_STRING
-    DnsDomainName: LSA_UNICODE_STRING
-    DnsForestName: LSA_UNICODE_STRING
-    DomainGuid: GUID
     Sid: SID
 }

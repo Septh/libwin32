@@ -1,8 +1,5 @@
 import { MessageBox } from 'libwin32'
-import {
-    MB_,
-    IDYES, IDNO, IDCANCEL
-} from 'libwin32/consts'
+import { MB_, IDYES, IDNO, IDCANCEL } from 'libwin32/consts'
 
 const results: Record<number, string> = {
     [IDYES]:    'YES',
@@ -16,4 +13,5 @@ const button = MessageBox(
     'libwin32',
     MB_.ICONINFORMATION | MB_.YESNOCANCEL
 )
+
 console.log(results[button])

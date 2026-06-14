@@ -1,10 +1,13 @@
 import { Union } from 'koffi'
-import type { LUID } from '../../misc/types.js'
+import type { LUID } from '../../chore/types.js'
 import type { SID } from '../sid/types.js'
 import {
-    ACL_REVISION, SIZEOF_SECURITY_ATTRIBUTES,
+    ACL_REVISION,
+    CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION,
+    SIZEOF_SECURITY_ATTRIBUTES,
     type CLAIM_SECURITY_ATTRIBUTE_, type CLAIM_SECURITY_ATTRIBUTE_TYPE_, type SECURITY_DESCRIPTOR_CONTROL_
 } from './consts.js'
+import { cCLAIM_SECURITY_ATTRIBUTE_V1_VALUES, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION_ATTRIBUTE } from './ctypes.js'
 
 /**
  * The ACL structure is the header of an access control list (ACL).
@@ -24,7 +27,7 @@ export class ACL {
  */
 export interface CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE {
     Version: bigint
-    Name:    String
+    Name:    string
 }
 
 /**
@@ -43,16 +46,16 @@ export interface CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE {
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-claim_security_attribute_v1
  */
 export class CLAIM_SECURITY_ATTRIBUTE_V1 {
-    public Name!: string
-    public ValueType!: CLAIM_SECURITY_ATTRIBUTE_TYPE_
-    public Flags!: CLAIM_SECURITY_ATTRIBUTE_
-    public ValueCount!: number
-    public Values = new Union('CSA_V1_Values') as {
-        pInt64?:       bigint[]
-        pUint64?:      bigint[]
-        ppString?:     string[]
-        pFqbn?:        CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]
-        pOctetString?: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[]
+    public Name: string                              = null!
+    public ValueType: CLAIM_SECURITY_ATTRIBUTE_TYPE_ = null!
+    public Flags: CLAIM_SECURITY_ATTRIBUTE_          = 0 as CLAIM_SECURITY_ATTRIBUTE_
+    public ValueCount: number                        = 0
+    public Values = new Union(cCLAIM_SECURITY_ATTRIBUTE_V1_VALUES) as {
+        pInt64:       bigint[]
+        pUint64:      bigint[]
+        ppString:     string[]
+        pFqbn:        CLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE[]
+        pOctetString: CLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE[]
     }
 }
 
@@ -61,11 +64,13 @@ export class CLAIM_SECURITY_ATTRIBUTE_V1 {
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-claim_security_attributes_information
  */
-export interface CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
-    Version: number
-    Reserved: 0
-    AttributeCount: number
-    Attribute: { pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[] | null }
+export class CLAIM_SECURITY_ATTRIBUTES_INFORMATION {
+    readonly Version = CLAIM_SECURITY_ATTRIBUTES_INFORMATION_VERSION
+    readonly Reserved = 0
+    AttributeCount = 0
+    Attribute = new Union(cCLAIM_SECURITY_ATTRIBUTES_INFORMATION_ATTRIBUTE) as {
+        pAttributeV1: CLAIM_SECURITY_ATTRIBUTE_V1[] | null
+    }
 }
 
 /**
@@ -90,6 +95,19 @@ export interface PRIVILEGE_SET {
 }
 
 /**
+ * The SECURITY_ATTRIBUTES structure contains the security descriptor for an object and specifies whether the handle retrieved by specifying this structure is inheritable.
+ *
+ * https://learn.microsoft.com/en-us/windows/win32/api/wtypesbase/ns-wtypesbase-security_attributes
+ */
+export class SECURITY_ATTRIBUTES {
+    readonly nLength = SIZEOF_SECURITY_ATTRIBUTES
+    constructor(
+        public lpSecurityDescriptor: SECURITY_DESCRIPTOR | null = null,
+        public bInheritHandle:       number                     = 0,
+    ) {}
+}
+
+/**
  * The SECURITY_DESCRIPTOR structure contains the security information associated with an object.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-security_descriptor
@@ -102,15 +120,4 @@ export interface SECURITY_DESCRIPTOR {
     Group:    SID
     Sacl:     ACL
     Dacl:     ACL
-}
-
-/**
- * The SECURITY_ATTRIBUTES structure contains the security descriptor for an object and specifies whether the handle retrieved by specifying this structure is inheritable.
- *
- * https://learn.microsoft.com/en-us/windows/win32/api/wtypesbase/ns-wtypesbase-security_attributes
- */
-export class SECURITY_ATTRIBUTES {
-    readonly nLength = SIZEOF_SECURITY_ATTRIBUTES
-    public lpSecurityDescriptor: SECURITY_DESCRIPTOR | null = null
-    public bInheritHandle:       number                     = 0
 }

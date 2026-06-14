@@ -1,4 +1,4 @@
-import { ACCESS_MASK } from '../../misc/consts.js'
+import { ACCESS_MASK } from '../../chore/consts.js'
 
 /**
  * Predefined Registry Key Handles.
@@ -57,33 +57,30 @@ export enum KEY_ {
  * https://learn.microsoft.com/en-us/windows/win32/sysinfo/registry-value-types
  */
 export enum REG_ {
-    NONE                       = 0,
-    SZ                         = 1,
-    EXPAND_SZ                  = 2,
-    BINARY                     = 3,
-    DWORD                      = 4,
-    DWORD_LITTLE_ENDIAN        = 4,
-    DWORD_BIG_ENDIAN           = 5,
-    LINK                       = 6,
-    MULTI_SZ                   = 7,
-    RESOURCE_LIST              = 8,
-    FULL_RESOURCE_DESCRIPTOR   = 9,
+    NONE                       = 0,     // No value type
+    SZ                         = 1,     // Unicode nul terminated string
+    EXPAND_SZ                  = 2,     // Unicode nul terminated string (with environment variable references)
+    BINARY                     = 3,     // Free form binary
+    DWORD                      = 4,     // 32-bit number
+    DWORD_LITTLE_ENDIAN        = 4,     // 32-bit number (same as REG_DWORD)
+    DWORD_BIG_ENDIAN           = 5,     // 32-bit number
+    LINK                       = 6,     // Symbolic Link (unicode)
+    MULTI_SZ                   = 7,     // Multiple Unicode strings
+    RESOURCE_LIST              = 8,     // Resource list in the resource map
+    FULL_RESOURCE_DESCRIPTOR   = 9,     // Resource list in the hardware description
     RESOURCE_REQUIREMENTS_LIST = 10,
-    QWORD                      = 11,
-    QWORD_LITTLE_ENDIAN        = 11,
+    QWORD                      = 11,    // 64-bit number
+    QWORD_LITTLE_ENDIAN        = 11,    // 64-bit number (same as REG_QWORD)
 }
 
 export const REG_CREATED_NEW_KEY              = 1
-export const REG_LATEST_FORMAT                = 2
-export const REG_NO_COMPRESSION               = 4
 export const REG_OPENED_EXISTING_KEY          = 2
 export const REG_PROCESS_APPKEY               = 0x00000001
-export const REG_STANDARD_FORMAT              = 1
 export const REG_USE_CURRENT_SECURITY_CONTEXT = 0x00000002
+export const REG_STANDARD_FORMAT              = 1
+export const REG_LATEST_FORMAT                = 2
+export const REG_NO_COMPRESSION               = 4
 
-/**
- * Reg Open/Create Options
- */
 export enum REG_OPTION_ {
     RESERVED        = 0x00000000,
     NON_VOLATILE    = 0x00000000,
@@ -98,19 +95,19 @@ export enum REG_OPTION_ {
  * Registry Routine Flags (for RegGetValue)
  */
 export enum RRF_ {
-    RT_REG_NONE       = 0x00000001,
-    RT_REG_SZ         = 0x00000002,
-    RT_REG_EXPAND_SZ  = 0x00000004,
-    RT_REG_BINARY     = 0x00000008,
-    RT_REG_DWORD      = 0x00000010,
-    RT_REG_MULTI_SZ   = 0x00000020,
-    RT_REG_QWORD      = 0x00000040,
-    RT_DWORD          = (RT_REG_BINARY | RT_REG_DWORD),
-    RT_QWORD          = (RT_REG_BINARY | RT_REG_QWORD),
-    RT_ANY            = 0x0000ffff,
-    SUBKEY_WOW6464KEY = 0x00010000,
-    SUBKEY_WOW6432KEY = 0x00020000,
+    RT_REG_NONE       = 0x00000001,                         // restrict type to REG_NONE      (other data types will not return ERROR_SUCCESS)
+    RT_REG_SZ         = 0x00000002,                         // restrict type to REG_SZ        (other data types will not return ERROR_SUCCESS) (automatically converts REG_EXPAND_SZ to REG_SZ unless RRF_NOEXPAND is specified)
+    RT_REG_EXPAND_SZ  = 0x00000004,                         // restrict type to REG_EXPAND_SZ (other data types will not return ERROR_SUCCESS) (must specify RRF_NOEXPAND or RegGetValue will fail with ERROR_INVALID_PARAMETER)
+    RT_REG_BINARY     = 0x00000008,                         // restrict type to REG_BINARY    (other data types will not return ERROR_SUCCESS)
+    RT_REG_DWORD      = 0x00000010,                         // restrict type to REG_DWORD     (other data types will not return ERROR_SUCCESS)
+    RT_REG_MULTI_SZ   = 0x00000020,                         // restrict type to REG_MULTI_SZ  (other data types will not return ERROR_SUCCESS)
+    RT_REG_QWORD      = 0x00000040,                         // restrict type to REG_QWORD     (other data types will not return ERROR_SUCCESS)
+    RT_DWORD          = (RT_REG_BINARY | RT_REG_DWORD),     // restrict type to *32-bit* RRF_RT_REG_BINARY or RRF_RT_REG_DWORD (other data types will not return ERROR_SUCCESS)
+    RT_QWORD          = (RT_REG_BINARY | RT_REG_QWORD),     // restrict type to *64-bit* RRF_RT_REG_BINARY or RRF_RT_REG_DWORD (other data types will not return ERROR_SUCCESS)
+    RT_ANY            = 0x0000ffff,                         // no type restriction
+    SUBKEY_WOW6464KEY = 0x00010000,                         // when opening the subkey (if provided) force open from the 64bit location (only one SUBKEY_WOW64* flag can be set or RegGetValue will fail with ERROR_INVALID_PARAMETER)
+    SUBKEY_WOW6432KEY = 0x00020000,                         // when opening the subkey (if provided) force open from the 32bit location (only one SUBKEY_WOW64* flag can be set or RegGetValue will fail with ERROR_INVALID_PARAMETER)
     WOW64_MASK        = 0x00030000,
-    NOEXPAND          = 0x10000000,
-    ZEROONFAILURE     = 0x20000000,
+    NOEXPAND          = 0x10000000,                         // do not automatically expand environment strings if value is of type REG_EXPAND_SZ
+    ZEROONFAILURE     = 0x20000000,                         // if pvData is not NULL, set content to all zeros on failure
 }

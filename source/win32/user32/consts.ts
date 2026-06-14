@@ -1,5 +1,8 @@
 import koffi from 'koffi'
-import { cWNDCLASSEX, cBSMINFO } from './ctypes.js'
+import { cBSMINFO, cWNDCLASSEX } from './ctypes.js'
+
+export const SIZEOF_BSMINFO = koffi.sizeof(cBSMINFO)
+export const SIZEOF_WNDCLASSEX = koffi.sizeof(cWNDCLASSEX)
 
 /**
  * AnimateWindow() Commands.
@@ -69,6 +72,11 @@ export enum CS_ {
     SAVEBITS        = 0x00000800,
     VREDRAW         = 0x00000001
 }
+
+/**
+ * Special value for X and Y parameters of CreateWindow()/CreateWindowEx().
+ */
+export const CW_USEDEFAULT = 0x80000000
 
 /**
  * Flags for GetAncestor().
@@ -217,6 +225,39 @@ export const IDTRYAGAIN = 10
 export const IDCONTINUE = 11
 
 /**
+ * Menu Flags.
+ */
+export enum MF_ {
+    BYCOMMAND       = 0x00000000,
+    BYPOSITION      = 0x00000400,
+    SEPARATOR       = 0x00000800,
+    REMOVE          = 0x00001000,
+    APPEND          = 0x00000100,
+    DELETE          = 0x00000200,
+    INSERT          = 0x00000000,
+    CHANGE          = 0x00000080,
+    ENABLED         = 0x00000000,
+    GRAYED          = 0x00000001,
+    DISABLED        = 0x00000002,
+    UNCHECKED       = 0x00000000,
+    CHECKED         = 0x00000008,
+    USECHECKBITMAPS = 0x00000200,
+    STRING          = 0x00000000,
+    BITMAP          = 0x00000004,
+    OWNERDRAW       = 0x00000100,
+    POPUP           = 0x00000010,
+    MENUBARBREAK    = 0x00000020,
+    MENUBREAK       = 0x00000040,
+    UNHILITE        = 0x00000000,
+    HILITE          = 0x00000080,
+    DEFAULT         = 0x00001000,
+    SYSMENU         = 0x00002000,
+    HELP            = 0x00004000,
+    RIGHTJUSTIFY    = 0x00004000,
+    MOUSESELECT     = 0x00008000
+}
+
+/**
  * OBM_xxx - OEM Resource Ordinal Numbers.
  */
 export enum OBM_ {
@@ -358,6 +399,113 @@ export enum SB_ {
     BOTTOM        = 7,
     RIGHT         = 7,
     ENDSCROLL     = 8,
+}
+
+/*
+ * GetSystemMetrics() codes.
+ */
+export enum SM_ {
+    CXSCREEN                    = 0,
+    CYSCREEN                    = 1,
+    CXVSCROLL                   = 2,
+    CYHSCROLL                   = 3,
+    CYCAPTION                   = 4,
+    CXBORDER                    = 5,
+    CYBORDER                    = 6,
+    CXDLGFRAME                  = 7,
+    CYDLGFRAME                  = 8,
+    CYVTHUMB                    = 9,
+    CXHTHUMB                    = 10,
+    CXICON                      = 11,
+    CYICON                      = 12,
+    CXCURSOR                    = 13,
+    CYCURSOR                    = 14,
+    CYMENU                      = 15,
+    CXFULLSCREEN                = 16,
+    CYFULLSCREEN                = 17,
+    CYKANJIWINDOW               = 18,
+    MOUSEPRESENT                = 19,
+    CYVSCROLL                   = 20,
+    CXHSCROLL                   = 21,
+    DEBUG                       = 22,
+    SWAPBUTTON                  = 23,
+    RESERVED1                   = 24,
+    RESERVED2                   = 25,
+    RESERVED3                   = 26,
+    RESERVED4                   = 27,
+    CXMIN                       = 28,
+    CYMIN                       = 29,
+    CXSIZE                      = 30,
+    CYSIZE                      = 31,
+    CXFRAME                     = 32,
+    CYFRAME                     = 33,
+    CXMINTRACK                  = 34,
+    CYMINTRACK                  = 35,
+    CXDOUBLECLK                 = 36,
+    CYDOUBLECLK                 = 37,
+    CXICONSPACING               = 38,
+    CYICONSPACING               = 39,
+    MENUDROPALIGNMENT           = 40,
+    PENWINDOWS                  = 41,
+    DBCSENABLED                 = 42,
+    CMOUSEBUTTONS               = 43,
+    SECURE                      = 44,
+    CXEDGE                      = 45,
+    CYEDGE                      = 46,
+    CXMINSPACING                = 47,
+    CYMINSPACING                = 48,
+    CXSMICON                    = 49,
+    CYSMICON                    = 50,
+    CYSMCAPTION                 = 51,
+    CXSMSIZE                    = 52,
+    CYSMSIZE                    = 53,
+    CXMENUSIZE                  = 54,
+    CYMENUSIZE                  = 55,
+    ARRANGE                     = 56,
+    CXMINIMIZED                 = 57,
+    CYMINIMIZED                 = 58,
+    CXMAXTRACK                  = 59,
+    CYMAXTRACK                  = 60,
+    CXMAXIMIZED                 = 61,
+    CYMAXIMIZED                 = 62,
+    NETWORK                     = 63,
+    CLEANBOOT                   = 67,
+    CXDRAG                      = 68,
+    CYDRAG                      = 69,
+    SHOWSOUNDS                  = 70,
+    CXMENUCHECK                 = 71,             /* Use instead of GetMenuCheckMarkDimensions()! */
+    CYMENUCHECK                 = 72,
+    SLOWMACHINE                 = 73,
+    MIDEASTENABLED              = 74,
+    MOUSEWHEELPRESENT           = 75,
+    XVIRTUALSCREEN              = 76,
+    YVIRTUALSCREEN              = 77,
+    CXVIRTUALSCREEN             = 78,
+    CYVIRTUALSCREEN             = 79,
+    CMONITORS                   = 80,
+    SAMEDISPLAYFORMAT           = 81,
+    IMMENABLED                  = 82,
+    CXFOCUSBORDER               = 83,
+    CYFOCUSBORDER               = 84,
+    TABLETPC                    = 86,
+    MEDIACENTER                 = 87,
+    STARTER                     = 88,
+    SERVERR2                    = 89,
+    MOUSEHORIZONTALWHEELPRESENT = 91,
+    CXPADDEDBORDER              = 92,
+    DIGITIZER                   = 94,
+    MAXIMUMTOUCHES              = 95,
+    CMETRICS                    = 97,
+    REMOTESESSION               = 0x1000,
+    SHUTTINGDOWN                = 0x2000,
+    REMOTECONTROL               = 0x2001,
+    CARETBLINKINGENABLED        = 0x2002,
+    CONVERTIBLESLATEMODE        = 0x2003,
+    SYSTEMDOCKED                = 0x2004,
+    CXFIXEDFRAME                = CXDLGFRAME,     /* ;win40 name change */
+    CYFIXEDFRAME                = CYDLGFRAME,     /* ;win40 name change */
+    CXSIZEFRAME                 = CXFRAME,        /* ;win40 name change */
+    CYSIZEFRAME                 = CYFRAME,        /* ;win40 name change */
 }
 
 /**
@@ -760,151 +908,3 @@ export enum WS_EX_ {
     OVERLAPPEDWINDOW    = WINDOWEDGE | CLIENTEDGE,
     PALETTEWINDOW       = WINDOWEDGE | TOOLWINDOW | TOPMOST
 }
-
-/**
- * Menu Flags.
- */
-export enum MF_ {
-    BYCOMMAND       = 0x00000000,
-    BYPOSITION      = 0x00000400,
-    SEPARATOR       = 0x00000800,
-    REMOVE          = 0x00001000,
-    APPEND          = 0x00000100,
-    DELETE          = 0x00000200,
-    INSERT          = 0x00000000,
-    CHANGE          = 0x00000080,
-    ENABLED         = 0x00000000,
-    GRAYED          = 0x00000001,
-    DISABLED        = 0x00000002,
-    UNCHECKED       = 0x00000000,
-    CHECKED         = 0x00000008,
-    USECHECKBITMAPS = 0x00000200,
-    STRING          = 0x00000000,
-    BITMAP          = 0x00000004,
-    OWNERDRAW       = 0x00000100,
-    POPUP           = 0x00000010,
-    MENUBARBREAK    = 0x00000020,
-    MENUBREAK       = 0x00000040,
-    UNHILITE        = 0x00000000,
-    HILITE          = 0x00000080,
-    DEFAULT         = 0x00001000,
-    SYSMENU         = 0x00002000,
-    HELP            = 0x00004000,
-    RIGHTJUSTIFY    = 0x00004000,
-    MOUSESELECT     = 0x00008000
-}
-
-/*
- * GetSystemMetrics() codes.
- */
-export enum SM_ {
-    CXSCREEN                    = 0,
-    CYSCREEN                    = 1,
-    CXVSCROLL                   = 2,
-    CYHSCROLL                   = 3,
-    CYCAPTION                   = 4,
-    CXBORDER                    = 5,
-    CYBORDER                    = 6,
-    CXDLGFRAME                  = 7,
-    CYDLGFRAME                  = 8,
-    CYVTHUMB                    = 9,
-    CXHTHUMB                    = 10,
-    CXICON                      = 11,
-    CYICON                      = 12,
-    CXCURSOR                    = 13,
-    CYCURSOR                    = 14,
-    CYMENU                      = 15,
-    CXFULLSCREEN                = 16,
-    CYFULLSCREEN                = 17,
-    CYKANJIWINDOW               = 18,
-    MOUSEPRESENT                = 19,
-    CYVSCROLL                   = 20,
-    CXHSCROLL                   = 21,
-    DEBUG                       = 22,
-    SWAPBUTTON                  = 23,
-    RESERVED1                   = 24,
-    RESERVED2                   = 25,
-    RESERVED3                   = 26,
-    RESERVED4                   = 27,
-    CXMIN                       = 28,
-    CYMIN                       = 29,
-    CXSIZE                      = 30,
-    CYSIZE                      = 31,
-    CXFRAME                     = 32,
-    CYFRAME                     = 33,
-    CXMINTRACK                  = 34,
-    CYMINTRACK                  = 35,
-    CXDOUBLECLK                 = 36,
-    CYDOUBLECLK                 = 37,
-    CXICONSPACING               = 38,
-    CYICONSPACING               = 39,
-    MENUDROPALIGNMENT           = 40,
-    PENWINDOWS                  = 41,
-    DBCSENABLED                 = 42,
-    CMOUSEBUTTONS               = 43,
-    SECURE                      = 44,
-    CXEDGE                      = 45,
-    CYEDGE                      = 46,
-    CXMINSPACING                = 47,
-    CYMINSPACING                = 48,
-    CXSMICON                    = 49,
-    CYSMICON                    = 50,
-    CYSMCAPTION                 = 51,
-    CXSMSIZE                    = 52,
-    CYSMSIZE                    = 53,
-    CXMENUSIZE                  = 54,
-    CYMENUSIZE                  = 55,
-    ARRANGE                     = 56,
-    CXMINIMIZED                 = 57,
-    CYMINIMIZED                 = 58,
-    CXMAXTRACK                  = 59,
-    CYMAXTRACK                  = 60,
-    CXMAXIMIZED                 = 61,
-    CYMAXIMIZED                 = 62,
-    NETWORK                     = 63,
-    CLEANBOOT                   = 67,
-    CXDRAG                      = 68,
-    CYDRAG                      = 69,
-    SHOWSOUNDS                  = 70,
-    CXMENUCHECK                 = 71,
-    CYMENUCHECK                 = 72,
-    SLOWMACHINE                 = 73,
-    MIDEASTENABLED              = 74,
-    MOUSEWHEELPRESENT           = 75,
-    XVIRTUALSCREEN              = 76,
-    YVIRTUALSCREEN              = 77,
-    CXVIRTUALSCREEN             = 78,
-    CYVIRTUALSCREEN             = 79,
-    CMONITORS                   = 80,
-    SAMEDISPLAYFORMAT           = 81,
-    IMMENABLED                  = 82,
-    CXFOCUSBORDER               = 83,
-    CYFOCUSBORDER               = 84,
-    TABLETPC                    = 86,
-    MEDIACENTER                 = 87,
-    STARTER                     = 88,
-    SERVERR2                    = 89,
-    MOUSEHORIZONTALWHEELPRESENT = 91,
-    CXPADDEDBORDER              = 92,
-    DIGITIZER                   = 94,
-    MAXIMUMTOUCHES              = 95,
-    CMETRICS                    = 97,
-    REMOTESESSION               = 0x1000,
-    SHUTTINGDOWN                = 0x2000,
-    REMOTECONTROL               = 0x2001,
-    CARETBLINKINGENABLED        = 0x2002,
-    CONVERTIBLESLATEMODE        = 0x2003,
-    SYSTEMDOCKED                = 0x2004,
-    CXFIXEDFRAME                = CXDLGFRAME,
-    CYFIXEDFRAME                = CYDLGFRAME,
-    CXSIZEFRAME                 = CXFRAME,
-    CYSIZEFRAME                 = CYFRAME,
-}
-
-/**
- * Special value for X and Y parameters of CreateWindow()/CreateWindowEx().
- */
-export const CW_USEDEFAULT = 0x80000000
-
-export const SIZEOF_WNDCLASSEX = koffi.sizeof(cWNDCLASSEX)
-export const SIZEOF_BSMINFO = koffi.sizeof(cBSMINFO)
