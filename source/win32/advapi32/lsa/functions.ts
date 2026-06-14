@@ -1,6 +1,6 @@
 import koffi from 'koffi'
 import {
-    Internals,
+    Internals, isPointer,
     cDWORD, cHANDLE, cINT, cNTSTATUS, cP_DWORD, cP_VOID, cULONG,
     type OUT, type Pointer
 } from '../../internals.js'
@@ -15,35 +15,11 @@ import {
     type POLICY_MODIFICATION_INFO, type POLICY_PRIMARY_DOMAIN_INFO
 } from './types.js'
 import { LSA_LOOKUP, POLICY_INFORMATION_CLASS, type POLICY_ } from './consts.js'
-import { cLSA_OBJECT_ATTRIBUTES, cLSA_REFERENCED_DOMAIN_LIST, cLSA_TRANSLATED_SID2, cLSA_UNICODE_STRING,
+import {
+    cLSA_OBJECT_ATTRIBUTES, cLSA_REFERENCED_DOMAIN_LIST, cLSA_TRANSLATED_SID2, cLSA_UNICODE_STRING,
     cPOLICY_ACCOUNT_DOMAIN_INFO, cPOLICY_AUDIT_EVENTS_INFO, cPOLICY_DNS_DOMAIN_INFO, cPOLICY_LSA_SERVER_ROLE_INFO,
     cPOLICY_MODIFICATION_INFO, cPOLICY_PRIMARY_DOMAIN_INFO
 } from './ctypes.js'
-
-const enum INTERNAL_POLICY_INFORMATION_CLASS {
-    /** @deprecated */PolicyAuditLogInformation = 1,
-    PolicyAuditEventsInformation,
-    PolicyPrimaryDomainInformation,
-    /** @deprecated */PolicyPdAccountInformation,
-    PolicyAccountDomainInformation,
-    PolicyLsaServerRoleInformation,
-    /** @deprecated */PolicyReplicaSourceInformation,
-    /** @deprecated */PolicyDefaultQuotaInformation,
-    PolicyModificationInformation,
-    /** @deprecated */PolicyAuditFullSetInformation,
-    /** @deprecated */PolicyAuditFullQueryInformation,
-    PolicyDnsDomainInformation,
-    /** @deprecated */PolicyDnsDomainInformationInt,
-    /** @deprecated */PolicyLocalAccountDomainInformation,
-    /** @deprecated */PolicyMachineAccountInformation,
-}
-
-function queryPolicyInfo(policyHandle: LSA_HANDLE, infoClass: INTERNAL_POLICY_INFORMATION_CLASS): NTSTATUS_ | Pointer {
-    queryPolicyInfo.native ??= advapi32.func('LsaQueryInformationPolicy', cNTSTATUS, [ cHANDLE, cINT, koffi.out(koffi.pointer(cP_VOID)) ])
-
-    const pBuffer: OUT<Pointer> = [0n]
-    return queryPolicyInfo.native(policyHandle, infoClass, pBuffer) || pBuffer[0]
-}
 
 function lsaFree(ptr: Pointer) {
     lsaFree.native ??= advapi32.func('LsaFreeMemory', cNTSTATUS, [ cP_VOID ])
@@ -124,12 +100,16 @@ export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...
     if (status === Internals.NTSTATUS_SUCCESS) {
 
         const domains: LSA_REFERENCED_DOMAIN_LIST = koffi.decode(pReferencedDomains[0], cLSA_REFERENCED_DOMAIN_LIST)
-        for (let i = 0; i < domains.Domains.length; i++)
-            domains.Domains[i].Sid = koffi.decode(domains.Domains[i].Sid, cSID)
+        for (let i = 0; i < domains.Domains.length; i++) {
+            if (isPointer(domains.Domains[i].Sid))
+                domains.Domains[i].Sid = koffi.decode(domains.Domains[i].Sid, cSID)
+        }
 
         const sids: LSA_TRANSLATED_SID2[] = koffi.decode(pSids[0], cLSA_TRANSLATED_SID2, namesCount)
-        for (let i = 0; i < namesCount; i++)
-            sids[i].Sid = koffi.decode(sids[i].Sid, cSID)
+        for (let i = 0; i < namesCount; i++) {
+            if (isPointer(sids[i].Sid))
+                sids[i].Sid = koffi.decode(sids[i].Sid, cSID)
+        }
 
         lsaFree(pReferencedDomains[0])
         lsaFree(pSids[0])
@@ -172,7 +152,6 @@ export function LsaOpenPolicy(systemName: string | null, desiredAcces: POLICY_):
     return LsaOpenPolicy.native(name, new LSA_OBJECT_ATTRIBUTES(), desiredAcces, pHandle) || pHandle[0]
 }
 
-
 /**
  * Retrieves the system's auditing rules.
  *
@@ -181,12 +160,7 @@ export function LsaOpenPolicy(systemName: string | null, desiredAcces: POLICY_):
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryAuditEventsInformationPolicy(policyHandle: LSA_HANDLE): POLICY_AUDIT_EVENTS_INFO | NTSTATUS_ {
-    const ptr = queryPolicyInfo(policyHandle, INTERNAL_POLICY_INFORMATION_CLASS.PolicyAuditEventsInformation)
-    if (typeof ptr === 'number')
-        return ptr
-
-    const ret: POLICY_AUDIT_EVENTS_INFO = koffi.decode(ptr, cPOLICY_AUDIT_EVENTS_INFO)
-    return lsaFree(ptr), ret
+    return LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyAuditEventsInformation)
 }
 
 /**
@@ -197,13 +171,7 @@ export function LsaQueryAuditEventsInformationPolicy(policyHandle: LSA_HANDLE): 
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryPrimaryDomainInformationPolicy(policyHandle: LSA_HANDLE): POLICY_PRIMARY_DOMAIN_INFO | NTSTATUS_ {
-    const ptr = queryPolicyInfo(policyHandle, INTERNAL_POLICY_INFORMATION_CLASS.PolicyPrimaryDomainInformation)
-    if (typeof ptr === 'number')
-        return ptr
-
-    const ret: POLICY_PRIMARY_DOMAIN_INFO = koffi.decode(ptr, cPOLICY_PRIMARY_DOMAIN_INFO)
-    ret.Sid = koffi.decode(ret.Sid, cSID)
-    return lsaFree(ptr), ret
+    return LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyPrimaryDomainInformation)
 }
 
 /**
@@ -214,13 +182,7 @@ export function LsaQueryPrimaryDomainInformationPolicy(policyHandle: LSA_HANDLE)
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryAccountDomainInformationPolicy(policyHandle: LSA_HANDLE): POLICY_ACCOUNT_DOMAIN_INFO | NTSTATUS_ {
-    const ptr = queryPolicyInfo(policyHandle, INTERNAL_POLICY_INFORMATION_CLASS.PolicyAccountDomainInformation)
-    if (typeof ptr === 'number')
-        return ptr
-
-    const ret: POLICY_ACCOUNT_DOMAIN_INFO = koffi.decode(ptr, cPOLICY_ACCOUNT_DOMAIN_INFO)
-    ret.DomainSid = koffi.decode(ret.DomainSid, cSID)
-    return lsaFree(ptr), ret
+    return LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyAccountDomainInformation)
 }
 
 /**
@@ -231,12 +193,7 @@ export function LsaQueryAccountDomainInformationPolicy(policyHandle: LSA_HANDLE)
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryLsaServerRoleInformationPolicy(policyHandle: LSA_HANDLE): POLICY_LSA_SERVER_ROLE_INFO | NTSTATUS_ {
-    const ptr = queryPolicyInfo(policyHandle, INTERNAL_POLICY_INFORMATION_CLASS.PolicyLsaServerRoleInformation)
-    if (typeof ptr === 'number')
-        return ptr
-
-    const ret: POLICY_LSA_SERVER_ROLE_INFO = koffi.decode(ptr, cPOLICY_LSA_SERVER_ROLE_INFO)
-    return lsaFree(ptr), ret
+    return LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyLsaServerRoleInformation)
 }
 
 /**
@@ -247,12 +204,7 @@ export function LsaQueryLsaServerRoleInformationPolicy(policyHandle: LSA_HANDLE)
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryModificationInformationPolicy(policyHandle: LSA_HANDLE): POLICY_MODIFICATION_INFO | NTSTATUS_ {
-    const ptr = queryPolicyInfo(policyHandle, INTERNAL_POLICY_INFORMATION_CLASS.PolicyModificationInformation)
-    if (typeof ptr === 'number')
-        return ptr
-
-    const ret: POLICY_MODIFICATION_INFO = koffi.decode(ptr, cPOLICY_MODIFICATION_INFO)
-    return lsaFree(ptr), ret
+    return LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyModificationInformation)
 }
 
 /**
@@ -263,23 +215,15 @@ export function LsaQueryModificationInformationPolicy(policyHandle: LSA_HANDLE):
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
 export function LsaQueryDnsDomainInformationPolicy(policyHandle: LSA_HANDLE): POLICY_DNS_DOMAIN_INFO | NTSTATUS_ {
-    const ptr = queryPolicyInfo(policyHandle, INTERNAL_POLICY_INFORMATION_CLASS.PolicyDnsDomainInformation)
-    if (typeof ptr === 'number')
-        return ptr
-
-    const ret: POLICY_DNS_DOMAIN_INFO = koffi.decode(ptr, cPOLICY_DNS_DOMAIN_INFO)
-    ret.Sid = koffi.decode(ret.Sid, cSID)
-    return lsaFree(ptr), ret
+    return LsaQueryInformationPolicy(policyHandle, POLICY_INFORMATION_CLASS.PolicyDnsDomainInformation)
 }
 
 /**
  * Retrieves information about a Policy object.
  *
- * Note:
- * - In libwin32, the function only supports the values of the `POLICY_INFORMATION_CLASS` enumeration
- *   that are listed on the function's doc (link below).
- * - All other POLICY_INFORMATION_CLASS values return `STATUS_NOT_SUPPORTED`
- * - Values outside the enumeration return STATUS_INVALID_PARAMETER.
+ * Note: in libwin32, the function only supports the values of the `POLICY_INFORMATION_CLASS` enumeration
+ *       that are listed on the function's doc (link below). All other POLICY_INFORMATION_CLASS values
+ *       return `STATUS_NOT_SUPPORTED`.
  *
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy
  */
@@ -289,28 +233,61 @@ export function LsaQueryInformationPolicy(policyHandle: LSA_HANDLE, infoClass: P
 export function LsaQueryInformationPolicy(policyHandle: LSA_HANDLE, infoClass: POLICY_INFORMATION_CLASS.PolicyLsaServerRoleInformation): POLICY_LSA_SERVER_ROLE_INFO | NTSTATUS_
 export function LsaQueryInformationPolicy(policyHandle: LSA_HANDLE, infoClass: POLICY_INFORMATION_CLASS.PolicyModificationInformation):  POLICY_MODIFICATION_INFO | NTSTATUS_
 export function LsaQueryInformationPolicy(policyHandle: LSA_HANDLE, infoClass: POLICY_INFORMATION_CLASS.PolicyDnsDomainInformation):     POLICY_DNS_DOMAIN_INFO | NTSTATUS_
-export function LsaQueryInformationPolicy(policyHandle: LSA_HANDLE, infoClass: POLICY_INFORMATION_CLASS): any
-export function LsaQueryInformationPolicy(policyHandle: LSA_HANDLE, infoClass: POLICY_INFORMATION_CLASS) {
-    switch (infoClass) {
-        case POLICY_INFORMATION_CLASS.PolicyAuditEventsInformation:   return LsaQueryAuditEventsInformationPolicy(policyHandle)
-        case POLICY_INFORMATION_CLASS.PolicyPrimaryDomainInformation: return LsaQueryPrimaryDomainInformationPolicy(policyHandle)
-        case POLICY_INFORMATION_CLASS.PolicyAccountDomainInformation: return LsaQueryAccountDomainInformationPolicy(policyHandle)
-        case POLICY_INFORMATION_CLASS.PolicyLsaServerRoleInformation: return LsaQueryLsaServerRoleInformationPolicy(policyHandle)
-        case POLICY_INFORMATION_CLASS.PolicyModificationInformation:  return LsaQueryModificationInformationPolicy(policyHandle)
-        case POLICY_INFORMATION_CLASS.PolicyDnsDomainInformation:     return LsaQueryDnsDomainInformationPolicy(policyHandle)
+export function LsaQueryInformationPolicy(policyHandle: LSA_HANDLE, infoClass: number): POLICY_INFORMATION | NTSTATUS_
+export function LsaQueryInformationPolicy(policyHandle: LSA_HANDLE, infoClass: number) {
+    LsaQueryInformationPolicy.native ??= advapi32.func('LsaQueryInformationPolicy', cNTSTATUS, [ cHANDLE, cINT, koffi.out(koffi.pointer(cP_VOID)) ])
 
-        case POLICY_INFORMATION_CLASS.PolicyAuditLogInformation:
-        case POLICY_INFORMATION_CLASS.PolicyPdAccountInformation:
-        case POLICY_INFORMATION_CLASS.PolicyReplicaSourceInformation:
-        case POLICY_INFORMATION_CLASS.PolicyDefaultQuotaInformation:
-        case POLICY_INFORMATION_CLASS.PolicyAuditFullSetInformation:
-        case POLICY_INFORMATION_CLASS.PolicyAuditFullQueryInformation:
-        case POLICY_INFORMATION_CLASS.PolicyDnsDomainInformationInt:
-        case POLICY_INFORMATION_CLASS.PolicyLocalAccountDomainInformation:
-        case POLICY_INFORMATION_CLASS.PolicyMachineAccountInformation:
-            return NTSTATUS_.NOT_SUPPORTED
+    const pInfo: OUT<Pointer> = [0n]
+    const status = LsaQueryInformationPolicy.native(policyHandle, infoClass, pInfo)
+    if (status !== NTSTATUS_.SUCCESS)
+        return status
+
+    switch (infoClass) {
+        case POLICY_INFORMATION_CLASS.PolicyAuditEventsInformation: {
+            const ret = koffi.decode(pInfo[0], cPOLICY_AUDIT_EVENTS_INFO) as POLICY_AUDIT_EVENTS_INFO
+            if (ret.EventAuditingOptions instanceof Uint32Array)
+                ret.EventAuditingOptions = Array.from(ret.EventAuditingOptions)
+            return lsaFree(pInfo[0]), ret
+        }
+
+        case POLICY_INFORMATION_CLASS.PolicyPrimaryDomainInformation: {
+            const ret = koffi.decode(pInfo[0], cPOLICY_PRIMARY_DOMAIN_INFO) as POLICY_PRIMARY_DOMAIN_INFO
+            if (isPointer(ret.Sid))
+                ret.Sid = koffi.decode(ret.Sid, cSID)
+            return lsaFree(pInfo[0]), ret
+        }
+
+        case POLICY_INFORMATION_CLASS.PolicyAccountDomainInformation: {
+            const ret = koffi.decode(pInfo[0], cPOLICY_ACCOUNT_DOMAIN_INFO) as POLICY_ACCOUNT_DOMAIN_INFO
+            if (isPointer(ret.DomainSid))
+                ret.DomainSid = koffi.decode(ret.DomainSid, cSID)
+            return lsaFree(pInfo[0]), ret
+        }
+
+        case POLICY_INFORMATION_CLASS.PolicyLsaServerRoleInformation: {
+            const ret = koffi.decode(pInfo[0], cPOLICY_LSA_SERVER_ROLE_INFO) as POLICY_LSA_SERVER_ROLE_INFO
+            return lsaFree(pInfo[0]), ret
+        }
+
+        case POLICY_INFORMATION_CLASS.PolicyModificationInformation: {
+            const ret = koffi.decode(pInfo[0], cPOLICY_MODIFICATION_INFO) as POLICY_MODIFICATION_INFO
+            return lsaFree(pInfo[0]), ret
+        }
+
+        case POLICY_INFORMATION_CLASS.PolicyDnsDomainInformation: {
+            const ret = koffi.decode(pInfo[0], cPOLICY_DNS_DOMAIN_INFO) as POLICY_DNS_DOMAIN_INFO
+            if (isPointer(ret.Sid))
+                ret.Sid = koffi.decode(ret.Sid, cSID)
+            return lsaFree(pInfo[0]), ret
+        }
 
         default:
-            return NTSTATUS_.INVALID_PARAMETER
+            if (pInfo[0] !== 0n)
+                lsaFree(pInfo[0])
+            return NTSTATUS_.NOT_SUPPORTED
     }
 }
+
+type POLICY_INFORMATION =
+    | POLICY_AUDIT_EVENTS_INFO | POLICY_PRIMARY_DOMAIN_INFO | POLICY_ACCOUNT_DOMAIN_INFO
+    | POLICY_LSA_SERVER_ROLE_INFO | POLICY_MODIFICATION_INFO | POLICY_DNS_DOMAIN_INFO

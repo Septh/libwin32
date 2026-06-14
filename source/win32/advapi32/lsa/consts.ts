@@ -112,23 +112,23 @@ export enum POLICY_AUDIT_EVENT_TYPE {
  * https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ne-ntsecapi-policy_information_class
  */
 export enum POLICY_INFORMATION_CLASS {
-    /** @deprecated */PolicyAuditLogInformation = 1,
+    /** @deprecated */ PolicyAuditLogInformation = 1,
     PolicyAuditEventsInformation,
-    PolicyPrimaryDomainInformation,
-    /** @deprecated */PolicyPdAccountInformation,
+    /** @deprecated */ PolicyPrimaryDomainInformation,
+    /** @deprecated */ PolicyPdAccountInformation,
     PolicyAccountDomainInformation,
     PolicyLsaServerRoleInformation,
-    /** @deprecated */PolicyReplicaSourceInformation,
-    /** @deprecated */PolicyDefaultQuotaInformation,
+    /** @deprecated */ PolicyReplicaSourceInformation,
+    /** @deprecated */ PolicyDefaultQuotaInformation,
     PolicyModificationInformation,
-    /** @deprecated */PolicyAuditFullSetInformation,
-    /** @deprecated */PolicyAuditFullQueryInformation,
+    /** @deprecated */ PolicyAuditFullSetInformation,
+    /** @deprecated */ PolicyAuditFullQueryInformation,
     PolicyDnsDomainInformation,
-    /** @deprecated */PolicyDnsDomainInformationInt,
-    /** @deprecated */PolicyLocalAccountDomainInformation,
-    /** @deprecated */PolicyMachineAccountInformation,
-    // PolicyMachineAccountInformation2,
-    // PolicyLastEntry
+    /** @deprecated */ PolicyDnsDomainInformationInt,
+    /** @deprecated */ PolicyLocalAccountDomainInformation,
+    /** @deprecated */ PolicyMachineAccountInformation,
+    PolicyMachineAccountInformation2,
+    PolicyLastEntry
 }
 
 /**
