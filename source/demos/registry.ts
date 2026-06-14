@@ -15,7 +15,7 @@ function QueryKey(hKey: HKEY) {
     // Get the class name and the value count.
     const info = RegQueryInfoKey(hKey)
     if (isErrorStatus(info)) {
-        console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
+        console.error(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
         return
     }
 
@@ -24,7 +24,7 @@ function QueryKey(hKey: HKEY) {
     for (let i = 0; i < info.subKeys; i++) {
         const key = RegEnumKeyEx(hKey, i)
         if (isErrorStatus(key)) {
-            console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
+            console.error(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
             break
         }
         console.log('(%d) %s', i + 1, key.name)
@@ -35,7 +35,7 @@ function QueryKey(hKey: HKEY) {
     for (let i = 0; i < info.values; i++) {
         const value = RegEnumValue(hKey, i)
         if (isErrorStatus(value)) {
-            console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
+            console.error(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
             break
         }
         console.log('(%d) %s', i + 1, value.name)
@@ -43,7 +43,7 @@ function QueryKey(hKey: HKEY) {
 }
 
 const hTestKey = RegOpenKeyEx(HKEY_.CURRENT_USER, "SOFTWARE\\Microsoft", 0, KEY_.READ)
-if (isHandle<HKEY>(hTestKey)) {
+if (isHandle(hTestKey)) {
     QueryKey(hTestKey)
     RegCloseKey(hTestKey)
 }

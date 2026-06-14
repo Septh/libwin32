@@ -113,6 +113,7 @@ export interface POLICY_AUDIT_EVENTS_INFO {
     MaximumAuditEventCount: number
 }
 
+export type POLICY_AUDIT_EVENT_OPTIONS = number
 
 /**
  * Used to set and query Domain Name System (DNS) information about the primary domain associated with a Policy object.

@@ -3,10 +3,10 @@ import {
     RegisterClassEx, LoadCursor, LoadIcon, WNDCLASSEX,
     CreateWindowEx, ShowWindow, UpdateWindow, DefWindowProc,
     GetMessage, TranslateMessage, DispatchMessage, PostQuitMessage,
-    FormatMessage, MessageBox,
+    FormatMessage,
     type HINSTANCE, type MSG, type WPARAM, type LPARAM, type HWND, type HBRUSH
 } from 'libwin32'
-import { CS_, CW_USEDEFAULT, FORMAT_MESSAGE_, IDC_, IDI_, MB_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
+import { CS_, CW_USEDEFAULT, FORMAT_MESSAGE_, IDC_, IDI_, SW_, WM_, WS_, WS_EX_ } from 'libwin32/consts'
 
 const windowClass = 'libwin32_app'
 const windowName  = 'libwin32 demo: CreateWindow'
@@ -22,7 +22,7 @@ function wndProc(hWnd: HWND, uMmsg: WM_, wParam: WPARAM, lParam: LPARAM) {
             break
 
         default:
-            // console.log(uMmsg)
+            // console.log(uMsg)
             ret = DefWindowProc(hWnd, uMmsg, wParam, lParam) as number
             break
     }
@@ -44,7 +44,7 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
 
     const atom = RegisterClassEx(wcex)
     if (!atom) {
-        MessageBox(null, 'Call to RegisterClassEx failed!', 'libwin32', MB_.OK | MB_.ICONERROR)
+        console.error('Call to RegisterClassEx failed!')
         return 1
     }
 
@@ -57,8 +57,7 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
     )
     if (!hWnd) {
         const err = GetLastError()
-        const msg = FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, err, 0)
-        MessageBox(null, 'Call to CreateWindowEx failed!\n' + msg, 'libwin32', MB_.OK | MB_.ICONERROR)
+        console.error('Call to CreateWindowEx failed:', FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, err, 0))
         return err
     }
 
@@ -76,8 +75,7 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
 }
 
 const hInstance = GetModuleHandle(null)
-if (!hInstance) {
+if (!hInstance)
     throw new Error('GetModuleHandle() failed.')
-}
 
 process.exitCode = WinMain(hInstance, SW_.NORMAL)

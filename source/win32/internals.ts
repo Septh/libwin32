@@ -30,7 +30,7 @@ export const cSIZE_T    = koffi.types.uint64
 
 export const cHANDLE    = koffi.pointer(koffi.opaque())
 export const cLSTATUS   = koffi.types.int32
-export const cNTSTATUS  = koffi.types.int32
+export const cNTSTATUS  = koffi.types.uint32    // Defined a LONG in ntstatus.h but more useful as unsigned
 
 export const cP_VOID    = koffi.pointer(koffi.types.void)
 export const cP_DWORD   = koffi.pointer(cDWORD)

@@ -11,9 +11,7 @@ if (hToken) {
     for (let i = TOKEN_INFORMATION_CLASS.TokenUser; i <= TOKEN_INFORMATION_CLASS.TokenIntegrityLevel; i++) {
         console.group('\n****', TOKEN_INFORMATION_CLASS[i])
         const info = GetTokenInformation(hToken, i)
-        if (info === null)
-            console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
-        else {
+        if (info !== null) {
             console.dir(info, { depth: 5 })
             if (i === TOKEN_INFORMATION_CLASS.TokenLinkedToken) {
                 // "When you have finished using the handle, close it by calling the CloseHandle function."
@@ -21,8 +19,9 @@ if (hToken) {
                 CloseHandle((info as TOKEN_LINKED_TOKEN).LinkedToken)
             }
         }
+        else console.error(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
         console.groupEnd()
     }
     CloseHandle(hToken)
 }
-else console.log(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
+else console.error(FormatMessage(FORMAT_MESSAGE_.FROM_SYSTEM, null, GetLastError()))
