@@ -38,15 +38,16 @@ const enum INTERNAL_POLICY_INFORMATION_CLASS {
     /** @deprecated */PolicyMachineAccountInformation,
 }
 
-function queryPolicyInfo(policyHandle: LSA_HANDLE, infoClass: INTERNAL_POLICY_INFORMATION_CLASS): NTSTATUS_ | unknown {
+function queryPolicyInfo(policyHandle: LSA_HANDLE, infoClass: INTERNAL_POLICY_INFORMATION_CLASS): NTSTATUS_ | Pointer {
     queryPolicyInfo.native ??= advapi32.func('LsaQueryInformationPolicy', cNTSTATUS, [ cHANDLE, cINT, koffi.out(koffi.pointer(cP_VOID)) ])
 
-    const pBuffer: OUT<unknown> = [null!]
+    const pBuffer: OUT<Pointer> = [0n]
     return queryPolicyInfo.native(policyHandle, infoClass, pBuffer) || pBuffer[0]
 }
 
-function lsaFree(ptr: unknown) {
-    return (lsaFree.native ??= advapi32.func('LsaFreeMemory', cNTSTATUS, [ cP_VOID ]))(ptr)
+function lsaFree(ptr: Pointer) {
+    lsaFree.native ??= advapi32.func('LsaFreeMemory', cNTSTATUS, [ cP_VOID ])
+    return lsaFree.native(ptr)
 }
 
 /**
@@ -108,36 +109,37 @@ export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...
         koffi.out(koffi.pointer(cP_VOID)), koffi.out(koffi.pointer(cP_VOID))
     ])
 
-    const count = names.length
-    if (count < 1 || count > Internals.LSALOOKUPNAMES2_MAX_NAMES)
+    const namesCount = names.length
+    if (namesCount < 1 || namesCount > Internals.LSALOOKUPNAMES2_MAX_NAMES)
         return NTSTATUS_.INVALID_PARAMETER
 
     names.length = Internals.LSALOOKUPNAMES2_MAX_NAMES
-    names.fill('', count)
+    names.fill('', namesCount)
 
-    const uNames = names.map(name => new LSA_UNICODE_STRING(name))
-    const pReferencedDomains: OUT<unknown> = [null]
-    const pSids: OUT<unknown> = [null]
+    const unicodeNames = names.map(name => new LSA_UNICODE_STRING(name))
+    const pReferencedDomains: OUT<Pointer> = [0n]
+    const pSids: OUT<Pointer> = [0n]
 
-    const status = LsaLookupNames2.native(policyHandle, flags, count, [uNames], pReferencedDomains, pSids)
+    const status = LsaLookupNames2.native(policyHandle, flags, namesCount, [unicodeNames], pReferencedDomains, pSids)
     if (status === Internals.NTSTATUS_SUCCESS) {
-        const sids: LSA_TRANSLATED_SID2[] = koffi.decode(pSids[0], cLSA_TRANSLATED_SID2, count)
-        for (let i = 0; i < count; i++)
-            sids[i].Sid = koffi.decode(sids[i].Sid, cSID)
-        lsaFree(pSids[0])
 
         const domains: LSA_REFERENCED_DOMAIN_LIST = koffi.decode(pReferencedDomains[0], cLSA_REFERENCED_DOMAIN_LIST)
         for (let i = 0; i < domains.Domains.length; i++)
             domains.Domains[i].Sid = koffi.decode(domains.Domains[i].Sid, cSID)
-        lsaFree(pReferencedDomains[0])
 
+        const sids: LSA_TRANSLATED_SID2[] = koffi.decode(pSids[0], cLSA_TRANSLATED_SID2, namesCount)
+        for (let i = 0; i < namesCount; i++)
+            sids[i].Sid = koffi.decode(sids[i].Sid, cSID)
+
+        lsaFree(pReferencedDomains[0])
+        lsaFree(pSids[0])
         return { sids, domains }
     }
 
-    if (status === NTSTATUS_.NONE_MAPPED || status === NTSTATUS_.SOME_NOT_MAPPED) {
-        lsaFree(pSids[0])
+    if (pReferencedDomains[0] !== 0n)
         lsaFree(pReferencedDomains[0])
-    }
+    if (pSids[0] !== 0n)
+        lsaFree(pSids[0])
 
     return status
 }
@@ -184,7 +186,7 @@ export function LsaQueryAuditEventsInformationPolicy(policyHandle: LSA_HANDLE): 
         return ptr
 
     const ret: POLICY_AUDIT_EVENTS_INFO = koffi.decode(ptr, cPOLICY_AUDIT_EVENTS_INFO)
-    return lsaFree(ret), ret
+    return lsaFree(ptr), ret
 }
 
 /**
@@ -201,7 +203,7 @@ export function LsaQueryPrimaryDomainInformationPolicy(policyHandle: LSA_HANDLE)
 
     const ret: POLICY_PRIMARY_DOMAIN_INFO = koffi.decode(ptr, cPOLICY_PRIMARY_DOMAIN_INFO)
     ret.Sid = koffi.decode(ret.Sid, cSID)
-    return lsaFree(ret), ret
+    return lsaFree(ptr), ret
 }
 
 /**
@@ -218,7 +220,7 @@ export function LsaQueryAccountDomainInformationPolicy(policyHandle: LSA_HANDLE)
 
     const ret: POLICY_ACCOUNT_DOMAIN_INFO = koffi.decode(ptr, cPOLICY_ACCOUNT_DOMAIN_INFO)
     ret.DomainSid = koffi.decode(ret.DomainSid, cSID)
-    return lsaFree(ret), ret
+    return lsaFree(ptr), ret
 }
 
 /**
@@ -234,7 +236,7 @@ export function LsaQueryLsaServerRoleInformationPolicy(policyHandle: LSA_HANDLE)
         return ptr
 
     const ret: POLICY_LSA_SERVER_ROLE_INFO = koffi.decode(ptr, cPOLICY_LSA_SERVER_ROLE_INFO)
-    return lsaFree(ret), ret
+    return lsaFree(ptr), ret
 }
 
 /**
@@ -250,7 +252,7 @@ export function LsaQueryModificationInformationPolicy(policyHandle: LSA_HANDLE):
         return ptr
 
     const ret: POLICY_MODIFICATION_INFO = koffi.decode(ptr, cPOLICY_MODIFICATION_INFO)
-    return lsaFree(ret), ret
+    return lsaFree(ptr), ret
 }
 
 /**
@@ -267,7 +269,7 @@ export function LsaQueryDnsDomainInformationPolicy(policyHandle: LSA_HANDLE): PO
 
     const ret: POLICY_DNS_DOMAIN_INFO = koffi.decode(ptr, cPOLICY_DNS_DOMAIN_INFO)
     ret.Sid = koffi.decode(ret.Sid, cSID)
-    return lsaFree(ret), ret
+    return lsaFree(ptr), ret
 }
 
 /**
