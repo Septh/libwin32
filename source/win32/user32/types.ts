@@ -143,18 +143,16 @@ export interface WNDCLASS {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassexw
  */
 export class WNDCLASSEX {
-    readonly cbSize = SIZEOF_WNDCLASSEX
-    constructor(
-        public hInstance:     HINSTANCE | null = null,
-        public lpszClassName: string  | null   = null,
-        public style:         CS_              = 0,
-        public lpfnWndProc:   WNDPROC | null   = null,
-        public hCursor:       HCURSOR | null   = null,
-        public hIcon:         HICON   | null   = null,
-        public hIconSm:       HICON   | null   = null,
-        public hbrBackground: HBRUSH  | null   = null,
-        public lpszMenuName:  string  | null   = null,
-        public cbClsExtra:    number           = 0,
-        public cwWndExtra:    number           = 0
-    ) {}
+    public readonly cbSize = SIZEOF_WNDCLASSEX
+    public style:         CS_              = 0
+    public lpfnWndProc:   WNDPROC | null   = null
+    public cbClsExtra:    number           = 0
+    public cwWndExtra:    number           = 0
+    public hInstance:     HINSTANCE | null = null
+    public hIcon:         HICON   | null   = null
+    public hCursor:       HCURSOR | null   = null
+    public hbrBackground: HBRUSH  | null   = null
+    public lpszMenuName:  string  | null   = null
+    public lpszClassName: string  | null   = null
+    public hIconSm:       HICON   | null   = null
 }

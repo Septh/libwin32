@@ -14,13 +14,11 @@ export type LSA_HANDLE = __HANDLE__<'LSA_HANDLE'>
  */
 export class LSA_OBJECT_ATTRIBUTES {
     readonly Length = SIZEOF_LSA_OBJECT_ATTRIBUTES
-    constructor(
-        public RootDirectory:            HANDLE              = null!,
-        public ObjectName:               LSA_UNICODE_STRING  = null!,
-        public Attributes:               number              = 0,
-        public SecurityDescriptor:       SECURITY_DESCRIPTOR = null!,
-        public SecurityQualityOfService: unknown             = null,     // TODO: SECURITY_QUALITY_OF_SERVICE
-    ) {}
+    public RootDirectory:            HANDLE              = null!
+    public ObjectName:               LSA_UNICODE_STRING  = null!
+    public Attributes:               number              = 0
+    public SecurityDescriptor:       SECURITY_DESCRIPTOR = null!
+    public SecurityQualityOfService: unknown             = null     // TODO: SECURITY_QUALITY_OF_SERVICE
 }
 
 /**
@@ -133,6 +131,7 @@ export interface POLICY_DNS_DOMAIN_INFO {
     DomainGuid: GUID
     Sid: SID
 }
+
 /**
  * Used to set and query the role of an LSA server.
  *

@@ -440,6 +440,10 @@ export function GetTokenRestrictedDeviceGroupsInformation(tokenHandle: HTOKEN): 
 /**
  * Retrieves a specified class of information about an access token. The calling process must have appropriate access rights to obtain the information.
  *
+ * Note: in libwin32, the function only supports the values of the `TOKEN_INFORMATION_CLASS` enumeration
+ *       that are listed on [the enum's doc](https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-token_information_class#constants)
+ *       and whose description starts with *"The buffer receives..."*. All other values return `STATUS_NOT_SUPPORTED`.
+ *
  * https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation
  */
 export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: TOKEN_INFORMATION_CLASS.TokenUser):                   TOKEN_USER | null
@@ -612,10 +616,12 @@ export function GetTokenInformation(tokenHandle: HTOKEN, tokenInformationClass: 
         case TOKEN_INFORMATION_CLASS.TokenUserClaimAttributes:
         case TOKEN_INFORMATION_CLASS.TokenDeviceClaimAttributes: {
             const ret = koffi.decode(binaryBuffer, cCLAIM_SECURITY_ATTRIBUTES_INFORMATION) as CLAIM_SECURITY_ATTRIBUTES_INFORMATION
-            if (ret.Attribute?.pAttributeV1)
-                ret.Attribute.pAttributeV1 = koffi.decode(ret.Attribute, cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
-            else
-                ret.Attribute = { pAttributeV1: [] }
+            if (isPointer(ret.Attribute.pAttributeV1))
+                ret.Attribute.pAttributeV1 = koffi.decode(ret.Attribute.pAttributeV1, cCLAIM_SECURITY_ATTRIBUTE_V1, ret.AttributeCount)
+            else {
+                // If there is no attribute, don't bother with the union.
+                ret.Attribute = { pAttributeV1: null }
+            }
             return ret
         }
 

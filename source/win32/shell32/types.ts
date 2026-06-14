@@ -50,18 +50,16 @@ export class SHELLEXECUTEINFO {
     readonly cbSize = SIZEOF_SHELLEXECUTEINFO
     readonly hInstApp: SE_ERR_ = 0 as SE_ERR_   // [out]
     readonly hProcess: HANDLE | null = null     // [out]
-    constructor(
-        public lpVerb:       string    = null!,
-        public fMask:        SEE_MASK_ = 0,
-        public lpFile:       string    = null!,
-        public lpParameters: string    = null!,
-        public lpDirectory:  string    = null!,
-        public hwnd:         HWND      = null!,
-        public nShow:        SW_       = 0,
-        public lpClass:      string    = null!,
-        public hkeyClass:    HKEY      = null!,
-        public dwHotKey:     number    = 0,
-        public lpIDList:     any       = null,
-        public hMonitor:     HMONITOR  = null!,
-    ) {}
+    public lpVerb:       string    = null!
+    public fMask:        SEE_MASK_ = 0
+    public lpFile:       string    = null!
+    public lpParameters: string    = null!
+    public lpDirectory:  string    = null!
+    public hwnd:         HWND      = null!
+    public nShow:        SW_       = 0
+    public lpClass:      string    = null!
+    public hkeyClass:    HKEY      = null!
+    public dwHotKey:     number    = 0
+    public lpIDList:     any       = null
+    public hMonitor:     HMONITOR  = null!
 }
