@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals, StringOutputBuffer,
-    cBOOL, cHANDLE, cINT, cPDWORD, cPVOID, cSTR,
+    cBOOL, cHANDLE, cINT, cP_DWORD, cP_VOID, cSTR,
     type HANDLE, type OUT
 } from '../../internals.js'
 import type { LUID } from '../../chore/types.js'
@@ -20,7 +20,7 @@ import { cPRIVILEGE_SET } from './ctypes.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupaccountnamew
  */
 export function LookupAccountName(systemName: string | null, accountName: string): LookupAccountNameResult | null {
-    LookupAccountName.native ??= advapi32.func('LookupAccountNameW', cBOOL, [ cSTR, cSTR, koffi.out(cPSID), koffi.inout(cPDWORD), cPVOID, koffi.inout(cPDWORD), koffi.out(koffi.pointer(cINT)) ])
+    LookupAccountName.native ??= advapi32.func('LookupAccountNameW', cBOOL, [ cSTR, cSTR, koffi.out(cPSID), koffi.inout(cP_DWORD), cP_VOID, koffi.inout(cP_DWORD), koffi.out(koffi.pointer(cINT)) ])
 
     const sid = {} as SID
     const pCbSid: OUT<number> = [koffi.sizeof(cSID)]
@@ -48,7 +48,7 @@ export interface LookupAccountNameResult {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lookupprivilegenamew
  */
 export function LookupPrivilegeName(systemName: string | null, luid: LUID): string | null {
-    LookupPrivilegeName.native ??= advapi32.func('LookupPrivilegeNameW', cBOOL, [ cSTR, koffi.pointer(cLUID), cPVOID, koffi.inout(cPDWORD) ])
+    LookupPrivilegeName.native ??= advapi32.func('LookupPrivilegeNameW', cBOOL, [ cSTR, koffi.pointer(cLUID), cP_VOID, koffi.inout(cP_DWORD) ])
 
     const name = new StringOutputBuffer(Internals.MAX_NAME)
     return LookupPrivilegeName.native(systemName, luid, name.buffer, name.pLength) !== 0

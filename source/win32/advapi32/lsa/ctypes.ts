@@ -1,5 +1,5 @@
 import koffi from 'koffi'
-import { cBOOL, cHANDLE, cINT, cLONG, cLONGLONG, cPVOID, cSTR, cULONG, cUSHORT } from '../../internals.js'
+import { cBOOL, cHANDLE, cINT, cLONG, cLONGLONG, cP_VOID, cSTR, cULONG, cUSHORT } from '../../internals.js'
 import { cGUID } from '../../chore/ctypes.js'
 import { cPSID } from '../sid/ctypes.js'
 
@@ -14,8 +14,8 @@ export const cLSA_OBJECT_ATTRIBUTES = koffi.struct({
     RootDirectory:            cHANDLE,
     ObjectName:               koffi.pointer(cLSA_UNICODE_STRING),
     Attributes:               cULONG,
-    SecurityDescriptor:       cPVOID,
-    SecurityQualityOfService: cPVOID
+    SecurityDescriptor:       cP_VOID,
+    SecurityQualityOfService: cP_VOID
 })
 
 export const cLSA_TRANSLATED_SID2 = koffi.struct({

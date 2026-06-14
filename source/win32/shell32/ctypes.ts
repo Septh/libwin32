@@ -1,5 +1,5 @@
 import koffi from 'koffi'
-import { cDWORD, cHANDLE, cINT, cPVOID, cSTR, cUINT, cULONG } from '../internals.js'
+import { cDWORD, cHANDLE, cINT, cP_VOID, cSTR, cUINT, cULONG } from '../internals.js'
 import { cGUID } from '../chore/ctypes.js'
 
 export const cNOTIFYICONDATA = koffi.struct({
@@ -33,7 +33,7 @@ export const cSHELLEXECUTEINFO = koffi.struct({
     lpDirectory:  cSTR,
     nShow:        cINT,
     hInstApp:     cINT,
-    lpIDList:     cPVOID,
+    lpIDList:     cP_VOID,
     lpClass:      cSTR,
     hkeyClass:    cHANDLE,
     dwHotKey:     cDWORD,

@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals,
-    cCHAR, cDWORD, cHANDLE, cLONG, cLONGLONG, cPVOID
+    cCHAR, cDWORD, cHANDLE, cLONG, cLONGLONG, cP_VOID
 } from '../../internals.js'
 import { cLUID } from '../../chore/ctypes.js'
 import { cACL, cLUID_AND_ATTRIBUTES } from '../security/ctypes.js'
@@ -101,5 +101,5 @@ export const cTOKEN_ACCESS_INFORMATION = koffi.struct({
     PackageSid:         cPSID,
     CapabilitiesHash:   koffi.pointer(cSID_AND_ATTRIBUTES_HASH),
     TrustLevelSid:      cPSID,
-    SecurityAttributes: cPVOID,
+    SecurityAttributes: cP_VOID,
 })

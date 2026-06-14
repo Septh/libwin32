@@ -1,5 +1,5 @@
 import koffi from 'koffi'
-import { Internals, cBYTE, cDWORD, cPVOID } from '../../internals.js'
+import { Internals, cBYTE, cDWORD, cP_VOID } from '../../internals.js'
 
 export const cSID_IDENTIFIER_AUTHORITY = koffi.array(cBYTE, 6, 'Array')
 
@@ -18,5 +18,5 @@ export const cSID_AND_ATTRIBUTES = koffi.struct({
 export const cSID_AND_ATTRIBUTES_HASH = koffi.struct({
     SidCount: cDWORD,
     SidAttr:  koffi.pointer(null, cSID_AND_ATTRIBUTES, 'SidCount'),
-    Hash:     koffi.array(cPVOID, Internals.SID_HASH_SIZE)
+    Hash:     koffi.array(cP_VOID, Internals.SID_HASH_SIZE)
 })

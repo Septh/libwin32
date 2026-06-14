@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals, binaryBuffer, isPointer,
-    cBOOL, cDWORD, cHANDLE, cINT, cPDWORD, cPVOID,
+    cBOOL, cDWORD, cHANDLE, cINT, cP_DWORD, cP_VOID,
     type HANDLE, type OUT, type Pointer
 } from '../../internals.js'
 import { ERROR_ } from '../../chore/consts.js'
@@ -83,7 +83,7 @@ export const enum INTERNAL_TOKEN_INFORMATION_CLASS {
 }
 
 export function getTokenInfo(hToken: HTOKEN, infoClass: INTERNAL_TOKEN_INFORMATION_CLASS, tokenInformationLength = binaryBuffer.byteLength): boolean {
-    getTokenInfo.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cPVOID, cDWORD, koffi.out(cPDWORD) ])
+    getTokenInfo.native ??= advapi32.func('GetTokenInformation', cBOOL, [ cHANDLE, cINT, cP_VOID, cDWORD, koffi.out(cP_DWORD) ])
 
     const pLength: OUT<number> = [0]
     return getTokenInfo.native(hToken, infoClass, binaryBuffer.buffer, tokenInformationLength, pLength) !== 0
@@ -122,7 +122,7 @@ function decodeClaimSecurityAttributesInformation(ptr: Pointer | Buffer<ArrayBuf
  */
 export function AdjustTokenPrivileges(tokenHandle: HTOKEN, disableAllPrivileges: boolean, newState: TOKEN_PRIVILEGES | null = null): TOKEN_PRIVILEGES | null {
     AdjustTokenPrivileges.native ??= advapi32.func('AdjustTokenPrivileges', cBOOL, [
-        cHANDLE, cBOOL, koffi.pointer(cTOKEN_PRIVILEGES), cDWORD, cPVOID, koffi.out(cPDWORD)
+        cHANDLE, cBOOL, koffi.pointer(cTOKEN_PRIVILEGES), cDWORD, cP_VOID, koffi.out(cP_DWORD)
     ])
 
     const pLength: OUT<number> = [0]

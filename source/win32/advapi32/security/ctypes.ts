@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals,
-    cBOOL, cBYTE, cDWORD, cDWORD64, cLONG64, cPVOID, cSTR, cWORD
+    cBOOL, cBYTE, cDWORD, cDWORD64, cLONG64, cP_VOID, cSTR, cWORD
 } from '../../internals.js'
 import { cLUID } from '../../chore/ctypes.js'
 import { cPSID } from '../sid/ctypes.js'
@@ -20,7 +20,7 @@ export const cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE = koffi.struct({
 })
 
 export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct({
-    pValue:      cPVOID,
+    pValue:      cP_VOID,
     ValueLength: cDWORD
 })
 

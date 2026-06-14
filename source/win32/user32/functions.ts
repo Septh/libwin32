@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     StringOutputBuffer,
-    cBOOL, cDWORD, cHANDLE, cINT, cLONG, cPDWORD, cPVOID,
+    cBOOL, cDWORD, cHANDLE, cINT, cLONG, cP_DWORD, cP_VOID,
     cSTR, cUINT, cVOID, cWORD,
     type OUT
 } from '../internals.js'
@@ -87,7 +87,7 @@ export function BringWindowToTop(hWnd: HWND): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-broadcastsystemmessagew
  */
 export function BroadcastSystemMessage(flags: BSF_, info: BSM_, msg: number, wParam: WPARAM, lParam: LPARAM): boolean {
-    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM ])
+    BroadcastSystemMessage.native ??= user32.func('BroadcastSystemMessageW', cLONG, [ cDWORD, koffi.inout(cP_DWORD), cUINT, cWPARAM, cLPARAM ])
 
     const pInfo: OUT<number> = [info]
     return BroadcastSystemMessage.native(flags, pInfo, msg, wParam, lParam) > 0
@@ -104,7 +104,7 @@ export function BroadcastSystemMessage(flags: BSF_, info: BSM_, msg: number, wPa
  *
  */
 export function BroadcastSystemMessageEx(flags: BSF_, info: BSM_, msg: number, wParam: WPARAM, lParam: LPARAM): BSMINFO | boolean {
-    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cPDWORD), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
+    BroadcastSystemMessageEx.native ??= user32.func('BroadcastSystemMessageExW', cLONG, [ cDWORD, koffi.inout(cP_DWORD), cUINT, cWPARAM, cLPARAM, koffi.out(koffi.pointer(cBSMINFO)) ])
 
     const pInfo: OUT<number> = [info]
     const bsmInfo = new BSMINFO()
@@ -326,7 +326,7 @@ export function GetClassInfoEx(hInstance: HINSTANCE | null, className: string): 
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclassnamew
  */
 export function GetClassName(hWnd: HWND): string | null {
-    GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cPVOID), cINT ])
+    GetClassName.native ??= user32.func('GetClassNameW', cINT, [ cHANDLE, koffi.out(cP_VOID), cINT ])
 
     const className = new StringOutputBuffer(256)
     const len = GetClassName.native(hWnd, className.buffer, className.length)
@@ -375,7 +375,7 @@ export function GetMessage(hWnd: HWND | null | -1, msgFilterMin: number = 0, msg
  * https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
  */
 export function GetWindowText(hWnd: HWND): string {
-    GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cPVOID), cINT ])
+    GetWindowText.native ??= user32.func('GetWindowTextW', cINT, [ cHANDLE, koffi.out(cP_VOID), cINT ])
 
     const text = new StringOutputBuffer(1024)
     const len = GetWindowText.native(hWnd, text.buffer, text.length)
@@ -391,7 +391,7 @@ export function GetWindowText(hWnd: HWND): string {
  *
  */
 export function GetWindowThreadProcessId(hWnd: HWND): GetWindowThreadProcessIdResult {
-    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cPDWORD) ])
+    GetWindowThreadProcessId.native ??= user32.func('GetWindowThreadProcessId', cDWORD, [ cHANDLE, koffi.out(cP_DWORD) ])
 
     const pProcessId: OUT<number> = [0]
     const threadId: number = GetWindowThreadProcessId.native(hWnd, pProcessId)

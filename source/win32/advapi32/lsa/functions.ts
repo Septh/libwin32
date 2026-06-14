@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals,
-    cDWORD, cHANDLE, cINT, cNTSTATUS, cPDWORD, cPVOID, cULONG,
+    cDWORD, cHANDLE, cINT, cNTSTATUS, cP_DWORD, cP_VOID, cULONG,
     type OUT, type Pointer
 } from '../../internals.js'
 import { NTSTATUS_ } from '../../chore/consts.js'
@@ -39,14 +39,14 @@ const enum INTERNAL_POLICY_INFORMATION_CLASS {
 }
 
 function queryPolicyInfo(policyHandle: LSA_HANDLE, infoClass: INTERNAL_POLICY_INFORMATION_CLASS): NTSTATUS_ | unknown {
-    queryPolicyInfo.native ??= advapi32.func('LsaQueryInformationPolicy', cNTSTATUS, [ cHANDLE, cINT, koffi.out(koffi.pointer(cPVOID)) ])
+    queryPolicyInfo.native ??= advapi32.func('LsaQueryInformationPolicy', cNTSTATUS, [ cHANDLE, cINT, koffi.out(koffi.pointer(cP_VOID)) ])
 
     const pBuffer: OUT<unknown> = [null!]
     return queryPolicyInfo.native(policyHandle, infoClass, pBuffer) || pBuffer[0]
 }
 
 function lsaFree(ptr: unknown) {
-    return (lsaFree.native ??= advapi32.func('LsaFreeMemory', cNTSTATUS, [ cPVOID ]))(ptr)
+    return (lsaFree.native ??= advapi32.func('LsaFreeMemory', cNTSTATUS, [ cP_VOID ]))(ptr)
 }
 
 /**
@@ -68,7 +68,7 @@ export function LsaClose(objectHandle: LSA_HANDLE): NTSTATUS_ {
  */
 export function LsaEnumerateAccountRights(policyHandle: LSA_HANDLE, accountSid: SID): LSA_UNICODE_STRING[] | NTSTATUS_ {
     LsaEnumerateAccountRights.native ??= advapi32.func('LsaEnumerateAccountRights', cNTSTATUS, [
-        cHANDLE, koffi.pointer(cSID), koffi.out(koffi.pointer(cPVOID)), koffi.out(cPDWORD)
+        cHANDLE, koffi.pointer(cSID), koffi.out(koffi.pointer(cP_VOID)), koffi.out(cP_DWORD)
     ])
 
     const pUserRights: OUT<Pointer> = [null!]
@@ -105,7 +105,7 @@ export function LsaFreeMemory(buffer: unknown): NTSTATUS_ {
 export function LsaLookupNames2(policyHandle: LSA_HANDLE, flags: LSA_LOOKUP, ...names: string[]): LsaLookupNames2Result | NTSTATUS_ {
     LsaLookupNames2.native ??= advapi32.func('LsaLookupNames2', cNTSTATUS, [
         cHANDLE, cULONG, cULONG, koffi.pointer(koffi.array(cLSA_UNICODE_STRING, Internals.LSALOOKUPNAMES2_MAX_NAMES)),
-        koffi.out(koffi.pointer(cPVOID)), koffi.out(koffi.pointer(cPVOID))
+        koffi.out(koffi.pointer(cP_VOID)), koffi.out(koffi.pointer(cP_VOID))
     ])
 
     const count = names.length

@@ -1,13 +1,9 @@
 import koffi from 'koffi'
 
-export const binaryBuffer = /*#__PURE__*/ Buffer.alloc(32768)
-export const textDecoder  = /*#__PURE__*/ new TextDecoder('utf-16')
-
 /*
  * (Some) C typedefs used throughout the Windows API.
  * https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
  */
-
 export const cVOID      = koffi.types.void
 export const cBOOL      = koffi.types.int
 export const cINT       = koffi.types.int
@@ -32,12 +28,16 @@ export const cFLOAT     = koffi.types.float
 export const cSTR       = koffi.types.str16    // We let Koffi convert JS string parameters
 export const cSIZE_T    = koffi.types.uint64
 
-export const cPVOID     = koffi.pointer(koffi.types.void)
-export const cPDWORD    = koffi.pointer(cDWORD)
-
 export const cHANDLE    = koffi.pointer(koffi.opaque())
 export const cLSTATUS   = koffi.types.int32
 export const cNTSTATUS  = koffi.types.int32
+
+export const cP_VOID    = koffi.pointer(koffi.types.void)
+export const cP_DWORD   = koffi.pointer(cDWORD)
+
+/** A general purpose out buffer. */
+export const binaryBuffer = /*#__PURE__*/ Buffer.alloc(32768)
+export const textDecoder  = /*#__PURE__*/ new TextDecoder('utf-16')
 
 export class StringOutputBuffer {
     readonly buffer: Buffer<ArrayBuffer>

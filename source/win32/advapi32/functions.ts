@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     StringOutputBuffer, Internals,
-    cBOOL, cPVOID, cPDWORD,
+    cBOOL, cP_VOID, cP_DWORD,
 } from '../internals.js'
 import { advapi32 } from './_dll.js'
 
@@ -17,7 +17,7 @@ export * from './token/functions.js'
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getusernamew
  */
 export function GetUserName(): string | null {
-    GetUserName.native ??= advapi32.func('GetUserNameW', cBOOL, [ cPVOID, koffi.inout(cPDWORD) ])
+    GetUserName.native ??= advapi32.func('GetUserNameW', cBOOL, [ cP_VOID, koffi.inout(cP_DWORD) ])
 
     const name = new StringOutputBuffer(Internals.UNLEN + 1)
     return GetUserName.native(name.buffer, name.pLength) !== 0

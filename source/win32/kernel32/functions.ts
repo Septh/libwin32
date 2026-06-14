@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals, StringOutputBuffer,
-    cBOOL, cDWORD, cHANDLE, cPDWORD, cPVOID, cSTR, cVOID,
+    cBOOL, cDWORD, cHANDLE, cP_DWORD, cP_VOID, cSTR, cVOID,
     type HANDLE, type OUT
 } from '../internals.js'
 import type { HMODULE } from '../chore/types.js'
@@ -42,7 +42,7 @@ export function CloseHandle(hObject: HANDLE): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-expandenvironmentstringsw
  */
 export function ExpandEnvironmentStrings(src: string): string {
-    ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cSTR, cPVOID, cDWORD ])
+    ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cSTR, cP_VOID, cDWORD ])
 
     const str = new StringOutputBuffer(4096)
     const len = ExpandEnvironmentStrings.native(src, str.buffer, str.length)
@@ -71,7 +71,7 @@ export function FileTimeToSystemTime(fileTime: FILETIME): SYSTEMTIME | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-formatmessagew
  */
 export function FormatMessage(flags: FORMAT_MESSAGE_, source: HMODULE | string | null, messageId: number, languageId: number = 0): string {
-    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cPVOID, cDWORD, cDWORD, cPVOID, cDWORD, '...' as any ])
+    FormatMessage.native ??= kernel32.func('FormatMessageW', cDWORD, [ cDWORD, cP_VOID, cDWORD, cDWORD, cP_VOID, cDWORD, '...' as any ])
 
     const pSource = typeof source === 'string' ? Uint16Array.from(source, c => c.charCodeAt(0)) : source
     const buffer = new StringOutputBuffer(1024)
@@ -88,7 +88,7 @@ export function FormatMessage(flags: FORMAT_MESSAGE_, source: HMODULE | string |
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getcomputernamew
  */
 export function GetComputerName(): string | null {
-    GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cPVOID, koffi.inout(cPDWORD) ])
+    GetComputerName.native ??= kernel32.func('GetComputerNameW', cBOOL, [ cP_VOID, koffi.inout(cP_DWORD) ])
 
     const name = new StringOutputBuffer(Internals.UNLEN)
     return GetComputerName.native(name.buffer, name.pLength) !== 0 ? name.decode() : null
@@ -130,7 +130,7 @@ export function GetCurrentProcessId(): number {
  * https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getexitcodeprocess
  */
 export function GetExitCodeProcess(hProcess: HANDLE): number | null {
-    GetExitCodeProcess.native ??= kernel32.func('GetExitCodeProcess', cBOOL, [ cHANDLE, koffi.out(cPDWORD) ])
+    GetExitCodeProcess.native ??= kernel32.func('GetExitCodeProcess', cBOOL, [ cHANDLE, koffi.out(cP_DWORD) ])
 
     const pExitCode: OUT<number> = [0]
     return GetExitCodeProcess.native(hProcess, pExitCode) !== 0 ? pExitCode[0] : null
@@ -142,7 +142,7 @@ export function GetExitCodeProcess(hProcess: HANDLE): number | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-gethandleinformation
  */
 export function GetHandleInformation(hObject: HANDLE): HANDLE_FLAG_ | null {
-    GetHandleInformation.native ??= kernel32.func('GetHandleInformation', cBOOL, [ cHANDLE, koffi.out(cPDWORD) ])
+    GetHandleInformation.native ??= kernel32.func('GetHandleInformation', cBOOL, [ cHANDLE, koffi.out(cP_DWORD) ])
 
     const pFlags: OUT<HANDLE_FLAG_> = [0 as HANDLE_FLAG_]
     return GetHandleInformation.native(hObject, pFlags) !== 0 ? pFlags[0] : null
@@ -166,7 +166,7 @@ export function GetLastError(): number {
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamew
  */
 export function GetModuleFileName(hModule: HMODULE | null): string | null {
-    GetModuleFileName.native ??= kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, cPVOID, cDWORD ])
+    GetModuleFileName.native ??= kernel32.func('GetModuleFileNameW', cDWORD, [ cHANDLE, cP_VOID, cDWORD ])
 
     const name = new StringOutputBuffer(Internals.MAX_PATH)
     const len = GetModuleFileName.native(hModule, name.buffer, name.length)
@@ -206,7 +206,7 @@ export function GetModuleHandleEx(flags: GET_MODULE_HANDLE_EX_FLAG_, moduleName:
  * https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystemregistryquota
  */
 export function GetSystemRegistryQuota(): { allowed: number, used: number } | null {
-    GetSystemRegistryQuota.native ??= kernel32.func('GetSystemRegistryQuota', cBOOL, [ koffi.out(cPDWORD), koffi.out(cPDWORD) ])
+    GetSystemRegistryQuota.native ??= kernel32.func('GetSystemRegistryQuota', cBOOL, [ koffi.out(cP_DWORD), koffi.out(cP_DWORD) ])
 
     const pAllowed: OUT<number> = [0]
     const pUsed: OUT<number> = [0]
@@ -215,7 +215,7 @@ export function GetSystemRegistryQuota(): { allowed: number, used: number } | nu
 
 /** @internal only used by some functions in some libs and not intended to be exposed to the user. */
 export function LocalFree(ptr: unknown) {
-    LocalFree.native ??= kernel32.func('LocalFree', cPVOID, [ cPVOID ])
+    LocalFree.native ??= kernel32.func('LocalFree', cP_VOID, [ cP_VOID ])
     return LocalFree.native(ptr)
 }
 
@@ -236,7 +236,7 @@ export function OpenProcess(desiredAccess: PSAR_, inheritHandle: boolean, proces
  */
 export function QueryFullProcessImageName(hProcess: HANDLE, flags: number): string | null {
     QueryFullProcessImageName.native ??= kernel32.func('QueryFullProcessImageNameW', cBOOL, [
-        cHANDLE, cDWORD, cPVOID, koffi.inout(cPDWORD)
+        cHANDLE, cDWORD, cP_VOID, koffi.inout(cP_DWORD)
     ])
 
     const name = new StringOutputBuffer(Internals.MAX_PATH)
