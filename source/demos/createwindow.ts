@@ -23,11 +23,7 @@ function wndProc(hWnd: HWND, uMsg: WM_, wParam: WPARAM, lParam: LPARAM) {
 
         default:
             // console.log(uMsg)
-<<<<<<< HEAD
-            ret = DefWindowProc(hWnd, uMmsg, wParam, lParam) as number
-=======
             ret = DefWindowProc(hWnd, uMsg, wParam, lParam) as number
->>>>>>> refactor
             break
     }
     return ret
@@ -39,21 +35,12 @@ function WinMain(hInstance: HINSTANCE, nCmdShow: SW_): number {
     const wcex = new WNDCLASSEX()
     wcex.hInstance     = hInstance
     wcex.lpszClassName = windowClass
-<<<<<<< HEAD
-    wcex.style         = CS_.HREDRAW | CS_.VREDRAW
-    wcex.lpfnWndProc   = wndProc,
-    wcex.hCursor       = LoadCursor(null, IDC_.ARROW)
-    wcex.hIcon         = LoadIcon(hInstance, IDI_.APPLICATION)
-    wcex.hIconSm       = LoadIcon(hInstance, IDI_.APPLICATION)
-    wcex.hbrBackground = 13 as unknown as HBRUSH                  // Note: brushes are not yet implemented. 13 is the standard background.
-=======
     wcex.style         = CS_.HREDRAW | CS_.VREDRAW,
     wcex.lpfnWndProc   = wndProc
     wcex.hCursor       = LoadCursor(null, IDC_.ARROW)
     wcex.hIcon         = LoadIcon(hInstance, IDI_.APPLICATION)
     wcex.hIconSm       = LoadIcon(hInstance, IDI_.APPLICATION)
     wcex.hbrBackground = 13 as unknown as HBRUSH    // Note: brushes are not yet implemented. 13 is the standard background.
->>>>>>> refactor
 
     const atom = RegisterClassEx(wcex)
     if (!atom) {

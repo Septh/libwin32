@@ -1,7 +1,6 @@
 export * from './chore.js'
 export * from './advapi32.js'
 export * from './kernel32.js'
-export * from './misc.js'
 export * from './ole32.js'
 export * from './psapi.js'
 export * from './secur32.js'

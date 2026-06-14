@@ -42,7 +42,7 @@ export function AllocateAndInitializeSid(identifierAuthority: SID_IDENTIFIER_AUT
             ppSID
         )) {
             const sid = koffi.decode(ppSID[0], cSID)
-            _FreeSid(ppSID[0])
+            freeSid(ppSID[0])
             return sid
         }
     }

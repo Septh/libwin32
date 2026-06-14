@@ -16,12 +16,7 @@ import {
     type HKEY_, type KEY_, type REG_OPTION_, type RRF_
 } from './consts.js'
 
-import { advapi32 } from '../dll.js'
-import type { HKEY } from './types.js'
-import {
-    REG_,
-    type HKEY_, type KEY_, type REG_OPTION_, type RRF_
-} from './consts.js'
+type LSTATUS = ERROR_
 
 /** Anything that has a `buffer: ArrayBufferLike` property: `Buffer`, `TypedArrays`, `DataView`. */
 type BufferSource = ArrayBufferView<ArrayBufferLike>
@@ -306,17 +301,17 @@ export function RegQueryInfoKey(hKey: HKEY | HKEY_): RegQueryInfoKeyResult | LST
     const className = new StringOutputBuffer(Internals.MAX_PATH + 1)
     const pSubKeys: OUT<number> = [0]
     const pValues: OUT<number> = [0]
-    const plastWriteTime: OUT<FILETIME> = [{} as FILETIME]
+    const lastWriteTime = {} as FILETIME
     const status = RegQueryInfoKey.native(hKey, className.buffer, className.pLength, null,
         pSubKeys, null, null,
         pValues, null, null, null,
-        plastWriteTime
+        lastWriteTime
     )
     return status || {
         className: className.decode(),
         subKeys: pSubKeys[0],
         values: pValues[0],
-        lastWriteTime: plastWriteTime[0]
+        lastWriteTime
     } satisfies RegQueryInfoKeyResult
 }
 
@@ -397,6 +392,44 @@ export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type
 
     const source = regKeyDataToBuffer(type, data)
     return typeof source === 'number' ? source : RegSetValueEx.native(hKey, valueName, 0, type, source, source.byteLength)
+}
+
+function regKeyDataToBuffer(type: REG_, data: any): BufferSource | ERROR_ {
+
+    switch (type) {
+        case REG_.NONE:
+            return new Uint8Array()
+
+        case REG_.SZ:
+        case REG_.EXPAND_SZ:
+            return typeof data === 'string'
+                ? Uint16Array.from(data + '\0', c => c.charCodeAt(0))
+                : ERROR_.BAD_ARGUMENTS
+
+        case REG_.MULTI_SZ:
+            return Array.isArray(data) && data.every(s => typeof s === 'string')
+                ? Uint16Array.from(data.join('\0') + '\0\0', c => c.charCodeAt(0))
+                : ERROR_.BAD_ARGUMENTS
+
+        case REG_.BINARY:
+            return ArrayBuffer.isView(data)
+                ? data
+                : ERROR_.BAD_ARGUMENTS
+
+        case REG_.DWORD:
+        case REG_.DWORD_BIG_ENDIAN:
+            return Number.isFinite(data)
+                ? binaryBuffer.subarray(0, binaryBuffer.writeUInt32LE(data, 0))
+                : ERROR_.BAD_ARGUMENTS
+
+        case REG_.QWORD:
+            return Number.isFinite(data) || typeof data === 'bigint'
+                ? binaryBuffer.subarray(0, binaryBuffer.writeBigUInt64LE(BigInt(data), 0))
+                : ERROR_.BAD_ARGUMENTS
+
+        default:
+            return ERROR_.NOT_SUPPORTED
+    }
 }
 
 /**
