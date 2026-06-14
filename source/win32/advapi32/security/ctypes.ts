@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals,
-    cBOOL, cBYTE, cDWORD, cDWORD64, cLONG64, cP_VOID, cSTR, cWORD
+    cBOOL, cBYTE, cDWORD, cDWORD64, cLONG64, cP_VOID, cWSTR, cWORD
 } from '../../internals.js'
 import { cLUID } from '../../chore/ctypes.js'
 import { cPSID } from '../sid/ctypes.js'
@@ -16,7 +16,7 @@ export const cACL = koffi.struct({
 
 export const cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE = koffi.struct({
     Version: cDWORD64,
-    Name:    cSTR
+    Name:    cWSTR
 })
 
 export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct({
@@ -25,7 +25,7 @@ export const cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE = koffi.struct({
 })
 
 export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
-    Name:       cSTR,
+    Name:       cWSTR,
     ValueType:  cWORD,
     Reserved:   cWORD,
     Flags:      cDWORD,
@@ -33,7 +33,7 @@ export const cCLAIM_SECURITY_ATTRIBUTE_V1 = koffi.struct({
     Values:     koffi.union('CSA_V1_Values', {
         pInt64:        koffi.pointer(cLONG64, Internals.ANYSIZE_ARRAY),
         pUint64:       koffi.pointer(cDWORD64, Internals.ANYSIZE_ARRAY),
-        ppString:      koffi.pointer(cSTR, Internals.ANYSIZE_ARRAY),
+        ppString:      koffi.pointer(cWSTR, Internals.ANYSIZE_ARRAY),
         pFqbn:         koffi.pointer(cCLAIM_SECURITY_ATTRIBUTE_FQBN_VALUE, Internals.ANYSIZE_ARRAY),
         pOctectString: koffi.pointer(cCLAIM_SECURITY_ATTRIBUTE_OCTET_STRING_VALUE, Internals.ANYSIZE_ARRAY)
     })

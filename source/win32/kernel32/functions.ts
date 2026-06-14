@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals, StringOutputBuffer,
-    cBOOL, cDWORD, cHANDLE, cP_DWORD, cP_VOID, cSTR, cVOID,
+    cBOOL, cDWORD, cHANDLE, cP_DWORD, cP_VOID, cWSTR, cVOID,
     type HANDLE, type OUT
 } from '../internals.js'
 import type { HMODULE } from '../chore/types.js'
@@ -42,7 +42,7 @@ export function CloseHandle(hObject: HANDLE): boolean {
  * https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-expandenvironmentstringsw
  */
 export function ExpandEnvironmentStrings(src: string): string {
-    ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cSTR, cP_VOID, cDWORD ])
+    ExpandEnvironmentStrings.native ??= kernel32.func('ExpandEnvironmentStringsW', cDWORD, [ cWSTR, cP_VOID, cDWORD ])
 
     const str = new StringOutputBuffer(4096)
     const len = ExpandEnvironmentStrings.native(src, str.buffer, str.length)
@@ -181,7 +181,7 @@ export function GetModuleFileName(hModule: HMODULE | null): string | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandlew
  */
 export function GetModuleHandle(moduleName: string | null): HMODULE | null {
-    GetModuleHandle.native ??= kernel32.func('GetModuleHandleW', cHANDLE, [ cSTR ])
+    GetModuleHandle.native ??= kernel32.func('GetModuleHandleW', cHANDLE, [ cWSTR ])
     return GetModuleHandle.native(moduleName)
 }
 
@@ -194,7 +194,7 @@ export function GetModuleHandle(moduleName: string | null): HMODULE | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandleexw
  */
 export function GetModuleHandleEx(flags: GET_MODULE_HANDLE_EX_FLAG_, moduleName: string | null): HMODULE | null {
-    GetModuleHandleEx.native ??= kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cSTR, koffi.out(koffi.pointer(cHANDLE)) ])
+    GetModuleHandleEx.native ??= kernel32.func('GetModuleHandleExW', cBOOL, [ cDWORD, cWSTR, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const pHandle: OUT<HMODULE | null> = [null]
     return GetModuleHandleEx.native(flags, moduleName, pHandle) !== 0 ? pHandle[0] : null

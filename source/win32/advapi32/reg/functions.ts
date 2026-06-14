@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals, StringOutputBuffer, binaryBuffer, textDecoder,
-    cDWORD, cHANDLE, cLSTATUS, cP_DWORD, cP_VOID, cSTR,
+    cDWORD, cHANDLE, cLSTATUS, cP_DWORD, cP_VOID, cWSTR,
     type OUT
 } from '../../internals.js'
 import { ERROR_ } from '../../chore/consts.js'
@@ -37,7 +37,7 @@ export function RegCloseKey(hKey: HKEY): LSTATUS {
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regconnectregistryw
  */
 export function RegConnectRegistry(machineName: string, hKey: HKEY | HKEY_): HKEY | LSTATUS {
-    RegConnectRegistry.native ??= advapi32.func('RegConnectRegistryW', cLSTATUS, [ cSTR, cHANDLE, koffi.out(koffi.pointer(cHANDLE)) ])
+    RegConnectRegistry.native ??= advapi32.func('RegConnectRegistryW', cLSTATUS, [ cWSTR, cHANDLE, koffi.out(koffi.pointer(cHANDLE)) ])
 
     const pHandle: OUT<HKEY> = [null!]
     return RegConnectRegistry.native(machineName, hKey, pHandle) || pHandle[0]
@@ -49,7 +49,7 @@ export function RegConnectRegistry(machineName: string, hKey: HKEY | HKEY_): HKE
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcopytreew
  */
 export function RegCopyTree(hKeySrc: HKEY | HKEY_, subKey: string | null, hKeyDest: HKEY | HKEY_): LSTATUS {
-    RegCopyTree.native ??= advapi32.func('RegCopyTreeW', cLSTATUS, [ cHANDLE, cSTR, cHANDLE ])
+    RegCopyTree.native ??= advapi32.func('RegCopyTreeW', cLSTATUS, [ cHANDLE, cWSTR, cHANDLE ])
     return RegCopyTree.native(hKeySrc, subKey, hKeyDest)
 }
 
@@ -63,7 +63,7 @@ export function RegCreateKeyEx(
     securityAttributes: SECURITY_ATTRIBUTES | null
 ): HKEY | LSTATUS {
     RegCreateKeyEx.native ??= advapi32.func('RegCreateKeyExW', cLSTATUS, [
-        cHANDLE, cSTR, cDWORD, cSTR, cDWORD, cDWORD,
+        cHANDLE, cWSTR, cDWORD, cWSTR, cDWORD, cDWORD,
         koffi.pointer(cSECURITY_ATTRIBUTES), koffi.out(koffi.pointer(cHANDLE)), koffi.out(cP_DWORD)
     ])
 
@@ -77,7 +77,7 @@ export function RegCreateKeyEx(
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletekeyw
  */
 export function RegDeleteKey(hKey: HKEY | HKEY_, subKey: string): LSTATUS {
-    RegDeleteKey.native ??= advapi32.func('RegDeleteKeyW', cLSTATUS, [ cHANDLE, cSTR ])
+    RegDeleteKey.native ??= advapi32.func('RegDeleteKeyW', cLSTATUS, [ cHANDLE, cWSTR ])
     return RegDeleteKey.native(hKey, subKey)
 }
 
@@ -87,7 +87,7 @@ export function RegDeleteKey(hKey: HKEY | HKEY_, subKey: string): LSTATUS {
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletekeyexw
  */
 export function RegDeleteKeyEx(hKey: HKEY | HKEY_, subKey: string, samDesired: KEY_): LSTATUS {
-    RegDeleteKeyEx.native ??= advapi32.func('RegDeleteKeyExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cDWORD ])
+    RegDeleteKeyEx.native ??= advapi32.func('RegDeleteKeyExW', cLSTATUS, [ cHANDLE, cWSTR, cDWORD, cDWORD ])
     return RegDeleteKeyEx.native(hKey, subKey, samDesired, 0)
 }
 
@@ -97,7 +97,7 @@ export function RegDeleteKeyEx(hKey: HKEY | HKEY_, subKey: string, samDesired: K
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletekeyvaluew
  */
 export function RegDeleteKeyValue(hKey: HKEY | HKEY_, subKey: string | null = null, valueName: string | null = null): LSTATUS {
-    RegDeleteKeyValue.native ??= advapi32.func('RegDeleteKeyValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR ])
+    RegDeleteKeyValue.native ??= advapi32.func('RegDeleteKeyValueW', cLSTATUS, [ cHANDLE, cWSTR, cWSTR ])
     return RegDeleteKeyValue.native(hKey, subKey, valueName)
 }
 
@@ -107,7 +107,7 @@ export function RegDeleteKeyValue(hKey: HKEY | HKEY_, subKey: string | null = nu
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletetreew
  */
 export function RegDeleteTree(hKey: HKEY | HKEY_, subKey: string | null = null): LSTATUS {
-    RegDeleteTree.native ??= advapi32.func('RegDeleteTreeW', cLSTATUS, [ cHANDLE, cSTR ])
+    RegDeleteTree.native ??= advapi32.func('RegDeleteTreeW', cLSTATUS, [ cHANDLE, cWSTR ])
     return RegDeleteTree.native(hKey, subKey)
 }
 
@@ -117,7 +117,7 @@ export function RegDeleteTree(hKey: HKEY | HKEY_, subKey: string | null = null):
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletevaluew
  */
 export function RegDeleteValue(hKey: HKEY | HKEY_, valueName: string | null = null): LSTATUS {
-    RegDeleteValue.native ??= advapi32.func('RegDeleteValueW', cLSTATUS, [ cHANDLE, cSTR ])
+    RegDeleteValue.native ??= advapi32.func('RegDeleteValueW', cLSTATUS, [ cHANDLE, cWSTR ])
     return RegDeleteValue.native(hKey, valueName)
 }
 
@@ -200,7 +200,7 @@ export function RegFlushKey(hKey: HKEY | HKEY_): LSTATUS {
  */
 export function RegGetValue(hKey: HKEY | HKEY_, subKey: string | null, value: string | null, flags: RRF_): RegGetValueResult | LSTATUS {
     RegGetValue.native ??= advapi32.func('RegGetValueW', cLSTATUS, [
-        cHANDLE, cSTR, cSTR, cDWORD, koffi.out(cP_DWORD), cP_VOID, koffi.inout(cP_DWORD)
+        cHANDLE, cWSTR, cWSTR, cDWORD, koffi.out(cP_DWORD), cP_VOID, koffi.inout(cP_DWORD)
     ])
 
     const pType: OUT<REG_> = [0]
@@ -254,7 +254,7 @@ export type RegGetValueResult =
  */
 export function RegLoadAppKey(file: string, samDesired: KEY_, options: number): HKEY | LSTATUS {
     RegLoadAppKey.native ??= advapi32.func('RegLoadAppKeyW', cLSTATUS, [
-        cSTR, koffi.out(koffi.pointer(cHANDLE)), cDWORD, cDWORD, cDWORD
+        cWSTR, koffi.out(koffi.pointer(cHANDLE)), cDWORD, cDWORD, cDWORD
     ])
     const pHandle: OUT<HKEY> = [null!]
     return RegLoadAppKey.native(file, pHandle, samDesired, options, 0) || pHandle[0]
@@ -266,7 +266,7 @@ export function RegLoadAppKey(file: string, samDesired: KEY_, options: number): 
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regloadkeyw
  */
 export function RegLoadKey(hKey: HKEY | HKEY_, subKey: string | null, file: string): LSTATUS {
-    RegLoadKey.native ??= advapi32.func('RegLoadKeyW', cLSTATUS, [ cHANDLE, cSTR, cSTR ])
+    RegLoadKey.native ??= advapi32.func('RegLoadKeyW', cLSTATUS, [ cHANDLE, cWSTR, cWSTR ])
     return RegLoadKey.native(hKey, subKey, file)
 }
 
@@ -277,7 +277,7 @@ export function RegLoadKey(hKey: HKEY | HKEY_, subKey: string | null, file: stri
  */
 export function RegOpenKeyEx(hKey: HKEY | HKEY_, subKey: string | null, options: REG_OPTION_, samDesired: KEY_): HKEY | LSTATUS {
     RegOpenKeyEx.native ??= advapi32.func('RegOpenKeyExW', cLSTATUS, [
-        cHANDLE, cSTR, cDWORD, cDWORD, koffi.out(koffi.pointer(cHANDLE))
+        cHANDLE, cWSTR, cDWORD, cDWORD, koffi.out(koffi.pointer(cHANDLE))
     ])
 
     const pHandle: OUT<HKEY> = [null!]
@@ -328,7 +328,7 @@ export interface RegQueryInfoKeyResult {
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsavekeyw
  */
 export function RegSaveKey(hKey: HKEY | HKEY_, file: string, securityAttributes: SECURITY_ATTRIBUTES): LSTATUS {
-    RegSaveKey.native ??= advapi32.func('RegSaveKeyW', cLSTATUS, [ cHANDLE, cSTR, cSECURITY_ATTRIBUTES ])
+    RegSaveKey.native ??= advapi32.func('RegSaveKeyW', cLSTATUS, [ cHANDLE, cWSTR, cSECURITY_ATTRIBUTES ])
     return RegSaveKey.native(hKey, file, securityAttributes)
 }
 
@@ -338,7 +338,7 @@ export function RegSaveKey(hKey: HKEY | HKEY_, file: string, securityAttributes:
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsavekeyexw
  */
 export function RegSaveKeyEx(hKey: HKEY | HKEY_, file: string, securityAttributes: SECURITY_ATTRIBUTES, flags: number): LSTATUS {
-    RegSaveKeyEx.native ??= advapi32.func('RegSaveKeyW', cLSTATUS, [ cHANDLE, cSTR, cSECURITY_ATTRIBUTES, cDWORD ])
+    RegSaveKeyEx.native ??= advapi32.func('RegSaveKeyW', cLSTATUS, [ cHANDLE, cWSTR, cSECURITY_ATTRIBUTES, cDWORD ])
     return RegSaveKeyEx.native(hKey, file, securityAttributes, flags)
 }
 
@@ -362,7 +362,7 @@ export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueN
 export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.MULTI_SZ,         data: string[]):        LSTATUS
 export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_.QWORD,            data: number | bigint): LSTATUS
 export function RegSetKeyValue(hKey: HKEY | HKEY_, subKey: string | null, valueName: string | null, type: REG_, data: any): LSTATUS {
-    RegSetKeyValue.native ??= advapi32.func('RegSetKeyValueW', cLSTATUS, [ cHANDLE, cSTR, cSTR, cDWORD, cP_VOID, cDWORD ])
+    RegSetKeyValue.native ??= advapi32.func('RegSetKeyValueW', cLSTATUS, [ cHANDLE, cWSTR, cWSTR, cDWORD, cP_VOID, cDWORD ])
 
     const source = regKeyDataToBuffer(type, data)
     return typeof source === 'number' ? source : RegSetKeyValue.native(hKey, valueName, 0, type, source, source.byteLength)
@@ -388,7 +388,7 @@ export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type
 export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.MULTI_SZ,         data: string[]):        LSTATUS
 export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_.QWORD,            data: number | bigint): LSTATUS
 export function RegSetValueEx(hKey: HKEY | HKEY_, valueName: string | null, type: REG_, data: any): LSTATUS {
-    RegSetValueEx.native ??= advapi32.func('RegSetValueExW', cLSTATUS, [ cHANDLE, cSTR, cDWORD, cDWORD, cP_VOID, cDWORD ])
+    RegSetValueEx.native ??= advapi32.func('RegSetValueExW', cLSTATUS, [ cHANDLE, cWSTR, cDWORD, cDWORD, cP_VOID, cDWORD ])
 
     const source = regKeyDataToBuffer(type, data)
     return typeof source === 'number' ? source : RegSetValueEx.native(hKey, valueName, 0, type, source, source.byteLength)
@@ -438,6 +438,6 @@ function regKeyDataToBuffer(type: REG_, data: any): BufferSource | ERROR_ {
  * https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regunloadkeyw
  */
 export function RegUnLoadKey(hKey: HKEY | HKEY_, subKey: string | null): LSTATUS {
-    RegUnLoadKey.native ??= advapi32.func('RegUnLoadKeyW', cLSTATUS, [ cHANDLE, cSTR ])
+    RegUnLoadKey.native ??= advapi32.func('RegUnLoadKeyW', cLSTATUS, [ cHANDLE, cWSTR ])
     return RegUnLoadKey.native(hKey, subKey)
 }

@@ -1,5 +1,5 @@
 import koffi from 'koffi'
-import { cDWORD, cHANDLE, cINT, cP_VOID, cSTR, cUINT, cULONG } from '../internals.js'
+import { cDWORD, cHANDLE, cINT, cP_VOID, cWSTR, cUINT, cULONG } from '../internals.js'
 import { cGUID } from '../chore/ctypes.js'
 
 export const cNOTIFYICONDATA = koffi.struct({
@@ -27,14 +27,14 @@ export const cSHELLEXECUTEINFO = koffi.struct({
     cbSize:       cDWORD,
     fMask:        cULONG,
     hwnd:         cHANDLE,
-    lpVerb:       cSTR,
-    lpFile:       cSTR,
-    lpParameters: cSTR,
-    lpDirectory:  cSTR,
+    lpVerb:       cWSTR,
+    lpFile:       cWSTR,
+    lpParameters: cWSTR,
+    lpDirectory:  cWSTR,
     nShow:        cINT,
     hInstApp:     cINT,
     lpIDList:     cP_VOID,
-    lpClass:      cSTR,
+    lpClass:      cWSTR,
     hkeyClass:    cHANDLE,
     dwHotKey:     cDWORD,
     hMonitor:     cHANDLE,  // Should be a union, but the other member hIcon is unused since Windows Vista.

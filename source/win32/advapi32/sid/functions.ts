@@ -1,7 +1,7 @@
 import koffi from 'koffi'
 import {
     Internals, StringOutputBuffer, binaryBuffer,
-    cBOOL, cBYTE, cDWORD, cINT, cP_DWORD, cP_VOID, cSTR,
+    cBOOL, cBYTE, cDWORD, cINT, cP_DWORD, cP_VOID, cWSTR,
     type OUT
 } from '../../internals.js'
 import { ERROR_ } from '../../chore/consts.js'
@@ -11,7 +11,7 @@ import type { SID_NAME_USE } from '../sid/consts.js'
 import { cPSID, cSID, cSID_IDENTIFIER_AUTHORITY } from '../sid/ctypes.js'
 import { advapi32 } from '../_dll.js'
 
-const cLocalAllocatedString = koffi.disposable(cSTR, LocalFree)
+const cLocalAllocatedString = koffi.disposable(cWSTR, LocalFree)
 
 /**
  * Allocates and initializes a security identifier (SID) with up to eight sub-authorities.
@@ -76,7 +76,7 @@ export function ConvertSidToStringSid(sid: SID): string | null {
  * https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertstringsidtosidw
  */
 export function ConvertStringSidToSid(stringSid: string): SID | null {
-    ConvertStringSidToSid.native ??= advapi32.func('ConvertStringSidToSidW', cBOOL, [ cSTR, koffi.out(koffi.pointer(cP_VOID)) ])
+    ConvertStringSidToSid.native ??= advapi32.func('ConvertStringSidToSidW', cBOOL, [ cWSTR, koffi.out(koffi.pointer(cP_VOID)) ])
 
     const ppSID: OUT<unknown> = [null]
     if (ConvertStringSidToSid.native(stringSid, ppSID) !== 0) {
@@ -166,7 +166,7 @@ export function IsWellKnownSid(sid: SID, wellKnownSidType: number): boolean {
  */
 export function LookupAccountSid(systemName: string | null, sid: SID): LookupAccountSidResult | null {
     LookupAccountSid.native ??= advapi32.func('LookupAccountSidW', cBOOL, [
-        cSTR, cPSID, cP_VOID, koffi.inout(cP_DWORD), cP_VOID, koffi.inout(cP_DWORD), koffi.out(koffi.pointer(cINT))
+        cWSTR, cPSID, cP_VOID, koffi.inout(cP_DWORD), cP_VOID, koffi.inout(cP_DWORD), koffi.out(koffi.pointer(cINT))
     ])
 
     const name = new StringOutputBuffer(Internals.MAX_NAME)

@@ -1,12 +1,12 @@
 import koffi from 'koffi'
-import { cBOOL, cHANDLE, cINT, cLONG, cLONGLONG, cP_VOID, cSTR, cULONG, cUSHORT } from '../../internals.js'
+import { cBOOL, cHANDLE, cINT, cLONG, cLONGLONG, cP_VOID, cWSTR, cULONG, cUSHORT } from '../../internals.js'
 import { cGUID } from '../../chore/ctypes.js'
 import { cPSID } from '../sid/ctypes.js'
 
 export const cLSA_UNICODE_STRING = koffi.struct({
     Length:        cUSHORT,
     MaximumLength: cUSHORT,
-    Buffer:        cSTR
+    Buffer:        cWSTR
 })
 
 export const cLSA_OBJECT_ATTRIBUTES = koffi.struct({

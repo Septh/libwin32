@@ -25,17 +25,17 @@ export const cLONGLONG  = koffi.types.int64
 export const cLONG_PTR  = koffi.types.int64
 export const cULONG_PTR = koffi.types.uint64
 export const cFLOAT     = koffi.types.float
-export const cSTR       = koffi.types.str16    // We let Koffi convert JS string parameters
+export const cWSTR      = koffi.types.str16    // We let Koffi convert JS string parameters
 export const cSIZE_T    = koffi.types.uint64
 
 export const cHANDLE    = koffi.pointer(koffi.opaque())
 export const cLSTATUS   = koffi.types.int32
-export const cNTSTATUS  = koffi.types.uint32    // Defined a LONG in ntstatus.h but more useful as unsigned
+export const cNTSTATUS  = koffi.types.uint32    // Defined as LONG in ntstatus.h but more useful as unsigned
 
 export const cP_VOID    = koffi.pointer(koffi.types.void)
 export const cP_DWORD   = koffi.pointer(cDWORD)
 
-/** A general purpose out buffer. */
+/** A general purpose output buffer. */
 export const binaryBuffer = /*#__PURE__*/ Buffer.alloc(32768)
 export const textDecoder  = /*#__PURE__*/ new TextDecoder('utf-16')
 

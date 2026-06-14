@@ -1,5 +1,5 @@
 import koffi from 'koffi'
-import { cBOOL, cDWORD, cHANDLE, cINT, cLONG, cSHORT, cSTR, cUINT } from '../internals.js'
+import { cBOOL, cDWORD, cHANDLE, cINT, cLONG, cSHORT, cWSTR, cUINT } from '../internals.js'
 import { cLPARAM, cLRESULT, cLUID, cWPARAM } from '../chore/ctypes.js'
 
 export const cPOINT = koffi.struct({
@@ -62,8 +62,8 @@ export const cWNDCLASS = koffi.struct({
     hIcon:         cHANDLE,
     hCursor:       cHANDLE,
     hbrBackground: cHANDLE,
-    lpszMenuName:  cSTR,
-    lpszClassName: cSTR
+    lpszMenuName:  cWSTR,
+    lpszClassName: cWSTR
 })
 
 export const cWNDCLASSEX = koffi.struct({
@@ -76,7 +76,7 @@ export const cWNDCLASSEX = koffi.struct({
     hIcon:         cHANDLE,
     hCursor:       cHANDLE,
     hbrBackground: cHANDLE,
-    lpszMenuName:  cSTR,
-    lpszClassName: cSTR,
+    lpszMenuName:  cWSTR,
+    lpszClassName: cWSTR,
     hIconSm:       cHANDLE
 })
